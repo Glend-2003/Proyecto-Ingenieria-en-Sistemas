@@ -1,0 +1,635 @@
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
+--
+-- Servidor: 127.0.0.1
+-- Tiempo de generación: 07-10-2024 a las 08:05:34
+-- Versión del servidor: 10.4.32-MariaDB
+-- Versión de PHP: 8.2.12
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Base de datos: `bdcarniceria`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tbauditoriaproducto`
+--
+
+CREATE TABLE `tbauditoriaproducto` (
+  `idProducto` int(11) DEFAULT NULL,
+  `nombreProducto` varchar(100) DEFAULT NULL,
+  `montoProductoUnidad` decimal(10,2) DEFAULT NULL,
+  `descripcionProducto` varchar(200) DEFAULT NULL,
+  `estadoProducto` varchar(50) DEFAULT NULL,
+  `idCategoria` int(11) DEFAULT NULL,
+  `accionProducto` varchar(50) DEFAULT NULL,
+  `fechaModificacion` date DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tbcanton`
+--
+
+CREATE TABLE `tbcanton` (
+  `idCanton` int(11) NOT NULL,
+  `nombreCanton` varchar(100) NOT NULL,
+  `idProvincia` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tbcarrito`
+--
+
+CREATE TABLE `tbcarrito` (
+  `idCarrito` int(11) NOT NULL,
+  `idUsuario` int(11) DEFAULT NULL,
+  `montoTotal` decimal(10,2) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tbcarritoproducto`
+--
+
+CREATE TABLE `tbcarritoproducto` (
+  `idCarritoProducto` int(11) NOT NULL,
+  `idCarrito` int(11) DEFAULT NULL,
+  `idProducto` int(11) DEFAULT NULL,
+  `cantidadCarritoProducto` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tbcategoria`
+--
+
+CREATE TABLE `tbcategoria` (
+  `idCategoria` int(11) NOT NULL,
+  `nombreCategoria` varchar(100) NOT NULL,
+  `descripcionCategoria` varchar(200) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tbcomentario`
+--
+
+CREATE TABLE `tbcomentario` (
+  `idComentario` int(11) NOT NULL,
+  `descripcionComentario` varchar(500) DEFAULT NULL,
+  `fechaComentario` date DEFAULT NULL,
+  `idUsuario` int(11) DEFAULT NULL,
+  `calificacionComentario` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tbdireccion`
+--
+
+CREATE TABLE `tbdireccion` (
+  `idDireccion` int(11) NOT NULL,
+  `codigoPostalDireccion` varchar(10) DEFAULT NULL,
+  `descripcionDireccion` varchar(200) DEFAULT NULL,
+  `idDistrito` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tbdistrito`
+--
+
+CREATE TABLE `tbdistrito` (
+  `idDistrito` int(11) NOT NULL,
+  `nombreDistrito` varchar(100) NOT NULL,
+  `idCanton` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tbfactura`
+--
+
+CREATE TABLE `tbfactura` (
+  `idFactura` int(11) NOT NULL,
+  `fechaFactura` date DEFAULT NULL,
+  `idPedido` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tbmensaje`
+--
+
+CREATE TABLE `tbmensaje` (
+  `idMensaje` int(11) NOT NULL,
+  `descripcionMensaje` varchar(500) DEFAULT NULL,
+  `fechaEnvioMensaje` date DEFAULT NULL,
+  `idUsuario` int(11) DEFAULT NULL,
+  `idPromocion` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tbnotificacion`
+--
+
+CREATE TABLE `tbnotificacion` (
+  `idNotificacion` int(11) NOT NULL,
+  `descripcionNotificacion` varchar(500) DEFAULT NULL,
+  `fechaNotificacion` date DEFAULT NULL,
+  `idUsuario` int(11) DEFAULT NULL,
+  `idPedido` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tbpedido`
+--
+
+CREATE TABLE `tbpedido` (
+  `idPedido` int(11) NOT NULL,
+  `montoTotalPedido` decimal(10,2) DEFAULT NULL,
+  `fechaPedido` date DEFAULT NULL,
+  `estadoPedido` varchar(50) DEFAULT NULL,
+  `idCarrito` int(11) DEFAULT NULL,
+  `idTipoPago` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tbpedidoproducto`
+--
+
+CREATE TABLE `tbpedidoproducto` (
+  `idPedidoProducto` int(11) NOT NULL,
+  `idPedido` int(11) DEFAULT NULL,
+  `idProducto` int(11) DEFAULT NULL,
+  `cantidadPedidoProducto` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tbproducto`
+--
+
+CREATE TABLE `tbproducto` (
+  `idProducto` int(11) NOT NULL,
+  `nombreProducto` varchar(100) NOT NULL,
+  `montoProductoUnidad` decimal(10,2) DEFAULT NULL,
+  `descripcionProducto` varchar(200) DEFAULT NULL,
+  `estadoProducto` varchar(50) DEFAULT NULL,
+  `idCategoria` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tbpromocion`
+--
+
+CREATE TABLE `tbpromocion` (
+  `idPromocion` int(11) NOT NULL,
+  `fechaInicioPromocion` date DEFAULT NULL,
+  `fechaFinalPromocion` date DEFAULT NULL,
+  `descripcionPromocion` varchar(200) DEFAULT NULL,
+  `montoPromocion` decimal(10,2) DEFAULT NULL,
+  `estadoPromocion` varchar(50) DEFAULT NULL,
+  `idProducto` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tbprovincia`
+--
+
+CREATE TABLE `tbprovincia` (
+  `idProvincia` int(11) NOT NULL,
+  `nombreProvincia` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tbrol`
+--
+
+CREATE TABLE `tbrol` (
+  `idRol` int(11) NOT NULL,
+  `nombreRol` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tbtipopago`
+--
+
+CREATE TABLE `tbtipopago` (
+  `idTipoPago` int(11) NOT NULL,
+  `nombreTipoPago` varchar(100) NOT NULL,
+  `estadoTipoPago` varchar(50) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tbusuario`
+--
+
+CREATE TABLE `tbusuario` (
+  `idUsuario` int(11) NOT NULL,
+  `nombreUsuario` varchar(100) NOT NULL,
+  `primerApellido` varchar(100) NOT NULL,
+  `segundoApellido` varchar(100) NOT NULL,
+  `fechaNacimiento` date DEFAULT NULL,
+  `cedulaUsuario` varchar(50) NOT NULL,
+  `idRol` int(11) DEFAULT NULL,
+  `contraseniaUsuario` varchar(100) NOT NULL,
+  `correoUsuario` varchar(100) DEFAULT NULL,
+  `telefonoUsuario` varchar(20) DEFAULT NULL,
+  `idDireccion` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Índices para tablas volcadas
+--
+
+--
+-- Indices de la tabla `tbauditoriaproducto`
+--
+ALTER TABLE `tbauditoriaproducto`
+  ADD KEY `idCategoria` (`idCategoria`);
+
+--
+-- Indices de la tabla `tbcanton`
+--
+ALTER TABLE `tbcanton`
+  ADD PRIMARY KEY (`idCanton`),
+  ADD KEY `idProvincia` (`idProvincia`);
+
+--
+-- Indices de la tabla `tbcarrito`
+--
+ALTER TABLE `tbcarrito`
+  ADD PRIMARY KEY (`idCarrito`),
+  ADD KEY `idUsuario` (`idUsuario`);
+
+--
+-- Indices de la tabla `tbcarritoproducto`
+--
+ALTER TABLE `tbcarritoproducto`
+  ADD PRIMARY KEY (`idCarritoProducto`),
+  ADD KEY `idCarrito` (`idCarrito`),
+  ADD KEY `idProducto` (`idProducto`);
+
+--
+-- Indices de la tabla `tbcategoria`
+--
+ALTER TABLE `tbcategoria`
+  ADD PRIMARY KEY (`idCategoria`);
+
+--
+-- Indices de la tabla `tbcomentario`
+--
+ALTER TABLE `tbcomentario`
+  ADD PRIMARY KEY (`idComentario`),
+  ADD KEY `idUsuario` (`idUsuario`);
+
+--
+-- Indices de la tabla `tbdireccion`
+--
+ALTER TABLE `tbdireccion`
+  ADD PRIMARY KEY (`idDireccion`),
+  ADD KEY `idDistrito` (`idDistrito`);
+
+--
+-- Indices de la tabla `tbdistrito`
+--
+ALTER TABLE `tbdistrito`
+  ADD PRIMARY KEY (`idDistrito`),
+  ADD KEY `idCanton` (`idCanton`);
+
+--
+-- Indices de la tabla `tbfactura`
+--
+ALTER TABLE `tbfactura`
+  ADD PRIMARY KEY (`idFactura`),
+  ADD KEY `idPedido` (`idPedido`);
+
+--
+-- Indices de la tabla `tbmensaje`
+--
+ALTER TABLE `tbmensaje`
+  ADD PRIMARY KEY (`idMensaje`),
+  ADD KEY `idUsuario` (`idUsuario`),
+  ADD KEY `idPromocion` (`idPromocion`);
+
+--
+-- Indices de la tabla `tbnotificacion`
+--
+ALTER TABLE `tbnotificacion`
+  ADD PRIMARY KEY (`idNotificacion`),
+  ADD KEY `idUsuario` (`idUsuario`),
+  ADD KEY `idPedido` (`idPedido`);
+
+--
+-- Indices de la tabla `tbpedido`
+--
+ALTER TABLE `tbpedido`
+  ADD PRIMARY KEY (`idPedido`),
+  ADD KEY `idCarrito` (`idCarrito`),
+  ADD KEY `idTipoPago` (`idTipoPago`);
+
+--
+-- Indices de la tabla `tbpedidoproducto`
+--
+ALTER TABLE `tbpedidoproducto`
+  ADD PRIMARY KEY (`idPedidoProducto`),
+  ADD KEY `idPedido` (`idPedido`),
+  ADD KEY `idProducto` (`idProducto`);
+
+--
+-- Indices de la tabla `tbproducto`
+--
+ALTER TABLE `tbproducto`
+  ADD PRIMARY KEY (`idProducto`),
+  ADD KEY `idCategoria` (`idCategoria`);
+
+--
+-- Indices de la tabla `tbpromocion`
+--
+ALTER TABLE `tbpromocion`
+  ADD PRIMARY KEY (`idPromocion`),
+  ADD KEY `idProducto` (`idProducto`);
+
+--
+-- Indices de la tabla `tbprovincia`
+--
+ALTER TABLE `tbprovincia`
+  ADD PRIMARY KEY (`idProvincia`);
+
+--
+-- Indices de la tabla `tbrol`
+--
+ALTER TABLE `tbrol`
+  ADD PRIMARY KEY (`idRol`);
+
+--
+-- Indices de la tabla `tbtipopago`
+--
+ALTER TABLE `tbtipopago`
+  ADD PRIMARY KEY (`idTipoPago`);
+
+--
+-- Indices de la tabla `tbusuario`
+--
+ALTER TABLE `tbusuario`
+  ADD PRIMARY KEY (`idUsuario`),
+  ADD KEY `idDireccion` (`idDireccion`),
+  ADD KEY `idRol` (`idRol`);
+
+--
+-- AUTO_INCREMENT de las tablas volcadas
+--
+
+--
+-- AUTO_INCREMENT de la tabla `tbcanton`
+--
+ALTER TABLE `tbcanton`
+  MODIFY `idCanton` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `tbcarrito`
+--
+ALTER TABLE `tbcarrito`
+  MODIFY `idCarrito` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `tbcarritoproducto`
+--
+ALTER TABLE `tbcarritoproducto`
+  MODIFY `idCarritoProducto` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `tbcategoria`
+--
+ALTER TABLE `tbcategoria`
+  MODIFY `idCategoria` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `tbcomentario`
+--
+ALTER TABLE `tbcomentario`
+  MODIFY `idComentario` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `tbdireccion`
+--
+ALTER TABLE `tbdireccion`
+  MODIFY `idDireccion` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `tbdistrito`
+--
+ALTER TABLE `tbdistrito`
+  MODIFY `idDistrito` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `tbfactura`
+--
+ALTER TABLE `tbfactura`
+  MODIFY `idFactura` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `tbmensaje`
+--
+ALTER TABLE `tbmensaje`
+  MODIFY `idMensaje` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `tbnotificacion`
+--
+ALTER TABLE `tbnotificacion`
+  MODIFY `idNotificacion` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `tbpedido`
+--
+ALTER TABLE `tbpedido`
+  MODIFY `idPedido` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `tbpedidoproducto`
+--
+ALTER TABLE `tbpedidoproducto`
+  MODIFY `idPedidoProducto` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `tbproducto`
+--
+ALTER TABLE `tbproducto`
+  MODIFY `idProducto` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `tbpromocion`
+--
+ALTER TABLE `tbpromocion`
+  MODIFY `idPromocion` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `tbprovincia`
+--
+ALTER TABLE `tbprovincia`
+  MODIFY `idProvincia` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `tbrol`
+--
+ALTER TABLE `tbrol`
+  MODIFY `idRol` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `tbtipopago`
+--
+ALTER TABLE `tbtipopago`
+  MODIFY `idTipoPago` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `tbusuario`
+--
+ALTER TABLE `tbusuario`
+  MODIFY `idUsuario` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- Restricciones para tablas volcadas
+--
+
+--
+-- Filtros para la tabla `tbauditoriaproducto`
+--
+ALTER TABLE `tbauditoriaproducto`
+  ADD CONSTRAINT `auditoriaproducto_ibfk_1` FOREIGN KEY (`idCategoria`) REFERENCES `tbcategoria` (`idCategoria`);
+
+--
+-- Filtros para la tabla `tbcanton`
+--
+ALTER TABLE `tbcanton`
+  ADD CONSTRAINT `canton_ibfk_1` FOREIGN KEY (`idProvincia`) REFERENCES `tbprovincia` (`idProvincia`);
+
+--
+-- Filtros para la tabla `tbcarrito`
+--
+ALTER TABLE `tbcarrito`
+  ADD CONSTRAINT `carrito_ibfk_1` FOREIGN KEY (`idUsuario`) REFERENCES `tbusuario` (`idUsuario`);
+
+--
+-- Filtros para la tabla `tbcarritoproducto`
+--
+ALTER TABLE `tbcarritoproducto`
+  ADD CONSTRAINT `carritoproducto_ibfk_1` FOREIGN KEY (`idCarrito`) REFERENCES `tbcarrito` (`idCarrito`),
+  ADD CONSTRAINT `carritoproducto_ibfk_2` FOREIGN KEY (`idProducto`) REFERENCES `tbproducto` (`idProducto`);
+
+--
+-- Filtros para la tabla `tbcomentario`
+--
+ALTER TABLE `tbcomentario`
+  ADD CONSTRAINT `comentario_ibfk_1` FOREIGN KEY (`idUsuario`) REFERENCES `tbusuario` (`idUsuario`);
+
+--
+-- Filtros para la tabla `tbdireccion`
+--
+ALTER TABLE `tbdireccion`
+  ADD CONSTRAINT `direccion_ibfk_1` FOREIGN KEY (`idDistrito`) REFERENCES `tbdistrito` (`idDistrito`);
+
+--
+-- Filtros para la tabla `tbdistrito`
+--
+ALTER TABLE `tbdistrito`
+  ADD CONSTRAINT `distrito_ibfk_1` FOREIGN KEY (`idCanton`) REFERENCES `tbcanton` (`idCanton`);
+
+--
+-- Filtros para la tabla `tbfactura`
+--
+ALTER TABLE `tbfactura`
+  ADD CONSTRAINT `factura_ibfk_1` FOREIGN KEY (`idPedido`) REFERENCES `tbpedido` (`idPedido`);
+
+--
+-- Filtros para la tabla `tbmensaje`
+--
+ALTER TABLE `tbmensaje`
+  ADD CONSTRAINT `mensaje_ibfk_1` FOREIGN KEY (`idUsuario`) REFERENCES `tbusuario` (`idUsuario`),
+  ADD CONSTRAINT `mensaje_ibfk_2` FOREIGN KEY (`idPromocion`) REFERENCES `tbpromocion` (`idPromocion`);
+
+--
+-- Filtros para la tabla `tbnotificacion`
+--
+ALTER TABLE `tbnotificacion`
+  ADD CONSTRAINT `notificacion_ibfk_1` FOREIGN KEY (`idUsuario`) REFERENCES `tbusuario` (`idUsuario`),
+  ADD CONSTRAINT `notificacion_ibfk_2` FOREIGN KEY (`idPedido`) REFERENCES `tbpedido` (`idPedido`);
+
+--
+-- Filtros para la tabla `tbpedido`
+--
+ALTER TABLE `tbpedido`
+  ADD CONSTRAINT `pedido_ibfk_1` FOREIGN KEY (`idCarrito`) REFERENCES `tbcarrito` (`idCarrito`),
+  ADD CONSTRAINT `pedido_ibfk_2` FOREIGN KEY (`idTipoPago`) REFERENCES `tbtipopago` (`idTipoPago`);
+
+--
+-- Filtros para la tabla `tbpedidoproducto`
+--
+ALTER TABLE `tbpedidoproducto`
+  ADD CONSTRAINT `pedidoproducto_ibfk_1` FOREIGN KEY (`idPedido`) REFERENCES `tbpedido` (`idPedido`),
+  ADD CONSTRAINT `pedidoproducto_ibfk_2` FOREIGN KEY (`idProducto`) REFERENCES `tbproducto` (`idProducto`);
+
+--
+-- Filtros para la tabla `tbproducto`
+--
+ALTER TABLE `tbproducto`
+  ADD CONSTRAINT `producto_ibfk_1` FOREIGN KEY (`idCategoria`) REFERENCES `tbcategoria` (`idCategoria`);
+
+--
+-- Filtros para la tabla `tbpromocion`
+--
+ALTER TABLE `tbpromocion`
+  ADD CONSTRAINT `promocion_ibfk_1` FOREIGN KEY (`idProducto`) REFERENCES `tbproducto` (`idProducto`);
+
+--
+-- Filtros para la tabla `tbusuario`
+--
+ALTER TABLE `tbusuario`
+  ADD CONSTRAINT `usuario_ibfk_1` FOREIGN KEY (`idDireccion`) REFERENCES `tbdireccion` (`idDireccion`),
+  ADD CONSTRAINT `usuario_ibfk_2` FOREIGN KEY (`idRol`) REFERENCES `tbrol` (`idRol`);
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
