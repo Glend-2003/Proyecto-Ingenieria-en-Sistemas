@@ -1,16 +1,10 @@
 package com.bendicion.la.carniceria.carniceria.domain;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  *
@@ -34,7 +28,7 @@ public class Categoria {
 /*
     Cuando empezemos a hacer el CRUD de Producto si vamos a necesitar esto
     
-    @OneToMany(mappedBy = "producto", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "categoria", fetch = FetchType.EAGER)
     @JsonIgnore
     private List<Producto> producto;
     

@@ -26,7 +26,7 @@ public class Rol {
     @Column(name = "nombreRol")
     private String nombreRol;
     
-    @OneToMany(mappedBy = "direccion", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "rol", fetch = FetchType.LAZY)
     private List<Usuario> usuario;
     
     public Rol() {
