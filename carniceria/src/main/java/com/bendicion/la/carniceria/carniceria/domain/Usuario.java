@@ -1,0 +1,165 @@
+package com.bendicion.la.carniceria.carniceria.domain;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import java.time.LocalDate;
+
+/**
+ *
+ * @author Jamel Sandí
+ */
+
+@Entity (name = "tbusuario")
+public class Usuario {
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "idUsuario")
+    private int idUsuario;
+    
+    @Column(name = "nombreUsuario")
+    private String nombreUsuario;
+    
+    @Column(name = "primerApellido")
+    private String primerApellido;
+    
+    @Column(name = "segundoApellido")
+    private String segundoApellido;
+    
+    @Column(name = "fechaNacimiento")
+    private LocalDate fechaNacimiento;
+    
+    @Column(name = "cedulaUsuario")
+    private String cedulaUsuario;
+    
+    @ManyToOne
+    @JoinColumn(name = "idRol")
+    private Rol rol;
+    
+    @Column(name = "correoUsuario")
+    private String correoUsuario;
+    
+    @Column(name = "telefonoUsuario")
+    private String telefonoUsuario;
+    
+    @Column(name = "contraseniaUsuario")
+    private String contraseniaUsuario;
+    
+    @ManyToOne
+    @JoinColumn(name = "idDireccion")
+    private Direccion direccion;
+    
+    public Usuario() {
+    }
+
+    public Usuario(int idUsuario, String nombreUsuario, String primerApellido, String segundoApellido, LocalDate fechaNacimiento, String cedulaUsuario, Rol rol, String correoUsuario, String telefonoUsuario, String contraseniaUsuario, Direccion direccion) {
+        this.idUsuario = idUsuario;
+        this.nombreUsuario = nombreUsuario;
+        this.primerApellido = primerApellido;
+        this.segundoApellido = segundoApellido;
+        this.fechaNacimiento = fechaNacimiento;
+        this.cedulaUsuario = cedulaUsuario;
+        this.rol = rol;
+        this.correoUsuario = correoUsuario;
+        this.telefonoUsuario = telefonoUsuario;
+        this.contraseniaUsuario = contraseniaUsuario;
+        this.direccion = direccion;
+    }
+
+    public int getIdUsuario() {
+        return idUsuario;
+    }
+
+    public void setIdUsuario(int idUsuario) {
+        this.idUsuario = idUsuario;
+    }
+
+    public String getNombreUsuario() {
+        return nombreUsuario;
+    }
+
+    public void setNombreUsuario(String nombreUsuario) {
+        this.nombreUsuario = nombreUsuario;
+    }
+
+    public String getPrimerApellido() {
+        return primerApellido;
+    }
+
+    public void setPrimerApellido(String primerApellido) {
+        this.primerApellido = primerApellido;
+    }
+
+    public String getSegundoApellido() {
+        return segundoApellido;
+    }
+
+    public void setSegundoApellido(String segundoApellido) {
+        this.segundoApellido = segundoApellido;
+    }
+
+    public LocalDate getFechaNacimiento() {
+        return fechaNacimiento;
+    }
+
+    public void setFechaNacimiento(LocalDate fechaNacimiento) {
+        this.fechaNacimiento = fechaNacimiento;
+    }
+
+    public String getCedulaUsuario() {
+        return cedulaUsuario;
+    }
+
+    public void setCedulaUsuario(String cedulaUsuario) {
+        this.cedulaUsuario = cedulaUsuario;
+    }
+
+    public Rol getRol() {
+        return rol;
+    }
+
+    public void setRol(Rol rol) {
+        this.rol = rol;
+    }
+
+    public String getCorreoUsuario() {
+        return correoUsuario;
+    }
+
+    public void setCorreoUsuario(String correoUsuario) {
+        this.correoUsuario = correoUsuario;
+    }
+
+    public String getTelefonoUsuario() {
+        return telefonoUsuario;
+    }
+
+    public void setTelefonoUsuario(String telefonoUsuario) {
+        this.telefonoUsuario = telefonoUsuario;
+    }
+
+    public String getContraseniaUsuario() {
+        return contraseniaUsuario;
+    }
+
+    public void setContraseniaUsuario(String contraseniaUsuario) {
+        this.contraseniaUsuario = contraseniaUsuario;
+    }
+
+    public Direccion getDireccion() {
+        return direccion;
+    }
+
+    public void setDireccion(Direccion direccion) {
+        this.direccion = direccion;
+    }
+
+    
+    
+}
+
