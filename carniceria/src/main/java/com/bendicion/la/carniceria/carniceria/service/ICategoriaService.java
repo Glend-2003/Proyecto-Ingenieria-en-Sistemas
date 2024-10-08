@@ -11,9 +11,9 @@ import java.util.List;
 
 public interface ICategoriaService {
     
-    public void addCategoria(Categoria categoria);
+    public Categoria addCategoria(Categoria categoria);
     
-    public void updateCategoria(Categoria categoria);
+    public Categoria updateCategoria(Categoria categoria);
     
     public List<Categoria> getCategoria();
     

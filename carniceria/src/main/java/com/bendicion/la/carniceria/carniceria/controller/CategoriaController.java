@@ -38,17 +38,17 @@ public class CategoriaController {
     // Add
     @PostMapping("/add")
     public ResponseEntity<?> addCategoria(@RequestBody Categoria categoria) {
-        iCategoriaService.addCategoria(categoria); 
+        Categoria nuevaCategoria = iCategoriaService.addCategoria(categoria);
         System.out.println("Categoria agregada: " + categoria.getNombreCategoria() + " - " + categoria.getDescripcionCategoria());
-        return ResponseEntity.ok(categoria); 
+        return ResponseEntity.ok(nuevaCategoria);  
     }
 
     // Update
     @PutMapping("/update")
     public ResponseEntity<?> updateCategoria(@RequestBody Categoria categoria) {
-        iCategoriaService.updateCategoria(categoria); 
+        Categoria categoriaActualizada = iCategoriaService.updateCategoria(categoria); 
         System.out.println("Categoria actualizada: ID -->" + categoria.getIdCategoria() + ", Nombre -->" + categoria.getNombreCategoria() + ", Descripcion -->" + categoria.getDescripcionCategoria());
-        return ResponseEntity.ok(categoria); 
+        return ResponseEntity.ok(categoriaActualizada); 
     }
 
     // Delete

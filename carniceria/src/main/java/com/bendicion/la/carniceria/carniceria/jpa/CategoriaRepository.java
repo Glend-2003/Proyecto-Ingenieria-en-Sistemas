@@ -28,7 +28,7 @@ public interface CategoriaRepository extends JpaRepository<Categoria, Integer>{
         @Param("nombreCategoria") String nombreCategoria, 
         @Param("descripcionCategoria") String descripcionCategoria
     );
-
+    
     // SP Read
     @Query(value = "{call spLeerCategoria()}", nativeQuery = true)
     List<Categoria> listProcedureCategoria();
@@ -36,4 +36,5 @@ public interface CategoriaRepository extends JpaRepository<Categoria, Integer>{
     // SP Delete
     @Query(value = "{call spEliminarCategoria(:idCategoria)}", nativeQuery = true)
     void deleteProcedureCategoria(@Param("idCategoria") Integer idCategoria);
+
 }
