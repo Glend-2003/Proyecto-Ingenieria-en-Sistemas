@@ -26,16 +26,20 @@ public class Rol {
     @Column(name = "nombreRol")
     private String nombreRol;
     
+    @Column(name = "descripcionRol")
+    private String descripcionRol;
+/*    
     @OneToMany(mappedBy = "rol", fetch = FetchType.LAZY)
     private List<Usuario> usuario;
     
     public Rol() {
         usuario = new ArrayList<>();
     }
-
-    public Rol(int idRol, String nombreRol) {
+*/
+    public Rol(int idRol, String nombreRol, String descripcionRol) {
         this.idRol = idRol;
         this.nombreRol = nombreRol;
+        this.descripcionRol = descripcionRol;
     }   
 
     public int getIdRol() {
@@ -54,6 +58,14 @@ public class Rol {
         this.nombreRol = nombreRol;
     }
 
+    public String getDescripcionRol() {
+        return descripcionRol;
+    }
+
+    public void setDescripcionRol(String descripcionRol) {
+        this.descripcionRol = descripcionRol;
+    }   
+/*
     public List<Usuario> getUsuario() {
         return usuario;
     }
@@ -61,5 +73,5 @@ public class Rol {
     public void setUsuario(List<Usuario> usuario) {
         this.usuario = usuario;
     }
-    
+*/   
 }
