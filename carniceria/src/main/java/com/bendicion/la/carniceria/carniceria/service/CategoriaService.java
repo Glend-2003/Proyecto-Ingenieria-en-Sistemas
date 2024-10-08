@@ -20,6 +20,7 @@ public class CategoriaService implements ICategoriaService {
     
     // Aquí en vez de llamar el mae .save se llama el SP (igual co los demás)
     
+    @Override
     public Categoria addCategoria(Categoria categoria) {
         System.out.println("Agregando categoría con nombre: " + categoria.getNombreCategoria());
         categoriaRep.saveProcedureCategoria(categoria.getNombreCategoria(), categoria.getDescripcionCategoria());
