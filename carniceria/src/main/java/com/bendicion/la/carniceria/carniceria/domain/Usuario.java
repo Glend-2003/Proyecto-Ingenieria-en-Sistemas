@@ -6,6 +6,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import java.time.LocalDate;
 
 /**
@@ -36,7 +37,7 @@ public class Usuario {
     @Column(name = "cedulaUsuario")
     private String cedulaUsuario;
     
-    @ManyToOne
+    @OneToMany
     @JoinColumn(name = "idRol")
     private Rol rol;
     
@@ -49,7 +50,7 @@ public class Usuario {
     @Column(name = "contraseniaUsuario")
     private String contraseniaUsuario;
     
-    @ManyToOne
+    @OneToMany
     @JoinColumn(name = "idDireccion")
     private Direccion direccion;
     
