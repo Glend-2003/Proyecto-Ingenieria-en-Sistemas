@@ -1,0 +1,55 @@
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spAgregarCategoria`(
+    IN nombreCategoria VARCHAR(255),
+    IN descripcionCategoria VARCHAR(255)
+)
+BEGIN
+    -- Inserta la nueva categoría en la tabla
+    INSERT INTO tbcategoria (nombreCategoria, descripcionCategoria)
+    VALUES (nombreCategoria, descripcionCategoria);
+
+    -- Devuelve la última categoría agregada como resultado
+    SELECT * FROM tbcategoria WHERE idCategoria = LAST_INSERT_ID();
+END$$
+DELIMITER ;
+
+-------------------------------------
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spActualizarCategoria`(
+    IN p_idCategoria INT,
+    IN p_nombre VARCHAR(255),
+    IN p_descripcion VARCHAR(255)
+)
+BEGIN
+    -- Asegúrate de que se use WHERE para actualizar solo la fila con el id especificado
+    UPDATE tbcategoria
+    SET nombreCategoria = p_nombre,
+        descripcionCategoria = p_descripcion
+    WHERE idCategoria = p_idCategoria;
+END$$
+DELIMITER ;
+
+
+--------------------------------------
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spEliminarCategoria`(
+    IN p_idCategoria INT
+)
+BEGIN
+    -- Usar WHERE para eliminar solo la fila con el id especificado
+    DELETE FROM tbcategoria
+    WHERE idCategoria = p_idCategoria;
+END$$
+DELIMITER ;
+
+------------------------------------
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spLeerCategoria`()
+BEGIN
+    SELECT * FROM tbcategoria;
+END$$
+DELIMITER ;
+
