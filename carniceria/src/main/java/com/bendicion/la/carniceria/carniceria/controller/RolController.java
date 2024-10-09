@@ -28,7 +28,7 @@ public class RolController {
     IRolService iRolService;
     
     // Read
-    @GetMapping("/list")
+    @GetMapping("/")
     public ResponseEntity<List<Rol>> listRol() {
         List<Rol> roles = iRolService.getRol();
         System.out.println("Listando todas las categorias: " + roles.size() + " roles encontradas.");
@@ -36,7 +36,7 @@ public class RolController {
     }
 
     // Add
-    @PostMapping("/add")
+    @PostMapping("/agregar")
     public ResponseEntity<?> addRol(@RequestBody Rol rol) {
         Rol nuevoRol = iRolService.addRol(rol);
         System.out.println("Rol agregada: " + rol.getNombreRol() + " - " + rol.getDescripcionRol());
@@ -44,7 +44,7 @@ public class RolController {
     }
 
     // Update
-    @PutMapping("/update")
+    @PutMapping("/actualizar")
     public ResponseEntity<?> updateRol(@RequestBody Rol rol) {
         Rol rolActualizado = iRolService.updateRol(rol); 
         System.out.println("Rol actualizada: ID -->" + rol.getIdRol() + ", Nombre -->" + rol.getNombreRol() + ", Descripcion -->" + rol.getDescripcionRol());
@@ -52,7 +52,7 @@ public class RolController {
     }
 
     // Delete
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<Void> deleteRol(@PathVariable int id) {
         boolean eliminado = iRolService.deleteRol(id); 
         if (eliminado) {

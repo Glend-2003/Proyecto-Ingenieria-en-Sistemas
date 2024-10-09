@@ -1,4 +1,6 @@
 package com.bendicion.la.carniceria.carniceria.domain;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -21,6 +23,7 @@ public class Rol {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idRol")
+    @JsonBackReference // Esta anotación evita la referencia circular
     private int idRol;
     
     @Column(name = "nombreRol")
@@ -28,14 +31,18 @@ public class Rol {
     
     @Column(name = "descripcionRol")
     private String descripcionRol;
-/*    
+/*
+    public Rol() {
+    }
+  */  
     @OneToMany(mappedBy = "rol", fetch = FetchType.LAZY)
+    @JsonManagedReference // Esta anotación se usa en la entidad "dueña"
     private List<Usuario> usuario;
     
     public Rol() {
         usuario = new ArrayList<>();
     }
-*/
+    
     public Rol(int idRol, String nombreRol, String descripcionRol) {
         this.idRol = idRol;
         this.nombreRol = nombreRol;

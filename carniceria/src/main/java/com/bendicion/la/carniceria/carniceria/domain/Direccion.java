@@ -25,7 +25,10 @@ public class Direccion {
     @Column(name = "idDireccion")
     private int id;
     
+    @Column(name = "codigoPostalDireccion")
     private String codigoPostalDireccion;
+    
+    @Column(name = "descripcionDireccion")
     private String descripcionDireccion;
     
     @OneToMany(mappedBy = "direccion", fetch = FetchType.LAZY)

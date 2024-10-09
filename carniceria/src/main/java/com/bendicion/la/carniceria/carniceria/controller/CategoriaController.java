@@ -28,7 +28,7 @@ public class CategoriaController {
     ICategoriaService iCategoriaService;
     
     // Read
-    @GetMapping("/list")
+    @GetMapping("/")
     public ResponseEntity<List<Categoria>> listCategoria() {
         List<Categoria> categorias = iCategoriaService.getCategoria();
         System.out.println("Listando todas las categorias: " + categorias.size() + " categorias encontradas.");
@@ -36,7 +36,7 @@ public class CategoriaController {
     }
 
     // Add
-    @PostMapping("/add")
+    @PostMapping("/agregar")
     public ResponseEntity<?> addCategoria(@RequestBody Categoria categoria) {
         Categoria nuevaCategoria = iCategoriaService.addCategoria(categoria);
         System.out.println("Categoria agregada: " + categoria.getNombreCategoria() + " - " + categoria.getDescripcionCategoria());
@@ -44,7 +44,7 @@ public class CategoriaController {
     }
 
     // Update
-    @PutMapping("/update")
+    @PutMapping("/actualizar")
     public ResponseEntity<?> updateCategoria(@RequestBody Categoria categoria) {
         Categoria categoriaActualizada = iCategoriaService.updateCategoria(categoria); 
         System.out.println("Categoria actualizada: ID -->" + categoria.getIdCategoria() + ", Nombre -->" + categoria.getNombreCategoria() + ", Descripcion -->" + categoria.getDescripcionCategoria());
@@ -52,7 +52,7 @@ public class CategoriaController {
     }
 
     // Delete
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<Void> deleteCategoria(@PathVariable int id) {
         boolean eliminado = iCategoriaService.deleteCategoria(id); 
         if (eliminado) {
