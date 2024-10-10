@@ -29,6 +29,7 @@ CRUD Usuario
 [   ] Hacer full pruebas de rendimiento, y ver cuanto aguanta y corregir donde se cae.
 [ X ] Al momento de actualizar, pues que no sean necesarios todos los campos. (Jamel)
 [ X ] Al momento de guardar hacer que algunos campos sean totalmente necesarios. (Jamel)
+[   ] Que al momento de eliminar un usario se elimine la direccion asociada.
 
 Importantes
 
