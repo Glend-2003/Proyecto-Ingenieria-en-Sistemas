@@ -1,0 +1,29 @@
+CRUD Categoria
+
+[   ] Corregir los sps para que tengan mas validaciones, como por ejemplo try catch y cosas así.
+[   ] Hacer la vista en react.
+[   ] Verificar porqué tira errores en la consola de spring, aunque si funcione todo.
+[   ] Hacer full pruebas de rendimiento, y ver cuanto aguanta y corregir donde se cae.
+
+CRUD Rol
+
+[   ] Corregir los sps para que tengan mas validaciones, como por ejemplo try catch y cosas así.
+[   ] Hacer la vista en react.
+[   ] Verificar porqué tira errores en la consola de spring, aunque si funcione todo.
+[   ] Hacer full pruebas de rendimiento, y ver cuanto aguanta y corregir donde se cae.
+
+CRUD Usuario
+
+[   ] Corregir los sps para que tengan mas validaciones, como por ejemplo try catch y cosas así.
+[   ] Corregir el spLeerUsuario ya que solo trae lo que hay en esa tabla y no la direccion y el rol asociado.
+[ X ] Hacer que al agregar la contrasenia se encripte y viceversa al mostrarlo para ese mismo usuario.
+[   ] Hacer que el usuario pueda recuperar su contrasenia.
+[   ] Verificar porqué tira errores en la consola de spring, aunque si funcione todo
+[   ] Al momento de hacer el logueo por medio de PostMan, y si este es correcto, mi tira los datos del usuario pero enciclado, corregir eso.
+[   ] Hacer la vista en react.
+[   ] Hacer full pruebas de rendimiento, y ver cuanto aguanta y corregir donde se cae.
+
+Importantes
+
+[   ] Agregar todos cantones del país en (tbcanton) según la provincia en las tablas.
+[   ] Agregar todos los distritos del país en (tbdistrito) según el cantón en las tablas.
