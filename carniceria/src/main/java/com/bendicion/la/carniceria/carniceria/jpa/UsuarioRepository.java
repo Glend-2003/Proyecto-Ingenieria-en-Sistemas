@@ -49,7 +49,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
         @Param("idDistrito") Integer idDistrito
     );
     
-    // SP para buscar el usuario por medio del correo 
+    // SP para buscar el usuario por medio del correo, para el Login 
     @Query(value = "{call spBuscarUsuarioPorCorreo(:correoUsuario)}", nativeQuery = true)
     Usuario searchUsuario(@Param("correoUsuario") String correoUsuario);
 

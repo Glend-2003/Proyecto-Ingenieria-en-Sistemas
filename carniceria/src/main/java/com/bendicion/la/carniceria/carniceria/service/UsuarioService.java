@@ -1,4 +1,5 @@
 package com.bendicion.la.carniceria.carniceria.service;
+
 import com.bendicion.la.carniceria.carniceria.Logic.Seguridad;
 import com.bendicion.la.carniceria.carniceria.domain.Usuario;
 import com.bendicion.la.carniceria.carniceria.jpa.UsuarioRepository;
@@ -12,65 +13,93 @@ import org.springframework.stereotype.Service;
  *
  * @author Jamel Sandí
  */
-
 @Service
 @Primary
-public class UsuarioService implements IUsuarioService{
-    
+public class UsuarioService implements IUsuarioService {
+
     @Autowired
     private UsuarioRepository usuarioRepo;
-     
+
     @Autowired
     private Seguridad seguridad;
     
     @Override
     public Usuario addUsuario(Usuario usuario) {
-        
+
         // Aquí se encripta la contra
         String encriptedPassword = seguridad.encriptPassword(usuario.getContraseniaUsuario());
         //usuario.setContraseniaUsuario(encriptedPassword);
-        
-        Date fechaNacimiento = Date.valueOf(usuario.getFechaNacimiento());
+
+        // Verificar si fechaNacimiento no es null antes de formatearlo
+        Date fechaNacimiento = null;
+        if (usuario.getFechaNacimiento() != null) {
+            fechaNacimiento = Date.valueOf(usuario.getFechaNacimiento());
+        }
         usuarioRepo.saveProcedureUsuario(
-            usuario.getCedulaUsuario(),
-            usuario.getNombreUsuario(),
-            usuario.getPrimerApellido(),
-            usuario.getSegundoApellido(),
-            usuario.getTelefonoUsuario(),
-            usuario.getCorreoUsuario(),
-            encriptedPassword,
-            fechaNacimiento,
-            usuario.getDireccion().getDescripcionDireccion(),
-            usuario.getDireccion().getCodigoPostal(),
-            usuario.getDireccion().getDistrito().getIdDistrito(),
-            usuario.getRol().getIdRol()
+                usuario.getCedulaUsuario(),
+                usuario.getNombreUsuario(),
+                usuario.getPrimerApellido(),
+                usuario.getSegundoApellido(),
+                usuario.getTelefonoUsuario(),
+                usuario.getCorreoUsuario(),
+                encriptedPassword,
+                fechaNacimiento,
+                usuario.getDireccion().getDescripcionDireccion(),
+                usuario.getDireccion().getCodigoPostal(),
+                usuario.getDireccion().getDistrito().getIdDistrito(),
+                usuario.getRol().getIdRol()
         );
         return usuario;
     }
 
     @Override
     public Usuario updateUsuario(Usuario usuario) {
-        
-        // Aquí se encripta la contra
-        String encriptedPassword = seguridad.encriptPassword(usuario.getContraseniaUsuario());
-        //usuario.setContraseniaUsuario(encriptedPassword);
-        
-        // Aquí hacemos el formateo
-        Date fechaNacimiento = Date.valueOf(usuario.getFechaNacimiento());
+
+        String encriptedPassword = null;
+        if (usuario.getContraseniaUsuario() != null && !usuario.getContraseniaUsuario().isEmpty()) {
+            encriptedPassword = seguridad.encriptPassword(usuario.getContraseniaUsuario());
+        } else {
+            Usuario existingUsuario = usuarioRepo.findById(usuario.getIdUsuario()).orElse(null);
+            if (existingUsuario != null) {
+                encriptedPassword = existingUsuario.getContraseniaUsuario(); 
+            }
+        }
+
+        Date fechaNacimiento = null;
+        if (usuario.getFechaNacimiento() != null) {
+            fechaNacimiento = Date.valueOf(usuario.getFechaNacimiento());
+        }
+
+        String descripcionDireccion = null;
+        String codigoPostalDireccion = null;
+        Integer idDistrito = null;
+
+        if (usuario.getDireccion() != null) {
+            descripcionDireccion = usuario.getDireccion().getDescripcionDireccion();
+            codigoPostalDireccion = usuario.getDireccion().getCodigoPostal();
+            idDistrito = usuario.getDireccion().getDistrito().getIdDistrito();
+        } else {
+            Usuario existingUsuario = usuarioRepo.findById(usuario.getIdUsuario()).orElse(null);
+            if (existingUsuario != null && existingUsuario.getDireccion() != null) {
+                descripcionDireccion = existingUsuario.getDireccion().getDescripcionDireccion();
+                codigoPostalDireccion = existingUsuario.getDireccion().getCodigoPostal();
+                idDistrito = existingUsuario.getDireccion().getDistrito().getIdDistrito();
+            }
+        }
 
         usuarioRepo.updateProcedureUsuario(
-            usuario.getIdUsuario(),
-            usuario.getCedulaUsuario(),
-            usuario.getNombreUsuario(),
-            usuario.getPrimerApellido(),
-            usuario.getSegundoApellido(),
-            usuario.getTelefonoUsuario(),
-            usuario.getCorreoUsuario(),
-            encriptedPassword,  
-            fechaNacimiento,
-            usuario.getDireccion().getDescripcionDireccion(),
-            usuario.getDireccion().getCodigoPostal(),
-            usuario.getDireccion().getDistrito().getIdDistrito()
+                usuario.getIdUsuario(),
+                usuario.getCedulaUsuario(),
+                usuario.getNombreUsuario(),
+                usuario.getPrimerApellido(),
+                usuario.getSegundoApellido(),
+                usuario.getTelefonoUsuario(),
+                usuario.getCorreoUsuario(),
+                encriptedPassword, 
+                fechaNacimiento,
+                descripcionDireccion, 
+                codigoPostalDireccion, 
+                idDistrito 
         );
 
         return usuario;
@@ -86,14 +115,14 @@ public class UsuarioService implements IUsuarioService{
         usuarioRepo.deleteProcedureUsuario(id);
         return true;
     }
-    
+
     @Override
     public Usuario validateLogin(String correo, String contraseniaIngresada) {
         Usuario usuario = usuarioRepo.searchUsuario(correo);
 
-        if (usuario != null && seguridad.validatePassword(contraseniaIngresada, usuario.getContraseniaUsuario())) {           
+        if (usuario != null && seguridad.validatePassword(contraseniaIngresada, usuario.getContraseniaUsuario())) {
             return usuario;
         }
-        return null; 
+        return null;
     }
 }
