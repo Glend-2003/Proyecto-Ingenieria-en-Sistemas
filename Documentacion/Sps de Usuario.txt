@@ -1,44 +1,67 @@
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `spAgregarUsuario`(IN `p_cedulaUsuario` VARCHAR(255), IN `p_nombreUsuario` VARCHAR(255), IN `p_primerApellido` VARCHAR(255), IN `p_segundoApellido` VARCHAR(255), IN `p_telefonoUsuario` VARCHAR(255), IN `p_correoUsuario` VARCHAR(255), IN `p_contraseniaUsuario` VARCHAR(255), IN `p_fechaNacimiento` DATE, IN `p_descripcionDireccion` VARCHAR(255), IN `p_codigoPostalDireccion` VARCHAR(255), IN `p_idDistrito` INT, IN `p_idRol` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spAgregarUsuario`(
+    IN `p_cedulaUsuario` VARCHAR(255), 
+    IN `p_nombreUsuario` VARCHAR(255), 
+    IN `p_primerApellido` VARCHAR(255), 
+    IN `p_segundoApellido` VARCHAR(255), 
+    IN `p_telefonoUsuario` VARCHAR(255), 
+    IN `p_correoUsuario` VARCHAR(255), 
+    IN `p_contraseniaUsuario` VARCHAR(255), 
+    IN `p_fechaNacimiento` DATE,  
+    IN `p_descripcionDireccion` VARCHAR(255), 
+    IN `p_codigoPostalDireccion` VARCHAR(255), 
+    IN `p_idDistrito` INT, 
+    IN `p_idRol` INT
+)
 BEGIN
-    -- Insertar la dirección en la tabla tbdireccion
     INSERT INTO tbdireccion (codigoPostalDireccion, descripcionDireccion, idDistrito)
-    VALUES (p_codigoPostalDireccion, p_descripcionDireccion, p_idDistrito);
+    VALUES (IFNULL(p_codigoPostalDireccion, NULL), p_descripcionDireccion, p_idDistrito);
 
-    -- Obtener el ID de la dirección insertada
     SET @idDireccion = LAST_INSERT_ID();
 
-    -- Insertar el usuario en la tabla tbusuario con la dirección relacionada
     INSERT INTO tbusuario (cedulaUsuario, nombreUsuario, primerApellido, segundoApellido, telefonoUsuario, correoUsuario, contraseniaUsuario, fechaNacimiento, idDireccion, idRol)
-    VALUES (p_cedulaUsuario, p_nombreUsuario, p_primerApellido, p_segundoApellido, p_telefonoUsuario, p_correoUsuario, p_contraseniaUsuario, p_fechaNacimiento, @idDireccion, p_idRol);
+    VALUES (p_cedulaUsuario, p_nombreUsuario, p_primerApellido, p_segundoApellido, p_telefonoUsuario, p_correoUsuario, p_contraseniaUsuario, IFNULL(p_fechaNacimiento, NULL), @idDireccion, p_idRol);
 END$$
 DELIMITER ;
 
 ----------------------------------------
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `spActualizarUsuario`(IN `p_idUsuario` INT, IN `p_cedulaUsuario` VARCHAR(255), IN `p_nombreUsuario` VARCHAR(255), IN `p_primerApellido` VARCHAR(255), IN `p_segundoApellido` VARCHAR(255), IN `p_telefonoUsuario` VARCHAR(255), IN `p_correoUsuario` VARCHAR(255), IN `p_contraseniaUsuario` VARCHAR(255), IN `p_fechaNacimiento` DATE, IN `p_descripcionDireccion` VARCHAR(255), IN `p_codigoPostalDireccion` VARCHAR(255), IN `p_idDistrito` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spActualizarUsuario`(
+    IN `p_idUsuario` INT, 
+    IN `p_cedulaUsuario` VARCHAR(255), 
+    IN `p_nombreUsuario` VARCHAR(255), 
+    IN `p_primerApellido` VARCHAR(255), 
+    IN `p_segundoApellido` VARCHAR(255), 
+    IN `p_telefonoUsuario` VARCHAR(255), 
+    IN `p_correoUsuario` VARCHAR(255), 
+    IN `p_contraseniaUsuario` VARCHAR(255), 
+    IN `p_fechaNacimiento` DATE, 
+    IN `p_descripcionDireccion` VARCHAR(255), 
+    IN `p_codigoPostalDireccion` VARCHAR(255), 
+    IN `p_idDistrito` INT
+)
 BEGIN
-    -- Actualizar la información del usuario
+    -- Actualizar la información del usuario solo si se proporcionan los valores, usando IFNULL para mantener los valores anteriores
     UPDATE tbusuario
-    SET cedulaUsuario = p_cedulaUsuario,
-        nombreUsuario = p_nombreUsuario,
-        primerApellido = p_primerApellido,
-        segundoApellido = p_segundoApellido,
-        telefonoUsuario = p_telefonoUsuario,
-        correoUsuario = p_correoUsuario,
-        contraseniaUsuario = p_contraseniaUsuario,
-        fechaNacimiento = p_fechaNacimiento
+    SET cedulaUsuario = IFNULL(p_cedulaUsuario, cedulaUsuario),
+        nombreUsuario = IFNULL(p_nombreUsuario, nombreUsuario),
+        primerApellido = IFNULL(p_primerApellido, primerApellido),
+        segundoApellido = IFNULL(p_segundoApellido, segundoApellido),
+        telefonoUsuario = IFNULL(p_telefonoUsuario, telefonoUsuario),
+        correoUsuario = IFNULL(p_correoUsuario, correoUsuario),
+        contraseniaUsuario = IFNULL(p_contraseniaUsuario, contraseniaUsuario),
+        fechaNacimiento = IFNULL(p_fechaNacimiento, fechaNacimiento)
     WHERE idUsuario = p_idUsuario;
 
-    -- Obtener la idDireccion del usuario
+    -- Obtener el idDireccion del usuario
     SELECT idDireccion INTO @idDireccion FROM tbusuario WHERE idUsuario = p_idUsuario;
 
-    -- Actualizar la información de la dirección relacionada
+    -- Actualizar la información de la dirección relacionada, usando IFNULL para mantener los valores anteriores
     UPDATE tbdireccion
-    SET descripcionDireccion = p_descripcionDireccion,
-        codigoPostalDireccion = p_codigoPostalDireccion,
-        idDistrito = p_idDistrito
+    SET descripcionDireccion = IFNULL(p_descripcionDireccion, descripcionDireccion),
+        codigoPostalDireccion = IFNULL(p_codigoPostalDireccion, codigoPostalDireccion),
+        idDistrito = IFNULL(p_idDistrito, idDistrito)
     WHERE idDireccion = @idDireccion;
 END$$
 DELIMITER ;

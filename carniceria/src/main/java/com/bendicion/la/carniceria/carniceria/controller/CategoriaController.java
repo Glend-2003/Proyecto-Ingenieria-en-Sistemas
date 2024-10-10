@@ -1,8 +1,12 @@
 package com.bendicion.la.carniceria.carniceria.controller;
 import com.bendicion.la.carniceria.carniceria.domain.Categoria;
 import com.bendicion.la.carniceria.carniceria.service.ICategoriaService;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -38,17 +42,37 @@ public class CategoriaController {
     // Add
     @PostMapping("/agregar")
     public ResponseEntity<?> addCategoria(@RequestBody Categoria categoria) {
-        Categoria nuevaCategoria = iCategoriaService.addCategoria(categoria);
-        System.out.println("Categoria agregada: " + categoria.getNombreCategoria() + " - " + categoria.getDescripcionCategoria());
-        return ResponseEntity.ok(nuevaCategoria);  
+        try {
+            Categoria nuevaCategoria = iCategoriaService.addCategoria(categoria);
+            System.out.println("Categoria agregada: ID -->" + categoria.getIdCategoria() + ", Nombre -->" + categoria.getNombreCategoria() + ", Descripcion -->" + categoria.getDescripcionCategoria());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Categoria guardada con exito con ID: " + nuevaCategoria.getIdCategoria());
+            response.put("id", nuevaCategoria.getIdCategoria());
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("error", "Error al agregar la categoria: " + e.getMessage()));
+        }
     }
 
     // Update
     @PutMapping("/actualizar")
     public ResponseEntity<?> updateCategoria(@RequestBody Categoria categoria) {
-        Categoria categoriaActualizada = iCategoriaService.updateCategoria(categoria); 
-        System.out.println("Categoria actualizada: ID -->" + categoria.getIdCategoria() + ", Nombre -->" + categoria.getNombreCategoria() + ", Descripcion -->" + categoria.getDescripcionCategoria());
-        return ResponseEntity.ok(categoriaActualizada); 
+        try {
+            Categoria categoriaActualizada = iCategoriaService.updateCategoria(categoria);
+            System.out.println("Categoria actualizada: ID -->" + categoria.getIdCategoria() + ", Nombre -->" + categoria.getNombreCategoria() + ", Descripcion -->" + categoria.getDescripcionCategoria());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Categoria actualizada con exito con ID: " + categoriaActualizada.getIdCategoria());
+            response.put("id", categoriaActualizada.getIdCategoria());
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("error", "Error al actualizar la categoria: " + e.getMessage()));
+        }
     }
 
     // Delete

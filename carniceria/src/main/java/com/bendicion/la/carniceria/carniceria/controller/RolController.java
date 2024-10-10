@@ -1,8 +1,12 @@
 package com.bendicion.la.carniceria.carniceria.controller;
 import com.bendicion.la.carniceria.carniceria.domain.Rol;
 import com.bendicion.la.carniceria.carniceria.service.IRolService;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -38,17 +42,39 @@ public class RolController {
     // Add
     @PostMapping("/agregar")
     public ResponseEntity<?> addRol(@RequestBody Rol rol) {
-        Rol nuevoRol = iRolService.addRol(rol);
-        System.out.println("Rol agregada: " + rol.getNombreRol() + " - " + rol.getDescripcionRol());
-        return ResponseEntity.ok(nuevoRol);  
+        try{
+            Rol nuevoRol = iRolService.addRol(rol);
+            System.out.println("Rol agregado: ID -->" + rol.getIdRol() + ", Nombre -->" + rol.getNombreRol() + ", Descripcion -->" + rol.getDescripcionRol());
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Rol guardado con éxito con ID: " + nuevoRol.getIdRol());
+            response.put("id", nuevoRol.getIdRol());
+
+            return ResponseEntity.ok(response);
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("error", "Error al guardar el rol: " + e.getMessage()));
+        }
+  
     }
 
     // Update
     @PutMapping("/actualizar")
     public ResponseEntity<?> updateRol(@RequestBody Rol rol) {
-        Rol rolActualizado = iRolService.updateRol(rol); 
-        System.out.println("Rol actualizada: ID -->" + rol.getIdRol() + ", Nombre -->" + rol.getNombreRol() + ", Descripcion -->" + rol.getDescripcionRol());
-        return ResponseEntity.ok(rolActualizado); 
+        try{
+            Rol rolActualizado = iRolService.updateRol(rol); 
+            System.out.println("Rol actualizada: ID -->" + rol.getIdRol() + ", Nombre -->" + rol.getNombreRol() + ", Descripcion -->" + rol.getDescripcionRol());
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Rol actualizado con éxito con ID: " + rolActualizado.getIdRol());
+            response.put("id", rolActualizado.getIdRol());
+            
+            return ResponseEntity.ok(response);            
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("error", "Error al guardar el rol: " + e.getMessage()));
+        }
+      
     }
 
     // Delete

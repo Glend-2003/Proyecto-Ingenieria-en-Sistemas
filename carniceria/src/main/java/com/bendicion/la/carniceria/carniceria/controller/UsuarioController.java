@@ -1,7 +1,8 @@
 package com.bendicion.la.carniceria.carniceria.controller;
-
 import com.bendicion.la.carniceria.carniceria.domain.Usuario;
 import com.bendicion.la.carniceria.carniceria.service.IUsuarioService;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * @author Jamel Sandí
  */
-
 @RestController
 @CrossOrigin(origins = "*")
 @RequestMapping("/usuario")
@@ -33,7 +33,7 @@ public class UsuarioController {
     // Read
     @GetMapping("/")
     public ResponseEntity<List<Usuario>> listUsuarios() {
-        List<Usuario> usuarios = iUsuarioService.getUsuario(); 
+        List<Usuario> usuarios = iUsuarioService.getUsuario();
         System.out.println("Listando todos los usuarios: " + usuarios.size() + " usuarios encontrados.");
         return ResponseEntity.ok(usuarios);
     }
@@ -41,17 +41,37 @@ public class UsuarioController {
     // Add
     @PostMapping("/agregar")
     public ResponseEntity<?> addUsuario(@RequestBody Usuario usuario) {
-        Usuario nuevoUsuario = iUsuarioService.addUsuario(usuario);
-        System.out.println("Usuario agregado: " + usuario.getNombreUsuario() + " " + usuario.getPrimerApellido() + " " + usuario.getSegundoApellido());
-        return ResponseEntity.ok(nuevoUsuario);
+        try {
+            Usuario nuevoUsuario = iUsuarioService.addUsuario(usuario);
+            System.out.println("Usuario agregado: ID -->" + usuario.getIdUsuario() + ", Nombre -->" + usuario.getNombreUsuario() + ", Apellidos -->" + usuario.getPrimerApellido() + " " + usuario.getSegundoApellido());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Usuario guardado con exito con ID: " + nuevoUsuario.getIdUsuario());
+            response.put("id", nuevoUsuario.getIdUsuario());
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("error", "Error al agregar el usuario: " + e.getMessage()));
+        }
     }
 
     // Update
     @PutMapping("/actualizar")
     public ResponseEntity<?> updateUsuario(@RequestBody Usuario usuario) {
-        Usuario usuarioActualizado = iUsuarioService.updateUsuario(usuario);
-        System.out.println("Usuario actualizado: ID -->" + usuario.getIdUsuario() + ", Nombre -->" + usuario.getNombreUsuario());
-        return ResponseEntity.ok(usuarioActualizado);
+        try {
+            Usuario usuarioActualizado = iUsuarioService.updateUsuario(usuario);
+            System.out.println("Usuario actualizado: ID -->" + usuario.getIdUsuario() + ", Nombre -->" + usuario.getNombreUsuario() + ", Apellidos -->" + usuario.getPrimerApellido() + " " + usuario.getSegundoApellido());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Usuario actualizado con exito con ID: " + usuarioActualizado.getIdUsuario());
+            response.put("id", usuarioActualizado.getIdUsuario());
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("error", "Error al actualizar el usuario: " + e.getMessage()));
+        }
     }
 
     // Delete
@@ -66,7 +86,7 @@ public class UsuarioController {
             return ResponseEntity.notFound().build();
         }
     }
-    
+
     // Login
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest) {
@@ -83,12 +103,12 @@ public class UsuarioController {
 
             // Rol aquí 
             if (usuario.getRol() != null) {
-                System.out.println("Rol: " + usuario.getRol().getNombreRol()); 
+                System.out.println("Rol: " + usuario.getRol().getNombreRol());
             } else {
                 System.out.println("Rol no asignado");
             }
 
-            return ResponseEntity.ok(usuario); 
+            return ResponseEntity.ok(usuario);
         } else {
             System.out.println("Error de autenticación: Credenciales incorrectas para el correo: " + correo);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciales incorrectas");
