@@ -22,7 +22,7 @@ public class UsuarioService implements IUsuarioService{
      
     @Autowired
     private Seguridad seguridad;
-
+    
     @Override
     public Usuario addUsuario(Usuario usuario) {
         
@@ -47,7 +47,6 @@ public class UsuarioService implements IUsuarioService{
         );
         return usuario;
     }
-
 
     @Override
     public Usuario updateUsuario(Usuario usuario) {
