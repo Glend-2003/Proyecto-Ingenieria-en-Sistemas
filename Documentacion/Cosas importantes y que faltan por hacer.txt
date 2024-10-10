@@ -4,6 +4,8 @@ CRUD Categoria
 [   ] Hacer la vista en react.
 [   ] Verificar porqué tira errores en la consola de spring, aunque si funcione todo.
 [   ] Hacer full pruebas de rendimiento, y ver cuanto aguanta y corregir donde se cae.
+[   ] Al momento de actualizar, pues que no sean necesarios todos los campos.
+[   ] Al momento de guardar hacer que algunos campos sean totalmente necesarios.
 
 CRUD Rol
 
@@ -11,6 +13,9 @@ CRUD Rol
 [   ] Hacer la vista en react.
 [   ] Verificar porqué tira errores en la consola de spring, aunque si funcione todo.
 [   ] Hacer full pruebas de rendimiento, y ver cuanto aguanta y corregir donde se cae.
+[   ] Revisar porqué se enciclan los datos al tarerlos en Rol.
+[   ] Al momento de actualizar, pues que no sean necesarios todos los campos.
+[   ] Al momento de guardar hacer que algunos campos sean totalmente necesarios.
 
 CRUD Usuario
 
@@ -19,9 +24,11 @@ CRUD Usuario
 [ X ] Hacer que al agregar la contrasenia se encripte y viceversa al mostrarlo para ese mismo usuario.
 [   ] Hacer que el usuario pueda recuperar su contrasenia.
 [   ] Verificar porqué tira errores en la consola de spring, aunque si funcione todo
-[   ] Al momento de hacer el logueo por medio de PostMan, y si este es correcto, mi tira los datos del usuario pero enciclado, corregir eso.
+[   ] Al momento de hacer el logueo por medio de PostMan, y si este es correcto, tira los datos del usuario pero enciclado, corregir eso.
 [   ] Hacer la vista en react.
 [   ] Hacer full pruebas de rendimiento, y ver cuanto aguanta y corregir donde se cae.
+[   ] Al momento de actualizar, pues que no sean necesarios todos los campos.
+[   ] Al momento de guardar hacer que algunos campos sean totalmente necesarios.
 
 Importantes
 

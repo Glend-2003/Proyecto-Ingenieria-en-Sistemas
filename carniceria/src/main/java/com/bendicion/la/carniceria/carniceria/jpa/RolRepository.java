@@ -14,7 +14,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface RolRepository extends JpaRepository<Rol, Integer>{
     
-      // SP Add
+    // SP Add
     @Query(value = "{call spAgregarRol(:nombreRol, :descripcionRol)}", nativeQuery = true)
     void saveProcedureRol(
         @Param("nombreRol") String nombreRol, 
