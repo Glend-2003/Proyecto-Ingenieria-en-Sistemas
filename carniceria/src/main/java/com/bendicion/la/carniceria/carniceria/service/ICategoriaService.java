@@ -1,5 +1,4 @@
 package com.bendicion.la.carniceria.carniceria.service;
-
 import com.bendicion.la.carniceria.carniceria.domain.Categoria;
 import jakarta.transaction.Transactional;
 import java.util.List;
