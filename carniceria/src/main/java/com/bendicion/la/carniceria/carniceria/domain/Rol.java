@@ -23,7 +23,6 @@ public class Rol {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idRol")
-    @JsonBackReference // Esta anotación evita la referencia circular
     private int idRol;
     
     @Column(name = "nombreRol")
@@ -36,7 +35,6 @@ public class Rol {
     }
   */  
     @OneToMany(mappedBy = "rol", fetch = FetchType.LAZY)
-    @JsonManagedReference // Esta anotación se usa en la entidad "dueña"
     private List<Usuario> usuario;
     
     public Rol() {
@@ -72,7 +70,7 @@ public class Rol {
     public void setDescripcionRol(String descripcionRol) {
         this.descripcionRol = descripcionRol;
     }   
-/*
+
     public List<Usuario> getUsuario() {
         return usuario;
     }
@@ -80,5 +78,5 @@ public class Rol {
     public void setUsuario(List<Usuario> usuario) {
         this.usuario = usuario;
     }
-*/   
+  
 }

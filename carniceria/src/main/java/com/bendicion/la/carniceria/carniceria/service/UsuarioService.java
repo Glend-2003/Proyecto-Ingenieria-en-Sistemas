@@ -1,4 +1,5 @@
 package com.bendicion.la.carniceria.carniceria.service;
+import com.bendicion.la.carniceria.carniceria.Logic.Seguridad;
 import com.bendicion.la.carniceria.carniceria.domain.Usuario;
 import com.bendicion.la.carniceria.carniceria.jpa.UsuarioRepository;
 import java.sql.Date;
@@ -16,11 +17,19 @@ import org.springframework.stereotype.Service;
 @Primary
 public class UsuarioService implements IUsuarioService{
     
-     @Autowired
+    @Autowired
     private UsuarioRepository usuarioRepo;
+     
+    @Autowired
+    private Seguridad seguridad;
 
     @Override
     public Usuario addUsuario(Usuario usuario) {
+        
+        // Aquí se encripta la contra
+        String encriptedPassword = seguridad.encriptPassword(usuario.getContraseniaUsuario());
+        //usuario.setContraseniaUsuario(encriptedPassword);
+        
         Date fechaNacimiento = Date.valueOf(usuario.getFechaNacimiento());
         usuarioRepo.saveProcedureUsuario(
             usuario.getCedulaUsuario(),
@@ -29,7 +38,7 @@ public class UsuarioService implements IUsuarioService{
             usuario.getSegundoApellido(),
             usuario.getTelefonoUsuario(),
             usuario.getCorreoUsuario(),
-            usuario.getContraseniaUsuario(),
+            encriptedPassword,
             fechaNacimiento,
             usuario.getDireccion().getDescripcionDireccion(),
             usuario.getDireccion().getCodigoPostal(),
@@ -39,9 +48,17 @@ public class UsuarioService implements IUsuarioService{
         return usuario;
     }
 
+
     @Override
     public Usuario updateUsuario(Usuario usuario) {
+        
+        // Aquí se encripta la contra
+        String encriptedPassword = seguridad.encriptPassword(usuario.getContraseniaUsuario());
+        //usuario.setContraseniaUsuario(encriptedPassword);
+        
+        // Aquí hacemos el formateo
         Date fechaNacimiento = Date.valueOf(usuario.getFechaNacimiento());
+
         usuarioRepo.updateProcedureUsuario(
             usuario.getIdUsuario(),
             usuario.getCedulaUsuario(),
@@ -50,12 +67,13 @@ public class UsuarioService implements IUsuarioService{
             usuario.getSegundoApellido(),
             usuario.getTelefonoUsuario(),
             usuario.getCorreoUsuario(),
-            usuario.getContraseniaUsuario(),
+            encriptedPassword,  
             fechaNacimiento,
             usuario.getDireccion().getDescripcionDireccion(),
             usuario.getDireccion().getCodigoPostal(),
             usuario.getDireccion().getDistrito().getIdDistrito()
         );
+
         return usuario;
     }
 
@@ -68,5 +86,15 @@ public class UsuarioService implements IUsuarioService{
     public boolean deleteUsuario(int id) {
         usuarioRepo.deleteProcedureUsuario(id);
         return true;
+    }
+    
+    @Override
+    public Usuario validateLogin(String correo, String contraseniaIngresada) {
+        Usuario usuario = usuarioRepo.searchUsuario(correo);
+
+        if (usuario != null && seguridad.validatePassword(contraseniaIngresada, usuario.getContraseniaUsuario())) {           
+            return usuario;
+        }
+        return null; 
     }
 }

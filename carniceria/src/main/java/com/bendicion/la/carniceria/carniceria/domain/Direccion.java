@@ -23,7 +23,7 @@ public class Direccion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idDireccion")
-    private int id;
+    private int idDireccion;
     
     @Column(name = "codigoPostalDireccion")
     private String codigoPostalDireccion;
@@ -43,18 +43,18 @@ public class Direccion {
     }
 
     public Direccion(int id, String codigoPostalDireccion, String descripcionDireccion, Distrito distrito) {
-        this.id = id;
+        this.idDireccion = id;
         this.codigoPostalDireccion = codigoPostalDireccion;
         this.descripcionDireccion = descripcionDireccion;
         this.distrito = distrito;
     }
     
     public int getId() {
-        return id;
+        return idDireccion;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.idDireccion = id;
     }
 
     public String getCodigoPostal() {

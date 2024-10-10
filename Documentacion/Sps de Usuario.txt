@@ -82,3 +82,34 @@ BEGIN
         tbdireccion d ON u.idDireccion = d.idDireccion;
 END$$
 DELIMITER ;
+
+--------------------------------------------------------
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spBuscarUsuarioPorCorreo`(
+    IN correoInput VARCHAR(255)
+)
+BEGIN
+    -- Selecciona todos los campos del usuario basándose en el correo proporcionado
+    SELECT 
+        u.idUsuario, 
+        u.nombreUsuario, 
+        u.primerApellido, 
+        u.segundoApellido, 
+        u.fechaNacimiento, 
+        u.cedulaUsuario, 
+        u.correoUsuario, 
+        u.telefonoUsuario, 
+        u.contraseniaUsuario,  -- Contraseña encriptada
+        u.idRol,  -- ID del Rol del Usuario
+        r.nombreRol,  -- Nombre del Rol
+        r.descripcionRol, -- Descripción del Rol
+        u.idDireccion  -- Asegúrate de incluir esto
+    FROM 
+        tbusuario u
+    LEFT JOIN 
+        tbrol r ON u.idRol = r.idRol
+    WHERE 
+        u.correoUsuario = correoInput;
+END$$
+DELIMITER ;

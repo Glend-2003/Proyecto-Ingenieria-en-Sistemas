@@ -14,8 +14,11 @@ public interface IUsuarioService {
     
     public Usuario updateUsuario(Usuario usuario);
     
-    public List<Usuario> getUsuario();
+    public List<Usuario> getUsuario();   
     
     @Transactional
     public boolean deleteUsuario(int id);
+    
+    // Para validar en la Login
+    public Usuario validateLogin(String correo, String contraseniaIngresada);
 }

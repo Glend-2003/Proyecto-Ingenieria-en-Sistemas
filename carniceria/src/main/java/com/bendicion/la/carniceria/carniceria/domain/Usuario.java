@@ -39,7 +39,7 @@ public class Usuario {
     
     @ManyToOne
     @JoinColumn(name = "idRol")
-    @JsonIgnore 
+    //@JsonIgnore 
     private Rol rol;
     
     @Column(name = "correoUsuario")
@@ -53,7 +53,7 @@ public class Usuario {
     
     @ManyToOne
     @JoinColumn(name = "idDireccion")
-    @JsonIgnore 
+    //@JsonIgnore 
     private Direccion direccion;
     
     public Usuario() {

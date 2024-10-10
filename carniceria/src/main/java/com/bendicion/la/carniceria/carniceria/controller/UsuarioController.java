@@ -3,7 +3,9 @@ package com.bendicion.la.carniceria.carniceria.controller;
 import com.bendicion.la.carniceria.carniceria.domain.Usuario;
 import com.bendicion.la.carniceria.carniceria.service.IUsuarioService;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,19 +26,19 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin(origins = "*")
 @RequestMapping("/usuario")
 public class UsuarioController {
-    
+
     @Autowired
     IUsuarioService iUsuarioService;
 
-    // Leer todos los usuarios
+    // Read
     @GetMapping("/")
     public ResponseEntity<List<Usuario>> listUsuarios() {
-        List<Usuario> usuarios = iUsuarioService.getUsuario();  // Traer todos los usuarios
+        List<Usuario> usuarios = iUsuarioService.getUsuario(); 
         System.out.println("Listando todos los usuarios: " + usuarios.size() + " usuarios encontrados.");
         return ResponseEntity.ok(usuarios);
     }
 
-    // Agregar un nuevo usuario con dirección
+    // Add
     @PostMapping("/agregar")
     public ResponseEntity<?> addUsuario(@RequestBody Usuario usuario) {
         Usuario nuevoUsuario = iUsuarioService.addUsuario(usuario);
@@ -44,7 +46,7 @@ public class UsuarioController {
         return ResponseEntity.ok(nuevoUsuario);
     }
 
-    // Actualizar un usuario existente
+    // Update
     @PutMapping("/actualizar")
     public ResponseEntity<?> updateUsuario(@RequestBody Usuario usuario) {
         Usuario usuarioActualizado = iUsuarioService.updateUsuario(usuario);
@@ -52,7 +54,7 @@ public class UsuarioController {
         return ResponseEntity.ok(usuarioActualizado);
     }
 
-    // Eliminar un usuario por su ID
+    // Delete
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<Void> deleteUsuario(@PathVariable int id) {
         boolean eliminado = iUsuarioService.deleteUsuario(id);
@@ -62,6 +64,34 @@ public class UsuarioController {
         } else {
             System.out.println("No se pudo eliminar el usuario: ID -->" + id + " no encontrado.");
             return ResponseEntity.notFound().build();
+        }
+    }
+    
+    // Login
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest) {
+        String correo = loginRequest.get("correoUsuario");
+        String contrasenia = loginRequest.get("contraseniaUsuario");
+
+        Usuario usuario = iUsuarioService.validateLogin(correo, contrasenia);
+
+        if (usuario != null) {
+            System.out.println("Usuario autenticado:");
+            System.out.println("ID: " + usuario.getIdUsuario());
+            System.out.println("Correo: " + usuario.getCorreoUsuario());
+            System.out.println("Nombre: " + usuario.getNombreUsuario());
+
+            // Rol aquí 
+            if (usuario.getRol() != null) {
+                System.out.println("Rol: " + usuario.getRol().getNombreRol()); 
+            } else {
+                System.out.println("Rol no asignado");
+            }
+
+            return ResponseEntity.ok(usuario); 
+        } else {
+            System.out.println("Error de autenticación: Credenciales incorrectas para el correo: " + correo);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciales incorrectas");
         }
     }
 
