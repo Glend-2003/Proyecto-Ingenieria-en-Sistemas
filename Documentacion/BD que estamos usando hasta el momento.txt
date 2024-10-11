@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 11-10-2024 a las 02:10:09
+-- Tiempo de generación: 11-10-2024 a las 05:30:25
 -- Versión del servidor: 10.4.32-MariaDB
--- Versión de PHP: 8.0.30
+-- Versión de PHP: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -43,7 +43,27 @@ INSERT INTO `tbcanton` (`idCanton`, `nombreCanton`, `idProvincia`) VALUES
 (3, 'Siquirres', 7),
 (4, 'Matina', 7),
 (5, 'Limón', 7),
-(6, 'Talamanca', 7);
+(6, 'Talamanca', 7),
+(7, 'San José', 1),
+(8, 'Escazú', 1),
+(9, 'Desamparados', 1),
+(10, 'Puriscal', 1),
+(11, 'Tarrazú', 1),
+(12, 'Aserrí', 1),
+(13, 'Mora', 1),
+(14, 'Goicoechea', 1),
+(15, 'Santa Ana', 1),
+(16, 'Alajuelita', 1),
+(17, 'Vázquez de Coronado', 1),
+(18, 'Acosta', 1),
+(19, 'Tibás', 1),
+(20, 'Moravia', 1),
+(21, 'Montes de Oca', 1),
+(22, 'Turrubares', 1),
+(23, 'Dota', 1),
+(24, 'Curridabat', 1),
+(25, 'Pérez Zeledón', 1),
+(26, 'León Cortés Castro', 1);
 
 -- --------------------------------------------------------
 
@@ -62,19 +82,13 @@ CREATE TABLE `tbcategoria` (
 --
 
 INSERT INTO `tbcategoria` (`idCategoria`, `descripcionCategoria`, `nombreCategoria`) VALUES
-(6, 'Todas las partes de pollo', 'Pollo'),
-(8, 'Todas las partes de la res', 'Res'),
-(9, 'Todas las partes de la cerdo', 'Gli'),
-(10, 'Todas las partes del cerdo', 'Cerdo'),
-(11, 'Cortes especiales de res', 'Res Especial'),
-(12, 'Pechuga, muslo, y más partes del pollo', 'Pollo Deshuesado'),
-(13, 'Costillas y chuletas de cerdo', 'Cerdo Costillas'),
-(14, 'Carne de ternera fresca', 'Ternera'),
-(15, 'Partes de res para asado', 'Res Asado'),
-(16, 'Pollo entero o por partes', 'Pollo Entero'),
-(17, 'Chorizos, salchichas y embutidos', 'Embutidos'),
-(18, 'Carne molida de res', 'Res Molida'),
-(19, 'Pierna y paleta de cerdo', 'Cerdo Pierna');
+(1, 'Todas las partes de pollo', 'Pollo'),
+(2, 'Todas las partes de la res', 'Res'),
+(3, 'Todas las partes de la cerdo', 'Cerdo'),
+(4, 'Todas los tipos de mariscos', 'Marisco'),
+(5, 'Todos los tipos de embutidos', 'Embutidos'),
+(6, 'Todos los tipos de productos lácteos', 'Lácteos'),
+(7, 'La mayoría de productos varios', 'Productos varios');
 
 -- --------------------------------------------------------
 
@@ -94,16 +108,7 @@ CREATE TABLE `tbdireccion` (
 --
 
 INSERT INTO `tbdireccion` (`idDireccion`, `codigoPostalDireccion`, `descripcionDireccion`, `idDistrito`) VALUES
-(1, '70101', '100 metros norte del parque central', 1),
-(2, '70102', 'Frente a la estación de bomberos', 2),
-(3, '70103', 'Al costado oeste del colegio', 3),
-(4, '70104', '500 metros sur del hospital', 4),
-(5, '70201', 'Del supermercado 200 metros al este', 8),
-(6, '70202', 'Calle principal, frente a la iglesia', 9),
-(7, '70203', '100 metros sur del parque', 10),
-(8, '70301', 'Contiguo a la estación de buses', 13),
-(9, '70302', 'A 300 metros de la escuela primaria', 14),
-(10, '70303', '50 metros oeste de la pulpería', 15);
+(13, '1234', 'Urbanización el Tejar', 26);
 
 -- --------------------------------------------------------
 
@@ -122,35 +127,158 @@ CREATE TABLE `tbdistrito` (
 --
 
 INSERT INTO `tbdistrito` (`idDistrito`, `nombreDistrito`, `idCanton`) VALUES
-(1, 'Guápiles', 1),
-(2, 'Jiménez', 1),
-(3, 'La Rita', 1),
-(4, 'Roxana', 1),
-(5, 'Cariari', 1),
-(6, 'Colorado', 1),
-(7, 'La Colonia', 1),
-(8, 'Guácimo', 2),
-(9, 'Mercedes', 2),
-(10, 'Pocora', 2),
-(11, 'Río Jiménez', 2),
-(12, 'Duacarí', 2),
-(13, 'Siquirres', 3),
-(14, 'Pacuarito', 3),
-(15, 'Florida', 3),
-(16, 'Germania', 3),
-(17, 'Cairo', 3),
-(18, 'Alegría', 3),
-(19, 'Matina', 4),
-(20, 'Batán', 4),
-(21, 'Carrandí', 4),
-(22, 'Limón', 5),
-(23, 'Valle La Estrella', 5),
-(24, 'Río Blanco', 5),
-(25, 'Matama', 5),
-(26, 'Bratsi', 6),
-(27, 'Sixaola', 6),
-(28, 'Cahuita', 6),
-(29, 'Telire', 6);
+(1, 'Limón', 5),
+(2, 'Valle La Estrella', 5),
+(3, 'Río Blanco', 5),
+(4, 'Matama', 5),
+(5, 'Guápiles', 1),
+(6, 'Jiménez', 1),
+(7, 'La Rita', 1),
+(8, 'Roxana', 1),
+(9, 'Cariari', 1),
+(10, 'Colorado', 1),
+(11, 'La Colonia', 1),
+(12, 'Siquirres', 3),
+(13, 'Pacuarito', 3),
+(14, 'Florida', 3),
+(15, 'Germania', 3),
+(16, 'El Cairo', 3),
+(17, 'Alegría', 3),
+(18, 'Reventazón', 3),
+(19, 'Bratsi', 6),
+(20, 'Sixaola', 6),
+(21, 'Cahuita', 6),
+(22, 'Telire', 6),
+(23, 'Matina', 4),
+(24, 'Batán', 4),
+(25, 'Carrandi', 4),
+(26, 'Guácimo', 2),
+(27, 'Mercedes', 2),
+(28, 'Pocora', 2),
+(29, 'Río Jiménez', 2),
+(30, 'Duacarí', 2),
+(31, 'Carmen', 7),
+(32, 'Merced', 7),
+(33, 'Hospital', 7),
+(34, 'Catedral', 7),
+(35, 'San Francisco de Dos Ríos', 7),
+(36, 'La Uruca', 7),
+(37, 'Mata Redonda', 7),
+(38, 'Pavas', 7),
+(39, 'Hatillo', 7),
+(40, 'San Sebastián', 7),
+(41, 'Escazú', 8),
+(42, 'San Antonio', 8),
+(43, 'San Rafael', 8),
+(44, 'Desamparados', 9),
+(45, 'San Miguel', 9),
+(46, 'San Juan de Dios', 9),
+(47, 'San Rafael Arriba', 9),
+(48, 'San Antonio', 9),
+(49, 'Frailes', 9),
+(50, 'Patarrá', 9),
+(51, 'San Cristóbal', 9),
+(52, 'Rosario', 9),
+(53, 'Damas', 9),
+(54, 'San Rafael Abajo', 9),
+(55, 'Gravilias', 9),
+(56, 'Los Guido', 9),
+(57, 'Santiago', 10),
+(58, 'Mercedes Sur', 10),
+(59, 'Barbacoas', 10),
+(60, 'Grifo Alto', 10),
+(61, 'San Rafael', 10),
+(62, 'Candelarita', 10),
+(63, 'Desamparaditos', 10),
+(64, 'San Antonio', 10),
+(65, 'Chires', 10),
+(66, 'San Marcos', 11),
+(67, 'San Lorenzo', 11),
+(68, 'San Carlos', 11),
+(69, 'Aserrí', 12),
+(70, 'Tarbaca', 12),
+(71, 'Vuelta de Jorco', 12),
+(72, 'San Gabriel', 12),
+(73, 'Legua', 12),
+(74, 'Monterrey', 12),
+(75, 'Salitrillos', 12),
+(76, 'Colón', 13),
+(77, 'Guayabo', 13),
+(78, 'Tabarcia', 13),
+(79, 'Piedras Negras', 13),
+(80, 'Picagres', 13),
+(81, 'Jaris', 13),
+(82, 'Quitirrisí', 13),
+(83, 'Guadalupe', 14),
+(84, 'San Francisco', 14),
+(85, 'Calle Blancos', 14),
+(86, 'Mata de Plátano', 14),
+(87, 'Ipís', 14),
+(88, 'Rancho Redondo', 14),
+(89, 'Purral', 14),
+(90, 'Santa Ana', 15),
+(91, 'Salitral', 15),
+(92, 'Pozos', 15),
+(93, 'Uruca', 15),
+(94, 'Piedades', 15),
+(95, 'Brasil', 15),
+(96, 'Alajuelita', 16),
+(97, 'San Josecito', 16),
+(98, 'San Antonio', 16),
+(99, 'Concepción', 16),
+(100, 'San Felipe', 16),
+(101, 'San Isidro', 17),
+(102, 'San Rafael', 17),
+(103, 'Dulce Nombre de Jesús', 17),
+(104, 'Patalillo', 17),
+(105, 'Cascajal', 17),
+(106, 'San Ignacio', 18),
+(107, 'Guaitil', 18),
+(108, 'Palmichal', 18),
+(109, 'Cangrejal', 18),
+(110, 'Sabanillas', 18),
+(111, 'San Juan', 19),
+(112, 'Cinco Esquinas', 19),
+(113, 'Anselmo Llorente', 19),
+(114, 'León XIII', 19),
+(115, 'Colima', 19),
+(116, 'San Vicente', 20),
+(117, 'San Jerónimo', 20),
+(118, 'La Trinidad', 20),
+(119, 'San Pedro', 21),
+(120, 'Sabanilla', 21),
+(121, 'Mercedes', 21),
+(122, 'San Rafael', 21),
+(123, 'San Pablo', 22),
+(124, 'San Pedro', 22),
+(125, 'San Juan de Mata', 22),
+(126, 'San Luis', 22),
+(127, 'Carara', 22),
+(128, 'Santa María', 23),
+(129, 'Jardín', 23),
+(130, 'Copey', 23),
+(131, 'Curridabat', 24),
+(132, 'Granadilla', 24),
+(133, 'Sánchez', 24),
+(134, 'Tirrases', 24),
+(135, 'San Isidro de El General', 25),
+(136, 'El General', 25),
+(137, 'Daniel Flores', 25),
+(138, 'Rivas', 25),
+(139, 'San Pedro', 25),
+(140, 'Platanares', 25),
+(141, 'Pejibaye', 25),
+(142, 'Cajón', 25),
+(143, 'Barú', 25),
+(144, 'Río Nuevo', 25),
+(145, 'Páramo', 25),
+(146, 'La Amistad', 25),
+(147, 'San Pablo', 26),
+(148, 'San Andrés', 26),
+(149, 'Llano Bonito', 26),
+(150, 'San Isidro', 26),
+(151, 'Santa Cruz', 26),
+(152, 'San Antonio', 26);
 
 -- --------------------------------------------------------
 
@@ -193,9 +321,9 @@ CREATE TABLE `tbrol` (
 --
 
 INSERT INTO `tbrol` (`idRol`, `nombreRol`, `descripcionRol`) VALUES
-(1, 'Admin', 'El organizador, tiene derecho a todo'),
-(2, 'Gerente', 'El organizador, tiene derecho a algunas cosas'),
-(3, 'Usuario', 'Es el simple usuario, el que interactua en la página');
+(1, 'Administrador', 'El que se encarga de realizar lo más importante'),
+(2, 'Gerente', 'El que se encarga de algunas cosas'),
+(3, 'Usuario', 'El que se encarga de ver productos y realizar pedidos');
 
 -- --------------------------------------------------------
 
@@ -222,8 +350,7 @@ CREATE TABLE `tbusuario` (
 --
 
 INSERT INTO `tbusuario` (`idUsuario`, `cedulaUsuario`, `contraseniaUsuario`, `correoUsuario`, `fechaNacimiento`, `nombreUsuario`, `primerApellido`, `segundoApellido`, `telefonoUsuario`, `idDireccion`, `idRol`) VALUES
-(1, '703100064', 'password123', 'jsandi1299@gmail.com', '2004-08-09', 'Jamel', 'Sandí', 'Anderson', '88955772', 1, 3),
-(2, '703060373', 'password123', 'carazojeremy@gmail.com', '2004-08-09', 'Jeremy', 'Romero', 'Carazo', '62115401', 2, 3);
+(6, '703100064', '$2a$12$fBMZLlt6aCS9iNemYH7h0e8m/YexlGy.13W2GTCFbnHLLe6fyTqOG', 'jsandi1299@gmail.com', '2004-08-09', 'Jamel', 'Sandí', 'Anderson', '88955772', 13, 3);
 
 --
 -- Índices para tablas volcadas
@@ -284,7 +411,7 @@ ALTER TABLE `tbusuario`
 -- AUTO_INCREMENT de la tabla `tbcanton`
 --
 ALTER TABLE `tbcanton`
-  MODIFY `idCanton` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `idCanton` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT de la tabla `tbcategoria`
@@ -296,13 +423,13 @@ ALTER TABLE `tbcategoria`
 -- AUTO_INCREMENT de la tabla `tbdireccion`
 --
 ALTER TABLE `tbdireccion`
-  MODIFY `idDireccion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `idDireccion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT de la tabla `tbdistrito`
 --
 ALTER TABLE `tbdistrito`
-  MODIFY `idDistrito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+  MODIFY `idDistrito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=153;
 
 --
 -- AUTO_INCREMENT de la tabla `tbprovincia`
@@ -320,7 +447,7 @@ ALTER TABLE `tbrol`
 -- AUTO_INCREMENT de la tabla `tbusuario`
 --
 ALTER TABLE `tbusuario`
-  MODIFY `idUsuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `idUsuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- Restricciones para tablas volcadas

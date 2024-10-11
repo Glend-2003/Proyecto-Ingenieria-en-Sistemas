@@ -97,8 +97,9 @@ BEGIN
         u.correoUsuario, 
         u.contraseniaUsuario, 
         u.fechaNacimiento,
-        u.idRol, -- Agrega idRol
-        d.idDistrito -- Agrega idDistrito
+        u.idDireccion,
+        u.idRol, 
+        d.idDistrito 
     FROM 
         tbusuario u
     INNER JOIN 
