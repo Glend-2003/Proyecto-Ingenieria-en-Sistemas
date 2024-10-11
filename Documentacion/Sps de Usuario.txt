@@ -137,3 +137,25 @@ BEGIN
         u.correoUsuario = correoInput;
 END$$
 DELIMITER ;
+
+-----------------------------------------------------------
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spVerificarCorreo`(IN p_correoUsuario VARCHAR(255))
+BEGIN
+    SELECT COUNT(*) AS existe FROM tbusuario WHERE correoUsuario = p_correoUsuario;
+END$$
+DELIMITER ;
+
+-------------------------------------------------------------
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spRegistrarUsuario`(
+    IN p_correoUsuario VARCHAR(255), 
+    IN p_contraseniaUsuario VARCHAR(255)
+)
+BEGIN
+    INSERT INTO tbusuario (correoUsuario, contraseniaUsuario, idRol) 
+    VALUES (p_correoUsuario, p_contraseniaUsuario, 3);
+END$$
+DELIMITER ;

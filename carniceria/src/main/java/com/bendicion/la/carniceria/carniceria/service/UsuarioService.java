@@ -23,14 +23,13 @@ public class UsuarioService implements IUsuarioService {
     @Autowired
     private Seguridad seguridad;
     
+// -----------------------------------------------------------------------------
+    
     @Override
     public Usuario addUsuario(Usuario usuario) {
 
-        // Aquí se encripta la contra
         String encriptedPassword = seguridad.encriptPassword(usuario.getContraseniaUsuario());
-        //usuario.setContraseniaUsuario(encriptedPassword);
 
-        // Verificar si fechaNacimiento no es null antes de formatearlo
         Date fechaNacimiento = null;
         if (usuario.getFechaNacimiento() != null) {
             fechaNacimiento = Date.valueOf(usuario.getFechaNacimiento());
@@ -51,7 +50,24 @@ public class UsuarioService implements IUsuarioService {
         );
         return usuario;
     }
+    
+// ----------------------------------------------------------------------------- 
+    
+    @Override
+    public Usuario registerUsuario(Usuario usuario) {
+        int existe = usuarioRepo.verifyCorreoProcedureUsuario(usuario.getCorreoUsuario());
 
+        if (existe > 0) {
+            throw new RuntimeException("El correo ya está en uso.");
+        }
+
+        String encriptedPassword = seguridad.encriptPassword(usuario.getContraseniaUsuario());
+        usuarioRepo.registerProcedureUsuario(usuario.getCorreoUsuario(), encriptedPassword);
+        return usuario;
+    }
+
+// -----------------------------------------------------------------------------   
+    
     @Override
     public Usuario updateUsuario(Usuario usuario) {
 
@@ -105,16 +121,22 @@ public class UsuarioService implements IUsuarioService {
         return usuario;
     }
 
+// -----------------------------------------------------------------------------    
+    
     @Override
     public List<Usuario> getUsuario() {
         return usuarioRepo.listProcedureUsuario();
     }
 
+// -----------------------------------------------------------------------------    
+    
     @Override
     public boolean deleteUsuario(int id) {
         usuarioRepo.deleteProcedureUsuario(id);
         return true;
     }
+    
+// -----------------------------------------------------------------------------    
 
     @Override
     public Usuario validateLogin(String correo, String contraseniaIngresada) {

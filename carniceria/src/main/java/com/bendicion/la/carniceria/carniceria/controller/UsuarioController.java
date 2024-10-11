@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * @author Jamel Sandí
  */
+
 @RestController
 @CrossOrigin(origins = "*")
 @RequestMapping("/usuario")
@@ -31,6 +32,7 @@ public class UsuarioController {
     IUsuarioService iUsuarioService;
 
     // Read
+    // Lee todos los usuarios existentes, trayendo hasta la dirección (Para vista Admin)
     @GetMapping("/")
     public ResponseEntity<List<Usuario>> listUsuarios() {
         List<Usuario> usuarios = iUsuarioService.getUsuario();
@@ -38,7 +40,10 @@ public class UsuarioController {
         return ResponseEntity.ok(usuarios);
     }
 
+// -----------------------------------------------------------------------------    
+    
     // Add
+    // Agregar usuarios en vista Admin
     @PostMapping("/agregar")
     public ResponseEntity<?> addUsuario(@RequestBody Usuario usuario) {
         try {
@@ -56,7 +61,30 @@ public class UsuarioController {
         }
     }
 
+// -----------------------------------------------------------------------------
+    
+    // Registrarse como nuevo usuario
+    @PostMapping("/registrar")
+    public ResponseEntity<?> registerUsuario(@RequestBody Usuario usuario) {
+        try {
+            Usuario nuevoResgistroUsuario = iUsuarioService.registerUsuario(usuario);
+            System.out.println("Usuario registrado: ID -->" + usuario.getIdUsuario() + ", Correo -->" + usuario.getCorreoUsuario());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Usuario guardado con exito con ID: " + nuevoResgistroUsuario.getIdUsuario());
+            response.put("id", nuevoResgistroUsuario.getIdUsuario());
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("error", "Error al agregar el usuario: " + e.getMessage()));
+        }
+    }
+    
+// -----------------------------------------------------------------------------    
+    
     // Update
+    // Actualizar usuarios 
     @PutMapping("/actualizar")
     public ResponseEntity<?> updateUsuario(@RequestBody Usuario usuario) {
         try {
@@ -73,8 +101,11 @@ public class UsuarioController {
                     .body(Collections.singletonMap("error", "Error al actualizar el usuario: " + e.getMessage()));
         }
     }
+    
+// -----------------------------------------------------------------------------       
 
     // Delete
+    // Eliminar usuarios
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<Void> deleteUsuario(@PathVariable int id) {
         boolean eliminado = iUsuarioService.deleteUsuario(id);
@@ -87,7 +118,10 @@ public class UsuarioController {
         }
     }
 
+// -----------------------------------------------------------------------------       
+    
     // Login
+    // Este es para iniciar sesión y saber que tipo de Rol tiene, y trer todos los datos asociados
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest) {
         String correo = loginRequest.get("correoUsuario");
