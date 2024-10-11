@@ -119,7 +119,7 @@ public class UsuarioService implements IUsuarioService {
     @Override
     public Usuario validateLogin(String correo, String contraseniaIngresada) {
         Usuario usuario = usuarioRepo.searchUsuario(correo);
-
+        
         if (usuario != null && seguridad.validatePassword(contraseniaIngresada, usuario.getContraseniaUsuario())) {
             return usuario;
         }
