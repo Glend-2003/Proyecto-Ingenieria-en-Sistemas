@@ -34,6 +34,7 @@ public class Rol {
     public Rol() {
     }
   */  
+    @JsonBackReference
     @OneToMany(mappedBy = "rol", fetch = FetchType.LAZY)
     private List<Usuario> usuario;
     

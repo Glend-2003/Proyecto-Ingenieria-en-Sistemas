@@ -107,7 +107,6 @@ public class UsuarioController {
             } else {
                 System.out.println("Rol no asignado");
             }
-
             return ResponseEntity.ok(usuario);
         } else {
             System.out.println("Error de autenticación: Credenciales incorrectas para el correo: " + correo);

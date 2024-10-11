@@ -1,4 +1,5 @@
 package com.bendicion.la.carniceria.carniceria.domain;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -31,6 +32,7 @@ public class Direccion {
     @Column(name = "descripcionDireccion")
     private String descripcionDireccion;
     
+    @JsonBackReference
     @OneToMany(mappedBy = "direccion", fetch = FetchType.LAZY)
     private List<Usuario> usuario;
     
@@ -49,11 +51,11 @@ public class Direccion {
         this.distrito = distrito;
     }
     
-    public int getId() {
+    public int getIdDireccion() {
         return idDireccion;
     }
 
-    public void setId(int id) {
+    public void setIdDireccion(int id) {
         this.idDireccion = id;
     }
 
