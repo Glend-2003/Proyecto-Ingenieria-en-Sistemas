@@ -56,13 +56,19 @@ public class UsuarioService implements IUsuarioService {
     @Override
     public Usuario registerUsuario(Usuario usuario) {
         int existe = usuarioRepo.verifyCorreoProcedureUsuario(usuario.getCorreoUsuario());
-
+        String encriptedPassword = seguridad.encriptPassword(usuario.getContraseniaUsuario());
         if (existe > 0) {
             throw new RuntimeException("El correo ya está en uso.");
         }
-
-        String encriptedPassword = seguridad.encriptPassword(usuario.getContraseniaUsuario());
+        if (usuario.getCorreoUsuario().equals("")) {
+            throw new RuntimeException("Debe ingresar un correo");
+        }
+        if (encriptedPassword == null || encriptedPassword.equals("")) {
+            throw new RuntimeException("Debe ingresar una contrasena");
+        }
+       
         usuarioRepo.registerProcedureUsuario(usuario.getCorreoUsuario(), encriptedPassword);
+    
         return usuario;
     }
 
@@ -146,5 +152,13 @@ public class UsuarioService implements IUsuarioService {
             return usuario;
         }
         return null;
+    }
+    
+    
+    // -----------------------------------------------------------------------------    
+    
+     
+    public String getSalida(){
+        return usuarioRepo.getSalida();
     }
 }

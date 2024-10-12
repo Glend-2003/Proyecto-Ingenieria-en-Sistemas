@@ -35,7 +35,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
 // -----------------------------------------------------------------------------    
     
     // SP Register
-    @Query(value = "{call spRegistrarUsuario( :correoUsuario, :contraseniaUsuario)}", nativeQuery = true)
+    @Query(value = "{call spRegistrarUsuario( :correoUsuario, :contraseniaUsuario, @salida)}", nativeQuery = true)
     void registerProcedureUsuario(
         @Param("correoUsuario") String correoUsuario, 
         @Param("contraseniaUsuario") String contraseniaUsuario
@@ -75,7 +75,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
 // -----------------------------------------------------------------------------     
     
     // SP Delete 
-    @Query(value = "{call spEliminarUsuario(:idUsuario)}", nativeQuery = true)
+    @Query(value = "{call spEliminarUsuario(:idUsuario, @salida)}", nativeQuery = true)
     void deleteProcedureUsuario(@Param("idUsuario") Integer idUsuario);
     
 // -----------------------------------------------------------------------------     
@@ -83,5 +83,9 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     // SP para buscar el usuario por medio del correo, para el Login 
     @Query(value = "{call spBuscarUsuarioPorCorreo(:correoUsuario)}", nativeQuery = true)
     Usuario searchUsuario(@Param("correoUsuario") String correoUsuario);
+    
+    
+     @Query(value = "SELECT @salida", nativeQuery = true)
+    String getSalida(); // Método para obtener el mensaje de salida
 }
 
