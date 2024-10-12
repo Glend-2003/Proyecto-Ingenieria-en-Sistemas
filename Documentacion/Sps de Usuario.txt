@@ -151,11 +151,63 @@ DELIMITER ;
 
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spRegistrarUsuario`(
-    IN p_correoUsuario VARCHAR(255), 
-    IN p_contraseniaUsuario VARCHAR(255)
+    IN `p_correoUsuario` VARCHAR(255), 
+    IN `p_contraseniaUsuario` VARCHAR(255),
+    OUT `p_salida` VARCHAR(255)
 )
 BEGIN
-    INSERT INTO tbusuario (correoUsuario, contraseniaUsuario, idRol) 
-    VALUES (p_correoUsuario, p_contraseniaUsuario, 3);
+    -- Variable de control
+    DECLARE done INT DEFAULT 0;
+
+    -- Manejador de errores para capturar excepciones SQL genéricas
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+    BEGIN
+        -- Si ocurre un error SQL, se hace rollback y se asigna un mensaje genérico
+        ROLLBACK;
+        SET p_salida = 'Error al agregar';
+    END;
+
+    -- Iniciar la transacción
+    START TRANSACTION;
+
+    -- Validar si el correo es nulo o vacío
+    IF p_correoUsuario IS NULL OR p_correoUsuario = '' THEN
+        SET p_salida = 'Correo vacío';
+        SET done = 1; -- Detener flujo si hay error
+    END IF;
+
+    -- Validar si la contraseña es nula o vacía
+    IF done = 0 AND (p_contraseniaUsuario IS NULL OR p_contraseniaUsuario = '') THEN
+        SET p_salida = 'Contraseña vacía';
+        SET done = 1; -- Detener flujo si hay error
+    END IF;
+
+    -- Validar que el correo sea único
+    IF done = 0 AND EXISTS (SELECT 1 FROM tbusuario WHERE correoUsuario = p_correoUsuario) THEN
+        SET p_salida = 'El correo ya está registrado';
+        SET done = 1; -- Detener flujo si hay error
+    END IF;
+
+    -- Solo proceder si no hay errores previos
+   IF done = 0 THEN
+        -- Insertar la dirección
+        INSERT INTO tbdireccion ()
+        VALUES ();
+
+        -- Obtener el ID de la dirección insertada
+        SET @idDireccion = LAST_INSERT_ID();
+
+        -- Insertar el usuario
+        INSERT INTO tbusuario (correoUsuario, contraseniaUsuario, idDireccion, idRol)
+        VALUES (p_correoUsuario, p_contraseniaUsuario, @idDireccion, 3); -- 3 es el ID del rol, según tu ejemplo
+
+        -- Si todo va bien, hacer commit
+        COMMIT;
+        SET p_salida = 'Usuario agregado exitosamente';
+    ELSE
+        -- Si ocurrió algún error de validación, hacer rollback
+        ROLLBACK;
+    END IF;
+
 END$$
 DELIMITER ;

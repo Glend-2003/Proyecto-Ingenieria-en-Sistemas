@@ -113,6 +113,7 @@ public class UsuarioController {
             System.out.println("Usuario eliminado: ID -->" + id);
             return ResponseEntity.ok().build();
         } else {
+           
             System.out.println("No se pudo eliminar el usuario: ID -->" + id + " no encontrado.");
             return ResponseEntity.notFound().build();
         }
