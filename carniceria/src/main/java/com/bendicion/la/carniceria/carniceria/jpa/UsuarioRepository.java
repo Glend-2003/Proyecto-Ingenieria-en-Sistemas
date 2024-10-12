@@ -35,10 +35,13 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
 // -----------------------------------------------------------------------------    
     
     // SP Register
-    @Query(value = "{call spRegistrarUsuario( :correoUsuario, :contraseniaUsuario, @salida)}", nativeQuery = true)
+    @Query(value = "{call spRegistrarUsuario( :correoUsuario, :contraseniaUsuario, :nombreUsuario, :primerApellido, :SegundoApellido, @salida)}", nativeQuery = true)
     void registerProcedureUsuario(
         @Param("correoUsuario") String correoUsuario, 
-        @Param("contraseniaUsuario") String contraseniaUsuario
+        @Param("contraseniaUsuario") String contraseniaUsuario,
+        @Param("nombreUsuario") String nombreUsuario,
+        @Param("primerApellido") String primerApellido,
+        @Param("SegundoApellido") String SegundoApellido
     );
     
 // -----------------------------------------------------------------------------

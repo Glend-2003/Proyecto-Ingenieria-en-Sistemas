@@ -55,20 +55,37 @@ public class UsuarioService implements IUsuarioService {
     
     @Override
     public Usuario registerUsuario(Usuario usuario) {
+
         int existe = usuarioRepo.verifyCorreoProcedureUsuario(usuario.getCorreoUsuario());
         String encriptedPassword = seguridad.encriptPassword(usuario.getContraseniaUsuario());
+
         if (existe > 0) {
             throw new RuntimeException("El correo ya está en uso.");
         }
+
+        // Validaciones para los campos de entrada
         if (usuario.getCorreoUsuario().equals("")) {
             throw new RuntimeException("Debe ingresar un correo");
         }
+
         if (encriptedPassword == null || encriptedPassword.equals("")) {
-            throw new RuntimeException("Debe ingresar una contrasena");
+            throw new RuntimeException("Debe ingresar una contraseña");
         }
-       
-        usuarioRepo.registerProcedureUsuario(usuario.getCorreoUsuario(), encriptedPassword);
-    
+
+        if (usuario.getNombreUsuario().equals("")) {
+            throw new RuntimeException("Debe ingresar un nombre de usuario");
+        }
+
+        if (usuario.getPrimerApellido().equals("")) {
+            throw new RuntimeException("Debe ingresar el primer apellido");
+        }
+
+        if (usuario.getSegundoApellido().equals("")) {
+            throw new RuntimeException("Debe ingresar el segundo apellido");
+        }
+
+        usuarioRepo.registerProcedureUsuario(usuario.getCorreoUsuario(), encriptedPassword, usuario.getNombreUsuario(), usuario.getPrimerApellido(), usuario.getSegundoApellido());
+
         return usuario;
     }
 
@@ -152,12 +169,10 @@ public class UsuarioService implements IUsuarioService {
             return usuario;
         }
         return null;
-    }
-    
+    }   
     
     // -----------------------------------------------------------------------------    
     
-     
     public String getSalida(){
         return usuarioRepo.getSalida();
     }

@@ -177,6 +177,9 @@ DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spRegistrarUsuario`(
     IN `p_correoUsuario` VARCHAR(255), 
     IN `p_contraseniaUsuario` VARCHAR(255),
+    IN `p_nombreUsuario` VARCHAR(255), -- Nuevo parámetro
+    IN `p_primerApellido` VARCHAR(255), -- Nuevo parámetro
+    IN `p_segundoApellido` VARCHAR(255), -- Nuevo parámetro
     OUT `p_salida` VARCHAR(255)
 )
 BEGIN
@@ -206,6 +209,24 @@ BEGIN
         SET done = 1; -- Detener flujo si hay error
     END IF;
 
+    -- Validar si el nombreUsuario es nulo o vacío
+    IF done = 0 AND (p_nombreUsuario IS NULL OR p_nombreUsuario = '') THEN
+        SET p_salida = 'Nombre de usuario vacío';
+        SET done = 1; -- Detener flujo si hay error
+    END IF;
+
+    -- Validar si el primerApellido es nulo o vacío
+    IF done = 0 AND (p_primerApellido IS NULL OR p_primerApellido = '') THEN
+        SET p_salida = 'Primer apellido vacío';
+        SET done = 1; -- Detener flujo si hay error
+    END IF;
+
+    -- Validar si el segundoApellido es nulo o vacío
+    IF done = 0 AND (p_segundoApellido IS NULL OR p_segundoApellido = '') THEN
+        SET p_salida = 'Segundo apellido vacío';
+        SET done = 1; -- Detener flujo si hay error
+    END IF;
+
     -- Validar que el correo sea único
     IF done = 0 AND EXISTS (SELECT 1 FROM tbusuario WHERE correoUsuario = p_correoUsuario) THEN
         SET p_salida = 'El correo ya está registrado';
@@ -213,7 +234,7 @@ BEGIN
     END IF;
 
     -- Solo proceder si no hay errores previos
-   IF done = 0 THEN
+    IF done = 0 THEN
         -- Insertar la dirección
         INSERT INTO tbdireccion ()
         VALUES ();
@@ -221,9 +242,9 @@ BEGIN
         -- Obtener el ID de la dirección insertada
         SET @idDireccion = LAST_INSERT_ID();
 
-        -- Insertar el usuario
-        INSERT INTO tbusuario (correoUsuario, contraseniaUsuario, idDireccion, idRol)
-        VALUES (p_correoUsuario, p_contraseniaUsuario, @idDireccion, 3); -- 3 es el ID del rol, según tu ejemplo
+        -- Insertar el usuario con los nuevos campos
+        INSERT INTO tbusuario (correoUsuario, contraseniaUsuario, nombreUsuario, primerApellido, segundoApellido, idDireccion, idRol)
+        VALUES (p_correoUsuario, p_contraseniaUsuario, p_nombreUsuario, p_primerApellido, p_segundoApellido, @idDireccion, 3); -- 3 es el ID del rol, según tu ejemplo
 
         -- Si todo va bien, hacer commit
         COMMIT;
