@@ -69,8 +69,26 @@ DELIMITER ;
 -------------------------------------------
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `spEliminarUsuario`(IN p_idUsuario INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spEliminarUsuario`(IN p_idUsuario INT, OUT p_salida VARCHAR(30))
 BEGIN
+		
+    -- Variable de control
+    DECLARE done INT DEFAULT 0;
+
+    -- Manejador de errores para capturar excepciones SQL genéricas
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+    BEGIN
+        -- Si ocurre un error SQL, se hace rollback y se asigna un mensaje genérico
+        ROLLBACK;
+        SET p_salida = 'Error al eliminar';
+    END;
+
+ 		IF done = 0 AND NOT EXISTS (SELECT 1 FROM tbusuario WHERE idUsuario = p_idUsuario) THEN
+        SET p_salida = 'El id del usuario no existe';
+        SET done = 1; -- Detener flujo si hay error
+    END IF;
+
+	 IF done = 0 THEN
     -- Obtener la idDireccion del usuario
     SELECT idDireccion INTO @idDireccion FROM tbusuario WHERE idUsuario = p_idUsuario;
 
@@ -79,9 +97,15 @@ BEGIN
 
     -- Eliminar la dirección relacionada
     DELETE FROM tbdireccion WHERE idDireccion = @idDireccion;
+    
+    SET p_salida = 'Usuario eliminado exitosamente';
+   ELSE
+        -- Si ocurrió algún error de validación, hacer rollback
+        ROLLBACK;
+    END IF;
+
 END$$
 DELIMITER ;
-
 ----------------------------------------------
 
 DELIMITER $$

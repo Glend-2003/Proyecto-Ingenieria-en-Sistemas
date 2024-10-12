@@ -19,6 +19,7 @@ CRUD Rol
 
 CRUD Usuario
 
+[   ] Se debe ingresar obligatoriamente el nombre, apellidos, correo y contraseña al momento de registrar un usuario
 [   ] Corregir los sps para que tengan mas validaciones, como por ejemplo try catch y cosas así.
 [   ] Corregir el spLeerUsuario ya que solo trae lo que hay en esa tabla y no la direccion y el rol asociado.
 [ X ] Hacer que al agregar la contrasenia se encripte y viceversa al mostrarlo para ese mismo usuario. (Jamel)
