@@ -13,7 +13,7 @@ CRUD Rol
 [   ] Hacer la vista en react.
 [   ] Verificar porqué tira errores en la consola de spring, aunque si funcione todo.
 [   ] Hacer full pruebas de rendimiento, y ver cuanto aguanta y corregir donde se cae.
-[   ] Revisar porqué se enciclan los datos al traerlos en Rol.
+[ X ] Revisar porqué se enciclan los datos al traerlos en Rol.
 [ X ] Al momento de actualizar, pues que no sean necesarios todos los campos. (Jamel)
 [ X ] Al momento de guardar hacer que algunos campos sean totalmente necesarios. (Jamel)
 
@@ -21,12 +21,12 @@ CRUD Usuario
 
 [   ] Se debe ingresar obligatoriamente el nombre, apellidos, correo y contraseña al momento de registrar un usuario
 [   ] Corregir los sps para que tengan mas validaciones, como por ejemplo try catch y cosas así.
-[   ] Corregir el spLeerUsuario ya que solo trae lo que hay en esa tabla y no la direccion y el rol asociado.
+[ X ] Corregir el spLeerUsuario ya que solo trae lo que hay en esa tabla y no la direccion y el rol asociado.
 [ X ] Hacer que al agregar la contrasenia se encripte y viceversa al mostrarlo para ese mismo usuario. (Jamel)
 [   ] Hacer que el usuario pueda recuperar su contrasenia.
 [ X ] Que el usaario pueda registrarse y se registre como idUsuario = 3 (ese es el usuario), osea crear su cuenta, solo con correo y contra, el resto null, ya que después el lo edita. (Jamel)
 [   ] Verificar porqué tira errores en la consola de spring, aunque si funcione todo
-[   ] Al momento de hacer el logueo por medio de PostMan, y si este es correcto, tira los datos del usuario pero enciclado, corregir eso.
+[ X ] Al momento de hacer el logueo por medio de PostMan, y si este es correcto, tira los datos del usuario pero enciclado, corregir eso.
 [   ] Hacer la vista en react.
 [   ] Hacer full pruebas de rendimiento, y ver cuanto aguanta y corregir donde se cae.
 [ X ] Al momento de actualizar, pues que no sean necesarios todos los campos. (Jamel)

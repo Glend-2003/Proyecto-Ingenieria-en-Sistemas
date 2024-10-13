@@ -28,12 +28,47 @@ public class UsuarioService implements IUsuarioService {
     @Override
     public Usuario addUsuario(Usuario usuario) {
 
+        if (usuario.getCedulaUsuario() == null || usuario.getCedulaUsuario().trim().isEmpty()) {
+            throw new IllegalArgumentException("La cédula del usuario no puede estar vacía");
+        }
+        if (usuario.getNombreUsuario() == null || usuario.getNombreUsuario().trim().isEmpty()) {
+            throw new IllegalArgumentException("El nombre del usuario no puede estar vacío");
+        }
+        if (usuario.getPrimerApellido() == null || usuario.getPrimerApellido().trim().isEmpty()) {
+            throw new IllegalArgumentException("El primer apellido del usuario no puede estar vacío");
+        }
+        if (usuario.getSegundoApellido() == null || usuario.getSegundoApellido().trim().isEmpty()) {
+            throw new IllegalArgumentException("El segundo apellido del usuario no puede estar vacío");
+        }
+        if (usuario.getTelefonoUsuario() == null || usuario.getTelefonoUsuario().trim().isEmpty()) {
+            throw new IllegalArgumentException("El teléfono del usuario no puede estar vacío");
+        }
+        if (usuario.getCorreoUsuario() == null || usuario.getCorreoUsuario().trim().isEmpty()) {
+            throw new IllegalArgumentException("El correo del usuario no puede estar vacío");
+        }
+        if (usuario.getContraseniaUsuario() == null || usuario.getContraseniaUsuario().trim().isEmpty()) {
+            throw new IllegalArgumentException("La contraseña del usuario no puede estar vacía");
+        }
+        if (usuario.getDireccion() == null || usuario.getDireccion().getDescripcionDireccion().trim().isEmpty()) {
+            throw new IllegalArgumentException("La dirección no puede estar vacía");
+        }
+        if (usuario.getDireccion().getCodigoPostal() == null || usuario.getDireccion().getCodigoPostal().trim().isEmpty()) {
+            throw new IllegalArgumentException("El código postal no puede estar vacío");
+        }
+        if (usuario.getDireccion().getDistrito() == null || usuario.getDireccion().getDistrito().getIdDistrito() <= 0) {
+            throw new IllegalArgumentException("El distrito es inválido");
+        }
+        if (usuario.getRol() == null || usuario.getRol().getIdRol() <= 0) {
+            throw new IllegalArgumentException("El rol es inválido");
+        }
+
         String encriptedPassword = seguridad.encriptPassword(usuario.getContraseniaUsuario());
 
         Date fechaNacimiento = null;
         if (usuario.getFechaNacimiento() != null) {
             fechaNacimiento = Date.valueOf(usuario.getFechaNacimiento());
         }
+
         usuarioRepo.saveProcedureUsuario(
                 usuario.getCedulaUsuario(),
                 usuario.getNombreUsuario(),
@@ -48,8 +83,10 @@ public class UsuarioService implements IUsuarioService {
                 usuario.getDireccion().getDistrito().getIdDistrito(),
                 usuario.getRol().getIdRol()
         );
+
         return usuario;
     }
+
     
 // ----------------------------------------------------------------------------- 
     
@@ -63,7 +100,6 @@ public class UsuarioService implements IUsuarioService {
             throw new RuntimeException("El correo ya está en uso.");
         }
 
-        // Validaciones para los campos de entrada
         if (usuario.getCorreoUsuario().equals("")) {
             throw new RuntimeException("Debe ingresar un correo");
         }
