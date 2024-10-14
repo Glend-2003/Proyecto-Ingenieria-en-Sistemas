@@ -1,6 +1,9 @@
 package com.bendicion.la.carniceria.carniceria.controller;
+import com.bendicion.la.carniceria.carniceria.Logic.JwtService;
 import com.bendicion.la.carniceria.carniceria.domain.Usuario;
+import com.bendicion.la.carniceria.carniceria.jpa.UsuarioRepository;
 import com.bendicion.la.carniceria.carniceria.service.IUsuarioService;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +33,9 @@ public class UsuarioController {
 
     @Autowired
     IUsuarioService iUsuarioService;
+    
+    @Autowired
+    private JwtService jwtService;  // Asegúrate de tener este Autowired
 
     // Read
     // Lee todos los usuarios existentes, trayendo hasta la dirección (Para vista Admin)
@@ -121,12 +127,15 @@ public class UsuarioController {
 
 // -----------------------------------------------------------------------------       
     
-    // Login
-    // Este es para iniciar sesión y saber que tipo de Rol tiene, y trer todos los datos asociados
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest) {
         String correo = loginRequest.get("correoUsuario");
         String contrasenia = loginRequest.get("contraseniaUsuario");
+        
+        if (correo == null || correo.trim().isEmpty()) {
+            System.out.println("Error: El campo de correo está vacío o es nulo");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El campo de correo no puede estar vacío");
+        }
 
         Usuario usuario = iUsuarioService.validateLogin(correo, contrasenia);
 
@@ -136,7 +145,6 @@ public class UsuarioController {
             System.out.println("Correo: " + usuario.getCorreoUsuario());
             System.out.println("Nombre: " + usuario.getNombreUsuario());
 
-            // Rol aquí 
             if (usuario.getRol() != null) {
                 System.out.println("Rol: " + usuario.getRol().getNombreRol());
             } else {
@@ -147,6 +155,22 @@ public class UsuarioController {
             System.out.println("Error de autenticación: Credenciales incorrectas para el correo: " + correo);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciales incorrectas");
         }
+    }
+    
+   @GetMapping("/datos")
+    public ResponseEntity<?> obtenerDatosUsuario(HttpServletRequest request) {
+        String token = request.getHeader("Authorization").substring(7); // Eliminar "Bearer "
+
+        if (jwtService.verifyToken(token)) {
+            // Extraer datos del usuario desde el token
+            String correoUsuario = jwtService.getCorreoUsuario(token);
+            Usuario usuario = iUsuarioService.searchCorreoUsuario(correoUsuario);
+
+            if (usuario != null) {
+                return ResponseEntity.ok(usuario);
+            }
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o expirado");
     }
 
 }

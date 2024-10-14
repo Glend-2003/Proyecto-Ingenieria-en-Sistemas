@@ -1,5 +1,6 @@
 package com.bendicion.la.carniceria.carniceria.service;
 
+import com.bendicion.la.carniceria.carniceria.Logic.JwtService;
 import com.bendicion.la.carniceria.carniceria.Logic.Seguridad;
 import com.bendicion.la.carniceria.carniceria.domain.Usuario;
 import com.bendicion.la.carniceria.carniceria.jpa.UsuarioRepository;
@@ -21,7 +22,10 @@ public class UsuarioService implements IUsuarioService {
     private UsuarioRepository usuarioRepo;
 
     @Autowired
-    private Seguridad seguridad;
+    private Seguridad seguridad; 
+    
+    @Autowired
+    private JwtService jwt;
     
 // -----------------------------------------------------------------------------
     
@@ -196,18 +200,51 @@ public class UsuarioService implements IUsuarioService {
     }
     
 // -----------------------------------------------------------------------------    
-
+    
     @Override
     public Usuario validateLogin(String correo, String contraseniaIngresada) {
         Usuario usuario = usuarioRepo.searchUsuario(correo);
-        
-        if (usuario != null && seguridad.validatePassword(contraseniaIngresada, usuario.getContraseniaUsuario())) {
-            return usuario;
+
+        if (usuario == null) {
+            System.out.println("Usuario no encontrado para el correo: " + correo);
+            return null;
         }
-        return null;
-    }   
+
+        System.out.println("Usuario encontrado: " + usuario.getNombreUsuario());
+
+        if (contraseniaIngresada == null || contraseniaIngresada.isEmpty()) {
+            System.out.println("La contraseña ingresada es nula o vacía para el correo: " + correo);
+            return null;
+        }
+
+        boolean validPassword = seguridad.validatePassword(contraseniaIngresada, usuario.getContraseniaUsuario());
+        if (!validPassword) {
+            System.out.println("Contraseña incorrecta para el correo: " + correo);
+            return null;
+        }
+
+        // Generar el token utilizando el jwtService
+        String token = jwt.generateToken(usuario.getCorreoUsuario());
+
+        usuario.setToken(token);
+
+        return usuario; // Devuelve el objeto Usuario con el token
+    }
+
+// ----------------------------------------------------------------------------- 
     
-    // -----------------------------------------------------------------------------    
+    public Usuario searchCorreoUsuario(String correo){
+        Usuario usuario = usuarioRepo.searchUsuario(correo);
+        
+        if (usuario == null) {
+            System.out.println("Usuario no encontrado para el correo: " + correo);
+            return null;
+        }
+        
+        return usuario; 
+    }
+    
+// -----------------------------------------------------------------------------    
     
     public String getSalida(){
         return usuarioRepo.getSalida();

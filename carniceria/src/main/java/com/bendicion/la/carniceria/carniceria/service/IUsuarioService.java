@@ -26,6 +26,8 @@ public interface IUsuarioService {
     // Para validar en la Login y trae todos sus datos al loguearse
     public Usuario validateLogin(String correo, String contraseniaIngresada);
     
+    public Usuario searchCorreoUsuario(String correo);
+    
     // Registrarse como nuevo usuario 
     public Usuario registerUsuario(Usuario usuario);
 }
