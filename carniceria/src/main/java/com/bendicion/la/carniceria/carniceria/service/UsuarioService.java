@@ -1,14 +1,20 @@
 package com.bendicion.la.carniceria.carniceria.service;
 
-import com.bendicion.la.carniceria.carniceria.Logic.JwtService;
-import com.bendicion.la.carniceria.carniceria.Logic.Seguridad;
-import com.bendicion.la.carniceria.carniceria.domain.Usuario;
-import com.bendicion.la.carniceria.carniceria.jpa.UsuarioRepository;
 import java.sql.Date;
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
+
+import com.bendicion.la.carniceria.carniceria.Logic.Seguridad;
+import com.bendicion.la.carniceria.carniceria.domain.Usuario;
+import com.bendicion.la.carniceria.carniceria.jpa.UsuarioRepository;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.ParameterMode;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.StoredProcedureQuery;
 
 /**
  *
@@ -22,10 +28,12 @@ public class UsuarioService implements IUsuarioService {
     private UsuarioRepository usuarioRepo;
 
     @Autowired
-    private Seguridad seguridad; 
-    
-    @Autowired
-    private JwtService jwt;
+    private Seguridad seguridad;
+
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
     
 // -----------------------------------------------------------------------------
     
@@ -94,9 +102,10 @@ public class UsuarioService implements IUsuarioService {
     
 // ----------------------------------------------------------------------------- 
     
-    @Override
+   @Override
     public Usuario registerUsuario(Usuario usuario) {
 
+        // Verificación de correo existente
         int existe = usuarioRepo.verifyCorreoProcedureUsuario(usuario.getCorreoUsuario());
         String encriptedPassword = seguridad.encriptPassword(usuario.getContraseniaUsuario());
 
@@ -104,6 +113,7 @@ public class UsuarioService implements IUsuarioService {
             throw new RuntimeException("El correo ya está en uso.");
         }
 
+        // Validaciones básicas
         if (usuario.getCorreoUsuario().equals("")) {
             throw new RuntimeException("Debe ingresar un correo");
         }
@@ -124,7 +134,29 @@ public class UsuarioService implements IUsuarioService {
             throw new RuntimeException("Debe ingresar el segundo apellido");
         }
 
-        usuarioRepo.registerProcedureUsuario(usuario.getCorreoUsuario(), encriptedPassword, usuario.getNombreUsuario(), usuario.getPrimerApellido(), usuario.getSegundoApellido());
+        // Ejecutar el procedimiento almacenado usando StoredProcedureQuery
+        StoredProcedureQuery query = entityManager
+            .createStoredProcedureQuery("spRegistrarUsuario")
+            .registerStoredProcedureParameter("correoUsuario", String.class, ParameterMode.IN)
+            .registerStoredProcedureParameter("contraseniaUsuario", String.class, ParameterMode.IN)
+            .registerStoredProcedureParameter("nombreUsuario", String.class, ParameterMode.IN)
+            .registerStoredProcedureParameter("primerApellido", String.class, ParameterMode.IN)
+            .registerStoredProcedureParameter("SegundoApellido", String.class, ParameterMode.IN)
+            .registerStoredProcedureParameter("salida", Integer.class, ParameterMode.OUT);
+
+        // Asignar parámetros al procedimiento
+        query.setParameter("correoUsuario", usuario.getCorreoUsuario());
+        query.setParameter("contraseniaUsuario", encriptedPassword);
+        query.setParameter("nombreUsuario", usuario.getNombreUsuario());
+        query.setParameter("primerApellido", usuario.getPrimerApellido());
+        query.setParameter("SegundoApellido", usuario.getSegundoApellido());
+
+        // Ejecutar el procedimiento
+        query.execute();
+
+        // Obtener el valor del parámetro de salida (opcional, dependiendo del procedimiento)
+        Integer salida = (Integer) query.getOutputParameterValue("salida");
+        System.out.println("Resultado del procedimiento: " + salida);
 
         return usuario;
     }
@@ -200,53 +232,33 @@ public class UsuarioService implements IUsuarioService {
     }
     
 // -----------------------------------------------------------------------------    
-    
+
     @Override
     public Usuario validateLogin(String correo, String contraseniaIngresada) {
         Usuario usuario = usuarioRepo.searchUsuario(correo);
-
-        if (usuario == null) {
-            System.out.println("Usuario no encontrado para el correo: " + correo);
-            return null;
-        }
-
-        System.out.println("Usuario encontrado: " + usuario.getNombreUsuario());
-
-        if (contraseniaIngresada == null || contraseniaIngresada.isEmpty()) {
-            System.out.println("La contraseña ingresada es nula o vacía para el correo: " + correo);
-            return null;
-        }
-
-        boolean validPassword = seguridad.validatePassword(contraseniaIngresada, usuario.getContraseniaUsuario());
-        if (!validPassword) {
-            System.out.println("Contraseña incorrecta para el correo: " + correo);
-            return null;
-        }
-
-        // Generar el token utilizando el jwtService
-        String token = jwt.generateToken(usuario.getCorreoUsuario());
-
-        usuario.setToken(token);
-
-        return usuario; // Devuelve el objeto Usuario con el token
-    }
-
-// ----------------------------------------------------------------------------- 
-    
-    public Usuario searchCorreoUsuario(String correo){
-        Usuario usuario = usuarioRepo.searchUsuario(correo);
         
-        if (usuario == null) {
-            System.out.println("Usuario no encontrado para el correo: " + correo);
-            return null;
+        if (usuario != null && seguridad.validatePassword(contraseniaIngresada, usuario.getContraseniaUsuario())) {
+            return usuario;
         }
-        
-        return usuario; 
-    }
+        return null;
+    }   
     
-// -----------------------------------------------------------------------------    
+    // -----------------------------------------------------------------------------    
     
     public String getSalida(){
         return usuarioRepo.getSalida();
     }
+
+    //-----------------------------------------------------------------------------------
+    @Override
+public Usuario searchCorreoUsuario(String correo) {
+    Usuario usuario = usuarioRepo.searchUsuario(correo);
+
+    if (usuario == null) {
+        System.out.println("Usuario no encontrado para el correo: " + correo);
+        return null;
+    }
+
+    return usuario; 
+}
 }
