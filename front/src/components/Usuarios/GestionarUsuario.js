@@ -114,16 +114,26 @@ const GestionarUsuario = () => {
     }
 
     try {
-      await axios.delete(`http://localhost:8080/usuario/eliminar/${idUsuario}`);
-      toast.success('Usuario eliminado con éxito', {
-        autoClose: 1500,
-        onClose: () => {
-          cargarUsuarios();
-        },
-      });
+        console.log(idUsuario); // Para verificar el ID antes de hacer la solicitud
+        const response = await axios.delete(`http://localhost:8080/usuario/eliminar/${idUsuario}`);
+        if (response.status === 200) {
+            toast.success('Usuario eliminado con éxito', {
+                autoClose: 1500,
+                onClose: () => {
+                    cargarUsuarios();
+                },
+            });
+        }
+        /*await axios.delete(`http://localhost:8080/usuario/eliminar/${idUsuario}`);
+        toast.success('Usuario eliminado con éxito', {
+            autoClose: 1500,
+            onClose: () => {
+                cargarUsuarios();
+            },
+        });*/
     } catch (error) {
-      console.error('Error al eliminar usuario:', error);
-      toast.error('Ocurrió un error al eliminar el usuario');
+        console.error('Error al eliminar usuario:', error);
+        toast.error('Ocurrió un error al eliminar el usuario');
     }
   };
 
