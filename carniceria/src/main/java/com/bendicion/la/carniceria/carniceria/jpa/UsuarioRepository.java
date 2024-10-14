@@ -78,7 +78,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
 // -----------------------------------------------------------------------------     
     
     // SP Delete 
-    @Query(value = "{call spEliminarUsuario(:idUsuario, @salida)}", nativeQuery = true)
+    @Query(value = "{call spEliminarUsuario(:idUsuario)}", nativeQuery = true)
     void deleteProcedureUsuario(@Param("idUsuario") Integer idUsuario);
     
 // -----------------------------------------------------------------------------     
@@ -87,8 +87,5 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     @Query(value = "{call spBuscarUsuarioPorCorreo(:correoUsuario)}", nativeQuery = true)
     Usuario searchUsuario(@Param("correoUsuario") String correoUsuario);
     
-    
-     @Query(value = "SELECT @salida", nativeQuery = true)
-    String getSalida(); // Método para obtener el mensaje de salida
 }
 

@@ -136,7 +136,7 @@ public class UsuarioService implements IUsuarioService {
         if (usuario.getSegundoApellido().equals("")) {
             throw new RuntimeException("Debe ingresar el segundo apellido");
         }
-
+/*
         // Ejecutar el procedimiento almacenado usando StoredProcedureQuery
         StoredProcedureQuery query = entityManager
             .createStoredProcedureQuery("spRegistrarUsuario")
@@ -160,7 +160,7 @@ public class UsuarioService implements IUsuarioService {
         // Obtener el valor del parámetro de salida (opcional, dependiendo del procedimiento)
         Integer salida = (Integer) query.getOutputParameterValue("salida");
         System.out.println("Resultado del procedimiento: " + salida);
-
+*/
         return usuario;
     }
 
@@ -280,9 +280,4 @@ public class UsuarioService implements IUsuarioService {
         return usuario; 
     }
     
-// -----------------------------------------------------------------------------    
-    
-    public String getSalida(){
-        return usuarioRepo.getSalida();
-    }
 }
