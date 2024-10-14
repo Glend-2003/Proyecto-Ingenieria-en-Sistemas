@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-CarniceriaApplication<carniceria>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.bendicion.la.carniceria.carniceria.CarniceriaApplication",
+            "projectName": "carniceria",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
