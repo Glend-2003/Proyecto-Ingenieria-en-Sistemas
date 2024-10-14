@@ -36,7 +36,9 @@ function LoginApp() {
             navigate('/CategoriaApp');
           } else if (response.data.rol.nombreRol === 'Usuario') {
             navigate('/principal');
-          } else {
+          } else if(response.data.rol.nombreRol === 'Gerente'){
+            navigate('/principal');          
+          }else{
             setLoginStatus("Rol no reconocido");
           }
         } else {

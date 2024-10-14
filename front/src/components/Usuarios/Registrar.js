@@ -81,10 +81,19 @@ const Registrar = () => {
                 })
                 .then(response => {
                     console.log('Usuario registrado con éxito:', response.data);
-                    navigate('/principal');
+                    navigate('../');
                 })
                 .catch(error => {
-                    console.error('Error al registrar usuario:', error.response ? error.response.data : error.message);
+                    if (error.response) {
+                        // El servidor respondió con un código de estado fuera del rango 2xx
+                        console.error('Error de respuesta del servidor:', error.response.data);
+                    } else if (error.request) {
+                        // La solicitud fue hecha, pero no hubo respuesta
+                        console.error('No hubo respuesta del servidor:', error.request);
+                    } else {
+                        // Algo pasó al configurar la solicitud
+                        console.error('Error en la solicitud:', error.message);
+                    }
                 });
             }
         } else {
