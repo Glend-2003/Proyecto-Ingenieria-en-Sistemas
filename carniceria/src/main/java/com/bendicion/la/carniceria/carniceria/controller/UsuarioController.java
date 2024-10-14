@@ -115,15 +115,15 @@ public class UsuarioController {
     // Delete
     // Eliminar usuarios
     @DeleteMapping("/eliminar/{id}")
-    public ResponseEntity<Void> deleteUsuario(@PathVariable int id) {
+    public ResponseEntity<Boolean> deleteUsuario(@PathVariable int id) {
         boolean eliminado = iUsuarioService.deleteUsuario(id);
         if (eliminado) {
             System.out.println("Usuario eliminado: ID -->" + id);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(true);
         } else {
            
             System.out.println("No se pudo eliminar el usuario: ID -->" + id + " no encontrado.");
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
         }
     }
 

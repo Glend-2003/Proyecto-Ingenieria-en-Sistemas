@@ -71,8 +71,14 @@ public class CategoriaService implements ICategoriaService {
 
     @Override
     public boolean deleteCategoria(int id) {
+    try {
         System.out.println("Eliminando categoría con ID: " + id);
         categoriaRep.deleteProcedureCategoria(id);
         return true;
+    } catch (Exception e) {
+        System.err.println("Error al eliminar la categoría con ID: " + id + ". Detalles: " + e.getMessage());
+        return false;
     }
+    }
+
 }

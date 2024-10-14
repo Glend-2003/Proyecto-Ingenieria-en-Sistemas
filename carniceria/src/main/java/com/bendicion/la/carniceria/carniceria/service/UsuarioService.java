@@ -13,9 +13,7 @@ import com.bendicion.la.carniceria.carniceria.domain.Usuario;
 import com.bendicion.la.carniceria.carniceria.jpa.UsuarioRepository;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.ParameterMode;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.StoredProcedureQuery;
 
 /**
  *
@@ -225,10 +223,15 @@ public class UsuarioService implements IUsuarioService {
     
     @Override
     public boolean deleteUsuario(int id) {
-        usuarioRepo.deleteProcedureUsuario(id);
-        return true;
+        try {
+            usuarioRepo.deleteProcedureUsuario(id);
+            return true;
+        } catch (Exception e) {
+            System.out.println("Error al eliminar el usuario con id: " + id);
+            e.printStackTrace();
+            return false;
+        }
     }
-    
 // -----------------------------------------------------------------------------    
     
     @Override
