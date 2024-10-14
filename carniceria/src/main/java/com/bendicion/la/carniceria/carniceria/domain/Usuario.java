@@ -1,5 +1,4 @@
 package com.bendicion.la.carniceria.carniceria.domain;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -7,6 +6,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Transient;
 import java.time.LocalDate;
 
 /**
@@ -53,6 +53,9 @@ public class Usuario {
     @ManyToOne
     @JoinColumn(name = "idDireccion") 
     private Direccion direccion;
+    
+    @Transient 
+    private String token; 
     
     public Usuario() {
     }
@@ -158,8 +161,14 @@ public class Usuario {
     public void setDireccion(Direccion direccion) {
         this.direccion = direccion;
     }
-
     
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
     
 }
 
