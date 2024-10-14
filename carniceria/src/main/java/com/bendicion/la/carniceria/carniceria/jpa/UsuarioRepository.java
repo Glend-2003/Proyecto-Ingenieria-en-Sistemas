@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.bendicion.la.carniceria.carniceria.domain.Usuario;
+import org.springframework.data.jpa.repository.Modifying;
 
 /**
  *
@@ -55,6 +56,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
 // -----------------------------------------------------------------------------    
     
     // SP Update 
+    @Modifying
     @Query(value = "{call spActualizarUsuario(:idUsuario, :cedulaUsuario, :nombreUsuario, :primerApellido, :segundoApellido, :telefonoUsuario, :correoUsuario, :contraseniaUsuario, :fechaNacimiento, :descripcionDireccion, :codigoPostalDireccion, :idDistrito)}", nativeQuery = true)
     void updateProcedureUsuario(
         @Param("idUsuario") Integer idUsuario, 

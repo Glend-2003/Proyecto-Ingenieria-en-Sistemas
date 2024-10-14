@@ -14,6 +14,7 @@ import com.bendicion.la.carniceria.carniceria.jpa.UsuarioRepository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 
 /**
  *
@@ -38,6 +39,7 @@ public class UsuarioService implements IUsuarioService {
 // -----------------------------------------------------------------------------
     
     @Override
+    @Transactional // Asegúrate de que esté anotado
     public Usuario addUsuario(Usuario usuario) {
 
         if (usuario.getCedulaUsuario() == null || usuario.getCedulaUsuario().trim().isEmpty()) {
