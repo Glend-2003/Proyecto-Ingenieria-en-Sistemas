@@ -17,10 +17,10 @@ import org.springframework.stereotype.Service;
 @Service
 @Primary
 public class UsuarioService implements IUsuarioService {
-
+    
     @Autowired
     private UsuarioRepository usuarioRepo;
-
+    
     @Autowired
     private Seguridad seguridad; 
     
@@ -123,7 +123,7 @@ public class UsuarioService implements IUsuarioService {
         if (usuario.getSegundoApellido().equals("")) {
             throw new RuntimeException("Debe ingresar el segundo apellido");
         }
-
+        
         usuarioRepo.registerProcedureUsuario(usuario.getCorreoUsuario(), encriptedPassword, usuario.getNombreUsuario(), usuario.getPrimerApellido(), usuario.getSegundoApellido());
 
         return usuario;
@@ -233,6 +233,7 @@ public class UsuarioService implements IUsuarioService {
 
 // ----------------------------------------------------------------------------- 
     
+    @Override
     public Usuario searchCorreoUsuario(String correo){
         Usuario usuario = usuarioRepo.searchUsuario(correo);
         
