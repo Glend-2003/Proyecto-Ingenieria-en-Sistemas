@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
+import com.bendicion.la.carniceria.carniceria.Logic.JwtService;
 import com.bendicion.la.carniceria.carniceria.Logic.Seguridad;
 import com.bendicion.la.carniceria.carniceria.domain.Usuario;
 import com.bendicion.la.carniceria.carniceria.jpa.UsuarioRepository;
@@ -23,17 +24,18 @@ import jakarta.persistence.StoredProcedureQuery;
 @Service
 @Primary
 public class UsuarioService implements IUsuarioService {
-
+    
     @Autowired
     private UsuarioRepository usuarioRepo;
-
+    
     @Autowired
-    private Seguridad seguridad;
-
+    private Seguridad seguridad; 
+    
+    @Autowired
+    private JwtService jwt;
 
     @PersistenceContext
     private EntityManager entityManager;
-
     
 // -----------------------------------------------------------------------------
     
@@ -102,6 +104,7 @@ public class UsuarioService implements IUsuarioService {
     
 // ----------------------------------------------------------------------------- 
     
+
    @Override
     public Usuario registerUsuario(Usuario usuario) {
 
@@ -232,33 +235,54 @@ public class UsuarioService implements IUsuarioService {
     }
     
 // -----------------------------------------------------------------------------    
-
+    
     @Override
     public Usuario validateLogin(String correo, String contraseniaIngresada) {
         Usuario usuario = usuarioRepo.searchUsuario(correo);
-        
-        if (usuario != null && seguridad.validatePassword(contraseniaIngresada, usuario.getContraseniaUsuario())) {
-            return usuario;
+
+        if (usuario == null) {
+            System.out.println("Usuario no encontrado para el correo: " + correo);
+            return null;
         }
-        return null;
-    }   
+
+        System.out.println("Usuario encontrado: " + usuario.getNombreUsuario());
+
+        if (contraseniaIngresada == null || contraseniaIngresada.isEmpty()) {
+            System.out.println("La contraseña ingresada es nula o vacía para el correo: " + correo);
+            return null;
+        }
+
+        boolean validPassword = seguridad.validatePassword(contraseniaIngresada, usuario.getContraseniaUsuario());
+        if (!validPassword) {
+            System.out.println("Contraseña incorrecta para el correo: " + correo);
+            return null;
+        }
+
+        // Generar el token utilizando el jwtService
+        String token = jwt.generateToken(usuario.getCorreoUsuario());
+
+        usuario.setToken(token);
+
+        return usuario; // Devuelve el objeto Usuario con el token
+    }
+
+// ----------------------------------------------------------------------------- 
     
-    // -----------------------------------------------------------------------------    
+    @Override
+    public Usuario searchCorreoUsuario(String correo){
+        Usuario usuario = usuarioRepo.searchUsuario(correo);
+        
+        if (usuario == null) {
+            System.out.println("Usuario no encontrado para el correo: " + correo);
+            return null;
+        }
+        
+        return usuario; 
+    }
+    
+// -----------------------------------------------------------------------------    
     
     public String getSalida(){
         return usuarioRepo.getSalida();
     }
-
-    //-----------------------------------------------------------------------------------
-    @Override
-public Usuario searchCorreoUsuario(String correo) {
-    Usuario usuario = usuarioRepo.searchUsuario(correo);
-
-    if (usuario == null) {
-        System.out.println("Usuario no encontrado para el correo: " + correo);
-        return null;
-    }
-
-    return usuario; 
-}
 }

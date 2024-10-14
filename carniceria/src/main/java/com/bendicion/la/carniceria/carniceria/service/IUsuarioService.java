@@ -1,7 +1,9 @@
 package com.bendicion.la.carniceria.carniceria.service;
-import com.bendicion.la.carniceria.carniceria.domain.Usuario;
-import jakarta.transaction.Transactional;
 import java.util.List;
+
+import com.bendicion.la.carniceria.carniceria.domain.Usuario;
+
+import jakarta.transaction.Transactional;
 
 /**
  *
@@ -31,4 +33,5 @@ public interface IUsuarioService {
     
     // Registrarse como nuevo usuario 
     public Usuario registerUsuario(Usuario usuario);
+
 }
