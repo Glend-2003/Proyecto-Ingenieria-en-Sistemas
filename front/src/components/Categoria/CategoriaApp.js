@@ -111,7 +111,6 @@ const CategoriaApp = () => {
     }
   };
   
-
   const eliminarCategoria = async (id) => {
     const { isConfirmed } = await Swal.fire({
       title: '¿Estás seguro?',
@@ -149,8 +148,6 @@ const CategoriaApp = () => {
     }
   };
   
-  
-
   return (
     <div className="container mt-5">
     <h1>Gestión de Categorías</h1>

@@ -10,10 +10,21 @@ const GestionarUsuario = () => {
   // Estado para manejar los datos de los usuarios
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState('');
+  const [editableUsers, setEditableUsers] = useState(users);
 
   useEffect(() => {
     cargarUsuarios();
   }, []);
+
+  // Función para manejar el cambio de los inputs de la tabla
+const handleInputChange = (e, idUsuario, field) => {
+  const newValue = e.target.value;
+  setUsers((prevUsers) =>
+    prevUsers.map((user) =>
+      user.idUsuario === idUsuario ? { ...user, [field]: newValue } : user
+    )
+  );
+};
 
   // Función para obtener la lista de usuarios desde el backend
   const cargarUsuarios = async () => {
@@ -149,71 +160,102 @@ const GestionarUsuario = () => {
 
   return (
     <div className="container mt-5">
-      <h1>Gestión de Usuarios</h1>
-      <ToastContainer /> {/* Contenedor para mostrar los toasts */}
-      <div className="col-md-10 search-table-col" style={{ paddingTop: '0px', marginTop: '50px', marginLeft: '50px' }}>
-        <div className="form-group pull-right col-lg-4">
-          <input
-            type="text"
-            className="search form-control"
-            placeholder="Buscar por nombre"
-            value={search}
-            onChange={handleSearchChange}
-          />
-        </div>
-        <div className="table-responsive table table-hover table-bordered results">
-          <table className="table table-hover table-bordered">
-            <thead className="bill-header cs">
-              <tr>
-                <th className="col-lg-1">No.</th>
-                <th className="col-lg-2">Nombre</th>
-                <th className="col-lg-3">Primer apellido</th>
-                <th className="col-lg-2">Segundo apellido</th>
-                <th className="col-lg-2">Correo</th>
-                <th className="col-lg-2">Acción</th>
+    <h1>Gestión de Usuarios</h1>
+    <ToastContainer />
+    <div className="col-md-10 search-table-col" style={{ paddingTop: '0px', marginTop: '50px', marginLeft: '50px' }}>
+      <div className="form-group pull-right col-lg-4">
+        <input
+          type="text"
+          className="search form-control"
+          placeholder="Buscar por nombre"
+          value={search}
+          onChange={handleSearchChange}
+        />
+      </div>
+      <div className="table-responsive table table-hover table-bordered results">
+        <table className="table table-hover table-bordered">
+          <thead className="bill-header cs">
+            <tr>
+              <th className="col-lg-1">No.</th>
+              <th className="col-lg-2">Nombre</th>
+              <th className="col-lg-3">Primer apellido</th>
+              <th className="col-lg-2">Segundo apellido</th>
+              <th className="col-lg-2">Correo</th>
+              <th className="col-lg-2">Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredUsers.length === 0 ? (
+              <tr className="warning no-result">
+                <td colSpan="6" className="text-center">
+                  <FaExclamationTriangle /> No Result !!!
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {filteredUsers.length === 0 ? (
-                <tr className="warning no-result">
-                  <td colSpan="6" className="text-center">
-                    <FaExclamationTriangle /> No Result !!!
+            ) : (
+              filteredUsers.map((user, index) => (
+                <tr key={user.idUsuario}>
+                  <td>{index + 1}</td>
+                  <td>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={user.nombreUsuario}
+                      onChange={(e) => handleInputChange(e, user.idUsuario, 'nombreUsuario')}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={user.primerApellido}
+                      onChange={(e) => handleInputChange(e, user.idUsuario, 'primerApellido')}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={user.segundoApellido}
+                      onChange={(e) => handleInputChange(e, user.idUsuario, 'segundoApellido')}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={user.correoUsuario}
+                      onChange={(e) => handleInputChange(e, user.idUsuario, 'correoUsuario')}
+                    />
+                  </td>
+                  <td>
+                    <button
+                      className="btn btn-success btn-sm"
+                      style={{ marginLeft: '5px' }}
+                      onClick={() => actualizarUsuario(user)}
+                    >
+                      <FaCheck style={{ fontSize: '15px' }} />
+                    </button>
+                    <button
+                      className="btn btn-danger btn-sm"
+                      style={{ marginLeft: '5px' }}
+                      onClick={() => handleDelete(user.idUsuario)}
+                    >
+                      <FaTrash style={{ fontSize: '15px' }} />
+                    </button>
                   </td>
                 </tr>
-              ) : (
-                filteredUsers.map((user, index) => (
-                  <tr key={user.idUsuario}>
-                    <td>{index + 1}</td>
-                    <td>{user.nombreUsuario}</td>
-                    <td>{user.primerApellido}</td>
-                    <td>{user.segundoApellido}</td>
-                    <td>{user.correoUsuario}</td>
-                    <td>
-                      <button className="btn btn-success btn-sm" style={{ marginLeft: '5px' }} onClick={() => actualizarUsuario(user)}>
-                        <FaCheck style={{ fontSize: '15px' }} />
-                      </button>
-                      <button
-                        className="btn btn-danger btn-sm"
-                        style={{ marginLeft: '5px' }}
-                        onClick={() => handleDelete(user.idUsuario)}
-                      >
-                        <FaTrash style={{ fontSize: '15px' }} />
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-        {/* Botón para volver */}
-        <div className="d-flex justify-content-end mt-3">
-          <button className="btn btn-secondary" onClick={() => window.history.back()}>
-            Volver
-          </button>
-        </div>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+      <div className="d-flex justify-content-end mt-3">
+        <button className="btn btn-secondary" onClick={() => window.history.back()}>
+          Volver
+        </button>
       </div>
     </div>
+  </div>
   );
 };
 
