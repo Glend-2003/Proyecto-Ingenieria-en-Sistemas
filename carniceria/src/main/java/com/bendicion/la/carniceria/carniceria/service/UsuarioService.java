@@ -144,8 +144,7 @@ public class UsuarioService implements IUsuarioService {
             .registerStoredProcedureParameter("contraseniaUsuario", String.class, ParameterMode.IN)
             .registerStoredProcedureParameter("nombreUsuario", String.class, ParameterMode.IN)
             .registerStoredProcedureParameter("primerApellido", String.class, ParameterMode.IN)
-            .registerStoredProcedureParameter("SegundoApellido", String.class, ParameterMode.IN)
-            .registerStoredProcedureParameter("salida", Integer.class, ParameterMode.OUT);
+            .registerStoredProcedureParameter("SegundoApellido", String.class, ParameterMode.IN);
 
         // Asignar parámetros al procedimiento
         query.setParameter("correoUsuario", usuario.getCorreoUsuario());
@@ -155,11 +154,7 @@ public class UsuarioService implements IUsuarioService {
         query.setParameter("SegundoApellido", usuario.getSegundoApellido());
 
         // Ejecutar el procedimiento
-        query.execute();
-
-        // Obtener el valor del parámetro de salida (opcional, dependiendo del procedimiento)
-        Integer salida = (Integer) query.getOutputParameterValue("salida");
-        System.out.println("Resultado del procedimiento: " + salida);
+        query.execute();       
 
         return usuario;
     }

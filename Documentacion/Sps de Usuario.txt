@@ -280,15 +280,13 @@ END$$
 DELIMITER ;
 
 -------------------------------------------------------------
-
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spRegistrarUsuario`(
     IN `p_correoUsuario` VARCHAR(255), 
     IN `p_contraseniaUsuario` VARCHAR(255),
     IN `p_nombreUsuario` VARCHAR(255), 
     IN `p_primerApellido` VARCHAR(255), 
-    IN `p_segundoApellido` VARCHAR(255), 
-    OUT `p_salida` VARCHAR(255)
+    IN `p_segundoApellido` VARCHAR(255)
 )
 BEGIN
     -- Variable de control
@@ -297,9 +295,9 @@ BEGIN
     -- Manejador de errores para capturar excepciones SQL genéricas
     DECLARE EXIT HANDLER FOR SQLEXCEPTION 
     BEGIN
-        -- Si ocurre un error SQL, se hace rollback y se asigna un mensaje genérico
+        -- Si ocurre un error SQL, se hace rollback
         ROLLBACK;
-        SET p_salida = 'Error al agregar';
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error al agregar el usuario';
     END;
 
     -- Iniciar la transacción
@@ -307,60 +305,46 @@ BEGIN
 
     -- Validar si el correo es nulo o vacío
     IF p_correoUsuario IS NULL OR p_correoUsuario = '' THEN
-        SET p_salida = 'Correo vacío';
-        SET done = 1; -- Detener flujo si hay error
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Correo vacío';
     END IF;
 
     -- Validar si la contraseña es nula o vacía
-    IF done = 0 AND (p_contraseniaUsuario IS NULL OR p_contraseniaUsuario = '') THEN
-        SET p_salida = 'Contraseña vacía';
-        SET done = 1; -- Detener flujo si hay error
+    IF p_contraseniaUsuario IS NULL OR p_contraseniaUsuario = '' THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Contraseña vacía';
     END IF;
 
     -- Validar si el nombreUsuario es nulo o vacío
-    IF done = 0 AND (p_nombreUsuario IS NULL OR p_nombreUsuario = '') THEN
-        SET p_salida = 'Nombre de usuario vacío';
-        SET done = 1; -- Detener flujo si hay error
+    IF p_nombreUsuario IS NULL OR p_nombreUsuario = '' THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Nombre de usuario vacío';
     END IF;
 
     -- Validar si el primerApellido es nulo o vacío
-    IF done = 0 AND (p_primerApellido IS NULL OR p_primerApellido = '') THEN
-        SET p_salida = 'Primer apellido vacío';
-        SET done = 1; -- Detener flujo si hay error
+    IF p_primerApellido IS NULL OR p_primerApellido = '' THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Primer apellido vacío';
     END IF;
 
     -- Validar si el segundoApellido es nulo o vacío
-    IF done = 0 AND (p_segundoApellido IS NULL OR p_segundoApellido = '') THEN
-        SET p_salida = 'Segundo apellido vacío';
-        SET done = 1; -- Detener flujo si hay error
+    IF p_segundoApellido IS NULL OR p_segundoApellido = '' THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Segundo apellido vacío';
     END IF;
 
     -- Validar que el correo sea único
-    IF done = 0 AND EXISTS (SELECT 1 FROM tbusuario WHERE correoUsuario = p_correoUsuario) THEN
-        SET p_salida = 'El correo ya está registrado';
-        SET done = 1; -- Detener flujo si hay error
+    IF EXISTS (SELECT 1 FROM tbusuario WHERE correoUsuario = p_correoUsuario) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El correo ya está registrado';
     END IF;
 
-    -- Solo proceder si no hay errores previos
-    IF done = 0 THEN
-        -- Insertar la dirección
-        INSERT INTO tbdireccion ()
-        VALUES ();
+    -- Insertar la dirección
+    INSERT INTO tbdireccion () VALUES ();
 
-        -- Obtener el ID de la dirección insertada
-        SET @idDireccion = LAST_INSERT_ID();
+    -- Obtener el ID de la dirección insertada
+    SET @idDireccion = LAST_INSERT_ID();
 
-        -- Insertar el usuario con los nuevos campos
-        INSERT INTO tbusuario (correoUsuario, contraseniaUsuario, nombreUsuario, primerApellido, segundoApellido, idDireccion, idRol)
-        VALUES (p_correoUsuario, p_contraseniaUsuario, p_nombreUsuario, p_primerApellido, p_segundoApellido, @idDireccion, 3); -- 3 es el ID del rol, según tu ejemplo
+    -- Insertar el usuario
+    INSERT INTO tbusuario (correoUsuario, contraseniaUsuario, nombreUsuario, primerApellido, segundoApellido, idDireccion, idRol)
+    VALUES (p_correoUsuario, p_contraseniaUsuario, p_nombreUsuario, p_primerApellido, p_segundoApellido, @idDireccion, 3);
 
-        -- Si todo va bien, hacer commit
-        COMMIT;
-        SET p_salida = 'Usuario agregado exitosamente';
-    ELSE
-        -- Si ocurrió algún error de validación, hacer rollback
-        ROLLBACK;
-    END IF;
+    -- Hacer commit si todo está bien
+    COMMIT;
 
 END$$
 DELIMITER ;
