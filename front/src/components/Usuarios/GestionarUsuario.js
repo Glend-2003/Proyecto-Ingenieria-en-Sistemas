@@ -143,9 +143,13 @@ const handleInputChange = (e, idUsuario, field) => {
             },
         });*/
     } catch (error) {
-        console.error('Error al eliminar usuario:', error);
-        toast.error('Ocurrió un error al eliminar el usuario');
-    }
+      console.error('Error al eliminar usuario:', error);
+      if (error.response) {
+          console.error('Detalles del error:', error.response.data);
+      }
+      toast.error('Ocurrió un error al eliminar el usuario');
+  }
+  
   };
 
   // Función para manejar la búsqueda
