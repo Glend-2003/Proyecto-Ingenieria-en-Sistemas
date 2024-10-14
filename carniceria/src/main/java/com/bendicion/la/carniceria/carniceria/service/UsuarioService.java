@@ -152,7 +152,11 @@ public class UsuarioService implements IUsuarioService {
         query.setParameter("SegundoApellido", usuario.getSegundoApellido());
 
         // Ejecutar el procedimiento
-        query.execute();       
+        query.execute();
+
+        // Obtener el valor del parámetro de salida (opcional, dependiendo del procedimiento)
+        Integer salida = (Integer) query.getOutputParameterValue("salida");
+        System.out.println("Resultado del procedimiento: " + salida);
 */
         return usuario;
     }
@@ -278,9 +282,4 @@ public class UsuarioService implements IUsuarioService {
         return usuario; 
     }
     
-// -----------------------------------------------------------------------------    
-    
-    public String getSalida(){
-        return usuarioRepo.getSalida();
-    }
 }
