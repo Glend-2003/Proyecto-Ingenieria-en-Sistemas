@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.bendicion.la.carniceria.carniceria.domain.Categoria;
+import org.springframework.data.jpa.repository.Modifying;
 
 /**
  *
@@ -24,6 +25,7 @@ public interface CategoriaRepository extends JpaRepository<Categoria, Integer>{
     );
 
     // SP Update
+    @Modifying
     @Query(value = "{call spActualizarCategoria(:idCategoria, :nombreCategoria, :descripcionCategoria)}", nativeQuery = true)
     void updateProcedureCategoria(
         @Param("idCategoria") Integer idCategoria, 

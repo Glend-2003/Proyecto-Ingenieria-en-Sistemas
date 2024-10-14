@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.bendicion.la.carniceria.carniceria.domain.Categoria;
 import com.bendicion.la.carniceria.carniceria.jpa.CategoriaRepository;
+import jakarta.transaction.Transactional;
 
 /**
  *
@@ -30,6 +31,7 @@ public class CategoriaService implements ICategoriaService {
     }
 
     @Override
+    @Transactional // Asegúrate de que esté anotado
     public Categoria updateCategoria(Categoria categoria) {
         System.out.println("Actualizando categoria con ID: " + categoria.getIdCategoria());
         categoriaRep.updateProcedureCategoria(categoria.getIdCategoria(), categoria.getNombreCategoria(), categoria.getDescripcionCategoria());
