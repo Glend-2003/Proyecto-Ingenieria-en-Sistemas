@@ -166,6 +166,7 @@ public class UsuarioService implements IUsuarioService {
 // -----------------------------------------------------------------------------   
     
     @Override
+    @Transactional // Asegúrate de que esté anotado
     public Usuario updateUsuario(Usuario usuario) {
 
         String encriptedPassword = null;
@@ -228,6 +229,7 @@ public class UsuarioService implements IUsuarioService {
 // -----------------------------------------------------------------------------    
     
     @Override
+    @Transactional // Asegúrate de que esté anotado
     public boolean deleteUsuario(int id) {
         try {
             usuarioRepo.deleteProcedureUsuario(id);

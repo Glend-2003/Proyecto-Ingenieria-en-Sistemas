@@ -39,6 +39,7 @@ public class CategoriaService implements ICategoriaService {
     }
 
     @Override
+    @Transactional // Asegúrate de que esté anotado
     public List<Categoria> getCategoria() {
         return categoriaRep.listProcedureCategoria();
     }
