@@ -136,7 +136,7 @@ public class UsuarioService implements IUsuarioService {
         if (usuario.getSegundoApellido().equals("")) {
             throw new RuntimeException("Debe ingresar el segundo apellido");
         }
-
+/*
         // Ejecutar el procedimiento almacenado usando StoredProcedureQuery
         StoredProcedureQuery query = entityManager
             .createStoredProcedureQuery("spRegistrarUsuario")
@@ -155,7 +155,7 @@ public class UsuarioService implements IUsuarioService {
 
         // Ejecutar el procedimiento
         query.execute();       
-
+*/
         return usuario;
     }
 
