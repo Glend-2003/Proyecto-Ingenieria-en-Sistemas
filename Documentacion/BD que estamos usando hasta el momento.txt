@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 11-10-2024 a las 05:30:25
+-- Tiempo de generación: 14-10-2024 a las 18:21:41
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -88,7 +88,8 @@ INSERT INTO `tbcategoria` (`idCategoria`, `descripcionCategoria`, `nombreCategor
 (4, 'Todas los tipos de mariscos', 'Marisco'),
 (5, 'Todos los tipos de embutidos', 'Embutidos'),
 (6, 'Todos los tipos de productos lácteos', 'Lácteos'),
-(7, 'La mayoría de productos varios', 'Productos varios');
+(7, 'La mayoría de productos varios', 'Productos varios'),
+(20, 'descripcionnnnnnnnnn', 'prueba');
 
 -- --------------------------------------------------------
 
@@ -108,7 +109,13 @@ CREATE TABLE `tbdireccion` (
 --
 
 INSERT INTO `tbdireccion` (`idDireccion`, `codigoPostalDireccion`, `descripcionDireccion`, `idDistrito`) VALUES
-(13, '1234', 'Urbanización el Tejar', 26);
+(13, '1234', 'Urbanización el Tejar', 26),
+(14, '1234', 'Guacimo centro', 7),
+(15, NULL, NULL, NULL),
+(16, '12345654654', 'Guacimoooo', 3),
+(17, '1234', 'Guacimo centro', 25),
+(18, NULL, NULL, NULL),
+(19, '10101', 'San José centro', 2);
 
 -- --------------------------------------------------------
 
@@ -334,8 +341,8 @@ INSERT INTO `tbrol` (`idRol`, `nombreRol`, `descripcionRol`) VALUES
 CREATE TABLE `tbusuario` (
   `idUsuario` int(11) NOT NULL,
   `cedulaUsuario` varchar(255) DEFAULT NULL,
-  `contraseniaUsuario` varchar(255) DEFAULT NULL,
-  `correoUsuario` varchar(255) DEFAULT NULL,
+  `contraseniaUsuario` varchar(255) NOT NULL,
+  `correoUsuario` varchar(255) NOT NULL,
   `fechaNacimiento` date DEFAULT NULL,
   `nombreUsuario` varchar(255) DEFAULT NULL,
   `primerApellido` varchar(255) DEFAULT NULL,
@@ -350,7 +357,13 @@ CREATE TABLE `tbusuario` (
 --
 
 INSERT INTO `tbusuario` (`idUsuario`, `cedulaUsuario`, `contraseniaUsuario`, `correoUsuario`, `fechaNacimiento`, `nombreUsuario`, `primerApellido`, `segundoApellido`, `telefonoUsuario`, `idDireccion`, `idRol`) VALUES
-(6, '703100064', '$2a$12$fBMZLlt6aCS9iNemYH7h0e8m/YexlGy.13W2GTCFbnHLLe6fyTqOG', 'jsandi1299@gmail.com', '2004-08-09', 'Jamel', 'Sandí', 'Anderson', '88955772', 13, 3);
+(6, '703100064', '$2a$12$fBMZLlt6aCS9iNemYH7h0e8m/YexlGy.13W2GTCFbnHLLe6fyTqOG', 'jsandi1299@gmail.com', '2004-08-09', 'Jamel', 'Sandí', 'Anderson', '88955772', 13, 3),
+(10, '402630349', '$2a$12$xEd6mYj83xXxJDu1.nk9Se9syqaJ74o5OmgTyrUgH1pg.jAGsPvDm', 'd.cedeno2004@gmail.com', '2004-08-09', 'Daisy', 'Cedenio', 'Sanabria', '88955772', 14, 3),
+(11, NULL, '$2a$12$H7xEK8HgTEGRCaE4flNwL.E1VyjkxeENA7DB9bwB85xUn6S4A0w0q', 'dilan@gmail.com', NULL, 'Dilan', 'Gutiérrez', 'Hérnanandez', NULL, 15, 3),
+(12, '7031000222', '$2a$12$woA1cDNHz2UW.Ek3.qyMwuU6qwdzaWkhslWgKGjOjXK5dH8xf.QGy', 'glend@gmail.com', '2004-08-09', 'Glend', 'Rojas', 'Alvarado', '88955771', 16, 2),
+(13, '703100062', '$2a$12$oyAFZDRHy/miwdcZAB3pwu5OypFjrEwo6WGYvNWsQ6I92c47/lNl6', 'geldn@gmail.com', '2004-08-09', 'Glend', 'Rojass', 'Alvaradoo', '88955733', 17, 2),
+(14, NULL, '$2a$12$KQR0XqaVLd4gyvwKacnjR.8sIS5ieIe7QaQvxjjrmnox0YWFJJjbC', 'jsandi12199@gmail.com', NULL, 'Jamel', 'prueba', 'Sandi', NULL, 18, 3),
+(15, '207890123', '$2a$12$XMtbt9NUJ8QiIy7D29Q6y.2.o6kXLheFJlb7HGevdScprEVhuNqU6', 'cmartinez@gmail.com', '1990-05-12', 'Carlos', 'Martínez', 'Guzmán', '87654321', 19, 1);
 
 --
 -- Índices para tablas volcadas
@@ -417,13 +430,13 @@ ALTER TABLE `tbcanton`
 -- AUTO_INCREMENT de la tabla `tbcategoria`
 --
 ALTER TABLE `tbcategoria`
-  MODIFY `idCategoria` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `idCategoria` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT de la tabla `tbdireccion`
 --
 ALTER TABLE `tbdireccion`
-  MODIFY `idDireccion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `idDireccion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT de la tabla `tbdistrito`
@@ -447,7 +460,7 @@ ALTER TABLE `tbrol`
 -- AUTO_INCREMENT de la tabla `tbusuario`
 --
 ALTER TABLE `tbusuario`
-  MODIFY `idUsuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `idUsuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- Restricciones para tablas volcadas
