@@ -295,7 +295,6 @@ DELIMITER ;
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spEliminarUsuario`(IN p_idUsuario INT)
 BEGIN
-
     -- Variable de control
     DECLARE done INT DEFAULT 0;
 
@@ -304,11 +303,15 @@ BEGIN
     BEGIN
         -- Si ocurre un error SQL, se hace rollback y se asigna un mensaje genérico
         ROLLBACK;
+        -- Devolver un mensaje de error
+        SELECT 'Error al eliminar el usuario' AS mensaje;
     END;
 
     IF done = 0 AND NOT EXISTS (SELECT 1 FROM tbusuario WHERE idUsuario = p_idUsuario) THEN
         -- Si el id del usuario no existe, detener flujo
         SET done = 1;
+        -- Devolver un mensaje de que no se encontró el usuario
+        SELECT 'Usuario no encontrado' AS mensaje;
     END IF;
 
     IF done = 0 THEN
@@ -320,9 +323,9 @@ BEGIN
 
         -- Eliminar la dirección relacionada
         DELETE FROM tbdireccion WHERE idDireccion = @idDireccion;
-    ELSE
-        -- Si ocurrió algún error de validación, hacer rollback
-        ROLLBACK;
+
+        -- Confirmar eliminación exitosa
+        SELECT 'Usuario eliminado con éxito' AS mensaje;
     END IF;
 
 END$$
