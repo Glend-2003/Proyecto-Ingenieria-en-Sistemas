@@ -101,18 +101,6 @@ const Principal = () => {
                                     <p>Rol: {usuario.rol.nombreRol}</p>
                                     <p>Teléfono: {usuario.telefonoUsuario}</p>
 
-                                    {(usuario.rol.nombreRol === 'Administrador' || usuario.rol.nombreRol === 'Gerente') && (
-                                        <>
-                                            <button className="btn btn-primary me-3" onClick={() => navigate('/CategoriaApp')}>
-                                                Gestionar Categoría
-                                            </button>
-                                            <button className="btn btn-primary me-3" onClick={() => navigate('/GestionarUsuario')}>
-                                                Gestionar Usuarios
-                                            </button>
-                                        </>
-                                    )}
-
-                                    <button className="btn btn-secondary" onClick={handleLogout}>Cerrar sesión</button>
                                 </div>
                             ) : (
                                 <p>Cargando información del usuario...</p>
