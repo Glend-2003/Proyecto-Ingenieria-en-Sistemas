@@ -1,11 +1,14 @@
 package com.bendicion.la.carniceria.carniceria.jpa;
-import com.bendicion.la.carniceria.carniceria.domain.Usuario;
 import java.util.Date;
 import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import com.bendicion.la.carniceria.carniceria.domain.Usuario;
+import org.springframework.data.jpa.repository.Modifying;
 
 /**
  *
@@ -35,13 +38,14 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
 // -----------------------------------------------------------------------------    
     
     // SP Register
-    @Query(value = "{call spRegistrarUsuario( :correoUsuario, :contraseniaUsuario, :nombreUsuario, :primerApellido, :SegundoApellido}", nativeQuery = true)
+    @Modifying
+    @Query(value = "{call spRegistrarUsuario(:correoUsuario, :contraseniaUsuario, :nombreUsuario, :primerApellido, :SegundoApellido)}", nativeQuery = true)
     void registerProcedureUsuario(
-        @Param("correoUsuario") String correoUsuario, 
-        @Param("contraseniaUsuario") String contraseniaUsuario,
-        @Param("nombreUsuario") String nombreUsuario,
-        @Param("primerApellido") String primerApellido,
-        @Param("SegundoApellido") String SegundoApellido
+            @Param("correoUsuario") String correoUsuario,
+            @Param("contraseniaUsuario") String contraseniaUsuario,
+            @Param("nombreUsuario") String nombreUsuario,
+            @Param("primerApellido") String primerApellido,
+            @Param("SegundoApellido") String SegundoApellido
     );
     
 // -----------------------------------------------------------------------------
@@ -53,6 +57,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
 // -----------------------------------------------------------------------------    
     
     // SP Update 
+    @Modifying
     @Query(value = "{call spActualizarUsuario(:idUsuario, :cedulaUsuario, :nombreUsuario, :primerApellido, :segundoApellido, :telefonoUsuario, :correoUsuario, :contraseniaUsuario, :fechaNacimiento, :descripcionDireccion, :codigoPostalDireccion, :idDistrito)}", nativeQuery = true)
     void updateProcedureUsuario(
         @Param("idUsuario") Integer idUsuario, 
@@ -78,7 +83,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
 // -----------------------------------------------------------------------------     
     
     // SP Delete 
-    @Query(value = "{call spEliminarUsuario(:idUsuario, @salida)}", nativeQuery = true)
+    @Query(value = "{call spEliminarUsuario(:idUsuario)}", nativeQuery = true)
     void deleteProcedureUsuario(@Param("idUsuario") Integer idUsuario);
     
 // -----------------------------------------------------------------------------     
@@ -87,8 +92,5 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     @Query(value = "{call spBuscarUsuarioPorCorreo(:correoUsuario)}", nativeQuery = true)
     Usuario searchUsuario(@Param("correoUsuario") String correoUsuario);
     
-    
-     @Query(value = "SELECT @salida", nativeQuery = true)
-    String getSalida(); // Método para obtener el mensaje de salida
 }
 

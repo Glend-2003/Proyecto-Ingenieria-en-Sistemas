@@ -1,13 +1,18 @@
+// PrivateRoute.js
+
 import React from 'react';
 import { Route, Navigate } from 'react-router-dom';
 
-const PrivateRoute = ({ element: Element, ...rest }) => {
+const PrivateRoute = ({ element: Element, allowedRoles, ...rest }) => {
   const token = localStorage.getItem('token');
+  const rol = localStorage.getItem('nombreRol'); 
 
   return (
-    <Route 
-      {...rest} 
-      element={token ? <Element /> : <Navigate to="/" />}
+    <Route
+      {...rest}
+      element={
+        token && allowedRoles.includes(rol) ? <Element /> : <Navigate to="/" /> 
+      }
     />
   );
 };

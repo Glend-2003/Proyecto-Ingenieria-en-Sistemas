@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify'; // Importar toast y ToastContainer
+import 'react-toastify/dist/ReactToastify.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles.min.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheck, faTrash, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 
 const Registrar = () => {
     const [correoUsuario, setEmail] = useState('');
@@ -25,7 +29,8 @@ const Registrar = () => {
         if (validateEmail(e.target.value)) {
             setEmailErrorMsg('');
         } else {
-            setEmailErrorMsg('Invalid email');
+            setEmailErrorMsg('Correo inválido');
+           
         }
     };
 
@@ -47,10 +52,12 @@ const Registrar = () => {
             if (e.target.value.length >= 8) {
                 setPasswordErrorMsg('');
             } else {
-                setPasswordErrorMsg('Password must be at least 8 characters long');
+                setPasswordErrorMsg('La contraseña debe tener al menos 8 caracteres');
+                toast.error('La contraseña debe tener al menos 8 caracteres');
             }
         } else {
-            setPasswordErrorMsg('Passwords do not match');
+            setPasswordErrorMsg('Las contraseñas no coinciden');
+           
         }
     };
 
@@ -60,10 +67,12 @@ const Registrar = () => {
             if (e.target.value.length >= 8) {
                 setPasswordErrorMsg('');
             } else {
-                setPasswordErrorMsg('Password must be at least 8 characters long');
+                setPasswordErrorMsg('La contraseña debe tener al menos 8 caracteres');
+                toast.error('La contraseña debe tener al menos 8 caracteres');
             }
         } else {
-            setPasswordErrorMsg('Passwords do not match');
+            setPasswordErrorMsg('Las contraseñas no coinciden');
+            
         }
     };
 
@@ -81,30 +90,35 @@ const Registrar = () => {
                 })
                 .then(response => {
                     console.log('Usuario registrado con éxito:', response.data);
-                    navigate('../');
+                    toast.success('Usuario registrado con éxito', {
+                        autoClose: 1500,
+                        onClose: () => {
+                            navigate('../');
+                        }
+                    });
                 })
                 .catch(error => {
                     if (error.response) {
-                        // El servidor respondió con un código de estado fuera del rango 2xx
                         console.error('Error de respuesta del servidor:', error.response.data);
+                        toast.error('Error de respuesta del servidor');
                     } else if (error.request) {
-                        // La solicitud fue hecha, pero no hubo respuesta
                         console.error('No hubo respuesta del servidor:', error.request);
+                        toast.error('No hubo respuesta del servidor');
                     } else {
-                        // Algo pasó al configurar la solicitud
                         console.error('Error en la solicitud:', error.message);
+                        toast.error('Error en la solicitud');
                     }
                 });
             }
         } else {
             console.error('Error: Todos los campos son obligatorios');
+            toast.error('Todos los campos son obligatorios');
         }
     };
 
     const handleNoAccountClick = () => {
-        navigate('/register');
+        navigate('../');
     };
-
     return (
         <div className="container" style={{ position: 'absolute', left: 0, right: 0, top: '50%', transform: 'translateY(-50%)' }}>
             <div className="row d-flex justify-content-center">
@@ -119,7 +133,7 @@ const Registrar = () => {
                                     className="form-control form-control-user"
                                     type="email"
                                     id="email"
-                                    placeholder="Email Address"
+                                    placeholder="Correo Electrónico"
                                     required
                                     value={correoUsuario}
                                     onChange={handleEmailChange}
@@ -189,12 +203,12 @@ const Registrar = () => {
                             </button>
                             <hr />
                             <p className="text-center">
-                                ¿No tiene cuenta?{' '}
                                 <span className="text-primary" style={{ cursor: 'pointer' }} onClick={handleNoAccountClick}>
-                                    Regístrate aquí
+                                   Regresar
                                 </span>
                             </p>
                         </form>
+                        <ToastContainer /> {/* Contenedor para mostrar los toasts */}
                     </div>
                 </div>
             </div>

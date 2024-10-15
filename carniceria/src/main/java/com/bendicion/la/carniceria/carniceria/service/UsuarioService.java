@@ -13,9 +13,8 @@ import com.bendicion.la.carniceria.carniceria.domain.Usuario;
 import com.bendicion.la.carniceria.carniceria.jpa.UsuarioRepository;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.ParameterMode;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.StoredProcedureQuery;
+import jakarta.transaction.Transactional;
 
 /**
  *
@@ -40,6 +39,7 @@ public class UsuarioService implements IUsuarioService {
 // -----------------------------------------------------------------------------
     
     @Override
+    @Transactional // Asegúrate de que esté anotado
     public Usuario addUsuario(Usuario usuario) {
 
         if (usuario.getCedulaUsuario() == null || usuario.getCedulaUsuario().trim().isEmpty()) {
@@ -103,9 +103,9 @@ public class UsuarioService implements IUsuarioService {
 
     
 // ----------------------------------------------------------------------------- 
-    
 
    @Override
+   @Transactional // Asegúrate de que esté anotado
     public Usuario registerUsuario(Usuario usuario) {
 
         // Verificación de correo existente
@@ -136,32 +136,23 @@ public class UsuarioService implements IUsuarioService {
         if (usuario.getSegundoApellido().equals("")) {
             throw new RuntimeException("Debe ingresar el segundo apellido");
         }
-/*
-        // Ejecutar el procedimiento almacenado usando StoredProcedureQuery
-        StoredProcedureQuery query = entityManager
-            .createStoredProcedureQuery("spRegistrarUsuario")
-            .registerStoredProcedureParameter("correoUsuario", String.class, ParameterMode.IN)
-            .registerStoredProcedureParameter("contraseniaUsuario", String.class, ParameterMode.IN)
-            .registerStoredProcedureParameter("nombreUsuario", String.class, ParameterMode.IN)
-            .registerStoredProcedureParameter("primerApellido", String.class, ParameterMode.IN)
-            .registerStoredProcedureParameter("SegundoApellido", String.class, ParameterMode.IN);
+        
+         usuarioRepo.registerProcedureUsuario(
+                usuario.getCorreoUsuario(),
+                encriptedPassword,
+                usuario.getNombreUsuario(),
+                usuario.getPrimerApellido(),
+                usuario.getSegundoApellido()
+               
+        );
 
-        // Asignar parámetros al procedimiento
-        query.setParameter("correoUsuario", usuario.getCorreoUsuario());
-        query.setParameter("contraseniaUsuario", encriptedPassword);
-        query.setParameter("nombreUsuario", usuario.getNombreUsuario());
-        query.setParameter("primerApellido", usuario.getPrimerApellido());
-        query.setParameter("SegundoApellido", usuario.getSegundoApellido());
-
-        // Ejecutar el procedimiento
-        query.execute();       
-*/
         return usuario;
     }
 
-// -----------------------------------------------------------------------------   
+// -----------------------------------------------------------------------------  
     
     @Override
+    @Transactional // Asegúrate de que esté anotado
     public Usuario updateUsuario(Usuario usuario) {
 
         String encriptedPassword = null;
@@ -170,7 +161,7 @@ public class UsuarioService implements IUsuarioService {
         } else {
             Usuario existingUsuario = usuarioRepo.findById(usuario.getIdUsuario()).orElse(null);
             if (existingUsuario != null) {
-                encriptedPassword = existingUsuario.getContraseniaUsuario(); 
+                encriptedPassword = existingUsuario.getContraseniaUsuario();
             }
         }
 
@@ -184,15 +175,27 @@ public class UsuarioService implements IUsuarioService {
         Integer idDistrito = null;
 
         if (usuario.getDireccion() != null) {
-            descripcionDireccion = usuario.getDireccion().getDescripcionDireccion();
-            codigoPostalDireccion = usuario.getDireccion().getCodigoPostal();
-            idDistrito = usuario.getDireccion().getDistrito().getIdDistrito();
+            if (usuario.getDireccion().getDescripcionDireccion() != null) {
+                descripcionDireccion = usuario.getDireccion().getDescripcionDireccion();
+            }
+            if (usuario.getDireccion().getCodigoPostal() != null) {
+                codigoPostalDireccion = usuario.getDireccion().getCodigoPostal();
+            }
+            if (usuario.getDireccion().getDistrito() != null) {
+                idDistrito = usuario.getDireccion().getDistrito().getIdDistrito();
+            }
         } else {
             Usuario existingUsuario = usuarioRepo.findById(usuario.getIdUsuario()).orElse(null);
             if (existingUsuario != null && existingUsuario.getDireccion() != null) {
-                descripcionDireccion = existingUsuario.getDireccion().getDescripcionDireccion();
-                codigoPostalDireccion = existingUsuario.getDireccion().getCodigoPostal();
-                idDistrito = existingUsuario.getDireccion().getDistrito().getIdDistrito();
+                if (existingUsuario.getDireccion().getDescripcionDireccion() != null) {
+                    descripcionDireccion = existingUsuario.getDireccion().getDescripcionDireccion();
+                }
+                if (existingUsuario.getDireccion().getCodigoPostal() != null) {
+                    codigoPostalDireccion = existingUsuario.getDireccion().getCodigoPostal();
+                }
+                if (existingUsuario.getDireccion().getDistrito() != null) {
+                    idDistrito = existingUsuario.getDireccion().getDistrito().getIdDistrito();
+                }
             }
         }
 
@@ -204,11 +207,11 @@ public class UsuarioService implements IUsuarioService {
                 usuario.getSegundoApellido(),
                 usuario.getTelefonoUsuario(),
                 usuario.getCorreoUsuario(),
-                encriptedPassword, 
+                encriptedPassword,
                 fechaNacimiento,
-                descripcionDireccion, 
-                codigoPostalDireccion, 
-                idDistrito 
+                descripcionDireccion,
+                codigoPostalDireccion,
+                idDistrito
         );
 
         return usuario;
@@ -217,6 +220,7 @@ public class UsuarioService implements IUsuarioService {
 // -----------------------------------------------------------------------------    
     
     @Override
+    @Transactional 
     public List<Usuario> getUsuario() {
         return usuarioRepo.listProcedureUsuario();
     }
@@ -225,10 +229,15 @@ public class UsuarioService implements IUsuarioService {
     
     @Override
     public boolean deleteUsuario(int id) {
-        usuarioRepo.deleteProcedureUsuario(id);
-        return true;
+        try {
+            usuarioRepo.deleteProcedureUsuario(id);
+            return true;
+        } catch (Exception e) {
+            System.out.println("Error al eliminar el usuario con id: " + id);
+            e.printStackTrace();
+            return false;
+        }
     }
-    
 // -----------------------------------------------------------------------------    
     
     @Override
@@ -275,9 +284,4 @@ public class UsuarioService implements IUsuarioService {
         return usuario; 
     }
     
-// -----------------------------------------------------------------------------    
-    
-    public String getSalida(){
-        return usuarioRepo.getSalida();
-    }
 }

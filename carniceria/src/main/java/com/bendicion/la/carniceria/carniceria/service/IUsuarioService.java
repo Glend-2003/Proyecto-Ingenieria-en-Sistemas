@@ -16,6 +16,7 @@ public interface IUsuarioService {
     public Usuario addUsuario(Usuario usuario);
     
     // Actualizar usuarios 
+    @Transactional // Asegúrate de que esté anotado
     public Usuario updateUsuario(Usuario usuario);
     
     // Lista todos los usuarios para vista Admin

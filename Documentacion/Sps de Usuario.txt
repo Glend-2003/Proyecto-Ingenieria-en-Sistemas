@@ -234,8 +234,7 @@ BEGIN
         d.idDistrito 
     FROM 
         tbusuario u
-    INNER JOIN 
-        tbdireccion d ON u.idDireccion = d.idDireccion;
+    LEFT JOIN tbdireccion d ON u.idDireccion = d.idDireccion;
 END$$
 DELIMITER ;
 

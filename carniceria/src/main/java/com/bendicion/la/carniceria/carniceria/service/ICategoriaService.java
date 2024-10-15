@@ -12,6 +12,7 @@ public interface ICategoriaService {
     
     public Categoria addCategoria(Categoria categoria);
     
+    @Transactional // Asegúrate de que esté anotado
     public Categoria updateCategoria(Categoria categoria);
     
     public List<Categoria> getCategoria();

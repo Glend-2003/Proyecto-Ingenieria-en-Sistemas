@@ -27,13 +27,14 @@ function LoginApp() {
           // Guardar el token, correo y rol en localStorage
           localStorage.setItem('token', response.data.token);
           localStorage.setItem('correoUsuario', response.data.correoUsuario);
+          localStorage.setItem('nombreUsuario', response.data.nombreUsuario); // Almacenamos el nombre del usuario
           localStorage.setItem('nombreRol', response.data.rol.nombreRol);  // Acceder correctamente al nombre del rol
 
           setLoginStatus("Login exitoso. Bienvenido " + response.data.nombreUsuario);
 
           // Verificar el rol del usuario para redirigir a la página correspondiente
           if (response.data.rol.nombreRol === 'Administrador') {
-            navigate('/CategoriaApp');
+            navigate('/principal');
           } else if (response.data.rol.nombreRol === 'Usuario') {
             navigate('/principal');
           } else if(response.data.rol.nombreRol === 'Gerente'){
@@ -118,14 +119,12 @@ function LoginApp() {
                   <p className="text-muted">
                     <a href="/forgot-password" className="text-muted">Olvidó su contraseña?</a>
                   </p>
-                  <p>
-                    <span
-                      onClick={handleNoAccountClick}
-                      style={{ color: 'rgba(33, 37, 41, 0.75)', cursor: 'pointer' }}
-                    >
-                      No tiene cuenta?
-                    </span>
-                  </p>
+                  <p className="text-center">
+                                ¿No tiene cuenta?{' '}
+                                <span className="text-primary" style={{ cursor: 'pointer' }} onClick={handleNoAccountClick}>
+                                    Regístrate aquí
+                                </span>
+                            </p>
                 </form>
                 <p>{loginStatus}</p>
               </div>
