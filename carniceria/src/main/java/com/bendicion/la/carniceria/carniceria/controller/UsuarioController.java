@@ -71,21 +71,13 @@ public class UsuarioController {
 
 // -----------------------------------------------------------------------------
     
-    // Registrarse como nuevo usuario
     @PostMapping("/registrar")
-    public ResponseEntity<?> registerUsuario(@RequestBody Usuario usuario) {
+    public ResponseEntity<?> registrarUsuario(@RequestBody Usuario usuario) {
         try {
-            Usuario nuevoResgistroUsuario = iUsuarioService.registerUsuario(usuario);
-            System.out.println("Usuario registrado: ID -->" + usuario.getIdUsuario() + ", Correo -->" + usuario.getCorreoUsuario());
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "Usuario guardado con exito con ID: " + nuevoResgistroUsuario.getIdUsuario());
-            response.put("id", nuevoResgistroUsuario.getIdUsuario());
-
-            return ResponseEntity.ok(response);
+            iUsuarioService.registerUsuario(usuario);
+            return ResponseEntity.ok("Usuario registrado con éxito");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Collections.singletonMap("error", "Error al agregar el usuario: " + e.getMessage()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error al registrar el usuario: " + e.getMessage());
         }
     }
     
