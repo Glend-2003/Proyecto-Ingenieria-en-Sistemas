@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 14-10-2024 a las 18:21:41
+-- Tiempo de generación: 21-10-2024 a las 04:36:21
 -- Versión del servidor: 10.4.32-MariaDB
--- Versión de PHP: 8.2.12
+-- Versión de PHP: 8.0.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -20,6 +20,375 @@ SET time_zone = "+00:00";
 --
 -- Base de datos: `bdcarniceria`
 --
+
+DELIMITER $$
+--
+-- Procedimientos
+--
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spActualizarCategoria` (IN `p_idCategoria` INT, IN `p_nombre` VARCHAR(255), IN `p_descripcion` VARCHAR(255))   BEGIN
+    -- Asegúrate de que se use WHERE para actualizar solo la fila con el id especificado
+    UPDATE tbcategoria
+    SET nombreCategoria = p_nombre,
+        descripcionCategoria = p_descripcion
+    WHERE idCategoria = p_idCategoria;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spActualizarRol` (IN `p_idRol` INT(10), IN `p_nombre` VARCHAR(255), IN `p_descripcion` VARCHAR(255))   BEGIN
+    -- Asegúrate de que se use WHERE para actualizar solo la fila con el id especificado
+    UPDATE tbRol
+    SET nombreRol = p_nombre,
+        descripcionRol = p_descripcion
+    WHERE idRol = p_idRol;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spActualizarUsuario` (IN `p_idUsuario` INT, IN `p_cedulaUsuario` VARCHAR(255), IN `p_nombreUsuario` VARCHAR(255), IN `p_primerApellido` VARCHAR(255), IN `p_segundoApellido` VARCHAR(255), IN `p_telefonoUsuario` VARCHAR(255), IN `p_correoUsuario` VARCHAR(255), IN `p_contraseniaUsuario` VARCHAR(255), IN `p_fechaNacimiento` DATE, IN `p_descripcionDireccion` VARCHAR(255), IN `p_codigoPostalDireccion` VARCHAR(255), IN `p_idDistrito` INT)   BEGIN
+    DECLARE existingCount INT;
+
+    -- Verificar si la cédula ya existe en otro registro
+    IF p_cedulaUsuario IS NOT NULL THEN
+        SELECT COUNT(*) INTO existingCount
+        FROM tbusuario
+        WHERE cedulaUsuario = p_cedulaUsuario AND idUsuario != p_idUsuario;
+        
+        IF existingCount > 0 THEN
+            SIGNAL SQLSTATE '45000' 
+            SET MESSAGE_TEXT = 'La cédula ya está registrada en otro usuario.';
+        END IF;
+    END IF;
+
+    -- Verificar si el correo ya existe en otro registro
+    IF p_correoUsuario IS NOT NULL THEN
+        SELECT COUNT(*) INTO existingCount
+        FROM tbusuario
+        WHERE correoUsuario = p_correoUsuario AND idUsuario != p_idUsuario;
+        
+        IF existingCount > 0 THEN
+            SIGNAL SQLSTATE '45000' 
+            SET MESSAGE_TEXT = 'El correo ya está registrado en otro usuario.';
+        END IF;
+    END IF;
+
+    -- Verificar si el teléfono ya existe en otro registro
+    IF p_telefonoUsuario IS NOT NULL THEN
+        SELECT COUNT(*) INTO existingCount
+        FROM tbusuario
+        WHERE telefonoUsuario = p_telefonoUsuario AND idUsuario != p_idUsuario;
+        
+        IF existingCount > 0 THEN
+            SIGNAL SQLSTATE '45000' 
+            SET MESSAGE_TEXT = 'El teléfono ya está registrado en otro usuario.';
+        END IF;
+    END IF;
+
+    -- Actualizar la información del usuario solo si se proporcionan los valores
+    UPDATE tbusuario
+    SET cedulaUsuario = IF(p_cedulaUsuario IS NOT NULL, p_cedulaUsuario, cedulaUsuario),
+        nombreUsuario = IF(p_nombreUsuario IS NOT NULL, p_nombreUsuario, nombreUsuario),
+        primerApellido = IF(p_primerApellido IS NOT NULL, p_primerApellido, primerApellido),
+        segundoApellido = IF(p_segundoApellido IS NOT NULL, p_segundoApellido, segundoApellido),
+        telefonoUsuario = IF(p_telefonoUsuario IS NOT NULL, p_telefonoUsuario, telefonoUsuario),
+        correoUsuario = IF(p_correoUsuario IS NOT NULL, p_correoUsuario, correoUsuario),
+        contraseniaUsuario = IF(p_contraseniaUsuario IS NOT NULL, p_contraseniaUsuario, contraseniaUsuario),
+        fechaNacimiento = IF(p_fechaNacimiento IS NOT NULL, p_fechaNacimiento, fechaNacimiento)
+    WHERE idUsuario = p_idUsuario;
+
+    -- Obtener el idDireccion del usuario
+    SELECT idDireccion INTO @idDireccion FROM tbusuario WHERE idUsuario = p_idUsuario;
+
+    -- Actualizar la información de la dirección relacionada
+    UPDATE tbdireccion
+SET descripcionDireccion = COALESCE(p_descripcionDireccion, descripcionDireccion),
+    codigoPostalDireccion = COALESCE(p_codigoPostalDireccion, codigoPostalDireccion),
+    idDistrito = COALESCE(p_idDistrito, idDistrito)
+WHERE idDireccion = @idDireccion;
+
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spAgregarCategoria` (IN `nombreCategoria` VARCHAR(255), IN `descripcionCategoria` VARCHAR(255))   BEGIN
+    -- Inserta la nueva categoría en la tabla
+    INSERT INTO tbcategoria (nombreCategoria, descripcionCategoria)
+    VALUES (nombreCategoria, descripcionCategoria);
+
+    -- Devuelve el ID de la última categoría agregada
+    SELECT LAST_INSERT_ID() AS idCategoria;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spAgregarRol` (IN `nombreRol` VARCHAR(255), IN `descripcionRol` VARCHAR(255))   BEGIN
+    -- Inserta el nuevo rol en la tabla
+    INSERT INTO tbrol (nombreRol, descripcionRol)
+    VALUES (nombreRol, descripcionRol);
+
+    SELECT * FROM tbrol WHERE idRol = LAST_INSERT_ID();
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spAgregarUsuario` (IN `p_cedulaUsuario` VARCHAR(255), IN `p_nombreUsuario` VARCHAR(255), IN `p_primerApellido` VARCHAR(255), IN `p_segundoApellido` VARCHAR(255), IN `p_telefonoUsuario` VARCHAR(255), IN `p_correoUsuario` VARCHAR(255), IN `p_contraseniaUsuario` VARCHAR(255), IN `p_fechaNacimiento` DATE, IN `p_descripcionDireccion` VARCHAR(255), IN `p_codigoPostalDireccion` VARCHAR(255), IN `p_idDistrito` INT, IN `p_idRol` INT)   BEGIN
+    -- Variable de control
+    DECLARE done INT DEFAULT 0;
+
+    -- Manejador de errores para capturar excepciones SQL genéricas
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+    BEGIN
+        -- Si ocurre un error SQL, se hace rollback
+        ROLLBACK;
+    END;
+
+    -- Iniciar la transacción
+    START TRANSACTION;
+
+    -- Validar si algún campo obligatorio es nulo o vacío
+    IF p_cedulaUsuario IS NULL OR p_cedulaUsuario = '' THEN
+        SET done = 1;
+    END IF;
+
+    IF done = 0 AND (p_nombreUsuario IS NULL OR p_nombreUsuario = '') THEN
+        SET done = 1;
+    END IF;
+
+    IF done = 0 AND (p_primerApellido IS NULL OR p_primerApellido = '') THEN
+        SET done = 1;
+    END IF;
+
+    IF done = 0 AND (p_segundoApellido IS NULL OR p_segundoApellido = '') THEN
+        SET done = 1;
+    END IF;
+
+    IF done = 0 AND (p_contraseniaUsuario IS NULL OR p_contraseniaUsuario = '') THEN
+        SET done = 1;
+    END IF;
+
+    IF done = 0 AND (p_telefonoUsuario IS NULL OR p_telefonoUsuario = '') THEN
+        SET done = 1;
+    END IF;
+
+    IF done = 0 AND (p_correoUsuario IS NULL OR p_correoUsuario = '') THEN
+        SET done = 1;
+    END IF;
+
+    -- Validar que el correo no esté registrado
+    IF done = 0 AND EXISTS (SELECT 1 FROM tbusuario WHERE correoUsuario = p_correoUsuario) THEN
+        SET done = 1;
+    END IF;
+
+    -- Validar que la cédula no esté registrada
+    IF done = 0 AND EXISTS (SELECT 1 FROM tbusuario WHERE cedulaUsuario = p_cedulaUsuario) THEN
+        SET done = 1;
+    END IF;
+
+    -- Validar que el teléfono no esté registrado
+    IF done = 0 AND EXISTS (SELECT 1 FROM tbusuario WHERE telefonoUsuario = p_telefonoUsuario) THEN
+        SET done = 1;
+    END IF;
+
+    -- Solo proceder si no hubo errores
+    IF done = 0 THEN
+        -- Insertar en la tabla de direcciones
+        INSERT INTO tbdireccion (codigoPostalDireccion, descripcionDireccion, idDistrito)
+        VALUES (IFNULL(p_codigoPostalDireccion, NULL), p_descripcionDireccion, p_idDistrito);
+
+        -- Obtener el ID de la dirección insertada
+        SET @idDireccion = LAST_INSERT_ID();
+
+        -- Insertar en la tabla de usuarios
+        INSERT INTO tbusuario (cedulaUsuario, nombreUsuario, primerApellido, segundoApellido, telefonoUsuario, correoUsuario, contraseniaUsuario, fechaNacimiento, idDireccion, idRol)
+        VALUES (p_cedulaUsuario, p_nombreUsuario, p_primerApellido, p_segundoApellido, p_telefonoUsuario, p_correoUsuario, p_contraseniaUsuario, IFNULL(p_fechaNacimiento, NULL), @idDireccion, p_idRol);
+
+        -- Confirmar la transacción
+        COMMIT;
+    ELSE
+        -- Si hubo errores, deshacer la transacción
+        ROLLBACK;
+    END IF;
+
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spBuscarUsuarioPorCorreo` (IN `correoInput` VARCHAR(255))   BEGIN
+    -- Selecciona todos los campos del usuario basándose en el correo proporcionado
+    SELECT 
+        u.idUsuario, 
+        u.nombreUsuario, 
+        u.primerApellido, 
+        u.segundoApellido, 
+        u.fechaNacimiento, 
+        u.cedulaUsuario, 
+        u.correoUsuario, 
+        u.telefonoUsuario, 
+        u.contraseniaUsuario,  -- Contraseña encriptada
+        u.idRol,  -- ID del Rol del Usuario
+        r.nombreRol,  -- Nombre del Rol
+        r.descripcionRol, -- Descripción del Rol
+        u.idDireccion  -- Asegúrate de incluir esto
+    FROM 
+        tbusuario u
+    LEFT JOIN 
+        tbrol r ON u.idRol = r.idRol
+    WHERE 
+        u.correoUsuario = correoInput;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spEliminarCategoria` (IN `p_idCategoria` INT)   BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        -- Manejo de errores SQL
+        ROLLBACK;
+        SELECT 'Error al intentar eliminar la categoría' AS mensaje;
+    END;
+
+    START TRANSACTION;
+
+    -- Verificar si la categoría existe
+    IF EXISTS (SELECT 1 FROM tbcategoria WHERE idCategoria = p_idCategoria) THEN
+        DELETE FROM tbcategoria
+        WHERE idCategoria = p_idCategoria;
+
+        COMMIT;
+        SELECT 'Categoría eliminada con éxito' AS mensaje;
+    ELSE
+        ROLLBACK;
+        SELECT 'Categoría no encontrada' AS mensaje;
+    END IF;
+
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spEliminarRol` (IN `p_idRol` INT)   BEGIN
+    -- Usar WHERE para eliminar solo la fila con el id especificado
+    DELETE FROM tbrol
+    WHERE idRol = p_idRol;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spEliminarUsuario` (IN `p_idUsuario` INT)   BEGIN
+    -- Variable de control
+    DECLARE done INT DEFAULT 0;
+
+    -- Manejador de errores para capturar excepciones SQL genéricas
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+    BEGIN
+        -- Si ocurre un error SQL, se hace rollback y se asigna un mensaje genérico
+        ROLLBACK;
+        -- Devolver un mensaje de error
+        SELECT 'Error al eliminar el usuario' AS mensaje;
+    END;
+
+    IF done = 0 AND NOT EXISTS (SELECT 1 FROM tbusuario WHERE idUsuario = p_idUsuario) THEN
+        -- Si el id del usuario no existe, detener flujo
+        SET done = 1;
+        -- Devolver un mensaje de que no se encontró el usuario
+        SELECT 'Usuario no encontrado' AS mensaje;
+    END IF;
+
+    IF done = 0 THEN
+        -- Obtener la idDireccion del usuario
+        SELECT idDireccion INTO @idDireccion FROM tbusuario WHERE idUsuario = p_idUsuario;
+
+        -- Eliminar el usuario
+        DELETE FROM tbusuario WHERE idUsuario = p_idUsuario;
+
+        -- Eliminar la dirección relacionada
+        DELETE FROM tbdireccion WHERE idDireccion = @idDireccion;
+
+        -- Confirmar eliminación exitosa
+        SELECT 'Usuario eliminado con éxito' AS mensaje;
+    END IF;
+
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spLeerCategoria` ()   BEGIN
+    SELECT * FROM tbcategoria;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spLeerDistrito` ()   BEGIN
+    SELECT d.idDistrito, d.nombreDistrito, c.idCanton
+    FROM tbdistrito d
+    JOIN tbcanton c ON d.idCanton = c.idCanton;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spLeerRol` ()   BEGIN
+    SELECT * FROM tbrol;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spLeerUsuario` ()   BEGIN
+    SELECT 
+        u.idUsuario, 
+        u.cedulaUsuario, 
+        u.nombreUsuario, 
+        u.primerApellido, 
+        u.segundoApellido, 
+        u.telefonoUsuario, 
+        u.correoUsuario, 
+        u.contraseniaUsuario, 
+        u.fechaNacimiento,
+        u.idDireccion,
+        u.idRol, 
+        d.idDistrito 
+    FROM 
+        tbusuario u
+    LEFT JOIN tbdireccion d ON u.idDireccion = d.idDireccion;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spRegistrarUsuario` (IN `p_correoUsuario` VARCHAR(255), IN `p_contraseniaUsuario` VARCHAR(255), IN `p_nombreUsuario` VARCHAR(255), IN `p_primerApellido` VARCHAR(255), IN `p_segundoApellido` VARCHAR(255))   BEGIN
+    -- Declarar la variable para almacenar el ID de la dirección insertada
+    DECLARE idDireccion INT;
+
+    -- Manejador de errores para capturar excepciones SQL genéricas
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+    BEGIN
+        -- Si ocurre un error SQL, se hace rollback
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error al agregar el usuario';
+    END;
+
+    -- Iniciar la transacción
+    START TRANSACTION;
+
+    -- Validar si el correo es nulo o vacío
+    IF p_correoUsuario IS NULL OR p_correoUsuario = '' THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Correo vacío';
+    END IF;
+
+    -- Validar si la contraseña es nula o vacía
+    IF p_contraseniaUsuario IS NULL OR p_contraseniaUsuario = '' THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Contraseña vacía';
+    END IF;
+
+    -- Validar si el nombreUsuario es nulo o vacío
+    IF p_nombreUsuario IS NULL OR p_nombreUsuario = '' THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Nombre de usuario vacío';
+    END IF;
+
+    -- Validar si el primerApellido es nulo o vacío
+    IF p_primerApellido IS NULL OR p_primerApellido = '' THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Primer apellido vacío';
+    END IF;
+
+    -- Validar si el segundoApellido es nulo o vacío
+    IF p_segundoApellido IS NULL OR p_segundoApellido = '' THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Segundo apellido vacío';
+    END IF;
+
+    -- Validar que el correo sea único
+    IF EXISTS (SELECT 1 FROM tbusuario WHERE correoUsuario = p_correoUsuario) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El correo ya está registrado';
+    END IF;
+
+    -- Insertar la dirección
+    INSERT INTO tbdireccion () VALUES ();
+
+    -- Obtener el ID de la dirección insertada
+    SET idDireccion = LAST_INSERT_ID();
+
+    -- Insertar el usuario
+    INSERT INTO tbusuario (correoUsuario, contraseniaUsuario, nombreUsuario, primerApellido, segundoApellido, idDireccion, idRol)
+    VALUES (p_correoUsuario, p_contraseniaUsuario, p_nombreUsuario, p_primerApellido, p_segundoApellido, idDireccion, 3);
+
+    -- Hacer commit si todo está bien
+    COMMIT;
+
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spVerificarCorreo` (IN `p_correoUsuario` VARCHAR(255))   BEGIN
+    SELECT COUNT(*) AS existe FROM tbusuario WHERE correoUsuario = p_correoUsuario;
+END$$
+
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -74,22 +443,23 @@ INSERT INTO `tbcanton` (`idCanton`, `nombreCanton`, `idProvincia`) VALUES
 CREATE TABLE `tbcategoria` (
   `idCategoria` int(11) NOT NULL,
   `descripcionCategoria` varchar(255) DEFAULT NULL,
-  `nombreCategoria` varchar(255) DEFAULT NULL
+  `nombreCategoria` varchar(255) DEFAULT NULL,
+  `estado` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `tbcategoria`
 --
 
-INSERT INTO `tbcategoria` (`idCategoria`, `descripcionCategoria`, `nombreCategoria`) VALUES
-(1, 'Todas las partes de pollo', 'Pollo'),
-(2, 'Todas las partes de la res', 'Res'),
-(3, 'Todas las partes de la cerdo', 'Cerdo'),
-(4, 'Todas los tipos de mariscos', 'Marisco'),
-(5, 'Todos los tipos de embutidos', 'Embutidos'),
-(6, 'Todos los tipos de productos lácteos', 'Lácteos'),
-(7, 'La mayoría de productos varios', 'Productos varios'),
-(20, 'descripcionnnnnnnnnn', 'prueba');
+INSERT INTO `tbcategoria` (`idCategoria`, `descripcionCategoria`, `nombreCategoria`, `estado`) VALUES
+(1, 'Todas las partes de pollo', 'Pollo', 1),
+(2, 'Todas las partes de la res', 'Res', 1),
+(3, 'Todas las partes de la cerdo', 'Cerdo', 1),
+(4, 'Todas los tipos de mariscos', 'Marisco', 1),
+(5, 'Todos los tipos de embutidos', 'Embutidos', 1),
+(6, 'Todos los tipos de productos lácteos', 'Lácteos', 1),
+(7, 'La mayoría de productos varios', 'Productos varios', 1),
+(20, 'descripcionnnnnnnnnn', 'prueba', 1);
 
 -- --------------------------------------------------------
 
@@ -110,12 +480,14 @@ CREATE TABLE `tbdireccion` (
 
 INSERT INTO `tbdireccion` (`idDireccion`, `codigoPostalDireccion`, `descripcionDireccion`, `idDistrito`) VALUES
 (13, '1234', 'Urbanización el Tejar', 26),
-(14, '1234', 'Guacimo centro', 7),
 (15, NULL, NULL, NULL),
 (16, '12345654654', 'Guacimoooo', 3),
-(17, '1234', 'Guacimo centro', 25),
 (18, NULL, NULL, NULL),
-(19, '10101', 'San José centro', 2);
+(20, NULL, NULL, NULL),
+(21, NULL, NULL, NULL),
+(22, NULL, NULL, NULL),
+(23, NULL, NULL, NULL),
+(24, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -320,17 +692,18 @@ INSERT INTO `tbprovincia` (`idProvincia`, `nombreProvincia`) VALUES
 CREATE TABLE `tbrol` (
   `idRol` int(11) NOT NULL,
   `nombreRol` varchar(255) DEFAULT NULL,
-  `descripcionRol` varchar(255) DEFAULT NULL
+  `descripcionRol` varchar(255) DEFAULT NULL,
+  `estadoRol` tinyint(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `tbrol`
 --
 
-INSERT INTO `tbrol` (`idRol`, `nombreRol`, `descripcionRol`) VALUES
-(1, 'Administrador', 'El que se encarga de realizar lo más importante'),
-(2, 'Gerente', 'El que se encarga de algunas cosas'),
-(3, 'Usuario', 'El que se encarga de ver productos y realizar pedidos');
+INSERT INTO `tbrol` (`idRol`, `nombreRol`, `descripcionRol`, `estadoRol`) VALUES
+(1, 'Administrador', 'El que se encarga de realizar lo más importante', 1),
+(2, 'Gerente', 'El que se encarga de algunas cosas', 1),
+(3, 'Usuario', 'El que se encarga de ver productos y realizar pedidos', 1);
 
 -- --------------------------------------------------------
 
@@ -349,21 +722,19 @@ CREATE TABLE `tbusuario` (
   `segundoApellido` varchar(255) DEFAULT NULL,
   `telefonoUsuario` varchar(255) DEFAULT NULL,
   `idDireccion` int(11) DEFAULT NULL,
-  `idRol` int(11) DEFAULT NULL
+  `idRol` int(11) DEFAULT NULL,
+  `estadoUsuario` tinyint(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `tbusuario`
 --
 
-INSERT INTO `tbusuario` (`idUsuario`, `cedulaUsuario`, `contraseniaUsuario`, `correoUsuario`, `fechaNacimiento`, `nombreUsuario`, `primerApellido`, `segundoApellido`, `telefonoUsuario`, `idDireccion`, `idRol`) VALUES
-(6, '703100064', '$2a$12$fBMZLlt6aCS9iNemYH7h0e8m/YexlGy.13W2GTCFbnHLLe6fyTqOG', 'jsandi1299@gmail.com', '2004-08-09', 'Jamel', 'Sandí', 'Anderson', '88955772', 13, 3),
-(10, '402630349', '$2a$12$xEd6mYj83xXxJDu1.nk9Se9syqaJ74o5OmgTyrUgH1pg.jAGsPvDm', 'd.cedeno2004@gmail.com', '2004-08-09', 'Daisy', 'Cedenio', 'Sanabria', '88955772', 14, 3),
-(11, NULL, '$2a$12$H7xEK8HgTEGRCaE4flNwL.E1VyjkxeENA7DB9bwB85xUn6S4A0w0q', 'dilan@gmail.com', NULL, 'Dilan', 'Gutiérrez', 'Hérnanandez', NULL, 15, 3),
-(12, '7031000222', '$2a$12$woA1cDNHz2UW.Ek3.qyMwuU6qwdzaWkhslWgKGjOjXK5dH8xf.QGy', 'glend@gmail.com', '2004-08-09', 'Glend', 'Rojas', 'Alvarado', '88955771', 16, 2),
-(13, '703100062', '$2a$12$oyAFZDRHy/miwdcZAB3pwu5OypFjrEwo6WGYvNWsQ6I92c47/lNl6', 'geldn@gmail.com', '2004-08-09', 'Glend', 'Rojass', 'Alvaradoo', '88955733', 17, 2),
-(14, NULL, '$2a$12$KQR0XqaVLd4gyvwKacnjR.8sIS5ieIe7QaQvxjjrmnox0YWFJJjbC', 'jsandi12199@gmail.com', NULL, 'Jamel', 'prueba', 'Sandi', NULL, 18, 3),
-(15, '207890123', '$2a$12$XMtbt9NUJ8QiIy7D29Q6y.2.o6kXLheFJlb7HGevdScprEVhuNqU6', 'cmartinez@gmail.com', '1990-05-12', 'Carlos', 'Martínez', 'Guzmán', '87654321', 19, 1);
+INSERT INTO `tbusuario` (`idUsuario`, `cedulaUsuario`, `contraseniaUsuario`, `correoUsuario`, `fechaNacimiento`, `nombreUsuario`, `primerApellido`, `segundoApellido`, `telefonoUsuario`, `idDireccion`, `idRol`, `estadoUsuario`) VALUES
+(6, '703100064', '$2a$12$fBMZLlt6aCS9iNemYH7h0e8m/YexlGy.13W2GTCFbnHLLe6fyTqOG', 'jsandi1299@gmail.com', '2004-08-09', 'Jamel', 'Sandí', 'Anderson', '88955772', 13, 3, 1),
+(11, NULL, '$2a$12$H7xEK8HgTEGRCaE4flNwL.E1VyjkxeENA7DB9bwB85xUn6S4A0w0q', 'dilan@gmail.com', NULL, 'Dilan', 'Gutiérrez', 'Hérnanandez', NULL, 15, 1, 1),
+(12, '7031000222', '$2a$12$woA1cDNHz2UW.Ek3.qyMwuU6qwdzaWkhslWgKGjOjXK5dH8xf.QGy', 'glend@gmail.com', '2004-08-09', 'Glend', 'Rojas', 'Alvarado', '88955771', 16, 2, 1),
+(14, NULL, '$2a$12$//YmSKyCUaOul9TXIWPZEO9gr5yyzKc00AG8Wmi8IQUqy9dPPaqwK', 'jsandi12199@gmail.com', NULL, 'JamelZito', 'prueba', 'Sandi', NULL, 18, 3, 1);
 
 --
 -- Índices para tablas volcadas
@@ -430,13 +801,13 @@ ALTER TABLE `tbcanton`
 -- AUTO_INCREMENT de la tabla `tbcategoria`
 --
 ALTER TABLE `tbcategoria`
-  MODIFY `idCategoria` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `idCategoria` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT de la tabla `tbdireccion`
 --
 ALTER TABLE `tbdireccion`
-  MODIFY `idDireccion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `idDireccion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT de la tabla `tbdistrito`
@@ -460,7 +831,7 @@ ALTER TABLE `tbrol`
 -- AUTO_INCREMENT de la tabla `tbusuario`
 --
 ALTER TABLE `tbusuario`
-  MODIFY `idUsuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `idUsuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- Restricciones para tablas volcadas
