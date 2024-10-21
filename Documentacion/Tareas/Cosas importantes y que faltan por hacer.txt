@@ -1,17 +1,17 @@
 CRUD Categoria
 
-[   ] Corregir los sps para que tengan mas validaciones, como por ejemplo try catch y cosas así.
-[   ] Hacer la vista en react.
-[   ] Verificar porqué tira errores en la consola de spring, aunque si funcione todo.
+[ X ] Corregir los sps para que tengan mas validaciones, como por ejemplo try catch y cosas así.
+[ X ] Hacer la vista en react.
+[ X ] Verificar porqué tira errores en la consola de spring, aunque si funcione todo.
 [   ] Hacer full pruebas de rendimiento, y ver cuanto aguanta y corregir donde se cae.
 [ X ] Al momento de actualizar, pues que no sean necesarios todos los campos. (Jamel)
 [ X ] Al momento de guardar hacer que algunos campos sean totalmente necesarios. (Jamel)
 
 CRUD Rol
 
-[   ] Corregir los sps para que tengan mas validaciones, como por ejemplo try catch y cosas así.
-[   ] Hacer la vista en react.
-[   ] Verificar porqué tira errores en la consola de spring, aunque si funcione todo.
+[ X ] Corregir los sps para que tengan mas validaciones, como por ejemplo try catch y cosas así.
+[ X ] Hacer la vista en react.
+[ X ] Verificar porqué tira errores en la consola de spring, aunque si funcione todo.
 [   ] Hacer full pruebas de rendimiento, y ver cuanto aguanta y corregir donde se cae.
 [ X ] Revisar porqué se enciclan los datos al traerlos en Rol.
 [ X ] Al momento de actualizar, pues que no sean necesarios todos los campos. (Jamel)
@@ -19,20 +19,31 @@ CRUD Rol
 
 CRUD Usuario
 
-[   ] Se debe ingresar obligatoriamente el nombre, apellidos, correo y contraseña al momento de registrar un usuario
-[   ] Corregir los sps para que tengan mas validaciones, como por ejemplo try catch y cosas así.
+[ X ] Se debe ingresar obligatoriamente el nombre, apellidos, correo y contraseña al momento de registrar un usuario
+[ X ] Corregir los sps para que tengan mas validaciones, como por ejemplo try catch y cosas así.
 [ X ] Corregir el spLeerUsuario ya que solo trae lo que hay en esa tabla y no la direccion y el rol asociado.
 [ X ] Hacer que al agregar la contrasenia se encripte y viceversa al mostrarlo para ese mismo usuario. (Jamel)
 [   ] Hacer que el usuario pueda recuperar su contrasenia.
 [ X ] Que el usaario pueda registrarse y se registre como idUsuario = 3 (ese es el usuario), osea crear su cuenta, solo con correo y contra, el resto null, ya que después el lo edita. (Jamel)
-[   ] Verificar porqué tira errores en la consola de spring, aunque si funcione todo
+[ X ] Verificar porqué tira errores en la consola de spring, aunque si funcione todo
 [ X ] Al momento de hacer el logueo por medio de PostMan, y si este es correcto, tira los datos del usuario pero enciclado, corregir eso.
-[   ] Hacer la vista en react.
+[ X ] Hacer la vista en react.
 [   ] Hacer full pruebas de rendimiento, y ver cuanto aguanta y corregir donde se cae.
 [ X ] Al momento de actualizar, pues que no sean necesarios todos los campos. (Jamel)
 [ X ] Al momento de guardar hacer que algunos campos sean totalmente necesarios. (Jamel)
 [ X ] Que al momento de eliminar un usario se elimine la direccion asociada. (Jamel)
-[   ] Que al momento del Admin agregar usuarios que no agregue usuarios con el telefono y correo igual
+[ X ] Que al momento del Admin agregar usuarios que no agregue usuarios con el telefono y correo igual
+
+Errores a corregir para segunda entrega codificada
+
+[] Hacer validaciones en la vista, todos lo existentes posibles, alertas etc.
+
+[] Coregir toda la vista, hacer el Login como carnicería don Fernando que es al lado derecho como un navBar.
+[] Después del Logueo, corregir la vista implementando un sideBar que es un menú de navegación para el Admin y usuario también.
+[] Implementar un modal para actualizar y agregar.
+[] Implementar API de hacienda al momento de registro de usuarios.
+[] Hacer que el Login contenga cookies para más seguridad.
+[] 
 
 Importantes
 
