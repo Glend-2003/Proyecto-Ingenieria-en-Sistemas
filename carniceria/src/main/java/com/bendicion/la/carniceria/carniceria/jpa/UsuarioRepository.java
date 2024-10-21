@@ -3,12 +3,12 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.bendicion.la.carniceria.carniceria.domain.Usuario;
-import org.springframework.data.jpa.repository.Modifying;
 
 /**
  *
@@ -39,15 +39,15 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     
     // SP Register
     @Modifying
-    @Query(value = "{call spRegistrarUsuario(:correoUsuario, :contraseniaUsuario, :nombreUsuario, :primerApellido, :SegundoApellido)}", nativeQuery = true)
+    @Query(value = "{call spRegistrarUsuario(:correoUsuario, :contraseniaUsuario, :nombreUsuario, :primerApellido, :SegundoApellido, :estadoUsuario)}", nativeQuery = true)
     void registerProcedureUsuario(
             @Param("correoUsuario") String correoUsuario,
             @Param("contraseniaUsuario") String contraseniaUsuario,
             @Param("nombreUsuario") String nombreUsuario,
             @Param("primerApellido") String primerApellido,
-            @Param("SegundoApellido") String SegundoApellido
+            @Param("SegundoApellido") String SegundoApellido,
+            @Param("estadoUsuario") boolean estadoUsuario
     );
-    
 // -----------------------------------------------------------------------------
     
     // Sp verficar si ese correo ya existe
@@ -58,7 +58,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     
     // SP Update 
     @Modifying
-    @Query(value = "{call spActualizarUsuario(:idUsuario, :cedulaUsuario, :nombreUsuario, :primerApellido, :segundoApellido, :telefonoUsuario, :correoUsuario, :contraseniaUsuario, :fechaNacimiento, :descripcionDireccion, :codigoPostalDireccion, :idDistrito)}", nativeQuery = true)
+    @Query(value = "{call spActualizarUsuario(:idUsuario, :cedulaUsuario, :nombreUsuario, :primerApellido, :segundoApellido, :telefonoUsuario, :correoUsuario, :contraseniaUsuario, :fechaNacimiento, :descripcionDireccion, :codigoPostalDireccion, :idDistrito, :estadoUsuario)}", nativeQuery = true)
     void updateProcedureUsuario(
         @Param("idUsuario") Integer idUsuario, 
         @Param("cedulaUsuario") String cedulaUsuario, 
@@ -71,7 +71,8 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
         @Param("fechaNacimiento") Date fechaNacimiento,
         @Param("descripcionDireccion") String descripcionDireccion, 
         @Param("codigoPostalDireccion") String codigoPostalDireccion,
-        @Param("idDistrito") Integer idDistrito
+        @Param("idDistrito") Integer idDistrito,
+        @Param("estadoUsuario") boolean estadoUsuario
     );
 
 // -----------------------------------------------------------------------------    

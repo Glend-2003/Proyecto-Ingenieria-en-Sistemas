@@ -46,7 +46,7 @@ public class CategoriaController {
     public ResponseEntity<?> addCategoria(@RequestBody Categoria categoria) {
         try {
             Categoria nuevaCategoria = iCategoriaService.addCategoria(categoria);
-            System.out.println("Categoria agregada: ID -->" + categoria.getIdCategoria() + ", Nombre -->" + categoria.getNombreCategoria() + ", Descripcion -->" + categoria.getDescripcionCategoria());
+            System.out.println("Categoria agregada: ID -->" + categoria.getIdCategoria() + ", Nombre -->" + categoria.getNombreCategoria() + ", Descripcion -->" + categoria.getDescripcionCategoria() + categoria.isEstadoCategoria());
 
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Categoria guardada con exito con ID: " + nuevaCategoria.getIdCategoria());
@@ -64,7 +64,7 @@ public class CategoriaController {
     public ResponseEntity<?> updateCategoria(@RequestBody Categoria categoria) {
         try {
             Categoria categoriaActualizada = iCategoriaService.updateCategoria(categoria);
-            System.out.println("Categoria actualizada: ID -->" + categoria.getIdCategoria() + ", Nombre -->" + categoria.getNombreCategoria() + ", Descripcion -->" + categoria.getDescripcionCategoria());
+            System.out.println("Categoria actualizada: ID -->" + categoria.getIdCategoria() + ", Nombre -->" + categoria.getNombreCategoria() + ", Descripcion -->" + categoria.getDescripcionCategoria()+ categoria.isEstadoCategoria());
 
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Categoria actualizada con exito con ID: " + categoriaActualizada.getIdCategoria());

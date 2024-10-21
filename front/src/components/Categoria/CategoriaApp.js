@@ -9,7 +9,7 @@ import '../styles.min.css';
 import Swal from 'sweetalert2';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck, faTrash, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
-
+import Navbar from '../Navbar';
 
 
 
@@ -149,6 +149,7 @@ const CategoriaApp = () => {
   };
   
   return (
+    <Navbar /> {/* Agrega la barra de navegación aquí */}
     <div className="container mt-5">
     <h1>Gestión de Categorías</h1>
     <CategoriaForm onSubmit={agregarCategoria} categoriaEdit={categoriaEdit} />

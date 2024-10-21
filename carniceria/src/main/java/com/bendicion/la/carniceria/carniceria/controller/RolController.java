@@ -44,7 +44,7 @@ public class RolController {
     public ResponseEntity<?> addRol(@RequestBody Rol rol) {
         try{
             Rol nuevoRol = iRolService.addRol(rol);
-            System.out.println("Rol agregado: ID -->" + rol.getIdRol() + ", Nombre -->" + rol.getNombreRol() + ", Descripcion -->" + rol.getDescripcionRol());
+            System.out.println("Rol agregado: ID -->" + rol.getIdRol() + ", Nombre -->" + rol.getNombreRol() + ", Descripcion -->" + rol.getDescripcionRol()+ rol.isEstadoRol());
             
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Rol guardado con éxito con ID: " + nuevoRol.getIdRol());
@@ -63,7 +63,7 @@ public class RolController {
     public ResponseEntity<?> updateRol(@RequestBody Rol rol) {
         try{
             Rol rolActualizado = iRolService.updateRol(rol); 
-            System.out.println("Rol actualizada: ID -->" + rol.getIdRol() + ", Nombre -->" + rol.getNombreRol() + ", Descripcion -->" + rol.getDescripcionRol());
+            System.out.println("Rol actualizada: ID -->" + rol.getIdRol() + ", Nombre -->" + rol.getNombreRol() + ", Descripcion -->" + rol.getDescripcionRol()+  rol.isEstadoRol());
             
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Rol actualizado con éxito con ID: " + rolActualizado.getIdRol());

@@ -21,14 +21,14 @@ public class RolService implements IRolService{
     @Override
     public Rol addRol(Rol rol) {
         System.out.println("Agregando rol con nombre: " + rol.getNombreRol());
-        rolRepo.saveProcedureRol(rol.getNombreRol(), rol.getDescripcionRol());
+        rolRepo.saveProcedureRol(rol.getNombreRol(), rol.getDescripcionRol(), rol.isEstadoRol());
         return rol;
     }
 
     @Override
     public Rol updateRol(Rol rol) {
         System.out.println("Actualizando rol con ID: " + rol.getIdRol());
-        rolRepo.updateProcedureRol(rol.getIdRol(), rol.getNombreRol(), rol.getDescripcionRol());
+        rolRepo.updateProcedureRol(rol.getIdRol(), rol.getNombreRol(), rol.getDescripcionRol(), rol.isEstadoRol());
         return rol;
     }
 

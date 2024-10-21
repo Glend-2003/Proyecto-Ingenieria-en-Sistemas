@@ -1,43 +1,47 @@
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `spActualizarCategoria`(
-    IN p_idCategoria INT,
-    IN p_nombre VARCHAR(255),
-    IN p_descripcion VARCHAR(255)
-)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spActualizarCategoria`(IN `p_idCategoria` INT, IN `p_nombre` VARCHAR(255), IN `p_descripcion` VARCHAR(255), IN `p_estado` INT)
 BEGIN
-    -- Asegúrate de que se use WHERE para actualizar solo la fila con el id especificado
+    
     UPDATE tbcategoria
     SET nombreCategoria = p_nombre,
-        descripcionCategoria = p_descripcion
+        descripcionCategoria = p_descripcion,
+        estadoCategoria = p_estado 
     WHERE idCategoria = p_idCategoria;
 END$$
 DELIMITER ;
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `spActualizarRol`(IN `p_idRol` INT(10), IN `p_nombre` VARCHAR(255), IN `p_descripcion` VARCHAR(255))
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spActualizarRol`(
+    IN p_idRol INT(10),
+    IN p_nombre VARCHAR(255),
+    IN p_descripcion VARCHAR(255),
+    IN p_estado TINYINT -- Nueva entrada para estado
+)
 BEGIN
-    -- Asegúrate de que se use WHERE para actualizar solo la fila con el id especificado
+    -- Actualiza los campos del rol, incluyendo el estado
     UPDATE tbRol
     SET nombreRol = p_nombre,
-        descripcionRol = p_descripcion
+        descripcionRol = p_descripcion,
+        estadoRol = p_estado -- Actualizar el estado
     WHERE idRol = p_idRol;
 END$$
 DELIMITER ;
 
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spActualizarUsuario`(
-    IN `p_idUsuario` INT, 
-    IN `p_cedulaUsuario` VARCHAR(255), 
-    IN `p_nombreUsuario` VARCHAR(255), 
-    IN `p_primerApellido` VARCHAR(255), 
-    IN `p_segundoApellido` VARCHAR(255), 
-    IN `p_telefonoUsuario` VARCHAR(255), 
-    IN `p_correoUsuario` VARCHAR(255), 
-    IN `p_contraseniaUsuario` VARCHAR(255), 
-    IN `p_fechaNacimiento` DATE, 
-    IN `p_descripcionDireccion` VARCHAR(255), 
-    IN `p_codigoPostalDireccion` VARCHAR(255), 
-    IN `p_idDistrito` INT
+    IN p_idUsuario INT, 
+    IN p_cedulaUsuario VARCHAR(255), 
+    IN p_nombreUsuario VARCHAR(255), 
+    IN p_primerApellido VARCHAR(255), 
+    IN p_segundoApellido VARCHAR(255), 
+    IN p_telefonoUsuario VARCHAR(255), 
+    IN p_correoUsuario VARCHAR(255), 
+    IN p_contraseniaUsuario VARCHAR(255), 
+    IN p_fechaNacimiento DATE, 
+    IN p_descripcionDireccion VARCHAR(255), 
+    IN p_codigoPostalDireccion VARCHAR(255), 
+    IN p_idDistrito INT,
+    IN p_estadoUsuario TINYINT -- Nueva entrada para el estado
 )
 BEGIN
     DECLARE existingCount INT;
@@ -78,7 +82,7 @@ BEGIN
         END IF;
     END IF;
 
-    -- Actualizar la información del usuario solo si se proporcionan los valores
+    -- Actualizar la información del usuario, incluyendo el estado
     UPDATE tbusuario
     SET cedulaUsuario = IF(p_cedulaUsuario IS NOT NULL, p_cedulaUsuario, cedulaUsuario),
         nombreUsuario = IF(p_nombreUsuario IS NOT NULL, p_nombreUsuario, nombreUsuario),
@@ -87,7 +91,8 @@ BEGIN
         telefonoUsuario = IF(p_telefonoUsuario IS NOT NULL, p_telefonoUsuario, telefonoUsuario),
         correoUsuario = IF(p_correoUsuario IS NOT NULL, p_correoUsuario, correoUsuario),
         contraseniaUsuario = IF(p_contraseniaUsuario IS NOT NULL, p_contraseniaUsuario, contraseniaUsuario),
-        fechaNacimiento = IF(p_fechaNacimiento IS NOT NULL, p_fechaNacimiento, fechaNacimiento)
+        fechaNacimiento = IF(p_fechaNacimiento IS NOT NULL, p_fechaNacimiento, fechaNacimiento),
+        estadoUsuario = IF(p_estadoUsuario IS NOT NULL, p_estadoUsuario, estadoUsuario) -- Actualiza el estado
     WHERE idUsuario = p_idUsuario;
 
     -- Obtener el idDireccion del usuario
@@ -95,10 +100,10 @@ BEGIN
 
     -- Actualizar la información de la dirección relacionada
     UPDATE tbdireccion
-SET descripcionDireccion = COALESCE(p_descripcionDireccion, descripcionDireccion),
-    codigoPostalDireccion = COALESCE(p_codigoPostalDireccion, codigoPostalDireccion),
-    idDistrito = COALESCE(p_idDistrito, idDistrito)
-WHERE idDireccion = @idDireccion;
+    SET descripcionDireccion = COALESCE(p_descripcionDireccion, descripcionDireccion),
+        codigoPostalDireccion = COALESCE(p_codigoPostalDireccion, codigoPostalDireccion),
+        idDistrito = COALESCE(p_idDistrito, idDistrito)
+    WHERE idDireccion = @idDireccion;
 
 END$$
 DELIMITER ;
@@ -106,24 +111,29 @@ DELIMITER ;
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spAgregarCategoria`(
     IN nombreCategoria VARCHAR(255),
-    IN descripcionCategoria VARCHAR(255)
+    IN descripcionCategoria VARCHAR(255),
+    IN estadoCategoria INT 
 )
 BEGIN
-    -- Inserta la nueva categoría en la tabla
-    INSERT INTO tbcategoria (nombreCategoria, descripcionCategoria)
-    VALUES (nombreCategoria, descripcionCategoria);
+    
+    INSERT INTO tbcategoria (nombreCategoria, descripcionCategoria, estadoCategoria)
+    VALUES (nombreCategoria, descripcionCategoria, estadoCategoria);
 
-    -- Devuelve el ID de la última categoría agregada
+    
     SELECT LAST_INSERT_ID() AS idCategoria;
 END$$
 DELIMITER ;
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `spAgregarRol`(IN `nombreRol` VARCHAR(255), IN `descripcionRol` VARCHAR(255))
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spAgregarRol`(
+    IN nombreRol VARCHAR(255),
+    IN descripcionRol VARCHAR(255),
+    IN estadoRol TINYINT -- Nueva entrada para estado
+)
 BEGIN
-    -- Inserta el nuevo rol en la tabla
-    INSERT INTO tbrol (nombreRol, descripcionRol)
-    VALUES (nombreRol, descripcionRol);
+    -- Inserta el nuevo rol en la tabla incluyendo el estado
+    INSERT INTO tbrol (nombreRol, descripcionRol, estadoRol)
+    VALUES (nombreRol, descripcionRol, estadoRol);
 
     SELECT * FROM tbrol WHERE idRol = LAST_INSERT_ID();
 END$$
@@ -142,7 +152,8 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `spAgregarUsuario`(
     IN p_descripcionDireccion VARCHAR(255), 
     IN p_codigoPostalDireccion VARCHAR(255), 
     IN p_idDistrito INT, 
-    IN p_idRol INT
+    IN p_idRol INT,
+    IN p_estadoUsuario TINYINT -- Nueva entrada para el estado
 )
 BEGIN
     -- Variable de control
@@ -211,9 +222,9 @@ BEGIN
         -- Obtener el ID de la dirección insertada
         SET @idDireccion = LAST_INSERT_ID();
 
-        -- Insertar en la tabla de usuarios
-        INSERT INTO tbusuario (cedulaUsuario, nombreUsuario, primerApellido, segundoApellido, telefonoUsuario, correoUsuario, contraseniaUsuario, fechaNacimiento, idDireccion, idRol)
-        VALUES (p_cedulaUsuario, p_nombreUsuario, p_primerApellido, p_segundoApellido, p_telefonoUsuario, p_correoUsuario, p_contraseniaUsuario, IFNULL(p_fechaNacimiento, NULL), @idDireccion, p_idRol);
+        -- Insertar en la tabla de usuarios, incluyendo el estado
+        INSERT INTO tbusuario (cedulaUsuario, nombreUsuario, primerApellido, segundoApellido, telefonoUsuario, correoUsuario, contraseniaUsuario, fechaNacimiento, idDireccion, idRol, estadoUsuario)
+        VALUES (p_cedulaUsuario, p_nombreUsuario, p_primerApellido, p_segundoApellido, p_telefonoUsuario, p_correoUsuario, p_contraseniaUsuario, IFNULL(p_fechaNacimiento, NULL), @idDireccion, p_idRol, p_estadoUsuario);
 
         -- Confirmar la transacción
         COMMIT;
@@ -244,7 +255,8 @@ BEGIN
         u.idRol,  -- ID del Rol del Usuario
         r.nombreRol,  -- Nombre del Rol
         r.descripcionRol, -- Descripción del Rol
-        u.idDireccion  -- Asegúrate de incluir esto
+        u.idDireccion,  -- ID de la dirección
+        u.estadoUsuario  -- Incluir el estado del usuario
     FROM 
         tbusuario u
     LEFT JOIN 
@@ -255,26 +267,26 @@ END$$
 DELIMITER ;
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `spEliminarCategoria`(
-    IN p_idCategoria INT
-)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spEliminarCategoria`(IN `p_idCategoria` INT)
 BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
-        -- Manejo de errores SQL
+      
         ROLLBACK;
         SELECT 'Error al intentar eliminar la categoría' AS mensaje;
     END;
 
     START TRANSACTION;
 
-    -- Verificar si la categoría existe
+   
     IF EXISTS (SELECT 1 FROM tbcategoria WHERE idCategoria = p_idCategoria) THEN
-        DELETE FROM tbcategoria
+     
+        UPDATE tbcategoria
+        SET estadoCategoria = 0
         WHERE idCategoria = p_idCategoria;
 
         COMMIT;
-        SELECT 'Categoría eliminada con éxito' AS mensaje;
+        SELECT 'Categoría desactivada con éxito' AS mensaje;
     ELSE
         ROLLBACK;
         SELECT 'Categoría no encontrada' AS mensaje;
@@ -284,48 +296,59 @@ END$$
 DELIMITER ;
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `spEliminarRol`(IN `p_idRol` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spEliminarRol`(
+    IN p_idRol INT
+)
 BEGIN
-    -- Usar WHERE para eliminar solo la fila con el id especificado
-    DELETE FROM tbrol
-    WHERE idRol = p_idRol;
+    -- Verificar si el rol existe antes de intentar desactivarlo
+    IF EXISTS (SELECT 1 FROM tbrol WHERE idRol = p_idRol) THEN
+        -- En lugar de eliminar, actualizar el estado a 0
+        UPDATE tbrol
+        SET estadoRol = 0
+        WHERE idRol = p_idRol;
+
+        -- Confirmar la actualización
+        SELECT 'Rol desactivado con éxito' AS mensaje;
+    ELSE
+        -- Mensaje si el rol no se encuentra
+        SELECT 'Rol no encontrado' AS mensaje;
+    END IF;
+
 END$$
 DELIMITER ;
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `spEliminarUsuario`(IN p_idUsuario INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spEliminarUsuario`(
+    IN p_idUsuario INT
+)
 BEGIN
-    -- Variable de control
+    
     DECLARE done INT DEFAULT 0;
 
-    -- Manejador de errores para capturar excepciones SQL genéricas
+    
     DECLARE EXIT HANDLER FOR SQLEXCEPTION 
     BEGIN
-        -- Si ocurre un error SQL, se hace rollback y se asigna un mensaje genérico
+      
         ROLLBACK;
-        -- Devolver un mensaje de error
-        SELECT 'Error al eliminar el usuario' AS mensaje;
+     
+        SELECT 'Error al desactivar el usuario' AS mensaje;
     END;
 
     IF done = 0 AND NOT EXISTS (SELECT 1 FROM tbusuario WHERE idUsuario = p_idUsuario) THEN
-        -- Si el id del usuario no existe, detener flujo
+     
         SET done = 1;
-        -- Devolver un mensaje de que no se encontró el usuario
+       
         SELECT 'Usuario no encontrado' AS mensaje;
     END IF;
 
     IF done = 0 THEN
-        -- Obtener la idDireccion del usuario
-        SELECT idDireccion INTO @idDireccion FROM tbusuario WHERE idUsuario = p_idUsuario;
+        
+        UPDATE tbusuario
+        SET estadoUsuario = 0
+        WHERE idUsuario = p_idUsuario;
 
-        -- Eliminar el usuario
-        DELETE FROM tbusuario WHERE idUsuario = p_idUsuario;
-
-        -- Eliminar la dirección relacionada
-        DELETE FROM tbdireccion WHERE idDireccion = @idDireccion;
-
-        -- Confirmar eliminación exitosa
-        SELECT 'Usuario eliminado con éxito' AS mensaje;
+    
+        SELECT 'Usuario desactivado con éxito' AS mensaje;
     END IF;
 
 END$$
@@ -334,7 +357,9 @@ DELIMITER ;
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spLeerCategoria`()
 BEGIN
-    SELECT * FROM tbcategoria;
+    -- Leer solo las categorías donde el estado sea 1 (activo)
+    SELECT * FROM tbcategoria
+    WHERE estadoCategoria = 1;
 END$$
 DELIMITER ;
 
@@ -350,13 +375,16 @@ DELIMITER ;
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spLeerRol`()
 BEGIN
-    SELECT * FROM tbrol;
+    -- Leer solo los roles donde el estado sea 1 (activo)
+    SELECT * FROM tbrol
+    WHERE estadoRol = 1;
 END$$
 DELIMITER ;
 
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spLeerUsuario`()
 BEGIN
+    -- Leer solo los usuarios donde el estado sea 1 (activo)
     SELECT 
         u.idUsuario, 
         u.cedulaUsuario, 
@@ -369,10 +397,12 @@ BEGIN
         u.fechaNacimiento,
         u.idDireccion,
         u.idRol, 
+        u.estadoUsuario, -- Incluir el estado en la consulta
         d.idDistrito 
     FROM 
         tbusuario u
-    LEFT JOIN tbdireccion d ON u.idDireccion = d.idDireccion;
+    LEFT JOIN tbdireccion d ON u.idDireccion = d.idDireccion
+    WHERE u.estadoUsuario = 1; -- Solo los usuarios activos
 END$$
 DELIMITER ;
 

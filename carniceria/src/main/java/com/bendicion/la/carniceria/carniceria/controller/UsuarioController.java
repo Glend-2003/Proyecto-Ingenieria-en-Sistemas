@@ -56,7 +56,7 @@ public class UsuarioController {
     public ResponseEntity<?> addUsuario(@RequestBody Usuario usuario) {
         try {
             Usuario nuevoUsuario = iUsuarioService.addUsuario(usuario);
-            System.out.println("Usuario agregado: ID -->" + usuario.getIdUsuario() + ", Nombre -->" + usuario.getNombreUsuario() + ", Apellidos -->" + usuario.getPrimerApellido() + " " + usuario.getSegundoApellido());
+            System.out.println("Usuario agregado: ID -->" + usuario.getIdUsuario() + ", Nombre -->" + usuario.getNombreUsuario() + ", Apellidos -->" + usuario.getPrimerApellido() + " " + usuario.getSegundoApellido()+usuario.isEstadoUsuario());
 
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Usuario guardado con exito con ID: " + nuevoUsuario.getIdUsuario());
@@ -89,7 +89,7 @@ public class UsuarioController {
     public ResponseEntity<?> updateUsuario(@RequestBody Usuario usuario) {
         try {
             Usuario usuarioActualizado = iUsuarioService.updateUsuario(usuario);
-            System.out.println("Usuario actualizado: ID -->" + usuario.getIdUsuario() + ", Nombre -->" + usuario.getNombreUsuario() + ", Apellidos -->" + usuario.getPrimerApellido() + " " + usuario.getSegundoApellido());
+            System.out.println("Usuario actualizado: ID -->" + usuario.getIdUsuario() + ", Nombre -->" + usuario.getNombreUsuario() + ", Apellidos -->" + usuario.getPrimerApellido() + " " + usuario.getSegundoApellido()+usuario.isEstadoUsuario());
 
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Usuario actualizado con exito con ID: " + usuarioActualizado.getIdUsuario());

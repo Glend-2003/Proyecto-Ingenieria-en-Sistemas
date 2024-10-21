@@ -74,7 +74,7 @@ public class UsuarioService implements IUsuarioService {
         }
         if (usuario.getRol() == null || usuario.getRol().getIdRol() <= 0) {
             throw new IllegalArgumentException("El rol es inválido");
-        }
+        }  
 
         String encriptedPassword = seguridad.encriptPassword(usuario.getContraseniaUsuario());
 
@@ -142,7 +142,8 @@ public class UsuarioService implements IUsuarioService {
                 encriptedPassword,
                 usuario.getNombreUsuario(),
                 usuario.getPrimerApellido(),
-                usuario.getSegundoApellido()
+                usuario.getSegundoApellido(),
+                usuario.isEstadoUsuario()
                
         );
 
@@ -206,12 +207,13 @@ public class UsuarioService implements IUsuarioService {
                 usuario.getPrimerApellido(),
                 usuario.getSegundoApellido(),
                 usuario.getTelefonoUsuario(),
-                usuario.getCorreoUsuario(),
+                usuario.getCorreoUsuario(),  
                 encriptedPassword,
                 fechaNacimiento,
                 descripcionDireccion,
                 codigoPostalDireccion,
-                idDistrito
+                idDistrito,
+                usuario.isEstadoUsuario()
         );
 
         return usuario;

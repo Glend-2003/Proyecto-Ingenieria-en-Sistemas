@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { FaWpforms, FaStar, FaUserCircle } from 'react-icons/fa'; // Actualizamos las importaciones
+import Navbar from './Navbar';
 
 const Principal = () => {
     const [usuario, setUsuario] = useState(null);
@@ -41,51 +42,8 @@ const Principal = () => {
 
     return (
         <div data-bs-theme="light">
-            <head>
-                <meta charset="utf-8" />
-                <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
-                <title>Página Principal - Carnicería La Bendición</title>
-                <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css?h=97f29be617557a0886946172d7688ddf" />
-                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
-                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css" />
-                <link rel="stylesheet" href="/assets/css/styles.min.css?h=07cb10937863c52e016a927d9aa3434a" />
-            </head>
+            <Navbar usuario={usuario} onLogout={handleLogout} />
 
-            <div>
-                <nav className="navbar navbar-expand-md sticky-top navigation-clean-button navbar-light"
-                    style={{ height: '80px', background: '#042440' }}>
-                    <div className="container-fluid">
-                        <a className="navbar-brand" href="#">&nbsp;Carnicería La Bendición</a>
-                        <button data-bs-toggle="collapse" className="navbar-toggler" data-bs-target="#navcol-1">
-                            <span className="visually-hidden">Toggle navigation</span>
-                            <span className="navbar-toggler-icon"></span>
-                        </button>
-                        <div className="collapse navbar-collapse" id="navcol-1">
-                            <ul className="navbar-nav ms-auto">
-                                <li className="nav-item">
-                                    {usuario && (usuario.rol.nombreRol === 'Administrador' || usuario.rol.nombreRol === 'Gerente') && (
-                                        <a className="nav-link" style={{ color: "#ffffff" }} onClick={() => navigate('/GestionarUsuario')} href="#">
-                                            <FaWpforms />&nbsp;Gestionar usuarios
-                                        </a>
-                                    )}
-                                </li>
-                                <li className="nav-item">
-                                    {usuario && (usuario.rol.nombreRol === 'Administrador' || usuario.rol.nombreRol === 'Gerente') && (
-                                        <a className="nav-link" style={{ color: "#ffffff" }} onClick={() => navigate('/CategoriaApp')} href="#">
-                                            <FaStar />&nbsp;Gestionar categorías
-                                        </a>
-                                    )}
-                                </li>
-                                <li className="nav-item">
-                                    <a className="nav-link" style={{ color: "#ffffff" }} onClick={handleLogout} href="#">
-                                        <FaUserCircle />&nbsp;Cerrar sesión
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </nav>
-            </div>
 
             <main className="page">
                 <section className="portfolio-block hire-me">
