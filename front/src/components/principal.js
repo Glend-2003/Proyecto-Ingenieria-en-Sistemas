@@ -4,9 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { FaWpforms, FaStar, FaUserCircle } from 'react-icons/fa'; // Actualizamos las importaciones
 import Navbar from './Navbar';
+import useAuth from '../hooks/useAuth';
 
 const Principal = () => {
-    const [usuario, setUsuario] = useState(null);
+    const { usuario, handleLogout } = useAuth();
+    /*const [usuario, setUsuario] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -38,12 +40,11 @@ const Principal = () => {
         localStorage.removeItem('correoUsuario');
         localStorage.removeItem('nombreUsuario');
         navigate('/');
-    };
+    };*/
 
     return (
         <div data-bs-theme="light">
             <Navbar usuario={usuario} onLogout={handleLogout} />
-
 
             <main className="page">
                 <section className="portfolio-block hire-me">

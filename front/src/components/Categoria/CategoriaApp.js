@@ -8,14 +8,16 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles.min.css';
 import Swal from 'sweetalert2';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck, faTrash, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faTrash, faExclamationTriangle, faEdit } from '@fortawesome/free-solid-svg-icons';
 import Navbar from '../Navbar';
-
-
+import useAuth from '../../hooks/useAuth';
+import { Button, Modal } from 'react-bootstrap';
 
 const CategoriaApp = () => {
   const [categorias, setCategorias] = useState([]);
   const [categoriaEdit, setCategoriaEdit] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const { usuario, handleLogout } = useAuth();
 
   useEffect(() => {
     cargarCategorias();
@@ -65,7 +67,6 @@ const CategoriaApp = () => {
       }
     }
   };
-
 
   const actualizarCategoria = async (categoria) => {
     // Validación de nombre duplicado al actualizar
@@ -147,101 +148,108 @@ const CategoriaApp = () => {
       }
     }
   };
+
+  const handleShowModal = (categoria = null) => {
+    setCategoriaEdit(categoria);
+    setShowModal(true);
+  };
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setCategoriaEdit(null);
+  };
   
+  //<Navbar usuario={usuario} onLogout={handleLogout} />
+  //<Navbar /> {/* Agrega la barra de navegación aquí */}
   return (
-    <Navbar /> {/* Agrega la barra de navegación aquí */}
-    <div className="container mt-5">
-    <h1>Gestión de Categorías</h1>
-    <CategoriaForm onSubmit={agregarCategoria} categoriaEdit={categoriaEdit} />
-    <ToastContainer />
-    <div className="col-md-10 search-table-col" style={{ paddingTop: '0px', paddingRight: '0px', marginRight: '86px', marginTop: '172px', paddingLeft: '1px', marginLeft: '63px' }}>
-      <div className="form-group pull-right col-lg-4">
-        <input type="text" className="search form-control" placeholder="Buscar por nombre" />
-      </div>
-      <span className="counter pull-right"></span>
-      <div className="table-responsive table table-hover table-bordered results">
-        <table className="table table-hover table-bordered">
-          <thead className="bill-header cs">
-            <tr>
-              <th id="trs-hd-4" className="col-lg-2">Nombre</th>
-              <th id="trs-hd-5" className="col-lg-2">Descripción</th>
-              <th id="trs-hd-6" className="col-lg-1 text-center" style={{ width: '5%' }}>Acción</th>
-            </tr>
-          </thead>
-          <tbody>
-            {categorias.length === 0 ? (
-              <tr className="warning no-result">
-                <td colSpan="3">
-                  <FontAwesomeIcon icon={faExclamationTriangle} />&nbsp; No Result !!!
-                </td>
-              </tr>
-            ) : (
-              categorias.map((categoria) => (
-                <tr key={categoria.idCategoria}>
-                  <td>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={categoria.nombreCategoria}
-                      onChange={(e) =>
-                        setCategorias((prev) =>
-                          prev.map((c) =>
-                            c.idCategoria === categoria.idCategoria
-                              ? { ...c, nombreCategoria: e.target.value }
-                              : c
-                          )
-                        )
-                      }
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={categoria.descripcionCategoria}
-                      onChange={(e) =>
-                        setCategorias((prev) =>
-                          prev.map((c) =>
-                            c.idCategoria === categoria.idCategoria
-                              ? { ...c, descripcionCategoria: e.target.value }
-                              : c
-                          )
-                        )
-                      }
-                    />
-                  </td>
-                  <td className="text-center" style={{ width: '5%' }}>
-                    <button
-                      className="btn btn-success btn-sm"
-                      type="button"
-                      onClick={() => actualizarCategoria(categoria)}
-                    >
-                      <FontAwesomeIcon icon={faCheck} style={{ fontSize: '12px' }} />
-                    </button>
-                    <button
-                      className="btn btn-danger btn-sm"
-                      type="button"
-                      onClick={() => eliminarCategoria(categoria.idCategoria)}
-                    >
-                      <FontAwesomeIcon icon={faTrash} style={{ fontSize: '12px' }} />
-                    </button>
-                  </td>
+    <div>
+      
+      <Navbar usuario={usuario} onLogout={handleLogout} />
+      <div className="container mt-5">
+        <h1>Gestión de Categorías</h1>
+        <Button variant="primary" onClick={() => handleShowModal()}>
+          Agregar Nueva Categoría
+        </Button>
+        <Modal show={showModal} onHide={handleCloseModal}>
+          <Modal.Header closeButton>
+            <Modal.Title>{categoriaEdit ? 'Actualizar Categoría' : 'Agregar Categoría'}</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <CategoriaForm onSubmit={(categoria) => {
+              if (categoriaEdit) {
+                actualizarCategoria({ ...categoria, idCategoria: categoriaEdit.idCategoria });
+              } else {
+                agregarCategoria(categoria);
+              }
+              handleCloseModal();
+            }} categoriaEdit={categoriaEdit} />
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleCloseModal}>
+              Cerrar
+            </Button>
+          </Modal.Footer>
+        </Modal>
+        <ToastContainer />
+        <div className="col-md-10 search-table-col" style={{ paddingTop: '0px', paddingRight: '0px', marginRight: '86px', marginTop: '172px', paddingLeft: '1px', marginLeft: '63px' }}>
+          <div className="form-group pull-right col-lg-4">
+            <input type="text" className="search form-control" placeholder="Buscar por nombre" />
+          </div>
+          <span className="counter pull-right"></span>
+          <div className="table-responsive table table-hover table-bordered results">
+            <table className="table table-hover table-bordered">
+              <thead className="bill-header cs">
+                <tr>
+                  <th id="trs-hd-4" className="col-lg-2">Nombre</th>
+                  <th id="trs-hd-5" className="col-lg-2">Descripción</th>
+                  <th id="trs-hd-6" className="col-lg-1 text-center" style={{ width: '5%' }}>Acción</th>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-      {/* Botón para volver */}
-      <div className="d-flex justify-content-end mt-3">
-        <button className="btn btn-secondary" onClick={() => window.history.back()}>
-          Volver
-        </button>
+              </thead>
+              <tbody>
+                {categorias.length === 0 ? (
+                  <tr className="warning no-result">
+                    <td colSpan="3">
+                      <FontAwesomeIcon icon={faExclamationTriangle} />&nbsp; No Result !!!
+                    </td>
+                  </tr>
+                ) : (
+                  categorias.map((categoria) => (
+                    <tr key={categoria.idCategoria}>
+                      <td>{categoria.nombreCategoria}</td>
+                      <td>{categoria.descripcionCategoria}</td>
+                      <td className="text-center" style={{ width: '5%' }}>
+                        <button
+                        
+                          className="btn btn-warning btn-sm me-2"
+                          type="button"
+                          onClick={() => handleShowModal(categoria)}
+                        >
+                          <FontAwesomeIcon icon={faEdit} style={{ fontSize: '12px' }} />
+                        </button>
+                        <button
+                          className="btn btn-danger btn-sm"
+                          type="button"
+                          
+                          onClick={() => eliminarCategoria(categoria.idCategoria)}
+                        >
+                          <FontAwesomeIcon icon={faTrash} style={{ fontSize: '12px' }} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+          {/* Botón para volver */}
+          <div className="d-flex justify-content-end mt-3">
+            <button className="btn btn-secondary" onClick={() => window.history.back()}>
+              Volver
+            </button>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-
-          );
+  );
 };
 
 export default CategoriaApp;

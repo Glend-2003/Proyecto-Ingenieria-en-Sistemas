@@ -155,7 +155,7 @@ public class UsuarioService implements IUsuarioService {
     @Override
     @Transactional // Asegúrate de que esté anotado
     public Usuario updateUsuario(Usuario usuario) {
-
+        
         String encriptedPassword = null;
         if (usuario.getContraseniaUsuario() != null && !usuario.getContraseniaUsuario().isEmpty()) {
             encriptedPassword = seguridad.encriptPassword(usuario.getContraseniaUsuario());
@@ -199,7 +199,7 @@ public class UsuarioService implements IUsuarioService {
                 }
             }
         }
-
+        usuario.setEstadoUsuario(true);
         usuarioRepo.updateProcedureUsuario(
                 usuario.getIdUsuario(),
                 usuario.getCedulaUsuario(),
@@ -213,6 +213,7 @@ public class UsuarioService implements IUsuarioService {
                 descripcionDireccion,
                 codigoPostalDireccion,
                 idDistrito,
+                
                 usuario.isEstadoUsuario()
         );
 

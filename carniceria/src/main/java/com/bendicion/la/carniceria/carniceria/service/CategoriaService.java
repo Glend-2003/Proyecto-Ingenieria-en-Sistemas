@@ -26,6 +26,7 @@ public class CategoriaService implements ICategoriaService {
     @Override
     public Categoria addCategoria(Categoria categoria) {
         System.out.println("Agregando categoría con nombre: " + categoria.getNombreCategoria());
+        categoria.setEstadoCategoria(true);
         categoriaRep.saveProcedureCategoria(categoria.getNombreCategoria(), categoria.getDescripcionCategoria(), categoria.isEstadoCategoria());
         return categoria;
     }
@@ -34,6 +35,7 @@ public class CategoriaService implements ICategoriaService {
     @Transactional // Asegúrate de que esté anotado
     public Categoria updateCategoria(Categoria categoria) {
         System.out.println("Actualizando categoria con ID: " + categoria.getIdCategoria());
+        categoria.setEstadoCategoria(true);
         categoriaRep.updateProcedureCategoria(categoria.getIdCategoria(), categoria.getNombreCategoria(), categoria.getDescripcionCategoria(), categoria.isEstadoCategoria());
         return categoria;
     }
