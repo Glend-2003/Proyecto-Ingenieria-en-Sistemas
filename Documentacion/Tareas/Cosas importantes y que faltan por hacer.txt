@@ -36,13 +36,14 @@ CRUD Usuario
 
 Errores a corregir para segunda entrega codificada
 
-[] Hacer validaciones en la vista, todos lo existentes posibles, alertas etc.
-
+[] Hacer validaciones en la vista, todos lo existentes posibles, alertas etc. (Dilan)
 [] Coregir toda la vista, hacer el Login como carnicería don Fernando que es al lado derecho como un navBar.
-[] Después del Logueo, corregir la vista implementando un sideBar que es un menú de navegación para el Admin y usuario también.
-[] Implementar un modal para actualizar y agregar.
-[] Implementar API de hacienda al momento de registro de usuarios.
-[] Hacer que el Login contenga cookies para más seguridad.
+[] Después del Logueo, corregir la vista implementando un sideBar que es un menú de navegación para el Admin y usuario también. (Deyy)
+[] Implementar un modal para actualizar y agregar. (Glend)
+[] Implementar API de hacienda al momento de registro de usuarios. (Jamel)
+[] Hacer que el Login contenga cookies para más seguridad. (Jamel)
+[] Paginación en la BD. (Jamel)
+[] Agregar formulario para registro de Admins y gerentes en gestión de usuarios. (Dilan)
 [] 
 
 Importantes
