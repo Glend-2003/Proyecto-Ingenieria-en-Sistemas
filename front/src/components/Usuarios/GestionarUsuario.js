@@ -5,6 +5,7 @@ import { FaCheck, FaTrash, FaExclamationTriangle } from 'react-icons/fa';
 import { toast, ToastContainer } from 'react-toastify'; // Importar toast y ToastContainer
 import 'react-toastify/dist/ReactToastify.css';
 import Swal from 'sweetalert2';
+import useAuth from '../../hooks/useAuth';
 import Navbar from '../Navbar';
 
 const GestionarUsuario = () => {
@@ -12,7 +13,7 @@ const GestionarUsuario = () => {
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState('');
   const [editableUsers, setEditableUsers] = useState(users);
-
+  const { usuario, handleLogout } = useAuth();
 
   useEffect(() => {
     cargarUsuarios();
@@ -163,12 +164,11 @@ const handleInputChange = (e, idUsuario, field) => {
   const filteredUsers = users.filter(user =>
     user.nombreUsuario.toLowerCase().includes(search.toLowerCase())
   );
-
+  //<Navbar usuario={usuario} onLogout={handleLogout} />
   return (
     <div>
-      <Navbar /> {/* Agrega la barra de navegación aquí */}
+      <Navbar usuario={usuario} onLogout={handleLogout} />
       <div className="container mt-5">
-        
       <h1>Gestión de Usuarios</h1>
       <ToastContainer />
       <div className="col-md-10 search-table-col" style={{ paddingTop: '0px', marginTop: '50px', marginLeft: '50px' }}>
