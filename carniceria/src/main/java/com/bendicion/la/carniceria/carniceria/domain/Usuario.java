@@ -1,4 +1,6 @@
 package com.bendicion.la.carniceria.carniceria.domain;
+import java.time.LocalDate;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -7,7 +9,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Transient;
-import java.time.LocalDate;
 
 /**
  *
@@ -53,6 +54,10 @@ public class Usuario {
     @ManyToOne
     @JoinColumn(name = "idDireccion") 
     private Direccion direccion;
+
+    @Column(name = "estadoUsuario")
+    private boolean estadoUsuario;
+
     
     @Transient 
     private String token; 
@@ -60,7 +65,7 @@ public class Usuario {
     public Usuario() {
     }
 
-    public Usuario(int idUsuario, String nombreUsuario, String primerApellido, String segundoApellido, LocalDate fechaNacimiento, String cedulaUsuario, Rol rol, String correoUsuario, String telefonoUsuario, String contraseniaUsuario, Direccion direccion) {
+    public Usuario(int idUsuario, String nombreUsuario, String primerApellido, String segundoApellido, LocalDate fechaNacimiento, String cedulaUsuario, Rol rol, String correoUsuario, String telefonoUsuario, String contraseniaUsuario, Direccion direccion, boolean estadoUsuario) {
         this.idUsuario = idUsuario;
         this.nombreUsuario = nombreUsuario;
         this.primerApellido = primerApellido;
@@ -72,6 +77,7 @@ public class Usuario {
         this.telefonoUsuario = telefonoUsuario;
         this.contraseniaUsuario = contraseniaUsuario;
         this.direccion = direccion;
+        this.estadoUsuario = estadoUsuario;
     }
 
     public int getIdUsuario() {
@@ -168,6 +174,14 @@ public class Usuario {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public boolean isEstadoUsuario() {
+        return estadoUsuario;
+    }
+
+    public void setEstadoUsuario(boolean estadoUsuario) {
+        this.estadoUsuario = estadoUsuario;
     }
     
 }

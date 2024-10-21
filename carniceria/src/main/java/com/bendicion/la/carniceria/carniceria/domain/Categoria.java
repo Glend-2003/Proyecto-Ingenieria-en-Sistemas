@@ -25,6 +25,9 @@ public class Categoria {
     @Column(name = "descripcionCategoria")
     private String descripcionCategoria;
 
+    @Column(name = "estadoCategoria")
+    private boolean estadoCategoria;
+
 /*
     Cuando empezemos a hacer el CRUD de Producto si vamos a necesitar esto
     
@@ -58,6 +61,14 @@ public class Categoria {
 
     public void setDescripcionCategoria(String descripcionCategoria) {
         this.descripcionCategoria = descripcionCategoria;
+    }
+
+    public boolean isEstadoCategoria() {
+        return estadoCategoria;
+    }
+
+    public void setEstadoCategoria(boolean estadoCategoria) {
+        this.estadoCategoria = estadoCategoria;
     }
 /*
     public List<Producto> getProducto() {

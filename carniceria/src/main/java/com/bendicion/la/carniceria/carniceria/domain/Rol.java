@@ -1,6 +1,9 @@
 package com.bendicion.la.carniceria.carniceria.domain;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -9,8 +12,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  *
@@ -30,6 +31,9 @@ public class Rol {
     
     @Column(name = "descripcionRol")
     private String descripcionRol;
+
+    @Column(name = "estadoRol")
+    private boolean estadoRol;
 /*
     public Rol() {
     }
@@ -42,10 +46,11 @@ public class Rol {
         usuario = new ArrayList<>();
     }
     
-    public Rol(int idRol, String nombreRol, String descripcionRol) {
+    public Rol(int idRol, String nombreRol, String descripcionRol, boolean estadoRol) {
         this.idRol = idRol;
         this.nombreRol = nombreRol;
         this.descripcionRol = descripcionRol;
+        this.estadoRol = estadoRol;
     }   
 
     public int getIdRol() {
@@ -78,6 +83,14 @@ public class Rol {
 
     public void setUsuario(List<Usuario> usuario) {
         this.usuario = usuario;
+    }
+
+    public boolean isEstadoRol() {
+        return estadoRol;
+    }
+
+    public void setEstadoRol(boolean estadoRol) {
+        this.estadoRol = estadoRol;
     }
   
 }

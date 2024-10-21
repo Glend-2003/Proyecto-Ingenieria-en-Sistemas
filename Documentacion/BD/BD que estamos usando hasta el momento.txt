@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 21-10-2024 a las 04:36:21
+-- Tiempo de generación: 21-10-2024 a las 05:24:22
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -25,23 +25,25 @@ DELIMITER $$
 --
 -- Procedimientos
 --
-CREATE DEFINER=`root`@`localhost` PROCEDURE `spActualizarCategoria` (IN `p_idCategoria` INT, IN `p_nombre` VARCHAR(255), IN `p_descripcion` VARCHAR(255))   BEGIN
-    -- Asegúrate de que se use WHERE para actualizar solo la fila con el id especificado
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spActualizarCategoria` (IN `p_idCategoria` INT, IN `p_nombre` VARCHAR(255), IN `p_descripcion` VARCHAR(255), IN `p_estado` INT)   BEGIN
+    
     UPDATE tbcategoria
     SET nombreCategoria = p_nombre,
-        descripcionCategoria = p_descripcion
+        descripcionCategoria = p_descripcion,
+        estadoCategoria = p_estado 
     WHERE idCategoria = p_idCategoria;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `spActualizarRol` (IN `p_idRol` INT(10), IN `p_nombre` VARCHAR(255), IN `p_descripcion` VARCHAR(255))   BEGIN
-    -- Asegúrate de que se use WHERE para actualizar solo la fila con el id especificado
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spActualizarRol` (IN `p_idRol` INT(10), IN `p_nombre` VARCHAR(255), IN `p_descripcion` VARCHAR(255), IN `p_estado` TINYINT)   BEGIN
+    -- Actualiza los campos del rol, incluyendo el estado
     UPDATE tbRol
     SET nombreRol = p_nombre,
-        descripcionRol = p_descripcion
+        descripcionRol = p_descripcion,
+        estadoRol = p_estado -- Actualizar el estado
     WHERE idRol = p_idRol;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `spActualizarUsuario` (IN `p_idUsuario` INT, IN `p_cedulaUsuario` VARCHAR(255), IN `p_nombreUsuario` VARCHAR(255), IN `p_primerApellido` VARCHAR(255), IN `p_segundoApellido` VARCHAR(255), IN `p_telefonoUsuario` VARCHAR(255), IN `p_correoUsuario` VARCHAR(255), IN `p_contraseniaUsuario` VARCHAR(255), IN `p_fechaNacimiento` DATE, IN `p_descripcionDireccion` VARCHAR(255), IN `p_codigoPostalDireccion` VARCHAR(255), IN `p_idDistrito` INT)   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spActualizarUsuario` (IN `p_idUsuario` INT, IN `p_cedulaUsuario` VARCHAR(255), IN `p_nombreUsuario` VARCHAR(255), IN `p_primerApellido` VARCHAR(255), IN `p_segundoApellido` VARCHAR(255), IN `p_telefonoUsuario` VARCHAR(255), IN `p_correoUsuario` VARCHAR(255), IN `p_contraseniaUsuario` VARCHAR(255), IN `p_fechaNacimiento` DATE, IN `p_descripcionDireccion` VARCHAR(255), IN `p_codigoPostalDireccion` VARCHAR(255), IN `p_idDistrito` INT, IN `p_estadoUsuario` TINYINT)   BEGIN
     DECLARE existingCount INT;
 
     -- Verificar si la cédula ya existe en otro registro
@@ -80,7 +82,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `spActualizarUsuario` (IN `p_idUsuar
         END IF;
     END IF;
 
-    -- Actualizar la información del usuario solo si se proporcionan los valores
+    -- Actualizar la información del usuario, incluyendo el estado
     UPDATE tbusuario
     SET cedulaUsuario = IF(p_cedulaUsuario IS NOT NULL, p_cedulaUsuario, cedulaUsuario),
         nombreUsuario = IF(p_nombreUsuario IS NOT NULL, p_nombreUsuario, nombreUsuario),
@@ -89,7 +91,8 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `spActualizarUsuario` (IN `p_idUsuar
         telefonoUsuario = IF(p_telefonoUsuario IS NOT NULL, p_telefonoUsuario, telefonoUsuario),
         correoUsuario = IF(p_correoUsuario IS NOT NULL, p_correoUsuario, correoUsuario),
         contraseniaUsuario = IF(p_contraseniaUsuario IS NOT NULL, p_contraseniaUsuario, contraseniaUsuario),
-        fechaNacimiento = IF(p_fechaNacimiento IS NOT NULL, p_fechaNacimiento, fechaNacimiento)
+        fechaNacimiento = IF(p_fechaNacimiento IS NOT NULL, p_fechaNacimiento, fechaNacimiento),
+        estadoUsuario = IF(p_estadoUsuario IS NOT NULL, p_estadoUsuario, estadoUsuario) -- Actualiza el estado
     WHERE idUsuario = p_idUsuario;
 
     -- Obtener el idDireccion del usuario
@@ -97,31 +100,31 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `spActualizarUsuario` (IN `p_idUsuar
 
     -- Actualizar la información de la dirección relacionada
     UPDATE tbdireccion
-SET descripcionDireccion = COALESCE(p_descripcionDireccion, descripcionDireccion),
-    codigoPostalDireccion = COALESCE(p_codigoPostalDireccion, codigoPostalDireccion),
-    idDistrito = COALESCE(p_idDistrito, idDistrito)
-WHERE idDireccion = @idDireccion;
+    SET descripcionDireccion = COALESCE(p_descripcionDireccion, descripcionDireccion),
+        codigoPostalDireccion = COALESCE(p_codigoPostalDireccion, codigoPostalDireccion),
+        idDistrito = COALESCE(p_idDistrito, idDistrito)
+    WHERE idDireccion = @idDireccion;
 
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `spAgregarCategoria` (IN `nombreCategoria` VARCHAR(255), IN `descripcionCategoria` VARCHAR(255))   BEGIN
-    -- Inserta la nueva categoría en la tabla
-    INSERT INTO tbcategoria (nombreCategoria, descripcionCategoria)
-    VALUES (nombreCategoria, descripcionCategoria);
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spAgregarCategoria` (IN `nombreCategoria` VARCHAR(255), IN `descripcionCategoria` VARCHAR(255), IN `estadoCategoria` INT)   BEGIN
+    
+    INSERT INTO tbcategoria (nombreCategoria, descripcionCategoria, estadoCategoria)
+    VALUES (nombreCategoria, descripcionCategoria, estadoCategoria);
 
-    -- Devuelve el ID de la última categoría agregada
+    
     SELECT LAST_INSERT_ID() AS idCategoria;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `spAgregarRol` (IN `nombreRol` VARCHAR(255), IN `descripcionRol` VARCHAR(255))   BEGIN
-    -- Inserta el nuevo rol en la tabla
-    INSERT INTO tbrol (nombreRol, descripcionRol)
-    VALUES (nombreRol, descripcionRol);
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spAgregarRol` (IN `nombreRol` VARCHAR(255), IN `descripcionRol` VARCHAR(255), IN `estadoRol` TINYINT)   BEGIN
+    -- Inserta el nuevo rol en la tabla incluyendo el estado
+    INSERT INTO tbrol (nombreRol, descripcionRol, estadoRol)
+    VALUES (nombreRol, descripcionRol, estadoRol);
 
     SELECT * FROM tbrol WHERE idRol = LAST_INSERT_ID();
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `spAgregarUsuario` (IN `p_cedulaUsuario` VARCHAR(255), IN `p_nombreUsuario` VARCHAR(255), IN `p_primerApellido` VARCHAR(255), IN `p_segundoApellido` VARCHAR(255), IN `p_telefonoUsuario` VARCHAR(255), IN `p_correoUsuario` VARCHAR(255), IN `p_contraseniaUsuario` VARCHAR(255), IN `p_fechaNacimiento` DATE, IN `p_descripcionDireccion` VARCHAR(255), IN `p_codigoPostalDireccion` VARCHAR(255), IN `p_idDistrito` INT, IN `p_idRol` INT)   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spAgregarUsuario` (IN `p_cedulaUsuario` VARCHAR(255), IN `p_nombreUsuario` VARCHAR(255), IN `p_primerApellido` VARCHAR(255), IN `p_segundoApellido` VARCHAR(255), IN `p_telefonoUsuario` VARCHAR(255), IN `p_correoUsuario` VARCHAR(255), IN `p_contraseniaUsuario` VARCHAR(255), IN `p_fechaNacimiento` DATE, IN `p_descripcionDireccion` VARCHAR(255), IN `p_codigoPostalDireccion` VARCHAR(255), IN `p_idDistrito` INT, IN `p_idRol` INT, IN `p_estadoUsuario` TINYINT)   BEGIN
     -- Variable de control
     DECLARE done INT DEFAULT 0;
 
@@ -188,9 +191,9 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `spAgregarUsuario` (IN `p_cedulaUsua
         -- Obtener el ID de la dirección insertada
         SET @idDireccion = LAST_INSERT_ID();
 
-        -- Insertar en la tabla de usuarios
-        INSERT INTO tbusuario (cedulaUsuario, nombreUsuario, primerApellido, segundoApellido, telefonoUsuario, correoUsuario, contraseniaUsuario, fechaNacimiento, idDireccion, idRol)
-        VALUES (p_cedulaUsuario, p_nombreUsuario, p_primerApellido, p_segundoApellido, p_telefonoUsuario, p_correoUsuario, p_contraseniaUsuario, IFNULL(p_fechaNacimiento, NULL), @idDireccion, p_idRol);
+        -- Insertar en la tabla de usuarios, incluyendo el estado
+        INSERT INTO tbusuario (cedulaUsuario, nombreUsuario, primerApellido, segundoApellido, telefonoUsuario, correoUsuario, contraseniaUsuario, fechaNacimiento, idDireccion, idRol, estadoUsuario)
+        VALUES (p_cedulaUsuario, p_nombreUsuario, p_primerApellido, p_segundoApellido, p_telefonoUsuario, p_correoUsuario, p_contraseniaUsuario, IFNULL(p_fechaNacimiento, NULL), @idDireccion, p_idRol, p_estadoUsuario);
 
         -- Confirmar la transacción
         COMMIT;
@@ -318,6 +321,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `spLeerUsuario` ()   BEGIN
         u.fechaNacimiento,
         u.idDireccion,
         u.idRol, 
+        u.estadoUsuario, -- Incluir el estado en la consulta
         d.idDistrito 
     FROM 
         tbusuario u
@@ -444,14 +448,14 @@ CREATE TABLE `tbcategoria` (
   `idCategoria` int(11) NOT NULL,
   `descripcionCategoria` varchar(255) DEFAULT NULL,
   `nombreCategoria` varchar(255) DEFAULT NULL,
-  `estado` tinyint(1) NOT NULL
+  `estadoCategoria` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `tbcategoria`
 --
 
-INSERT INTO `tbcategoria` (`idCategoria`, `descripcionCategoria`, `nombreCategoria`, `estado`) VALUES
+INSERT INTO `tbcategoria` (`idCategoria`, `descripcionCategoria`, `nombreCategoria`, `estadoCategoria`) VALUES
 (1, 'Todas las partes de pollo', 'Pollo', 1),
 (2, 'Todas las partes de la res', 'Res', 1),
 (3, 'Todas las partes de la cerdo', 'Cerdo', 1),
@@ -693,7 +697,7 @@ CREATE TABLE `tbrol` (
   `idRol` int(11) NOT NULL,
   `nombreRol` varchar(255) DEFAULT NULL,
   `descripcionRol` varchar(255) DEFAULT NULL,
-  `estadoRol` tinyint(4) NOT NULL
+  `estadoRol` bit(1) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -701,9 +705,9 @@ CREATE TABLE `tbrol` (
 --
 
 INSERT INTO `tbrol` (`idRol`, `nombreRol`, `descripcionRol`, `estadoRol`) VALUES
-(1, 'Administrador', 'El que se encarga de realizar lo más importante', 1),
-(2, 'Gerente', 'El que se encarga de algunas cosas', 1),
-(3, 'Usuario', 'El que se encarga de ver productos y realizar pedidos', 1);
+(1, 'Administrador', 'El que se encarga de realizar lo más importante', b'1'),
+(2, 'Gerente', 'El que se encarga de algunas cosas', b'1'),
+(3, 'Usuario', 'El que se encarga de ver productos y realizar pedidos', b'1');
 
 -- --------------------------------------------------------
 
@@ -723,7 +727,7 @@ CREATE TABLE `tbusuario` (
   `telefonoUsuario` varchar(255) DEFAULT NULL,
   `idDireccion` int(11) DEFAULT NULL,
   `idRol` int(11) DEFAULT NULL,
-  `estadoUsuario` tinyint(4) NOT NULL
+  `estadoUsuario` bit(1) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -731,10 +735,10 @@ CREATE TABLE `tbusuario` (
 --
 
 INSERT INTO `tbusuario` (`idUsuario`, `cedulaUsuario`, `contraseniaUsuario`, `correoUsuario`, `fechaNacimiento`, `nombreUsuario`, `primerApellido`, `segundoApellido`, `telefonoUsuario`, `idDireccion`, `idRol`, `estadoUsuario`) VALUES
-(6, '703100064', '$2a$12$fBMZLlt6aCS9iNemYH7h0e8m/YexlGy.13W2GTCFbnHLLe6fyTqOG', 'jsandi1299@gmail.com', '2004-08-09', 'Jamel', 'Sandí', 'Anderson', '88955772', 13, 3, 1),
-(11, NULL, '$2a$12$H7xEK8HgTEGRCaE4flNwL.E1VyjkxeENA7DB9bwB85xUn6S4A0w0q', 'dilan@gmail.com', NULL, 'Dilan', 'Gutiérrez', 'Hérnanandez', NULL, 15, 1, 1),
-(12, '7031000222', '$2a$12$woA1cDNHz2UW.Ek3.qyMwuU6qwdzaWkhslWgKGjOjXK5dH8xf.QGy', 'glend@gmail.com', '2004-08-09', 'Glend', 'Rojas', 'Alvarado', '88955771', 16, 2, 1),
-(14, NULL, '$2a$12$//YmSKyCUaOul9TXIWPZEO9gr5yyzKc00AG8Wmi8IQUqy9dPPaqwK', 'jsandi12199@gmail.com', NULL, 'JamelZito', 'prueba', 'Sandi', NULL, 18, 3, 1);
+(6, '703100064', '$2a$12$fBMZLlt6aCS9iNemYH7h0e8m/YexlGy.13W2GTCFbnHLLe6fyTqOG', 'jsandi1299@gmail.com', '2004-08-09', 'Jamel', 'Sandí', 'Anderson', '88955772', 13, 3, b'1'),
+(11, NULL, '$2a$12$H7xEK8HgTEGRCaE4flNwL.E1VyjkxeENA7DB9bwB85xUn6S4A0w0q', 'dilan@gmail.com', NULL, 'Dilan', 'Gutiérrez', 'Hérnanandez', NULL, 15, 1, b'1'),
+(12, '7031000222', '$2a$12$woA1cDNHz2UW.Ek3.qyMwuU6qwdzaWkhslWgKGjOjXK5dH8xf.QGy', 'glend@gmail.com', '2004-08-09', 'Glend', 'Rojas', 'Alvarado', '88955771', 16, 2, b'1'),
+(14, NULL, '$2a$12$//YmSKyCUaOul9TXIWPZEO9gr5yyzKc00AG8Wmi8IQUqy9dPPaqwK', 'jsandi12199@gmail.com', NULL, 'JamelZito', 'prueba', 'Sandi', NULL, 18, 3, b'1');
 
 --
 -- Índices para tablas volcadas
@@ -866,4 +870,3 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-
