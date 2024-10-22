@@ -136,6 +136,8 @@ public class UsuarioService implements IUsuarioService {
         if (usuario.getSegundoApellido().equals("")) {
             throw new RuntimeException("Debe ingresar el segundo apellido");
         }
+        //System.out.println("Usuario registrado: " + usuario.getNombreUsuario() + " " + usuario.getPrimerApellido() + " " + usuario.getSegundoApellido());
+        usuario.setEstadoUsuario(true);
         
          usuarioRepo.registerProcedureUsuario(
                 usuario.getCorreoUsuario(),

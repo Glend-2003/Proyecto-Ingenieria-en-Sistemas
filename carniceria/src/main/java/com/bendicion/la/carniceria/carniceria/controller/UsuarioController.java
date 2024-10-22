@@ -74,6 +74,7 @@ public class UsuarioController {
     @PostMapping("/registrar")
     public ResponseEntity<?> registrarUsuario(@RequestBody Usuario usuario) {
         try {
+           
             iUsuarioService.registerUsuario(usuario);
             return ResponseEntity.ok("Usuario registrado con éxito");
         } catch (Exception e) {
