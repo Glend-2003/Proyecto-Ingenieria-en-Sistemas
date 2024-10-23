@@ -412,7 +412,8 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `spRegistrarUsuario`(
     IN `p_contraseniaUsuario` VARCHAR(255),
     IN `p_nombreUsuario` VARCHAR(255), 
     IN `p_primerApellido` VARCHAR(255), 
-    IN `p_segundoApellido` VARCHAR(255)
+    IN `p_segundoApellido` VARCHAR(255),
+    IN `p_estadoUsuario` TINYINT
 )
 BEGIN
     -- Declarar la variable para almacenar el ID de la dirección insertada
@@ -466,8 +467,8 @@ BEGIN
     SET idDireccion = LAST_INSERT_ID();
 
     -- Insertar el usuario
-    INSERT INTO tbusuario (correoUsuario, contraseniaUsuario, nombreUsuario, primerApellido, segundoApellido, idDireccion, idRol)
-    VALUES (p_correoUsuario, p_contraseniaUsuario, p_nombreUsuario, p_primerApellido, p_segundoApellido, idDireccion, 3);
+    INSERT INTO tbusuario (correoUsuario, contraseniaUsuario, nombreUsuario, primerApellido, segundoApellido, idDireccion, idRol, estadoUsuario)
+    VALUES (p_correoUsuario, p_contraseniaUsuario, p_nombreUsuario, p_primerApellido, p_segundoApellido, idDireccion, 3, p_estadoUsuario);
 
     -- Hacer commit si todo está bien
     COMMIT;

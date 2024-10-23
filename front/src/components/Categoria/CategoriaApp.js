@@ -18,6 +18,7 @@ const CategoriaApp = () => {
   const [categoriaEdit, setCategoriaEdit] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const { usuario, handleLogout } = useAuth();
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     cargarCategorias();
@@ -149,6 +150,14 @@ const CategoriaApp = () => {
     }
   };
 
+  const handleSearchChange = (e) => {
+    setSearch(e.target.value);
+  };
+
+  const filteredCategorias = categorias.filter(categoria =>
+    categoria.nombreCategoria.toLowerCase().includes(search.toLowerCase())
+  );
+  
   const handleShowModal = (categoria = null) => {
     setCategoriaEdit(categoria);
     setShowModal(true);
@@ -162,7 +171,6 @@ const CategoriaApp = () => {
   //<Navbar /> {/* Agrega la barra de navegación aquí */}
   return (
     <div>
-      
       <Navbar usuario={usuario} onLogout={handleLogout} />
       <div className="container mt-5">
         <h1>Gestión de Categorías</h1>
@@ -192,7 +200,7 @@ const CategoriaApp = () => {
         <ToastContainer />
         <div className="col-md-10 search-table-col" style={{ paddingTop: '0px', paddingRight: '0px', marginRight: '86px', marginTop: '172px', paddingLeft: '1px', marginLeft: '63px' }}>
           <div className="form-group pull-right col-lg-4">
-            <input type="text" className="search form-control" placeholder="Buscar por nombre" />
+            <input type="text" className="search form-control" placeholder="Buscar por nombre" value={search} onChange={handleSearchChange}/>
           </div>
           <span className="counter pull-right"></span>
           <div className="table-responsive table table-hover table-bordered results">
@@ -205,33 +213,31 @@ const CategoriaApp = () => {
                 </tr>
               </thead>
               <tbody>
-                {categorias.length === 0 ? (
+                {filteredCategorias.length === 0 ? (
                   <tr className="warning no-result">
                     <td colSpan="3">
                       <FontAwesomeIcon icon={faExclamationTriangle} />&nbsp; No Result !!!
                     </td>
                   </tr>
                 ) : (
-                  categorias.map((categoria) => (
+                  filteredCategorias.map((categoria) => (
                     <tr key={categoria.idCategoria}>
                       <td>{categoria.nombreCategoria}</td>
                       <td>{categoria.descripcionCategoria}</td>
                       <td className="text-center" style={{ width: '5%' }}>
                         <button
-                        
                           className="btn btn-warning btn-sm me-2"
                           type="button"
                           onClick={() => handleShowModal(categoria)}
                         >
-                          <FontAwesomeIcon icon={faEdit} style={{ fontSize: '12px' }} />
+                          <FontAwesomeIcon icon={faEdit} style={{ fontSize: '15px' }} />
                         </button>
                         <button
                           className="btn btn-danger btn-sm"
                           type="button"
-                          
                           onClick={() => eliminarCategoria(categoria.idCategoria)}
                         >
-                          <FontAwesomeIcon icon={faTrash} style={{ fontSize: '12px' }} />
+                          <FontAwesomeIcon icon={faTrash} style={{ fontSize: '15px' }} />
                         </button>
                       </td>
                     </tr>
