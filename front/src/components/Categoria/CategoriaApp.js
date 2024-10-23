@@ -19,6 +19,8 @@ const CategoriaApp = () => {
   const [showModal, setShowModal] = useState(false);
   const { usuario, handleLogout } = useAuth();
   const [search, setSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   useEffect(() => {
     cargarCategorias();
@@ -157,6 +159,14 @@ const CategoriaApp = () => {
   const filteredCategorias = categorias.filter(categoria =>
     categoria.nombreCategoria.toLowerCase().includes(search.toLowerCase())
   );
+
+  // Paginación
+  const totalPages = Math.ceil(filteredCategorias.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentCategorias = filteredCategorias.slice(indexOfFirstItem, indexOfLastItem);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
   
   const handleShowModal = (categoria = null) => {
     setCategoriaEdit(categoria);
@@ -167,8 +177,6 @@ const CategoriaApp = () => {
     setCategoriaEdit(null);
   };
   
-  //<Navbar usuario={usuario} onLogout={handleLogout} />
-  //<Navbar /> {/* Agrega la barra de navegación aquí */}
   return (
     <div>
       <Navbar usuario={usuario} onLogout={handleLogout} />
@@ -182,14 +190,17 @@ const CategoriaApp = () => {
             <Modal.Title>{categoriaEdit ? 'Actualizar Categoría' : 'Agregar Categoría'}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <CategoriaForm onSubmit={(categoria) => {
-              if (categoriaEdit) {
-                actualizarCategoria({ ...categoria, idCategoria: categoriaEdit.idCategoria });
-              } else {
-                agregarCategoria(categoria);
-              }
-              handleCloseModal();
-            }} categoriaEdit={categoriaEdit} />
+            <CategoriaForm
+              onSubmit={(categoria) => {
+                if (categoriaEdit) {
+                  actualizarCategoria({ ...categoria, idCategoria: categoriaEdit.idCategoria });
+                } else {
+                  agregarCategoria(categoria);
+                }
+                handleCloseModal();
+              }}
+              categoriaEdit={categoriaEdit}
+            />
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={handleCloseModal}>
@@ -198,9 +209,18 @@ const CategoriaApp = () => {
           </Modal.Footer>
         </Modal>
         <ToastContainer />
-        <div className="col-md-10 search-table-col" style={{ paddingTop: '0px', paddingRight: '0px', marginRight: '86px', marginTop: '172px', paddingLeft: '1px', marginLeft: '63px' }}>
+        <div
+          className="col-md-10 search-table-col"
+          style={{ paddingTop: '0px', paddingRight: '0px', marginRight: '86px', marginTop: '172px', paddingLeft: '1px', marginLeft: '63px' }}
+        >
           <div className="form-group pull-right col-lg-4">
-            <input type="text" className="search form-control" placeholder="Buscar por nombre" value={search} onChange={handleSearchChange}/>
+            <input
+              type="text"
+              className="search form-control"
+              placeholder="Buscar por nombre"
+              value={search}
+              onChange={handleSearchChange}
+            />
           </div>
           <span className="counter pull-right"></span>
           <div className="table-responsive table table-hover table-bordered results">
@@ -213,14 +233,14 @@ const CategoriaApp = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredCategorias.length === 0 ? (
+                {currentCategorias.length === 0 ? (
                   <tr className="warning no-result">
                     <td colSpan="3">
                       <FontAwesomeIcon icon={faExclamationTriangle} />&nbsp; No Result !!!
                     </td>
                   </tr>
                 ) : (
-                  filteredCategorias.map((categoria) => (
+                  currentCategorias.map((categoria) => (
                     <tr key={categoria.idCategoria}>
                       <td>{categoria.nombreCategoria}</td>
                       <td>{categoria.descripcionCategoria}</td>
@@ -246,11 +266,21 @@ const CategoriaApp = () => {
               </tbody>
             </table>
           </div>
-          {/* Botón para volver */}
-          <div className="d-flex justify-content-end mt-3">
+          <div className="d-flex justify-content-between align-items-center mt-3">
             <button className="btn btn-secondary" onClick={() => window.history.back()}>
               Volver
             </button>
+            <nav>
+              <ul className="pagination">
+                {[...Array(totalPages)].map((_, index) => (
+                  <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
+                    <button onClick={() => paginate(index + 1)} className="page-link">
+                      {index + 1}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </nav>
           </div>
         </div>
       </div>
