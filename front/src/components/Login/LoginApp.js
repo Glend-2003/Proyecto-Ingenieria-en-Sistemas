@@ -36,7 +36,7 @@ function App() {
 
           if (accessToken) {
             // Guardar el token en el localStorage
-            localStorage.setItem('token', accessToken);
+            localStorage.setItem('token', response.data.correoUsuario);
             localStorage.setItem('correoUsuario', response.data.correoUsuario);
             localStorage.setItem('nombreUsuario', response.data.nombreUsuario);
             localStorage.setItem('nombreRol', response.data.rol.nombreRol);
