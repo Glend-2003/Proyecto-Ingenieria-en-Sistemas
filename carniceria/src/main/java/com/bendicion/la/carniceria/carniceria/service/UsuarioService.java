@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
-import com.bendicion.la.carniceria.carniceria.Logic.JwtService;
-import com.bendicion.la.carniceria.carniceria.Logic.Seguridad;
+import com.bendicion.la.carniceria.carniceria.security.TokenService;
+import com.bendicion.la.carniceria.carniceria.security.PassSecurity;
 import com.bendicion.la.carniceria.carniceria.domain.Usuario;
 import com.bendicion.la.carniceria.carniceria.jpa.UsuarioRepository;
 
@@ -28,10 +28,10 @@ public class UsuarioService implements IUsuarioService {
     private UsuarioRepository usuarioRepo;
     
     @Autowired
-    private Seguridad seguridad; 
+    private PassSecurity seguridad; 
     
     @Autowired
-    private JwtService jwt;
+    private TokenService jwt;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -267,12 +267,7 @@ public class UsuarioService implements IUsuarioService {
             return null;
         }
 
-        // Generar el token utilizando el jwtService
-        String token = jwt.generateToken(usuario.getCorreoUsuario());
-
-        usuario.setToken(token);
-
-        return usuario; // Devuelve el objeto Usuario con el token
+        return usuario;
     }
 
 // ----------------------------------------------------------------------------- 

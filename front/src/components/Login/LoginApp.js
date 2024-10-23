@@ -27,36 +27,46 @@ function App() {
 
   const login = () => {
     axios
-      .post('http://localhost:8080/usuario/login', loginData)
+      .post('http://localhost:8080/usuario/login', loginData, {
+        withCredentials: true, // Permitir el uso de cookies
+      })
       .then((response) => {
-        if (response.data.token) {
-          localStorage.setItem('token', response.data.token);
-          localStorage.setItem('correoUsuario', response.data.correoUsuario);
-          localStorage.setItem('nombreUsuario', response.data.nombreUsuario);
-          localStorage.setItem('nombreRol', response.data.rol.nombreRol);
+        if (response.status === 200) {
+          const accessToken = response.data.accessToken;
 
-          setLoginStatus(
-            'Login exitoso. Bienvenido ' + response.data.nombreUsuario
-          );
+          if (accessToken) {
+            // Guardar el token en el localStorage
+            localStorage.setItem('token', accessToken);
+            localStorage.setItem('correoUsuario', response.data.correoUsuario);
+            localStorage.setItem('nombreUsuario', response.data.nombreUsuario);
+            localStorage.setItem('nombreRol', response.data.rol.nombreRol);
 
-          if (
-            response.data.rol.nombreRol === 'Administrador' ||
-            response.data.rol.nombreRol === 'Usuario' ||
-            response.data.rol.nombreRol === 'Gerente'
-          ) {
-            navigate('/principal');
+            setLoginStatus('Login exitoso. Bienvenido ' + response.data.nombreUsuario);
+
+            // Verificar si las cookies están configuradas correctamente
+            if (document.cookie.includes('accessToken')) {
+              // Redireccionar al usuario a la página principal
+              if (
+                response.data.rol.nombreRol === 'Administrador' ||
+                response.data.rol.nombreRol === 'Usuario' ||
+                response.data.rol.nombreRol === 'Gerente'
+              ) {
+                navigate('/principal');
+              } else {
+                setLoginStatus('Rol no reconocido');
+              }
+            } else {
+              setLoginStatus('Error al configurar las cookies. Intente de nuevo.');
+            }
           } else {
-            setLoginStatus('Rol no reconocido');
+            setLoginStatus('Token de acceso no encontrado en la respuesta del servidor');
           }
         } else {
-          setLoginStatus('Credenciales incorrectas');
+          setLoginStatus('Error en la respuesta del servidor');
         }
       })
       .catch((error) => {
-        console.error(
-          'Error en el login:',
-          error.response ? error.response.data : error.message
-        );
+        console.error('Error en el login:', error.response ? error.response.data : error.message);
         setLoginStatus('Error en el servidor o en las credenciales');
       });
   };
