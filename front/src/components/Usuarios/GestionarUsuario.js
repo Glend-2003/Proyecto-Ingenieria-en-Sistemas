@@ -18,6 +18,8 @@ const GestionarUsuario = () => {
   const [userEdit, setUserEdit] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const { usuario, handleLogout } = useAuth();
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   useEffect(() => {
     cargarUsuarios();
@@ -170,6 +172,15 @@ const GestionarUsuario = () => {
   const filteredUsers = users.filter(user =>
     user.nombreUsuario.toLowerCase().includes(search.toLowerCase())
   );
+
+   // Paginación
+   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+   const indexOfLastItem = currentPage * itemsPerPage;
+   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+   const currentCategorias = filteredUsers.slice(indexOfFirstItem, indexOfLastItem);
+ 
+   const paginate = (pageNumber) => setCurrentPage(pageNumber);
+   
 
   return (
     <div>
@@ -328,10 +339,21 @@ const GestionarUsuario = () => {
               </tbody>
             </table>
           </div>
-          <div className="d-flex justify-content-end mt-3">
+          <div className="d-flex justify-content-between align-items-center mt-3">
             <button className="btn btn-secondary" onClick={() => window.history.back()}>
               Volver
             </button>
+            <nav>
+              <ul className="pagination">
+                {[...Array(totalPages)].map((_, index) => (
+                  <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
+                    <button onClick={() => paginate(index + 1)} className="page-link">
+                      {index + 1}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </nav>
           </div>
         </div>
       </div>
