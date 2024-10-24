@@ -126,28 +126,46 @@ public class UsuarioController {
 
 // -----------------------------------------------------------------------------       
     
-  @PostMapping("/login")
+    @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest, HttpServletResponse response) {
         String correo = loginRequest.get("correoUsuario");
         String contrasenia = loginRequest.get("contraseniaUsuario");
 
+        if (correo == null || correo.trim().isEmpty()) {
+            System.out.println("Error: El campo de correo está vacío o es nulo");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El campo de correo no puede estar vacío");
+        }
+
         Usuario usuario = iUsuarioService.validateLogin(correo, contrasenia);
 
         if (usuario != null) {
-            String accessToken = jwtService.generateAccessToken(usuario.getCorreoUsuario());
-            String refreshToken = jwtService.generateRefreshToken(usuario.getCorreoUsuario());
+            System.out.println("Usuario autenticado:");
+            System.out.println("ID: " + usuario.getIdUsuario());
+            System.out.println("Correo: " + usuario.getCorreoUsuario());
+            System.out.println("Nombre: " + usuario.getNombreUsuario());
 
-            CookieService.addCookie(response, "accessToken", accessToken, 900, true);
-            CookieService.addCookie(response, "refreshToken", refreshToken, 604800, true);
+            if (usuario.getRol() != null) {
+                System.out.println("Rol: " + usuario.getRol().getNombreRol());
+            } else {
+                System.out.println("Rol no asignado");
+            }
 
-            // Retornar el token en la respuesta para guardarlo en el frontend
-            usuario.setToken(accessToken);
-            System.out.println("Token -->" + usuario.getToken());
-            return ResponseEntity.ok(usuario);
+            // Configurar las cookies para el accessToken y refreshToken
+            CookieService.addCookie(response, "accessToken", usuario.getToken(), 900, true); // 15 minutos
+            CookieService.addCookie(response, "refreshToken", jwtService.generateRefreshToken(usuario.getCorreoUsuario()), 604800, true); // 7 días
+
+            // Retornar el objeto Usuario, incluyendo el token en la respuesta
+            Map<String, Object> responseData = new HashMap<>();
+            responseData.put("usuario", usuario);
+            responseData.put("accessToken", usuario.getToken());
+
+            return ResponseEntity.ok(responseData);
         } else {
+            System.out.println("Error de autenticación: Credenciales incorrectas para el correo: " + correo);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciales incorrectas");
         }
     }
+
 
 // -----------------------------------------------------------------------------
     
@@ -187,31 +205,27 @@ public class UsuarioController {
 
 // -----------------------------------------------------------------------------    
     
-   @GetMapping("/datos")
+    @GetMapping("/datos")
     public ResponseEntity<?> obtenerDatosUsuario(HttpServletRequest request) {
-        // Obtener el token de la cookie
+        // Obtener el token desde la cookie del accessToken
         Optional<Cookie> accessTokenCookie = CookieService.getCookie(request, "accessToken");
         String token = accessTokenCookie.map(Cookie::getValue).orElse(null);
 
-        if (token == null) {
-            // Si el token no se encuentra en la cookie, intentar obtenerlo del header
-            String headerToken = request.getHeader("Authorization");
-            if (headerToken != null && headerToken.startsWith("Bearer ")) {
-                token = headerToken.substring(7);
-            }
-        }
-
         if (token != null && jwtService.verifyToken(token) && !jwtService.isTokenExpired(token)) {
+            // Extraer el correo del usuario desde el token
             String correoUsuario = jwtService.getCorreoUsuario(token);
             Usuario usuario = iUsuarioService.searchCorreoUsuario(correoUsuario);
 
             if (usuario != null) {
                 return ResponseEntity.ok(usuario);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado");
             }
         }
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o expirado");
     }
+
 
 
 }

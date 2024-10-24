@@ -267,8 +267,16 @@ public class UsuarioService implements IUsuarioService {
             return null;
         }
 
-        return usuario;
+        // Generar el token utilizando el jwtService
+        String accessToken = jwt.generateAccessToken(usuario.getCorreoUsuario());
+        String refreshToken = jwt.generateRefreshToken(usuario.getCorreoUsuario());
+
+        // Guardar el token generado en el objeto Usuario
+        usuario.setToken(accessToken);
+
+        return usuario; // Devuelve el objeto Usuario con el token
     }
+
 
 // ----------------------------------------------------------------------------- 
     
