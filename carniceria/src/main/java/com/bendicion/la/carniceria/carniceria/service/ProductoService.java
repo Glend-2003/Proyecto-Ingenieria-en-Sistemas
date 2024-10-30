@@ -1,14 +1,16 @@
 package com.bendicion.la.carniceria.carniceria.service;
 
-import com.bendicion.la.carniceria.carniceria.domain.Producto;
-import com.bendicion.la.carniceria.carniceria.jpa.ProductoRepository;
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
+
+import com.bendicion.la.carniceria.carniceria.domain.Producto;
+import com.bendicion.la.carniceria.carniceria.jpa.ProductoRepository;
+
+import jakarta.transaction.Transactional;
 
 /**
  *
@@ -91,7 +93,7 @@ public class ProductoService implements IProductoService{
     // Método para listar productos
     @Override
     @Transactional 
-    public List<Producto> getProductos() {
+    public List<Producto> getProducto() {
         return productoRepo.listProcedureProducto();
     }
 
