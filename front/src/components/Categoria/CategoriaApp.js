@@ -1,8 +1,8 @@
 // CategoriaApp.js
 import React, { useState, useEffect } from 'react';
 import CategoriaForm from './CategoriaForm';
-import { toast, ToastContainer } from 'react-toastify'; // Importar toast y ToastContainer
-import 'react-toastify/dist/ReactToastify.css'; 
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles.min.css';
@@ -37,7 +37,6 @@ const CategoriaApp = () => {
   };
 
   const agregarCategoria = async (categoria) => {
-    // Validación de nombre duplicado
     const nombreDuplicado = categorias.some(
       (cat) => cat.nombreCategoria.toLowerCase() === categoria.nombreCategoria.toLowerCase()
     );
@@ -57,38 +56,22 @@ const CategoriaApp = () => {
       });
     } catch (error) {
       console.error('Error al agregar categoría:', error);
-      if (error.response) {
-        if (error.response.status === 400) {
-          toast.error('Error de validación. Verifica los datos ingresados');
-        } else if (error.response.status === 409) {
-          toast.error('La categoría ya existe');
-        } else {
-          toast.error('Ocurrió un error al agregar la categoría');
-        }
-      } else {
-        toast.error('Error de red. Por favor, verifica tu conexión');
-      }
+      toast.error('Ocurrió un error al agregar la categoría');
     }
   };
 
   const actualizarCategoria = async (categoria) => {
-    // Validación de nombre duplicado al actualizar
     const nombreDuplicado = categorias.some(
       (cat) =>
         cat.nombreCategoria.toLowerCase() === categoria.nombreCategoria.toLowerCase() &&
         cat.idCategoria !== categoria.idCategoria
     );
-  
+
     if (nombreDuplicado) {
-      toast.error('El nombre de la categoría ya existe. Por favor, elige un nombre diferente.', {
-        autoClose: 1500,
-        onClose: () => {
-          cargarCategorias();
-        },
-      });
+      toast.error('El nombre de la categoría ya existe. Por favor, elige un nombre diferente.');
       return;
     }
-  
+
     const { isConfirmed } = await Swal.fire({
       title: '¿Estás seguro?',
       text: 'Esta acción no se puede deshacer.',
@@ -98,7 +81,7 @@ const CategoriaApp = () => {
       cancelButtonText: 'No, cancelar',
       reverseButtons: true,
     });
-  
+
     if (isConfirmed) {
       try {
         await axios.put('http://localhost:8080/categoria/actualizar', categoria);
@@ -114,7 +97,7 @@ const CategoriaApp = () => {
       }
     }
   };
-  
+
   const eliminarCategoria = async (id) => {
     const { isConfirmed } = await Swal.fire({
       title: '¿Estás seguro?',
@@ -125,11 +108,11 @@ const CategoriaApp = () => {
       cancelButtonText: 'No, cancelar',
       reverseButtons: true,
     });
-  
+
     if (!isConfirmed) {
-      return; // Si el usuario cancela, no hacer nada
+      return;
     }
-  
+
     try {
       await axios.delete(`http://localhost:8080/categoria/eliminar/${id}`);
       toast.success('Categoría eliminada con éxito', {
@@ -140,15 +123,7 @@ const CategoriaApp = () => {
       });
     } catch (error) {
       console.error('Error al eliminar categoría:', error);
-      if (error.response) {
-        if (error.response.status === 404) {
-          toast.error('Categoría no encontrada');
-        } else {
-          toast.error('Ocurrió un error al eliminar la categoría');
-        }
-      } else {
-        toast.error('Error de red. Por favor, verifica tu conexión');
-      }
+      toast.error('Ocurrió un error al eliminar la categoría');
     }
   };
 
@@ -160,14 +135,13 @@ const CategoriaApp = () => {
     categoria.nombreCategoria.toLowerCase().includes(search.toLowerCase())
   );
 
-  // Paginación
   const totalPages = Math.ceil(filteredCategorias.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentCategorias = filteredCategorias.slice(indexOfFirstItem, indexOfLastItem);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
-  
+
   const handleShowModal = (categoria = null) => {
     setCategoriaEdit(categoria);
     setShowModal(true);
@@ -176,15 +150,13 @@ const CategoriaApp = () => {
     setShowModal(false);
     setCategoriaEdit(null);
   };
-  
+
   return (
     <div>
       <Navbar usuario={usuario} onLogout={handleLogout} />
       <div className="container mt-5">
         <h1>Gestión de Categorías</h1>
-        <Button variant="primary" onClick={() => handleShowModal()}>
-          Agregar Nueva Categoría
-        </Button>
+        <Button variant="primary" onClick={() => handleShowModal()}>Agregar Nueva Categoría</Button>
         <Modal show={showModal} onHide={handleCloseModal}>
           <Modal.Header closeButton>
             <Modal.Title>{categoriaEdit ? 'Actualizar Categoría' : 'Agregar Categoría'}</Modal.Title>
@@ -203,16 +175,11 @@ const CategoriaApp = () => {
             />
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={handleCloseModal}>
-              Cerrar
-            </Button>
+            <Button variant="secondary" onClick={handleCloseModal}>Cerrar</Button>
           </Modal.Footer>
         </Modal>
         <ToastContainer />
-        <div
-          className="col-md-10 search-table-col"
-          style={{ paddingTop: '0px', paddingRight: '0px', marginRight: '86px', marginTop: '172px', paddingLeft: '1px', marginLeft: '63px' }}
-        >
+        <div className="col-md-10 search-table-col" style={{ paddingTop: '0px', marginTop: '50px', marginLeft: '50px' }}>
           <div className="form-group pull-right col-lg-4">
             <input
               type="text"
@@ -222,21 +189,20 @@ const CategoriaApp = () => {
               onChange={handleSearchChange}
             />
           </div>
-          <span className="counter pull-right"></span>
           <div className="table-responsive table table-hover table-bordered results">
             <table className="table table-hover table-bordered">
               <thead className="bill-header cs">
                 <tr>
-                  <th id="trs-hd-4" className="col-lg-2">Nombre</th>
-                  <th id="trs-hd-5" className="col-lg-2">Descripción</th>
-                  <th id="trs-hd-6" className="col-lg-1 text-center" style={{ width: '5%' }}>Acción</th>
+                  <th className="col-lg-2">Nombre</th>
+                  <th className="col-lg-3">Descripción</th>
+                  <th className="col-lg-2">Acción</th>
                 </tr>
               </thead>
               <tbody>
                 {currentCategorias.length === 0 ? (
                   <tr className="warning no-result">
-                    <td colSpan="3">
-                      <FontAwesomeIcon icon={faExclamationTriangle} />&nbsp; No Result !!!
+                    <td colSpan="3" className="text-center">
+                      <FontAwesomeIcon icon={faExclamationTriangle} /> No Result !!!
                     </td>
                   </tr>
                 ) : (
@@ -244,7 +210,7 @@ const CategoriaApp = () => {
                     <tr key={categoria.idCategoria}>
                       <td>{categoria.nombreCategoria}</td>
                       <td>{categoria.descripcionCategoria}</td>
-                      <td className="text-center" style={{ width: '5%' }}>
+                      <td className="text-center">
                         <button
                           className="btn btn-warning btn-sm me-2"
                           type="button"
@@ -267,16 +233,12 @@ const CategoriaApp = () => {
             </table>
           </div>
           <div className="d-flex justify-content-between align-items-center mt-3">
-            <button className="btn btn-secondary" onClick={() => window.history.back()}>
-              Volver
-            </button>
+            <button className="btn btn-secondary" onClick={() => window.history.back()}>Volver</button>
             <nav>
               <ul className="pagination">
                 {[...Array(totalPages)].map((_, index) => (
                   <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
-                    <button onClick={() => paginate(index + 1)} className="page-link">
-                      {index + 1}
-                    </button>
+                    <button onClick={() => paginate(index + 1)} className="page-link">{index + 1}</button>
                   </li>
                 ))}
               </ul>
