@@ -58,7 +58,6 @@ public class Usuario {
     @Column(name = "estadoUsuario")
     private boolean estadoUsuario;
 
-    
     @Transient 
     private String token; 
     
