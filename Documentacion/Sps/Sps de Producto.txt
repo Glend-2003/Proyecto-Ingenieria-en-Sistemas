@@ -156,7 +156,7 @@ DELIMITER ;
 
 
 DELIMITER $$
-CREATE PROCEDURE `spEliminarProducto`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spEliminarProducto`(
     IN p_idProducto INT
 )
 BEGIN
@@ -180,7 +180,6 @@ BEGIN
     COMMIT;
 END$$
 DELIMITER ;
-
 
 
 
