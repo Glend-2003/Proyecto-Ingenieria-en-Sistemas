@@ -16,8 +16,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.bendicion.la.carniceria.carniceria.Logic.JwtService;
 import com.bendicion.la.carniceria.carniceria.domain.Usuario;
 import com.bendicion.la.carniceria.carniceria.service.IUsuarioService;
 
@@ -27,7 +25,7 @@ import jakarta.servlet.http.HttpServletRequest;
  *
  * @author Jamel Sandí
  */
-
+/*
 @RestController
 @CrossOrigin(origins = "*")
 @RequestMapping("/usuario")
@@ -37,7 +35,7 @@ public class UsuarioController {
     IUsuarioService iUsuarioService;
     
     @Autowired
-    private JwtService jwtService;  // Asegúrate de tener este Autowired
+    private JwtAuthenticationFilter jwtService;  // Asegúrate de tener este Autowired
 
     // Read
     // Lee todos los usuarios existentes, trayendo hasta la dirección (Para vista Admin)
@@ -170,3 +168,4 @@ public class UsuarioController {
     }
 
 }
+*/

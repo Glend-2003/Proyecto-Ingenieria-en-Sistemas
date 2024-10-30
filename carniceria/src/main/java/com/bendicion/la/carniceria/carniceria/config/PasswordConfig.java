@@ -1,4 +1,4 @@
-package com.bendicion.la.carniceria.carniceria.Logic;
+package com.bendicion.la.carniceria.carniceria.config;
 import at.favre.lib.crypto.bcrypt.BCrypt;
 import org.springframework.context.annotation.Configuration;
 
@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
  */
 
 @Configuration
-public class Seguridad {
+public class PasswordConfig {
     
     // Para encriptar
     public String encriptPassword(String contrasenia) {

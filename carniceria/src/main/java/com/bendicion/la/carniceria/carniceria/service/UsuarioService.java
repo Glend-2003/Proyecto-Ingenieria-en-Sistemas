@@ -6,9 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
-
-import com.bendicion.la.carniceria.carniceria.Logic.JwtService;
-import com.bendicion.la.carniceria.carniceria.Logic.Seguridad;
+import com.bendicion.la.carniceria.carniceria.config.PasswordConfig;
 import com.bendicion.la.carniceria.carniceria.domain.Usuario;
 import com.bendicion.la.carniceria.carniceria.jpa.UsuarioRepository;
 
@@ -20,6 +18,7 @@ import jakarta.transaction.Transactional;
  *
  * @author Jamel Sandí
  */
+/*
 @Service
 @Primary
 public class UsuarioService implements IUsuarioService {
@@ -28,10 +27,10 @@ public class UsuarioService implements IUsuarioService {
     private UsuarioRepository usuarioRepo;
     
     @Autowired
-    private Seguridad seguridad; 
+    private PasswordConfig seguridad; 
     
     @Autowired
-    private JwtService jwt;
+    private JwtAuthenticationFilter jwt;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -290,3 +289,4 @@ public class UsuarioService implements IUsuarioService {
     }
     
 }
+*/
