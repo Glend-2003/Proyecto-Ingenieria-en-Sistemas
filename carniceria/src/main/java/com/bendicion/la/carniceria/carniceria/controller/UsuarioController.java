@@ -1,4 +1,5 @@
 package com.bendicion.la.carniceria.carniceria.controller;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +28,6 @@ import jakarta.servlet.http.HttpServletRequest;
  *
  * @author Jamel Sandí
  */
-
 @RestController
 @CrossOrigin(origins = "*")
 @RequestMapping("/usuario")
@@ -35,7 +35,7 @@ public class UsuarioController {
 
     @Autowired
     IUsuarioService iUsuarioService;
-    
+
     @Autowired
     private JwtService jwtService;  // Asegúrate de tener este Autowired
 
@@ -49,14 +49,13 @@ public class UsuarioController {
     }
 
 // -----------------------------------------------------------------------------    
-    
     // Add
     // Agregar usuarios en vista Admin
     @PostMapping("/agregar")
     public ResponseEntity<?> addUsuario(@RequestBody Usuario usuario) {
         try {
             Usuario nuevoUsuario = iUsuarioService.addUsuario(usuario);
-            System.out.println("Usuario agregado: ID -->" + usuario.getIdUsuario() + ", Nombre -->" + usuario.getNombreUsuario() + ", Apellidos -->" + usuario.getPrimerApellido() + " " + usuario.getSegundoApellido()+usuario.isEstadoUsuario());
+            System.out.println("Usuario agregado: ID -->" + usuario.getIdUsuario() + ", Nombre -->" + usuario.getNombreUsuario() + ", Apellidos -->" + usuario.getPrimerApellido() + " " + usuario.getSegundoApellido() + usuario.isEstadoUsuario());
 
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Usuario guardado con exito con ID: " + nuevoUsuario.getIdUsuario());
@@ -70,27 +69,25 @@ public class UsuarioController {
     }
 
 // -----------------------------------------------------------------------------
-    
     @PostMapping("/registrar")
     public ResponseEntity<?> registrarUsuario(@RequestBody Usuario usuario) {
         try {
-           
+
             iUsuarioService.registerUsuario(usuario);
             return ResponseEntity.ok("Usuario registrado con éxito");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error al registrar el usuario: " + e.getMessage());
         }
     }
-    
+
 // -----------------------------------------------------------------------------    
-    
     // Update
     // Actualizar usuarios 
     @PutMapping("/actualizar")
     public ResponseEntity<?> updateUsuario(@RequestBody Usuario usuario) {
         try {
             Usuario usuarioActualizado = iUsuarioService.updateUsuario(usuario);
-            System.out.println("Usuario actualizado: ID -->" + usuario.getIdUsuario() + ", Nombre -->" + usuario.getNombreUsuario() + ", Apellidos -->" + usuario.getPrimerApellido() + " " + usuario.getSegundoApellido()+usuario.isEstadoUsuario());
+            System.out.println("Usuario actualizado: ID -->" + usuario.getIdUsuario() + ", Nombre -->" + usuario.getNombreUsuario() + ", Apellidos -->" + usuario.getPrimerApellido() + " " + usuario.getSegundoApellido() + usuario.isEstadoUsuario());
 
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Usuario actualizado con exito con ID: " + usuarioActualizado.getIdUsuario());
@@ -102,9 +99,8 @@ public class UsuarioController {
                     .body(Collections.singletonMap("error", "Error al actualizar el usuario: " + e.getMessage()));
         }
     }
-    
-// -----------------------------------------------------------------------------       
 
+// -----------------------------------------------------------------------------       
     // Delete
     // Eliminar usuarios
     @DeleteMapping("/eliminar/{id}")
@@ -114,20 +110,19 @@ public class UsuarioController {
             System.out.println("Usuario eliminado: ID -->" + id);
             return ResponseEntity.ok(true);
         } else {
-           
+
             System.out.println("No se pudo eliminar el usuario: ID -->" + id + " no encontrado.");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
         }
     }
 
 // -----------------------------------------------------------------------------       
-    
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest) {
 
         String correo = loginRequest.get("correoUsuario");
         String contrasenia = loginRequest.get("contraseniaUsuario");
-        
+
         if (correo == null || correo.trim().isEmpty()) {
             System.out.println("Error: El campo de correo está vacío o es nulo");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El campo de correo no puede estar vacío");
@@ -152,8 +147,8 @@ public class UsuarioController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciales incorrectas");
         }
     }
-    
-   @GetMapping("/datos")
+
+    @GetMapping("/datos")
     public ResponseEntity<?> obtenerDatosUsuario(HttpServletRequest request) {
         String token = request.getHeader("Authorization").substring(7); // Eliminar "Bearer "
 
@@ -167,6 +162,25 @@ public class UsuarioController {
             }
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o expirado");
+    }
+    // Update
+    // Actualizar Contrasena 
+
+    @PutMapping("/actualizarContrasena")
+    public ResponseEntity<?> updateContrasena(@RequestBody Usuario usuario) {
+        try {
+            Usuario usuarioActualizado = iUsuarioService.actualizarContrasena(usuario);
+            System.out.println("Contraseña actualizada con exito del Usuario: ID -->" + usuario.getIdUsuario());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", " Contraseña actualizada con exito del Usuario actualizado: " + usuarioActualizado.getIdUsuario());
+            response.put("id", usuarioActualizado.getIdUsuario());
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("error", "Error al actualizar la contraseña: " + e.getMessage()));
+        }
     }
 
 }

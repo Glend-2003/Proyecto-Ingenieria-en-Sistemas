@@ -93,6 +93,11 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     @Query(value = "{call spBuscarUsuarioPorCorreo(:correoUsuario)}", nativeQuery = true)
     Usuario searchUsuario(@Param("correoUsuario") String correoUsuario);
     
+     // SP para para actualizar ccontraseña
+    @Query(value = "{call spActualizarContrasena(:idUsuario, :contraseniaUsuario)}", nativeQuery = true)
+    Usuario UpdateProcedureContrasena(
+            @Param("idUsuario") int idUsuario,
+            @Param("contraseniaUsuario") String contraseniaUsuario);
     
 }
 

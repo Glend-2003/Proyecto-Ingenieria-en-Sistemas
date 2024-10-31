@@ -34,5 +34,8 @@ public interface IUsuarioService {
     
     // Registrarse como nuevo usuario 
     public Usuario registerUsuario(Usuario usuario);
+    
+     // Registrarse como nuevo usuario 
+    public Usuario actualizarContrasena(Usuario usuario);
 
 }

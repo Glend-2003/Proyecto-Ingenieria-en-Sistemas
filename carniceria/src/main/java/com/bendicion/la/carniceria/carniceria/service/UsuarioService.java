@@ -23,21 +23,20 @@ import jakarta.transaction.Transactional;
 @Service
 @Primary
 public class UsuarioService implements IUsuarioService {
-    
+
     @Autowired
     private UsuarioRepository usuarioRepo;
-    
+
     @Autowired
-    private Seguridad seguridad; 
-    
+    private Seguridad seguridad;
+
     @Autowired
     private JwtService jwt;
 
     @PersistenceContext
     private EntityManager entityManager;
-    
+
 // -----------------------------------------------------------------------------
-    
     @Override
     @Transactional // Asegúrate de que esté anotado
     public Usuario addUsuario(Usuario usuario) {
@@ -74,7 +73,7 @@ public class UsuarioService implements IUsuarioService {
         }
         if (usuario.getRol() == null || usuario.getRol().getIdRol() <= 0) {
             throw new IllegalArgumentException("El rol es inválido");
-        }  
+        }
 
         String encriptedPassword = seguridad.encriptPassword(usuario.getContraseniaUsuario());
 
@@ -101,11 +100,9 @@ public class UsuarioService implements IUsuarioService {
         return usuario;
     }
 
-    
 // ----------------------------------------------------------------------------- 
-
-   @Override
-   @Transactional // Asegúrate de que esté anotado
+    @Override
+    @Transactional // Asegúrate de que esté anotado
     public Usuario registerUsuario(Usuario usuario) {
 
         // Verificación de correo existente
@@ -138,26 +135,24 @@ public class UsuarioService implements IUsuarioService {
         }
         //System.out.println("Usuario registrado: " + usuario.getNombreUsuario() + " " + usuario.getPrimerApellido() + " " + usuario.getSegundoApellido());
         usuario.setEstadoUsuario(true);
-        
-         usuarioRepo.registerProcedureUsuario(
+
+        usuarioRepo.registerProcedureUsuario(
                 usuario.getCorreoUsuario(),
                 encriptedPassword,
                 usuario.getNombreUsuario(),
                 usuario.getPrimerApellido(),
                 usuario.getSegundoApellido(),
                 usuario.isEstadoUsuario()
-               
         );
 
         return usuario;
     }
 
 // -----------------------------------------------------------------------------  
-    
     @Override
     @Transactional // Asegúrate de que esté anotado
     public Usuario updateUsuario(Usuario usuario) {
-        
+
         String encriptedPassword = null;
         if (usuario.getContraseniaUsuario() != null && !usuario.getContraseniaUsuario().isEmpty()) {
             encriptedPassword = seguridad.encriptPassword(usuario.getContraseniaUsuario());
@@ -209,13 +204,12 @@ public class UsuarioService implements IUsuarioService {
                 usuario.getPrimerApellido(),
                 usuario.getSegundoApellido(),
                 usuario.getTelefonoUsuario(),
-                usuario.getCorreoUsuario(),  
+                usuario.getCorreoUsuario(),
                 encriptedPassword,
                 fechaNacimiento,
                 descripcionDireccion,
                 codigoPostalDireccion,
                 idDistrito,
-                
                 usuario.isEstadoUsuario()
         );
 
@@ -223,15 +217,13 @@ public class UsuarioService implements IUsuarioService {
     }
 
 // -----------------------------------------------------------------------------    
-    
     @Override
-    @Transactional 
+    @Transactional
     public List<Usuario> getUsuario() {
         return usuarioRepo.listProcedureUsuario();
     }
 
 // -----------------------------------------------------------------------------    
-    
     @Override
     public boolean deleteUsuario(int id) {
         try {
@@ -244,7 +236,7 @@ public class UsuarioService implements IUsuarioService {
         }
     }
 // -----------------------------------------------------------------------------    
-    
+
     @Override
     public Usuario validateLogin(String correo, String contraseniaIngresada) {
         Usuario usuario = usuarioRepo.searchUsuario(correo);
@@ -276,19 +268,34 @@ public class UsuarioService implements IUsuarioService {
     }
 
 // ----------------------------------------------------------------------------- 
-    
     @Override
-    public Usuario searchCorreoUsuario(String correo){
+    public Usuario searchCorreoUsuario(String correo) {
         Usuario usuario = usuarioRepo.searchUsuario(correo);
-        
+
         if (usuario == null) {
             System.out.println("Usuario no encontrado para el correo: " + correo);
             return null;
         }
-        
-        return usuario; 
+
+        return usuario;
     }
 
-    
-    
+    @Override
+    public Usuario actualizarContrasena(Usuario usuario) {
+        try {
+            // Verificar si el comentario existe
+            if (!usuarioRepo.existsById(usuario.getIdUsuario())) { // Verifica si el comentario existe
+                System.err.println("El usuario con ID: " + usuario.getIdUsuario() + " no existe.");
+                return usuario; // Retorna false si no existe
+            }
+            String encriptedPassword = seguridad.encriptPassword(usuario.getContraseniaUsuario());
+            System.out.println("Actualizando usuario con ID: " + usuario.getIdUsuario());
+            usuarioRepo.UpdateProcedureContrasena(usuario.getIdUsuario(), encriptedPassword);
+            return usuario; // Retorna true si se eliminó exitosamente
+        } catch (Exception e) {
+            System.err.println("Error al actualizar el  usuario con ID: " + usuario.getIdUsuario() + ". Detalles: " + e.getMessage());
+            return usuario; // Retorna false en caso de error
+        }
+    }
+
 }
