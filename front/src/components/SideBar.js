@@ -56,7 +56,7 @@ const SideBar = ({ usuario }) => {
                         <li className="nav-item">
                             <NavLink 
                                 className={({ isActive }) => isActive ? "nav-link active link-light" : "nav-link link-body-emphasis"} 
-                                to="/productos" 
+                                to="/ProductoApp" 
                                 style={({ isActive }) => ({
                                     backgroundColor: isActive ? 'rgb(4, 36, 64)' : 'transparent',
                                 })}

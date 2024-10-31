@@ -1,4 +1,3 @@
-// index.js
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
@@ -10,16 +9,14 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Registrar from './components/Usuarios/Registrar';
 import Categoria from './components/Categoria/CategoriaApp';
 import Usuarios from './components/Usuarios/GestionarUsuario';
-import useAuth from './hooks/useAuth'; // Asegúrate de importar useAuth
+import ProductoApp from './components/Productos/ProductoApp'; // Asegúrate de que esta ruta sea correcta
 
 // Componente para proteger rutas y mostrar el sidebar si el usuario está autenticado
 const PrivateRoute = ({ children }) => {
-  const { usuario } = useAuth(); // Obtén el usuario autenticado
   const token = localStorage.getItem('token');
-  
   return token ? (
     <div className="main-container">
-      <SideBar usuario={usuario} /> {/* Pasa usuario a SideBar */}
+      <SideBar /> {/* Sidebar solo visible si el usuario está autenticado */}
       <div className="main-content">
         {children}
       </div>
@@ -38,6 +35,7 @@ root.render(
       <Route path="/register" element={<Registrar />} />
       <Route path="/CategoriaApp" element={<PrivateRoute><Categoria /></PrivateRoute>} />
       <Route path="/GestionarUsuario" element={<PrivateRoute><Usuarios /></PrivateRoute>} />
+      <Route path="/ProductoApp" element={<PrivateRoute><ProductoApp /></PrivateRoute>} /> {/* Aquí es donde estaba el error */}
     </Routes>
   </Router>
 );

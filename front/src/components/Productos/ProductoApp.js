@@ -1,0 +1,332 @@
+// ProductoApp.js
+import React, { useState, useEffect } from 'react';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import axios from 'axios';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import Swal from 'sweetalert2';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
+import Navbar from '../Navbar';
+import useAuth from '../../hooks/useAuth';
+import { Button, Modal } from 'react-bootstrap';
+import './Producto.css';
+
+const ProductoApp = () => {
+  const [productos, setProductos] = useState([]);
+  const [categorias, setCategorias] = useState([]);
+  const [productoEdit, setProductoEdit] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const { usuario, handleLogout } = useAuth();
+  const [search, setSearch] = useState('');
+  const [nombreProducto, setNombreProducto] = useState('');
+  const [imgProducto, setImgProducto] = useState('');
+  const [montoPrecioProducto, setMontoPrecioProducto] = useState('');
+  const [descripcionProducto, setDescripcionProducto] = useState('');
+  const [idCategoria, setIdCategoria] = useState('');
+  const [estadoProducto, setEstadoProducto] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
+  useEffect(() => {
+    cargarProductos();
+    cargarCategorias();
+  }, []);
+
+  const cargarProductos = async () => {
+    try {
+      const response = await axios.get('http://localhost:8080/producto/');
+      setProductos(response.data);
+    } catch (error) {
+      console.error('Error al cargar productos:', error);
+      toast.error('Ocurrió un error al cargar los productos');
+    }
+  };
+
+  const cargarCategorias = async () => {
+    try {
+      const response = await axios.get('http://localhost:8080/categoria/');
+      setCategorias(response.data);
+    } catch (error) {
+      console.error('Error al cargar categorías:', error);
+      toast.error('Ocurrió un error al cargar las categorías');
+    }
+  };
+
+  const validarCamposProducto = () => {
+    if (!nombreProducto.trim() || !descripcionProducto.trim() || !montoPrecioProducto || !idCategoria) {
+      toast.error('Todos los campos son obligatorios y no pueden estar vacíos');
+      return false;
+    }
+    return true;
+  };
+
+  const agregarProducto = async () => {
+    if (!validarCamposProducto()) return;
+
+    try {
+      await axios.post('http://localhost:8080/producto/agregar', {
+        nombreProducto: nombreProducto.trim(),
+        imgProducto: imgProducto.trim(),
+        montoPrecioProducto,
+        descripcionProducto: descripcionProducto.trim(),
+        idCategoria,
+        estadoProducto
+      });
+      toast.success('Producto agregado con éxito');
+      cargarProductos();
+      handleCloseModal();
+    } catch (error) {
+      console.error('Error al agregar producto:', error);
+      toast.error('Ocurrió un error al agregar el producto');
+    }
+  };
+
+  const actualizarProducto = async () => {
+    if (!validarCamposProducto()) return;
+
+    try {
+      await axios.put('http://localhost:8080/producto/actualizar', {
+        idProducto: productoEdit.idProducto,
+        nombreProducto: nombreProducto.trim(),
+        imgProducto: imgProducto.trim(),
+        montoPrecioProducto,
+        descripcionProducto: descripcionProducto.trim(),
+        idCategoria,
+        estadoProducto
+      });
+      toast.success('Producto actualizado con éxito');
+      cargarProductos();
+      handleCloseModal();
+    } catch (error) {
+      console.error('Error al actualizar producto:', error);
+      toast.error('Ocurrió un error al actualizar el producto');
+    }
+  };
+
+  const eliminarProducto = async (id) => {
+    const { isConfirmed } = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'No podrás revertir esto.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'No, cancelar',
+      reverseButtons: true,
+    });
+
+    if (!isConfirmed) return;
+
+    try {
+      await axios.delete(`http://localhost:8080/producto/eliminar/${id}`);
+      toast.success('Producto eliminado con éxito');
+      cargarProductos();
+    } catch (error) {
+      console.error('Error al eliminar producto:', error);
+      toast.error('Ocurrió un error al eliminar el producto');
+    }
+  };
+
+  const handleShowModal = (producto = null) => {
+    if (producto) {
+      setProductoEdit(producto);
+      setNombreProducto(producto.nombreProducto);
+      setImgProducto(producto.imgProducto);
+      setMontoPrecioProducto(producto.montoPrecioProducto);
+      setDescripcionProducto(producto.descripcionProducto);
+      setIdCategoria(producto.idCategoria);
+      setEstadoProducto(producto.estadoProducto);
+    } else {
+      setProductoEdit(null);
+      setNombreProducto('');
+      setImgProducto('');
+      setMontoPrecioProducto('');
+      setDescripcionProducto('');
+      setIdCategoria('');
+      setEstadoProducto(1);
+    }
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setProductoEdit(null);
+    setNombreProducto('');
+    setImgProducto('');
+    setMontoPrecioProducto('');
+    setDescripcionProducto('');
+    setIdCategoria('');
+    setEstadoProducto(1);
+  };
+
+  const handleSearchChange = (e) => setSearch(e.target.value);
+
+  const filteredProductos = productos.filter(producto =>
+    producto.nombreProducto.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const totalPages = Math.ceil(filteredProductos.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentProductos = filteredProductos.slice(indexOfFirstItem, indexOfLastItem);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  return (
+    <div>
+      <Navbar usuario={usuario} onLogout={handleLogout} />
+      <div className="container mt-5">
+        <h1>Gestión de Productos</h1>
+        <Button className="custom-button" onClick={() => handleShowModal()}>
+          Agregar Nuevo Producto
+        </Button>
+
+        <Modal show={showModal} onHide={handleCloseModal}>
+          <Modal.Header closeButton>
+            <Modal.Title>{productoEdit ? 'Actualizar Producto' : 'Agregar Producto'}</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              productoEdit ? actualizarProducto() : agregarProducto();
+            }}>
+              <div className="mb-3">
+                <input
+                  className="form-control"
+                  type="text"
+                  placeholder="Nombre del Producto"
+                  required
+                  value={nombreProducto}
+                  onChange={(e) => setNombreProducto(e.target.value)}
+                />
+              </div>
+              <div className="mb-3">
+                <input
+                  className="form-control"
+                  type="text"
+                  placeholder="URL de Imagen del Producto"
+                  value={imgProducto}
+                  onChange={(e) => setImgProducto(e.target.value)}
+                />
+              </div>
+              <div className="mb-3">
+                <input
+                  className="form-control"
+                  type="number"
+                  placeholder="Precio del Producto"
+                  required
+                  value={montoPrecioProducto}
+                  onChange={(e) => setMontoPrecioProducto(e.target.value)}
+                />
+              </div>
+              <div className="mb-3">
+                <textarea
+                  className="form-control"
+                  placeholder="Descripción del Producto"
+                  required
+                  value={descripcionProducto}
+                  onChange={(e) => setDescripcionProducto(e.target.value)}
+                />
+              </div>
+              <div className="mb-3">
+                <select
+                  className="form-control"
+                  required
+                  value={idCategoria}
+                  onChange={(e) => setIdCategoria(e.target.value)}
+                >
+                  <option value="">Seleccionar Categoría</option>
+                  {categorias.map((categoria) => (
+                    <option key={categoria.idCategoria} value={categoria.idCategoria}>
+                      {categoria.nombreCategoria}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <Button variant="primary" type="submit">
+                {productoEdit ? 'Actualizar' : 'Agregar'}
+              </Button>
+            </form>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleCloseModal}>Cerrar</Button>
+          </Modal.Footer>
+        </Modal>
+
+        <ToastContainer />
+
+        <div className="table-responsive mt-5">
+          <table className="table table-hover table-bordered">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Imagen</th>
+                <th>Precio</th>
+                <th>Descripción</th>
+                <th>Categoría</th>
+                <th>Estado</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentProductos.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="text-center">No hay productos disponibles</td>
+                </tr>
+              ) : (
+                currentProductos.map((producto) => (
+                  <tr key={producto.idProducto}>
+                    <td>{producto.nombreProducto}</td>
+                    <td><img src={producto.imgProducto} alt={producto.nombreProducto} width="50" /></td>
+                    <td>{producto.montoPrecioProducto}</td>
+                    <td>{producto.descripcionProducto}</td>
+                    <td>{categorias.find(cat => cat.idCategoria === producto.idCategoria)?.nombreCategoria || 'Sin categoría'}</td>
+                    <td>{producto.estadoProducto ? 'Activo' : 'Inactivo'}</td>
+                    <td className="text-center">
+                      <button
+                        className="btn btn-warning btn-sm me-2"
+                        type="button"
+                        onClick={() => handleShowModal(producto)}
+                      >
+                        <FontAwesomeIcon icon={faEdit} style={{ fontSize: '15px' }} />
+                      </button>
+                      <button
+                        className="btn btn-danger btn-sm"
+                        type="button"
+                        onClick={() => eliminarProducto(producto.idProducto)}
+                      >
+                        <FontAwesomeIcon icon={faTrash} style={{ fontSize: '15px' }} />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="d-flex justify-content-center mt-3">
+          <nav>
+            <ul className="pagination">
+              {[...Array(totalPages)].map((_, index) => (
+                <li
+                  key={index}
+                  className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}
+                >
+                  <button
+                    onClick={() => paginate(index + 1)}
+                    className="page-link"
+                  >
+                    {index + 1}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ProductoApp;
