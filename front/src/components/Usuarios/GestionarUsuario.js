@@ -85,16 +85,20 @@ const GestionarUsuario = () => {
     }
   };
 
-  const actualizarContrasena = async (idUsuario) => {
+  const actualizarContrasena = async (user) => {
     if (password !== confirmPassword) {
       toast.error("Las contraseñas no coinciden");
       return;
     }
+    
     try {
-      await axios.put(`http://localhost:8080/usuario/actualizarContrasena`, {
-        idUsuario,
-        password,
+      // Envía el objeto `Usuario` con `idUsuario` y `contraseniaUsuario`
+      await axios.put("http://localhost:8080/usuario/actualizarContrasena", {
+        idUsuario: user.idUsuario,
+        contraseniaUsuario: password,
+        // Agrega otros atributos necesarios si el backend los requiere
       });
+      
       toast.success("Contraseña actualizada con éxito");
       cargarUsuarios();
       handleClosePasswordModal();
@@ -103,6 +107,7 @@ const GestionarUsuario = () => {
       toast.error("Ocurrió un error al actualizar la contraseña");
     }
   };
+  
 
   const handleDelete = async (idUsuario) => {
     const { isConfirmed } = await Swal.fire({
@@ -312,44 +317,45 @@ const GestionarUsuario = () => {
         </Modal>
 
         <Modal show={showPasswordModal} onHide={handleClosePasswordModal}>
-          <Modal.Header closeButton>
-            <Modal.Title>Cambiar Contraseña</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                actualizarContrasena(userEdit.idUsuario);
-              }}
-            >
-              <div className="mb-3">
-                <label>Contraseña</label>
-                <input
-                  className="form-control"
-                  type="password"
-                  placeholder="Nueva Contraseña"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-              <div className="mb-3">
-                <label>Confirmar Contraseña</label>
-                <input
-                  className="form-control"
-                  type="password"
-                  placeholder="Confirmar Contraseña"
-                  required
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                />
-              </div>
-              <Button variant="primary" type="submit">
-                Cambiar Contraseña
-              </Button>
-            </form>
-          </Modal.Body>
-        </Modal>
+  <Modal.Header closeButton>
+    <Modal.Title>Cambiar Contraseña</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        actualizarContrasena(userEdit); // Pasa el objeto `userEdit`
+      }}
+    >
+      <div className="mb-3">
+        <label>Contraseña</label>
+        <input
+          className="form-control"
+          type="password"
+          placeholder="Nueva Contraseña"
+          required
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+      </div>
+      <div className="mb-3">
+        <label>Confirmar Contraseña</label>
+        <input
+          className="form-control"
+          type="password"
+          placeholder="Confirmar Contraseña"
+          required
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+        />
+      </div>
+      <Button variant="primary" type="submit">
+        Cambiar Contraseña
+      </Button>
+    </form>
+  </Modal.Body>
+</Modal>
+
 
         <ToastContainer />
 

@@ -1,16 +1,15 @@
-// ProductoApp.js
-import React, { useState, useEffect } from 'react';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import axios from 'axios';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import Swal from 'sweetalert2';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
-import Navbar from '../Navbar';
-import useAuth from '../../hooks/useAuth';
-import { Button, Modal } from 'react-bootstrap';
-import './Producto.css';
+import React, { useState, useEffect } from "react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import axios from "axios";
+import "bootstrap/dist/css/bootstrap.min.css";
+import Swal from "sweetalert2";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
+import Navbar from "../Navbar";
+import useAuth from "../../hooks/useAuth";
+import { Button, Modal } from "react-bootstrap";
+import "./Producto.css";
 
 const ProductoApp = () => {
   const [productos, setProductos] = useState([]);
@@ -18,14 +17,14 @@ const ProductoApp = () => {
   const [productoEdit, setProductoEdit] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const { usuario, handleLogout } = useAuth();
-  const [search, setSearch] = useState('');
-  const [nombreProducto, setNombreProducto] = useState('');
-  const [imgProducto, setImgProducto] = useState('');
-  const [montoPrecioProducto, setMontoPrecioProducto] = useState('');
-  const [descripcionProducto, setDescripcionProducto] = useState('');
-  const [idCategoria, setIdCategoria] = useState('');
+  const [search, setSearch] = useState("");
+  const [nombreProducto, setNombreProducto] = useState("");
+  const [montoPrecioProducto, setMontoPrecioProducto] = useState("");
+  const [descripcionProducto, setDescripcionProducto] = useState("");
+  const [idCategoria, setIdCategoria] = useState("");
   const [estadoProducto, setEstadoProducto] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
+  const [imgProductoFile, setImgProductoFile] = useState(null);
   const itemsPerPage = 5;
 
   useEffect(() => {
@@ -35,27 +34,32 @@ const ProductoApp = () => {
 
   const cargarProductos = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/producto/');
+      const response = await axios.get("http://localhost:8080/producto/");
       setProductos(response.data);
     } catch (error) {
-      console.error('Error al cargar productos:', error);
-      toast.error('Ocurrió un error al cargar los productos');
+      console.error("Error al cargar productos:", error);
+      toast.error("Ocurrió un error al cargar los productos");
     }
   };
 
   const cargarCategorias = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/categoria/');
+      const response = await axios.get("http://localhost:8080/categoria/");
       setCategorias(response.data);
     } catch (error) {
-      console.error('Error al cargar categorías:', error);
-      toast.error('Ocurrió un error al cargar las categorías');
+      console.error("Error al cargar categorías:", error);
+      toast.error("Ocurrió un error al cargar las categorías");
     }
   };
 
   const validarCamposProducto = () => {
-    if (!nombreProducto.trim() || !descripcionProducto.trim() || !montoPrecioProducto || !idCategoria) {
-      toast.error('Todos los campos son obligatorios y no pueden estar vacíos');
+    if (
+      !nombreProducto.trim() ||
+      !descripcionProducto.trim() ||
+      !montoPrecioProducto ||
+      !idCategoria
+    ) {
+      toast.error("Todos los campos son obligatorios y no pueden estar vacíos");
       return false;
     }
     return true;
@@ -64,54 +68,85 @@ const ProductoApp = () => {
   const agregarProducto = async () => {
     if (!validarCamposProducto()) return;
 
-    try {
-      await axios.post('http://localhost:8080/producto/agregar', {
-        nombreProducto: nombreProducto.trim(),
-        imgProducto: imgProducto.trim(),
-        montoPrecioProducto,
-        descripcionProducto: descripcionProducto.trim(),
-        idCategoria,
-        estadoProducto
-      });
-      toast.success('Producto agregado con éxito');
-      cargarProductos();
-      handleCloseModal();
-    } catch (error) {
-      console.error('Error al agregar producto:', error);
-      toast.error('Ocurrió un error al agregar el producto');
+    const formData = new FormData();
+    formData.append("nombreProducto", nombreProducto.trim());
+    formData.append("montoPrecioProducto", montoPrecioProducto);
+    formData.append("descripcionProducto", descripcionProducto.trim());
+    formData.append("idCategoria", idCategoria);
+    formData.append("estadoProducto", estadoProducto);
+
+    // Agregar imagen solo si existe
+    if (imgProductoFile) {
+      formData.append("file", imgProductoFile);
+      try {
+        await axios.post("http://localhost:8080/producto/agregarConImagen", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+        toast.success("Producto agregado con éxito");
+      } catch (error) {
+        console.error("Error al agregar producto con imagen:", error);
+        toast.error("Ocurrió un error al agregar el producto");
+        return;
+      }
+    } else {
+      try {
+        const productoData = {
+          nombreProducto: nombreProducto.trim(),
+          montoPrecioProducto,
+          descripcionProducto: descripcionProducto.trim(),
+          idCategoria,
+          estadoProducto,
+        };
+        await axios.post("http://localhost:8080/producto/agregarProducto", productoData);
+        toast.success("Producto agregado con éxito");
+      } catch (error) {
+        console.error("Error al agregar producto sin imagen:", error);
+        toast.error("Ocurrió un error al agregar el producto");
+        return;
+      }
     }
+
+    cargarProductos();
+    handleCloseModal();
   };
 
   const actualizarProducto = async () => {
     if (!validarCamposProducto()) return;
 
+    const formData = new FormData();
+    formData.append("idProducto", productoEdit.idProducto);
+    formData.append("nombreProducto", nombreProducto.trim());
+    formData.append("imgProducto", imgProductoFile);
+    formData.append("montoPrecioProducto", montoPrecioProducto);
+    formData.append("descripcionProducto", descripcionProducto.trim());
+    formData.append("idCategoria", idCategoria);
+    formData.append("estadoProducto", estadoProducto);
+
     try {
-      await axios.put('http://localhost:8080/producto/actualizar', {
-        idProducto: productoEdit.idProducto,
-        nombreProducto: nombreProducto.trim(),
-        imgProducto: imgProducto.trim(),
-        montoPrecioProducto,
-        descripcionProducto: descripcionProducto.trim(),
-        idCategoria,
-        estadoProducto
+      await axios.put("http://localhost:8080/producto/actualizar", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
-      toast.success('Producto actualizado con éxito');
+      toast.success("Producto actualizado con éxito");
       cargarProductos();
       handleCloseModal();
     } catch (error) {
-      console.error('Error al actualizar producto:', error);
-      toast.error('Ocurrió un error al actualizar el producto');
+      console.error("Error al actualizar producto:", error);
+      toast.error("Ocurrió un error al actualizar el producto");
     }
   };
 
   const eliminarProducto = async (id) => {
     const { isConfirmed } = await Swal.fire({
-      title: '¿Estás seguro?',
-      text: 'No podrás revertir esto.',
-      icon: 'warning',
+      title: "¿Estás seguro?",
+      text: "No podrás revertir esto.",
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'No, cancelar',
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "No, cancelar",
       reverseButtons: true,
     });
 
@@ -119,11 +154,11 @@ const ProductoApp = () => {
 
     try {
       await axios.delete(`http://localhost:8080/producto/eliminar/${id}`);
-      toast.success('Producto eliminado con éxito');
+      toast.success("Producto eliminado con éxito");
       cargarProductos();
     } catch (error) {
-      console.error('Error al eliminar producto:', error);
-      toast.error('Ocurrió un error al eliminar el producto');
+      console.error("Error al eliminar producto:", error);
+      toast.error("Ocurrió un error al eliminar el producto");
     }
   };
 
@@ -131,19 +166,19 @@ const ProductoApp = () => {
     if (producto) {
       setProductoEdit(producto);
       setNombreProducto(producto.nombreProducto);
-      setImgProducto(producto.imgProducto);
       setMontoPrecioProducto(producto.montoPrecioProducto);
       setDescripcionProducto(producto.descripcionProducto);
       setIdCategoria(producto.idCategoria);
       setEstadoProducto(producto.estadoProducto);
+      setImgProductoFile(null);
     } else {
       setProductoEdit(null);
-      setNombreProducto('');
-      setImgProducto('');
-      setMontoPrecioProducto('');
-      setDescripcionProducto('');
-      setIdCategoria('');
+      setNombreProducto("");
+      setMontoPrecioProducto("");
+      setDescripcionProducto("");
+      setIdCategoria("");
       setEstadoProducto(1);
+      setImgProductoFile(null);
     }
     setShowModal(true);
   };
@@ -151,24 +186,31 @@ const ProductoApp = () => {
   const handleCloseModal = () => {
     setShowModal(false);
     setProductoEdit(null);
-    setNombreProducto('');
-    setImgProducto('');
-    setMontoPrecioProducto('');
-    setDescripcionProducto('');
-    setIdCategoria('');
+    setNombreProducto("");
+    setMontoPrecioProducto("");
+    setDescripcionProducto("");
+    setIdCategoria("");
     setEstadoProducto(1);
+    setImgProductoFile(null);
+  };
+
+  const handleFileChange = (e) => {
+    setImgProductoFile(e.target.files[0]);
   };
 
   const handleSearchChange = (e) => setSearch(e.target.value);
 
-  const filteredProductos = productos.filter(producto =>
+  const filteredProductos = productos.filter((producto) =>
     producto.nombreProducto.toLowerCase().includes(search.toLowerCase())
   );
 
   const totalPages = Math.ceil(filteredProductos.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentProductos = filteredProductos.slice(indexOfFirstItem, indexOfLastItem);
+  const currentProductos = filteredProductos.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -183,13 +225,18 @@ const ProductoApp = () => {
 
         <Modal show={showModal} onHide={handleCloseModal}>
           <Modal.Header closeButton>
-            <Modal.Title>{productoEdit ? 'Actualizar Producto' : 'Agregar Producto'}</Modal.Title>
+            <Modal.Title>
+              {productoEdit ? "Actualizar Producto" : "Agregar Producto"}
+            </Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              productoEdit ? actualizarProducto() : agregarProducto();
-            }}>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                productoEdit ? actualizarProducto() : agregarProducto();
+              }}
+            >
+              <label>Nombre del Producto</label>
               <div className="mb-3">
                 <input
                   className="form-control"
@@ -200,15 +247,16 @@ const ProductoApp = () => {
                   onChange={(e) => setNombreProducto(e.target.value)}
                 />
               </div>
+              <label>Imagen del Producto</label>
               <div className="mb-3">
                 <input
                   className="form-control"
-                  type="text"
-                  placeholder="URL de Imagen del Producto"
-                  value={imgProducto}
-                  onChange={(e) => setImgProducto(e.target.value)}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
                 />
               </div>
+              <label>Precio del Producto</label>
               <div className="mb-3">
                 <input
                   className="form-control"
@@ -219,6 +267,7 @@ const ProductoApp = () => {
                   onChange={(e) => setMontoPrecioProducto(e.target.value)}
                 />
               </div>
+              <label>Descripción del Producto</label>
               <div className="mb-3">
                 <textarea
                   className="form-control"
@@ -228,6 +277,7 @@ const ProductoApp = () => {
                   onChange={(e) => setDescripcionProducto(e.target.value)}
                 />
               </div>
+              <label>Categoría del Producto</label>
               <div className="mb-3">
                 <select
                   className="form-control"
@@ -237,19 +287,24 @@ const ProductoApp = () => {
                 >
                   <option value="">Seleccionar Categoría</option>
                   {categorias.map((categoria) => (
-                    <option key={categoria.idCategoria} value={categoria.idCategoria}>
+                    <option
+                      key={categoria.idCategoria}
+                      value={categoria.idCategoria}
+                    >
                       {categoria.nombreCategoria}
                     </option>
                   ))}
                 </select>
               </div>
               <Button variant="primary" type="submit">
-                {productoEdit ? 'Actualizar' : 'Agregar'}
+                {productoEdit ? "Actualizar" : "Agregar"}
               </Button>
             </form>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={handleCloseModal}>Cerrar</Button>
+            <Button variant="secondary" onClick={handleCloseModal}>
+              Cerrar
+            </Button>
           </Modal.Footer>
         </Modal>
 
@@ -271,31 +326,51 @@ const ProductoApp = () => {
             <tbody>
               {currentProductos.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="text-center">No hay productos disponibles</td>
+                  <td colSpan="7" className="text-center">
+                    No hay productos disponibles
+                  </td>
                 </tr>
               ) : (
                 currentProductos.map((producto) => (
                   <tr key={producto.idProducto}>
                     <td>{producto.nombreProducto}</td>
-                    <td><img src={producto.imgProducto} alt={producto.nombreProducto} width="50" /></td>
+                    <td>
+                      {producto.imgProducto ? (
+                        <img
+                          src={`http://localhost:8080/images/${producto.imgProducto}`}
+                          alt={producto.nombreProducto}
+                          width="50"
+                        />
+                      ) : (
+                        "No disponible"
+                      )}
+                    </td>
                     <td>{producto.montoPrecioProducto}</td>
                     <td>{producto.descripcionProducto}</td>
-                    <td>{categorias.find(cat => cat.idCategoria === producto.idCategoria)?.nombreCategoria || 'Sin categoría'}</td>
-                    <td>{producto.estadoProducto ? 'Activo' : 'Inactivo'}</td>
+                    <td>
+                      {categorias.find((cat) => cat.idCategoria === producto.idCategoria)?.nombreCategoria || "Sin categoría"}
+                    </td>
+                    <td>{producto.estadoProducto ? "Activo" : "Inactivo"}</td>
                     <td className="text-center">
                       <button
                         className="btn btn-warning btn-sm me-2"
                         type="button"
                         onClick={() => handleShowModal(producto)}
                       >
-                        <FontAwesomeIcon icon={faEdit} style={{ fontSize: '15px' }} />
+                        <FontAwesomeIcon
+                          icon={faEdit}
+                          style={{ fontSize: "15px" }}
+                        />
                       </button>
                       <button
                         className="btn btn-danger btn-sm"
                         type="button"
                         onClick={() => eliminarProducto(producto.idProducto)}
                       >
-                        <FontAwesomeIcon icon={faTrash} style={{ fontSize: '15px' }} />
+                        <FontAwesomeIcon
+                          icon={faTrash}
+                          style={{ fontSize: "15px" }}
+                        />
                       </button>
                     </td>
                   </tr>
@@ -311,7 +386,9 @@ const ProductoApp = () => {
               {[...Array(totalPages)].map((_, index) => (
                 <li
                   key={index}
-                  className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}
+                  className={`page-item ${
+                    currentPage === index + 1 ? "active" : ""
+                  }`}
                 >
                   <button
                     onClick={() => paginate(index + 1)}
