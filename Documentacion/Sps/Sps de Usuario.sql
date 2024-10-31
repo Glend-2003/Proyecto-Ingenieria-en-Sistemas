@@ -347,3 +347,40 @@ BEGIN
 
 END$$
 DELIMITER ;
+
+
+
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spActualizarContrasena`(
+    IN p_idUsuario INT,  
+    IN p_nuevaContraseniaUsuario VARCHAR(255)
+)
+BEGIN
+
+    DECLARE EXIT HANDLER FOR NOT FOUND
+    BEGIN
+        -- Mensaje de alerta si el idUsuario no existe
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El ID de usuario no existe';
+        ROLLBACK;
+    END;
+
+    -- Verificar si el usuario existe
+    IF (SELECT COUNT(*) FROM tbusuario WHERE idUsuario = p_idUsuario) = 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El ID de usuario no existe';
+        ROLLBACK;
+    END IF;
+
+    -- Inicio de la transacción
+    START TRANSACTION;
+
+    -- Actualización de la contraseña del usuario
+    UPDATE tbusuario
+    SET 
+        contraseniaUsuario = IF(p_nuevaContraseniaUsuario IS NOT NULL, p_nuevaContraseniaUsuario, contraseniaUsuario)
+    WHERE idUsuario = p_idUsuario;
+
+    -- Confirmación de la transacción
+    COMMIT;
+END$$
+DELIMITER ;
