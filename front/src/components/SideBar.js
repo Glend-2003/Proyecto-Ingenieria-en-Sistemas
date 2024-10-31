@@ -1,8 +1,9 @@
+// SideBar.js
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-const SideBar = () => {
+const SideBar = ({ usuario }) => {
     return (
         <div id="offcanvas-menu" className="offcanvas offcanvas-start bg-body show" style={{ width: '250px' }} tabIndex="-1" data-bs-backdrop="false">
             <div className="offcanvas-header">
@@ -70,7 +71,7 @@ const SideBar = () => {
                     <div className="dropdown">
                         <a className="dropdown-toggle link-body-emphasis d-flex align-items-center text-decoration-none" data-bs-toggle="dropdown" href="/" role="button" aria-expanded="false">
                             <img className="rounded-circle me-2" alt="User" width="32" height="32" src="https://cdn.bootstrapstudio.io/placeholders/1400x800.png" style={{ objectFit: 'cover' }} />
-                            <strong>User</strong>
+                            <strong>{usuario ? usuario.nombreUsuario : "User"}</strong>
                         </a>
                         <div className="dropdown-menu shadow text-small">
                             <NavLink className="dropdown-item" to="/new-project">New project...</NavLink>

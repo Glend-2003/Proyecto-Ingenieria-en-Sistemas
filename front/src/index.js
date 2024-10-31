@@ -1,3 +1,4 @@
+// index.js
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
@@ -9,13 +10,16 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Registrar from './components/Usuarios/Registrar';
 import Categoria from './components/Categoria/CategoriaApp';
 import Usuarios from './components/Usuarios/GestionarUsuario';
+import useAuth from './hooks/useAuth'; // Asegúrate de importar useAuth
 
 // Componente para proteger rutas y mostrar el sidebar si el usuario está autenticado
 const PrivateRoute = ({ children }) => {
+  const { usuario } = useAuth(); // Obtén el usuario autenticado
   const token = localStorage.getItem('token');
+  
   return token ? (
     <div className="main-container">
-      <SideBar /> {/* Sidebar solo visible si el usuario está autenticado */}
+      <SideBar usuario={usuario} /> {/* Pasa usuario a SideBar */}
       <div className="main-content">
         {children}
       </div>
