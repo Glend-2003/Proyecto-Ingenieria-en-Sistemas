@@ -185,7 +185,7 @@ CREATE TABLE `tbcategoria` (
 --
 
 INSERT INTO `tbcategoria` (`idCategoria`, `descripcionCategoria`, `nombreCategoria`, `estadoCategoria`) VALUES
-(1, 'Todas las partes de pollo', 'Pollo', 1),
+(1, 'Descripción actualizada', 'Nombre actualizado', 1),
 (2, 'Todas las partes de la res', 'Res', 1),
 (3, 'Todas las partes de la cerdo', 'Cerdo', 1),
 (4, 'Todas los tipos de mariscos', 'Marisco', 1),
@@ -203,10 +203,32 @@ INSERT INTO `tbcategoria` (`idCategoria`, `descripcionCategoria`, `nombreCategor
 CREATE TABLE `tbcomentario` (
   `idComentario` int(11) NOT NULL,
   `descripcionComentario` varchar(255) DEFAULT NULL,
-  `fechaComentario` date DEFAULT NULL,
+  `fechaComentario` datetime DEFAULT NULL,
   `idUsuario` int(11) DEFAULT NULL,
-  `numCalificacionComentario` int(11) DEFAULT NULL
+  `numCalificacion` int(11) DEFAULT NULL,
+  `verificacion` tinyint(1) UNSIGNED DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `tbcomentario`
+--
+
+INSERT INTO `tbcomentario` (`idComentario`, `descripcionComentario`, `fechaComentario`, `idUsuario`, `numCalificacion`, `verificacion`) VALUES
+(4, 'Descripción actualizada22', '2024-10-30 12:35:30', 6, 5, 1),
+(5, 'Este es un comentario de prueba 2', '2024-10-29 22:56:00', 6, 5, 1),
+(6, 'Este es un comentario de prueba 2', '2024-10-29 23:07:15', 6, 5, 1),
+(7, 'Este es un comentario de prueba 2', '2024-10-29 23:09:18', 6, 5, 0),
+(8, 'Este es un comentario de prueba 2', '2024-10-29 23:11:39', 6, 5, 1),
+(9, 'Este es un comentario de prueba 2', '2024-10-29 23:18:17', 6, 5, 0),
+(10, 'Este es un comentario de prueba 2', '2024-10-29 23:18:29', 6, 5, 0),
+(11, 'Este es un comentario de prueba', '2024-10-30 09:21:53', 11, 5, 0),
+(12, 'Este es un comentario de prueba.', '2024-10-30 10:30:13', 11, 5, 0),
+(13, 'Este es un comentario de prueba.', '2024-10-30 11:25:28', 11, 5, 0),
+(14, 'Este es un comentario de prueba.', '2024-10-30 11:28:19', 11, 5, 0),
+(15, 'Este es un comentario de prueba.', '2024-10-30 11:28:37', 11, 5, 0),
+(16, 'Este es un comentario de prueba.', '2024-10-30 11:33:31', 11, 5, 0),
+(17, 'Este es un comentario de prueba.', '2024-10-30 12:26:34', 11, 5, 0),
+(18, 'Este es un comentario de prueba.', '2024-10-30 12:33:51', 11, 5, 0);
 
 -- --------------------------------------------------------
 
@@ -785,7 +807,7 @@ ALTER TABLE `tbcategoria`
 -- AUTO_INCREMENT de la tabla `tbcomentario`
 --
 ALTER TABLE `tbcomentario`
-  MODIFY `idComentario` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `idComentario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT de la tabla `tbdireccion`
@@ -950,3 +972,4 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+*/;

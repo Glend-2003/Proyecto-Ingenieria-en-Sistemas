@@ -1,66 +1,73 @@
 package com.bendicion.la.carniceria.carniceria.domain;
+
+import jakarta.persistence.CascadeType;
 import java.time.LocalDate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Transient;
+import java.util.List;
 
 /**
  *
  * @author Jamel Sandí
  */
-
-@Entity (name = "tbusuario")
+@Entity(name = "tbusuario")
 public class Usuario {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idUsuario")
     private int idUsuario;
-    
+
     @Column(name = "nombreUsuario")
     private String nombreUsuario;
-    
+
     @Column(name = "primerApellido")
     private String primerApellido;
-    
+
     @Column(name = "segundoApellido")
     private String segundoApellido;
-    
+
     @Column(name = "fechaNacimiento")
     private LocalDate fechaNacimiento;
-    
+
     @Column(name = "cedulaUsuario")
     private String cedulaUsuario;
-    
+
     @ManyToOne
     @JoinColumn(name = "idRol")
     private Rol rol;
-    
+
     @Column(name = "correoUsuario")
     private String correoUsuario;
-    
+
     @Column(name = "telefonoUsuario")
     private String telefonoUsuario;
-    
+
     @Column(name = "contraseniaUsuario")
     private String contraseniaUsuario;
-    
+
     @ManyToOne
-    @JoinColumn(name = "idDireccion") 
+    @JoinColumn(name = "idDireccion")
     private Direccion direccion;
 
     @Column(name = "estadoUsuario")
     private boolean estadoUsuario;
 
-    @Transient 
-    private String token; 
-    
+    @OneToMany(mappedBy = "usuario", fetch = FetchType.EAGER)
+    private List<Comentario> comentarios;
+
+    @Transient
+    private String token;
+
     public Usuario() {
     }
 
@@ -166,7 +173,7 @@ public class Usuario {
     public void setDireccion(Direccion direccion) {
         this.direccion = direccion;
     }
-    
+
     public String getToken() {
         return token;
     }
@@ -182,6 +189,13 @@ public class Usuario {
     public void setEstadoUsuario(boolean estadoUsuario) {
         this.estadoUsuario = estadoUsuario;
     }
-    
-}
 
+        public List<Comentario> getComentarios() {
+        return comentarios;
+    }
+
+    public void setComentarios(List<Comentario> comentarios) {
+        this.comentarios = comentarios;
+    }
+
+}
