@@ -41,6 +41,19 @@ public class CategoriaController {
         return ResponseEntity.ok(iCategoriaService.getCategoria());
     }
 
+    // Read by ID
+    @GetMapping("obtenerPorId/{id}")
+    public ResponseEntity<Categoria> listCategoriaById(@PathVariable int id) {
+        Categoria categoria = iCategoriaService.getCategoriaById(id);
+        if (categoria != null) {
+            System.out.println("Categoria encontrada: ID -->" + categoria.getIdCategoria() + ", Nombre -->" + categoria.getNombreCategoria() + ", Descripcion -->" + categoria.getDescripcionCategoria() + categoria.isEstadoCategoria());
+            return ResponseEntity.ok(categoria);
+        } else {
+            System.out.println("Categoria no encontrada: ID -->" + id);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+
     // Add
     @PostMapping("/agregar")
     public ResponseEntity<?> addCategoria(@RequestBody Categoria categoria) {

@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -40,8 +41,9 @@ import com.bendicion.la.carniceria.carniceria.service.ProductoService;
 @RequestMapping("/producto")
 public class ProductoController {
 
-    private static final String IMAGE_DIRECTORY = "C:\\Users\\glend\\OneDrive\\Documentos\\NetBeansProjects\\Proyecto-Ingenieria-en-Sistemas\\carniceria\\images";
-    
+    //private static final String IMAGE_DIRECTORY = "C:\\Users\\glend\\OneDrive\\Documentos\\NetBeansProjects\\Proyecto-Ingenieria-en-Sistemas\\carniceria\\images";
+    private static final String IMAGE_DIRECTORY = "C:\\images";
+
     @Autowired
     private ProductoService productoService;
 
@@ -69,81 +71,162 @@ public class ProductoController {
 
     // Agregar producto con imagen (carga de archivo)
     @PostMapping(value = "/agregarConImagen", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> addProductoWithImage(
+public ResponseEntity<?> addProductoWithImage(
+        @RequestParam("nombreProducto") String nombreProducto,
+        @RequestParam("montoPrecioProducto") double montoPrecioProducto,
+        @RequestParam("descripcionProducto") String descripcionProducto,
+        @RequestParam("idCategoria") int idCategoria,
+        @RequestParam("estadoProducto") int estadoProducto,
+        @RequestParam("file") MultipartFile file) { 
+    
+    if (file.isEmpty()) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se seleccionó ningún archivo");
+    }
+
+    try {
+        // Verificar o crear el directorio de imágenes
+        File directory = new File(IMAGE_DIRECTORY);
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+
+        // Generar un nombre único para la imagen
+        String fileExtension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.'));
+        String uniqueFileName = UUID.randomUUID().toString() + fileExtension;
+
+        // Guardar el archivo de imagen
+        Path filePath = Paths.get(IMAGE_DIRECTORY, uniqueFileName);
+        Files.copy(file.getInputStream(), filePath);
+
+        // Crear y configurar el objeto Producto
+        Producto nuevoProducto = new Producto();
+        nuevoProducto.setNombreProducto(nombreProducto);
+        nuevoProducto.setMontoPrecioProducto(BigDecimal.valueOf(montoPrecioProducto));
+        nuevoProducto.setDescripcionProducto(descripcionProducto);
+
+        // Crear y asociar la categoría al producto
+        Categoria categoria = new Categoria();
+        categoria.setIdCategoria(idCategoria);
+        nuevoProducto.setCategoria(categoria); // Relación con Categoria
+
+        nuevoProducto.setEstadoProducto(estadoProducto == 1); // 1 para activo, 0 para inactivo
+        nuevoProducto.setImgProducto(uniqueFileName); // Asigna el nombre único del archivo de imagen
+
+        // Guardar el producto
+        Producto savedProducto = productoService.addProducto(nuevoProducto);
+
+        // Respuesta de éxito
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Producto agregado con éxito con ID: " + savedProducto.getIdProducto());
+        response.put("id", savedProducto.getIdProducto());
+        return ResponseEntity.ok(response);
+    } catch (IOException e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Collections.singletonMap("error", "Error al guardar el producto o la imagen: " + e.getMessage()));
+    }
+}
+
+
+    @GetMapping("/images/{imageName}")
+    public ResponseEntity<byte[]> getImage(@PathVariable String imageName) {
+        try {
+            Path filePath = Paths.get(IMAGE_DIRECTORY, imageName);
+            System.out.println("Buscando imagen en: " + filePath.toString());
+            byte[] image = Files.readAllBytes(filePath);
+            
+            // Determinar el tipo MIME basado en la extensión del archivo
+            String contentType = Files.probeContentType(filePath);
+    
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .body(image);
+        } catch (IOException e) {
+            System.err.println("Error al encontrar la imagen: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+    
+
+    // Actualizar producto con imagen
+    @PutMapping(value = "/actualizar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> updateProducto(
+            @RequestParam("idProducto") int idProducto,
             @RequestParam("nombreProducto") String nombreProducto,
             @RequestParam("montoPrecioProducto") double montoPrecioProducto,
             @RequestParam("descripcionProducto") String descripcionProducto,
             @RequestParam("idCategoria") int idCategoria,
             @RequestParam("estadoProducto") int estadoProducto,
-            @RequestParam("file") MultipartFile file) {
-        
-        if (file.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se seleccionó ningún archivo");
-        }
+            @RequestParam(value = "file", required = false) MultipartFile file) {
 
         try {
-            // Verificar o crear el directorio de imágenes
-            File directory = new File(IMAGE_DIRECTORY);
-            if (!directory.exists()) {
-                directory.mkdirs();
+            // Buscar el producto existente por ID
+            Producto productoExistente = productoService.getProductoById(idProducto);
+            if (productoExistente == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Producto no encontrado");
             }
 
-            // Guardar el archivo de imagen
-            String fileName = file.getOriginalFilename();
-            Path filePath = Paths.get(IMAGE_DIRECTORY, fileName);
-            Files.copy(file.getInputStream(), filePath);
+            // Actualizar los atributos del producto
+            productoExistente.setNombreProducto(nombreProducto);
+            productoExistente.setMontoPrecioProducto(BigDecimal.valueOf(montoPrecioProducto));
+            productoExistente.setDescripcionProducto(descripcionProducto);
 
-            // Crear y configurar el objeto Producto
-            Producto nuevoProducto = new Producto();
-            nuevoProducto.setNombreProducto(nombreProducto);
-            nuevoProducto.setMontoPrecioProducto(BigDecimal.valueOf(montoPrecioProducto));
-            nuevoProducto.setDescripcionProducto(descripcionProducto);
-
-            // Crear y asociar la categoría al producto
+            // Actualizar la categoría del producto
             Categoria categoria = new Categoria();
             categoria.setIdCategoria(idCategoria);
-            nuevoProducto.setCategoria(categoria); // Relación con Categoria
+            productoExistente.setCategoria(categoria);
 
-            nuevoProducto.setEstadoProducto(estadoProducto == 1); // 1 para activo, 0 para inactivo
-            nuevoProducto.setImgProducto(fileName); // Asigna el nombre del archivo de imagen
+            productoExistente.setEstadoProducto(estadoProducto == 1);
 
-            // Guardar el producto
-            Producto savedProducto = productoService.addProducto(nuevoProducto);
+            if (file != null && !file.isEmpty()) {
+                // Verificar o crear el directorio de imágenes
+                File directory = new File(IMAGE_DIRECTORY);
+                if (!directory.exists()) {
+                    directory.mkdirs();
+                }
+
+                // Eliminar la imagen anterior si existe
+                if (productoExistente.getImgProducto() != null) {
+                    Path oldImagePath = Paths.get(IMAGE_DIRECTORY, productoExistente.getImgProducto());
+                    Files.deleteIfExists(oldImagePath);
+                }
+
+                // Generar un nombre único para la nueva imagen
+                String fileExtension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.'));
+                String uniqueFileName = UUID.randomUUID().toString() + fileExtension;
+
+                // Guardar el archivo de imagen
+                Path filePath = Paths.get(IMAGE_DIRECTORY, uniqueFileName);
+                Files.copy(file.getInputStream(), filePath);
+
+                // Asignar el nuevo nombre de la imagen al producto
+                productoExistente.setImgProducto(uniqueFileName);
+            }
+
+            // Guardar los cambios del producto
+            Producto productoActualizado = productoService.updateProducto(productoExistente);
 
             // Respuesta de éxito
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "Producto agregado con éxito con ID: " + savedProducto.getIdProducto());
-            response.put("id", savedProducto.getIdProducto());
-            return ResponseEntity.ok(response);
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Collections.singletonMap("error", "Error al guardar el producto o la imagen: " + e.getMessage()));
-        }
-    }
-
-    // Actualizar producto
-    @PutMapping("/actualizar")
-    public ResponseEntity<?> updateProducto(@RequestBody Producto producto) {
-        try {
-            Producto productoActualizado = productoService.updateProducto(producto);
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Producto actualizado con éxito con ID: " + productoActualizado.getIdProducto());
             response.put("id", productoActualizado.getIdProducto());
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
+        } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Collections.singletonMap("error", "Error al actualizar el producto: " + e.getMessage()));
+                    .body(Collections.singletonMap("error", "Error al actualizar el producto o la imagen: " + e.getMessage()));
         }
     }
 
     // Eliminar producto
     @DeleteMapping("/eliminar/{id}")
-    public ResponseEntity<Boolean> deleteProducto(@PathVariable int id) {
-        boolean eliminado = productoService.deleteProducto(id);
-        if (eliminado) {
-            return ResponseEntity.ok(true);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
-        }
+public ResponseEntity<Boolean> deleteProducto(@PathVariable int id) {
+    boolean eliminado = productoService.deleteProducto(id);
+    if (eliminado) {
+        return ResponseEntity.ok(true);
+    } else {
+        
+        return ResponseEntity.ok(false);
     }
+}
+
+
 }

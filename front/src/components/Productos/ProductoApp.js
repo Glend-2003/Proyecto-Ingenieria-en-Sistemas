@@ -35,7 +35,18 @@ const ProductoApp = () => {
   const cargarProductos = async () => {
     try {
       const response = await axios.get("http://localhost:8080/producto/");
-      setProductos(response.data);
+      const productos = response.data;
+
+      // Iterar sobre cada producto y obtener el nombre de la categoría
+      for (let producto of productos) {
+        if (producto.categoria && producto.categoria.idCategoria) {
+          producto.nombreCategoria = producto.categoria.nombreCategoria;
+        } else {
+          producto.nombreCategoria = "Sin categoría";
+        }
+      }
+
+      setProductos(productos);
     } catch (error) {
       console.error("Error al cargar productos:", error);
       toast.error("Ocurrió un error al cargar los productos");
@@ -62,6 +73,12 @@ const ProductoApp = () => {
       toast.error("Todos los campos son obligatorios y no pueden estar vacíos");
       return false;
     }
+
+    if (imgProductoFile && !["image/jpeg", "image/png"].includes(imgProductoFile.type)) {
+      toast.error("Solo se permiten imágenes en formato JPG o PNG");
+      return false;
+    }
+
     return true;
   };
 
@@ -75,7 +92,6 @@ const ProductoApp = () => {
     formData.append("idCategoria", idCategoria);
     formData.append("estadoProducto", estadoProducto);
 
-    // Agregar imagen solo si existe
     if (imgProductoFile) {
       formData.append("file", imgProductoFile);
       try {
@@ -153,8 +169,15 @@ const ProductoApp = () => {
     if (!isConfirmed) return;
 
     try {
-      await axios.delete(`http://localhost:8080/producto/eliminar/${id}`);
-      toast.success("Producto eliminado con éxito");
+      const response = await axios.delete(`http://localhost:8080/producto/eliminar/${id}`);
+
+      if (response.status === 200) {
+        if (response.data) {
+          toast.success("Producto eliminado con éxito");
+        } else {
+          toast.warn("El producto ya no está disponible para eliminar.");
+        }
+      }
       cargarProductos();
     } catch (error) {
       console.error("Error al eliminar producto:", error);
@@ -168,7 +191,7 @@ const ProductoApp = () => {
       setNombreProducto(producto.nombreProducto);
       setMontoPrecioProducto(producto.montoPrecioProducto);
       setDescripcionProducto(producto.descripcionProducto);
-      setIdCategoria(producto.idCategoria);
+      setIdCategoria(producto.categoria?.idCategoria || "");
       setEstadoProducto(producto.estadoProducto);
       setImgProductoFile(null);
     } else {
@@ -207,10 +230,7 @@ const ProductoApp = () => {
   const totalPages = Math.ceil(filteredProductos.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentProductos = filteredProductos.slice(
-    indexOfFirstItem,
-    indexOfLastItem
-  );
+  const currentProductos = filteredProductos.slice(indexOfFirstItem, indexOfLastItem);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -287,10 +307,7 @@ const ProductoApp = () => {
                 >
                   <option value="">Seleccionar Categoría</option>
                   {categorias.map((categoria) => (
-                    <option
-                      key={categoria.idCategoria}
-                      value={categoria.idCategoria}
-                    >
+                    <option key={categoria.idCategoria} value={categoria.idCategoria}>
                       {categoria.nombreCategoria}
                     </option>
                   ))}
@@ -337,8 +354,8 @@ const ProductoApp = () => {
                     <td>
                       {producto.imgProducto ? (
                         <img
-                          src={`http://localhost:8080/images/${producto.imgProducto}`}
-                          alt={producto.nombreProducto}
+                          src={`http://localhost:8080/producto/images/${producto.imgProducto}`}
+                          alt={producto.imgProducto}
                           width="50"
                         />
                       ) : (
@@ -347,9 +364,7 @@ const ProductoApp = () => {
                     </td>
                     <td>{producto.montoPrecioProducto}</td>
                     <td>{producto.descripcionProducto}</td>
-                    <td>
-                      {categorias.find((cat) => cat.idCategoria === producto.idCategoria)?.nombreCategoria || "Sin categoría"}
-                    </td>
+                    <td>{producto.nombreCategoria || "Sin categoría"}</td>
                     <td>{producto.estadoProducto ? "Activo" : "Inactivo"}</td>
                     <td className="text-center">
                       <button
@@ -357,20 +372,14 @@ const ProductoApp = () => {
                         type="button"
                         onClick={() => handleShowModal(producto)}
                       >
-                        <FontAwesomeIcon
-                          icon={faEdit}
-                          style={{ fontSize: "15px" }}
-                        />
+                        <FontAwesomeIcon icon={faEdit} style={{ fontSize: "15px" }} />
                       </button>
                       <button
                         className="btn btn-danger btn-sm"
                         type="button"
                         onClick={() => eliminarProducto(producto.idProducto)}
                       >
-                        <FontAwesomeIcon
-                          icon={faTrash}
-                          style={{ fontSize: "15px" }}
-                        />
+                        <FontAwesomeIcon icon={faTrash} style={{ fontSize: "15px" }} />
                       </button>
                     </td>
                   </tr>
@@ -386,14 +395,9 @@ const ProductoApp = () => {
               {[...Array(totalPages)].map((_, index) => (
                 <li
                   key={index}
-                  className={`page-item ${
-                    currentPage === index + 1 ? "active" : ""
-                  }`}
+                  className={`page-item ${currentPage === index + 1 ? "active" : ""}`}
                 >
-                  <button
-                    onClick={() => paginate(index + 1)}
-                    className="page-link"
-                  >
+                  <button onClick={() => paginate(index + 1)} className="page-link">
                     {index + 1}
                   </button>
                 </li>

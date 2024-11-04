@@ -1,7 +1,9 @@
 package com.bendicion.la.carniceria.carniceria.service;
-import com.bendicion.la.carniceria.carniceria.domain.Categoria;
-import jakarta.transaction.Transactional;
 import java.util.List;
+
+import com.bendicion.la.carniceria.carniceria.domain.Categoria;
+
+import jakarta.transaction.Transactional;
 
 /**
  *
@@ -16,6 +18,8 @@ public interface ICategoriaService {
     public Categoria updateCategoria(Categoria categoria);
     
     public List<Categoria> getCategoria();
+
+    public Categoria getCategoriaById(int id);
     
     @Transactional
     public boolean deleteCategoria(int id);

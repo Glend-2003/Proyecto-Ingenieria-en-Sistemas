@@ -101,6 +101,11 @@ public class ProductoService implements IProductoService{
     @Override
     public boolean deleteProducto(int idProducto) {
         try {
+            Producto producto = productoRepo.findById(idProducto).orElse(null);
+            if (producto == null) {
+                System.out.println("Producto con ID " + idProducto + " no encontrado.");
+                return false;
+            }
             productoRepo.deleteProcedureProducto(idProducto);
             return true;
         } catch (Exception e) {
@@ -109,4 +114,5 @@ public class ProductoService implements IProductoService{
             return false;
         }
     }
+    
 }
