@@ -5,7 +5,7 @@ import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Swal from "sweetalert2";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faEdit, faTrash, faExclamationTriangle } from "@fortawesome/free-solid-svg-icons";
 import Navbar from "../Navbar";
 import useAuth from "../../hooks/useAuth";
 import { Button, Modal } from "react-bootstrap";
@@ -138,7 +138,7 @@ const ProductoApp = () => {
     formData.append("montoPrecioProducto", montoPrecioProducto);
     formData.append("descripcionProducto", descripcionProducto.trim());
     formData.append("idCategoria", idCategoria);
-    formData.append("estadoProducto", estadoProducto);
+    formData.append("estadoProducto", estadoProducto ? 1 : 0);
 
     try {
       await axios.put("http://localhost:8080/producto/actualizar", formData, {
@@ -169,15 +169,8 @@ const ProductoApp = () => {
     if (!isConfirmed) return;
 
     try {
-      const response = await axios.delete(`http://localhost:8080/producto/eliminar/${id}`);
-
-      if (response.status === 200) {
-        if (response.data) {
-          toast.success("Producto eliminado con éxito");
-        } else {
-          toast.warn("El producto ya no está disponible para eliminar.");
-        }
-      }
+      await axios.delete(`http://localhost:8080/producto/eliminar/${id}`);
+      toast.success("Producto eliminado con éxito");
       cargarProductos();
     } catch (error) {
       console.error("Error al eliminar producto:", error);
@@ -232,7 +225,13 @@ const ProductoApp = () => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentProductos = filteredProductos.slice(indexOfFirstItem, indexOfLastItem);
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const handleNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
 
   return (
     <div>
@@ -242,6 +241,15 @@ const ProductoApp = () => {
         <Button className="custom-button" onClick={() => handleShowModal()}>
           Agregar Nuevo Producto
         </Button>
+        <div className="mb-2"></div>
+        <label>Buscar producto</label>
+        <input
+          type="text"
+          className="form-control my-3"
+          placeholder="Buscar producto"
+          value={search}
+          onChange={handleSearchChange}
+        />
 
         <Modal show={showModal} onHide={handleCloseModal}>
           <Modal.Header closeButton>
@@ -256,7 +264,6 @@ const ProductoApp = () => {
                 productoEdit ? actualizarProducto() : agregarProducto();
               }}
             >
-              <label>Nombre del Producto</label>
               <div className="mb-3">
                 <input
                   className="form-control"
@@ -267,7 +274,6 @@ const ProductoApp = () => {
                   onChange={(e) => setNombreProducto(e.target.value)}
                 />
               </div>
-              <label>Imagen del Producto</label>
               <div className="mb-3">
                 <input
                   className="form-control"
@@ -276,7 +282,6 @@ const ProductoApp = () => {
                   onChange={handleFileChange}
                 />
               </div>
-              <label>Precio del Producto</label>
               <div className="mb-3">
                 <input
                   className="form-control"
@@ -287,7 +292,6 @@ const ProductoApp = () => {
                   onChange={(e) => setMontoPrecioProducto(e.target.value)}
                 />
               </div>
-              <label>Descripción del Producto</label>
               <div className="mb-3">
                 <textarea
                   className="form-control"
@@ -297,7 +301,6 @@ const ProductoApp = () => {
                   onChange={(e) => setDescripcionProducto(e.target.value)}
                 />
               </div>
-              <label>Categoría del Producto</label>
               <div className="mb-3">
                 <select
                   className="form-control"
@@ -342,9 +345,9 @@ const ProductoApp = () => {
             </thead>
             <tbody>
               {currentProductos.length === 0 ? (
-                <tr>
+                <tr className="warning no-result">
                   <td colSpan="7" className="text-center">
-                    No hay productos disponibles
+                    <FontAwesomeIcon icon={faExclamationTriangle} /> No hay productos disponibles
                   </td>
                 </tr>
               ) : (
@@ -365,7 +368,15 @@ const ProductoApp = () => {
                     <td>{producto.montoPrecioProducto}</td>
                     <td>{producto.descripcionProducto}</td>
                     <td>{producto.nombreCategoria || "Sin categoría"}</td>
-                    <td>{producto.estadoProducto ? "Activo" : "Inactivo"}</td>
+                    <td>
+                      <button
+                        className={`btn btn-sm ${
+                          producto.estadoProducto ? "btn-success" : "btn-danger"
+                        }`}
+                      >
+                        {producto.estadoProducto ? "Activo" : "Inactivo"}
+                      </button>
+                    </td>
                     <td className="text-center">
                       <button
                         className="btn btn-warning btn-sm me-2"
@@ -392,16 +403,26 @@ const ProductoApp = () => {
         <div className="d-flex justify-content-center mt-3">
           <nav>
             <ul className="pagination">
+              <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+                <button className="page-link" onClick={handlePreviousPage}>
+                  Anterior
+                </button>
+              </li>
               {[...Array(totalPages)].map((_, index) => (
                 <li
                   key={index}
                   className={`page-item ${currentPage === index + 1 ? "active" : ""}`}
                 >
-                  <button onClick={() => paginate(index + 1)} className="page-link">
+                  <button onClick={() => setCurrentPage(index + 1)} className="page-link">
                     {index + 1}
                   </button>
                 </li>
               ))}
+              <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
+                <button className="page-link" onClick={handleNextPage}>
+                  Siguiente
+                </button>
+              </li>
             </ul>
           </nav>
         </div>
