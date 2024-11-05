@@ -640,7 +640,18 @@ DELIMITER ;
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spLeerComentarios`()
 BEGIN
-    SELECT * FROM tbcomentario;
+    SELECT 
+        c.idComentario,
+        c.descripcionComentario,
+        c.fechaComentario,
+        c.numCalificacion,
+        c.verificacion,
+        u.idUsuario,
+        u.nombreUsuario
+    FROM 
+        tbcomentario c
+    LEFT JOIN 
+        tbusuario u ON c.idUsuario = u.idUsuario;
 END$$
 DELIMITER ;
 
