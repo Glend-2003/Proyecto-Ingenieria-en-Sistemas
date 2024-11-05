@@ -42,16 +42,20 @@ public class Comentario {
     @Column(name = "numCalificacion")
     private int numCalificacion;
 
+    @Column(name = "verificacion")
+    private boolean verificacion;
+
     public Comentario() {
 
     }
 
-    public Comentario(int idComentario, String descripcionComentario, LocalDateTime  fechaComentario, Usuario usuario, int numCalificacion) {
+    public Comentario(int idComentario, String descripcionComentario, LocalDateTime  fechaComentario, Usuario usuario, int numCalificacion, boolean verificacion) {
         this.idComentario = idComentario;
         this.descripcionComentario = descripcionComentario;
         this.fechaComentario = fechaComentario;
         this.usuario = usuario;
         this.numCalificacion = numCalificacion;
+        this.verificacion = verificacion;
     }
 
     // Getters y Setters
@@ -93,5 +97,13 @@ public class Comentario {
 
     public void setNumCalificacion(int numCalificacion) {
         this.numCalificacion = numCalificacion;
+    }
+
+    public boolean getVerificacion() {
+        return verificacion;
+    }
+
+    public void setVerificacion(boolean verificacion) {
+        this.verificacion = verificacion;
     }
 }

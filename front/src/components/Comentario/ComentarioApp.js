@@ -56,19 +56,13 @@ const ComentarioApp = () => {
 
     try {
         const fechaComentario = new Date().toISOString();
-
-        // Crea el objeto con los datos del comentario
         const comentarioData = {
-            descripcionComentario: descripcionComentario.trim(),
-            numCalificacion: numCalificacion,
-            idUsuario: usuario.idUsuario,  // Cambia esto para enviar el ID directamente
-            fechaComentario: fechaComentario,
-            verificacion: verificacion,
-        };
+          descripcionComentario: descripcionComentario.trim(),
+          numCalificacion: numCalificacion,
+          fechaComentario: fechaComentario,
+          usuario: { idUsuario: usuario.idUsuario } // Agregar el objeto usuario aquí
+      };
 
-        console.log("Datos que se enviarán al backend:", comentarioData);
-
-        // Realiza la solicitud al backend
         await axios.post("http://localhost:8080/comentario/agregar", comentarioData);
 
         toast.success("Comentario agregado con éxito");
@@ -78,9 +72,8 @@ const ComentarioApp = () => {
         console.error("Error al agregar comentario:", error);
         toast.error("Ocurrió un error al agregar el comentario");
     }
-};
+  };
 
-  
   const actualizarComentario = async () => {
     if (!validarCamposComentario()) return;
 
@@ -97,6 +90,17 @@ const ComentarioApp = () => {
     } catch (error) {
       console.error("Error al actualizar comentario:", error);
       toast.error("Ocurrió un error al actualizar el comentario");
+    }
+  };
+
+  const verificacionEstado = async (id) => {
+    try {
+      await axios.put(`http://localhost:8080/comentario/verificar/${id}`);
+      toast.success("Cambio realizado con éxito.");
+      cargarComentarios();
+    } catch (error){
+      console.error("Error al realizar la verificación del comentario:", error);
+      toast.error("Ocurrió un error al cambiar el estado del comentario.");
     }
   };
 
@@ -162,7 +166,7 @@ const ComentarioApp = () => {
     <div className="content-container">
       <SideBar usuario={usuario} />
       <div className="container mt-5">
-        <h1>Gestión de Comentarios</h1>
+        <h1>Gestión de comentarios</h1>
         <Button className="custom-button" onClick={() => handleShowModal()}>
           Agregar comentario nuevo
         </Button>
@@ -223,10 +227,10 @@ const ComentarioApp = () => {
         </Modal>
 
         <ToastContainer />
-
+        
         <div className="table-responsive mt-5">
           <table className="table table-hover table-bordered">
-            <thead className="bill-header cs">
+            <thead>
               <tr>
                 <th>No.</th>
                 <th>Usuario</th>
@@ -238,37 +242,31 @@ const ComentarioApp = () => {
               </tr>
             </thead>
             <tbody>
-                  {currentComentarios.length === 0 ? (
-                    <tr className="warning no-result">
-                      <td colSpan="7" className="text-center">
-                        <FontAwesomeIcon icon={faExclamationTriangle} /> No hay registros.
-                      </td>
-                    </tr>
-                  ) : (
-                  currentComentarios.map((comentario, index) => (
+              {currentComentarios.length === 0 ? (
+                  <tr className="warning no-result">
+                    <td colSpan="7" className="text-center">
+                      <FontAwesomeIcon icon={faExclamationTriangle} /> No hay registros.
+                    </td>
+                  </tr>
+                ) : (currentComentarios.map((comentario, index) => (
                   <tr key={comentario.idComentario}>
                     <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
-                    <td>{comentario.usuario ? comentario.usuario.nombre : "Sin usuario"}</td>
+                    <td>{comentario.idUsuario ? comentario.idUsuario : "Sin usuario"}</td>
                     <td>{comentario.descripcionComentario}</td>
                     <td>{comentario.numCalificacion}</td>
-                    <td>{comentario.fechaComentario || "Fecha no disponible"}</td>
+                    <td>{comentario.fechaComentario || "Fecha no disponible"}</td>                    
                     <td>
                       <button
                         className={`btn btn-sm ${
-                          comentario.verificacion === "Activo" ? "btn-success" : "btn-danger"
-                        }`}
+                          comentario.verificacion ? "btn-success" : "btn-danger"
+                        }`} 
+                        onClick={() => verificacionEstado(comentario.idComentario)}
                       >
-                        {comentario.verificacion}
+                        {comentario.verificacion ? "Visible" : "Oculto"}
                       </button>
                     </td>
                     <td className="text-center">
-                      <Button
-                        variant="warning"
-                        className="btn-sm me-2"
-                        onClick={() => handleShowModal(comentario)}
-                      >
-                        <FontAwesomeIcon icon={faEdit} style={{ fontSize: "15px" }} />
-                      </Button>
+                      
                       <Button
                         variant="danger"
                         className="btn-sm"

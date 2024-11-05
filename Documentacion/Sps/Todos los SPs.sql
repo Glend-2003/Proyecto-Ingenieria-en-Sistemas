@@ -501,24 +501,23 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `spEliminarComentario`(IN `p_idComen
 BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
-      
         ROLLBACK;
-        SELECT 'Error al intentar eliminar el comentario' AS mensaje;
+        SELECT 'Error al intentar actualizar la verificación del comentario' AS mensaje;
     END;
 
     START TRANSACTION;
 
-   
     IF EXISTS (SELECT 1 FROM tbcomentario WHERE idComentario = p_idComentario) THEN
-     
-          DELETE FROM tbcomentario
-   		 WHERE idComentario = p_idComentario;
+        -- Actualizar la verificación a 0 en lugar de eliminar el comentario
+        UPDATE tbcomentario
+        SET verificacion = 0
+        WHERE idComentario = p_idComentario;
 
         COMMIT;
-        SELECT 'Comentario eliminado con exito' AS mensaje;
+        SELECT 'Comentario marcado como no verificado con éxito' AS mensaje;
     ELSE
         ROLLBACK;
-        SELECT 'Error al borrar comentario' AS mensaje;
+        SELECT 'Error: comentario no encontrado' AS mensaje;
     END IF;
 
 END$$
@@ -639,6 +638,13 @@ END$$
 DELIMITER ;
 
 DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spLeerComentarios`()
+BEGIN
+    SELECT * FROM tbcomentario;
+END$$
+DELIMITER ;
+
+DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spLeerComentariosAdmin`()
 BEGIN
     SELECT * FROM tbcomentario
@@ -719,34 +725,67 @@ DELIMITER ;
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spMostrarComentario`(IN `p_idComentario` INT)
 BEGIN
-    
     DECLARE done INT DEFAULT 0;
+    DECLARE verificacionActual INT;
 
-    
+    -- Manejador de errores para capturar excepciones SQL genéricas
     DECLARE EXIT HANDLER FOR SQLEXCEPTION 
     BEGIN
-      
+        -- Si ocurre un error SQL, se hace rollback
         ROLLBACK;
-     
         SELECT 'Error al mostrar el comentario' AS mensaje;
     END;
 
+    -- Verificar si el comentario existe
     IF done = 0 AND NOT EXISTS (SELECT 1 FROM tbcomentario WHERE idComentario = p_idComentario) THEN
-     
         SET done = 1;
-       
         SELECT 'Comentario no encontrado' AS mensaje;
     END IF;
 
+    -- Cambiar el estado de verificación si el comentario existe
     IF done = 0 THEN
-        
+        -- Obtener el valor actual de verificación
+        SELECT verificacion INTO verificacionActual FROM tbcomentario WHERE idComentario = p_idComentario;
+
+        -- Cambiar el valor de verificación a 1 si es 0, o a 0 si es 1
         UPDATE tbcomentario
-        SET verificacion = 1
+        SET verificacion = CASE WHEN verificacionActual = 1 THEN 0 ELSE 1 END
         WHERE idComentario = p_idComentario;
 
-    
-        SELECT 'Comentario verificado con  xito' AS mensaje;
+        SELECT 'Comentario verificado con éxito' AS mensaje;
     END IF;
+
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spObtenerUsuarioById`(IN `p_idUsuario` INT)
+BEGIN
+    -- Manejador de errores para capturar excepciones SQL genéricas
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+    BEGIN
+        -- Si ocurre un error SQL, se hace rollback
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error al obtener el usuario';
+    END;
+
+    -- Iniciar la transacción
+    START TRANSACTION;
+
+    -- Validar si el ID es nulo o menor que 1
+    IF p_idUsuario IS NULL OR p_idUsuario < 1 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ID de usuario inválido';
+    END IF;
+
+    -- Seleccionar el usuario por el ID proporcionado
+    SELECT idUsuario, cedulaUsuario, contraseniaUsuario, correoUsuario, fechaNacimiento, 
+           nombreUsuario, primerApellido, segundoApellido, telefonoUsuario, idDireccion, 
+           idRol, estadoUsuario
+    FROM tbusuario
+    WHERE idUsuario = p_idUsuario;
+
+    -- Hacer commit si todo está bien
+    COMMIT;
 
 END$$
 DELIMITER ;
@@ -825,5 +864,26 @@ DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spVerificarCorreo`(IN p_correoUsuario VARCHAR(255))
 BEGIN
     SELECT COUNT(*) AS existe FROM tbusuario WHERE correoUsuario = p_correoUsuario;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spVerificarIDUsuario`(
+    IN `p_idUsuario` INT
+)
+BEGIN
+    -- Declarar una variable para el resultado
+    DECLARE usuarioExiste INT DEFAULT 0;
+
+    -- Validar si el ID del usuario es nulo o menor que 1
+    IF p_idUsuario IS NULL OR p_idUsuario <= 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ID de usuario inválido';
+    END IF;
+
+    -- Verificar si el usuario con el ID especificado existe y asignar el resultado
+    SELECT COUNT(*) INTO usuarioExiste FROM tbusuario WHERE idUsuario = p_idUsuario;
+
+    -- Retornar el resultado
+    SELECT usuarioExiste;
 END$$
 DELIMITER ;

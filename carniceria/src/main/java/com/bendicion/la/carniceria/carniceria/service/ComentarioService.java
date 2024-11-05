@@ -4,18 +4,17 @@
  */
 package com.bendicion.la.carniceria.carniceria.service;
 
-import com.bendicion.la.carniceria.carniceria.domain.Comentario;
-import com.bendicion.la.carniceria.carniceria.jpa.ComentarioRepository;
-import com.bendicion.la.carniceria.carniceria.jpa.UsuarioRepository;
-import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+
+import com.bendicion.la.carniceria.carniceria.domain.Comentario;
+import com.bendicion.la.carniceria.carniceria.jpa.ComentarioRepository;
+
+import jakarta.transaction.Transactional;
 
 /**
  *
@@ -31,9 +30,13 @@ public class ComentarioService implements IComentarioService {
     @Transactional
     @Override
     public Comentario addComentario(Comentario comentario) {
-        System.out.println(comentario.getUsuario().getNombreUsuario() + " Hizo un comentario  ");
+        //System.out.println(comentario.getUsuario().getNombreUsuario() + " Hizo un comentario  ");
 
         // Verifica si el usuario existe
+        if (comentario.getUsuario() == null) {
+            throw new IllegalArgumentException("Usuario is required for adding a comment.");
+        }
+        
         int existe = comentarioRepo.verifyIDProcedureUsuario(comentario.getUsuario().getIdUsuario());
         if (existe == 0) {
             throw new IllegalArgumentException("El usuario no existe");

@@ -9,7 +9,7 @@ import useAuth from '../../hooks/useAuth';
 import SideBar from '../SideBar/SideBar';
 import { Button } from 'react-bootstrap';
 import FooterApp from '../Footer/FooterApp';
-
+import "./Principal.css";
 const Principal = () => {
     const { usuario} = useAuth();
 

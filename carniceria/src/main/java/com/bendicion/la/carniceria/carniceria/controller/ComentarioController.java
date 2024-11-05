@@ -57,6 +57,8 @@ public ResponseEntity<?> addComentario(@RequestBody Comentario comentario) {
     try {
         // Agrega la fecha actual al comentario
         comentario.setFechaComentario(LocalDateTime.now());
+        System.out.println("Comentario recibido: " + comentario);
+        System.out.println("Usuario asociado: " + (comentario.getUsuario() != null ? comentario.getUsuario().getIdUsuario() : "Usuario es null"));
 
         // Log para verificar los datos recibidos
         System.out.println("Datos del comentario recibidos: " + comentario);

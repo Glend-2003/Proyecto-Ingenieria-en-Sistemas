@@ -60,11 +60,6 @@
     text-align: center;
 }
 
-.bill-header.cs {
-    background-color: rgba(37, 71, 106, 0.56);
-    color: #fff;
-}
-
 .no-result,
 .results tr[visible=false] {
     display: none;
