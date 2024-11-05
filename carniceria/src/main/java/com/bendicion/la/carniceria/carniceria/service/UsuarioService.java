@@ -297,5 +297,10 @@ public class UsuarioService implements IUsuarioService {
             return usuario; // Retorna false en caso de error
         }
     }
+    
+    @Override
+    public Usuario getUsuarioById(int id) {
+        return usuarioRepo.listProcedureUsuarioById(id);
+    }
 
 }

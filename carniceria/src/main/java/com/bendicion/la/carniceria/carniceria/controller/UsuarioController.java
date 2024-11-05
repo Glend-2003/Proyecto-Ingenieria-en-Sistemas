@@ -182,5 +182,17 @@ public class UsuarioController {
                     .body(Collections.singletonMap("error", "Error al actualizar la contraseña: " + e.getMessage()));
         }
     }
+    
+    @GetMapping("obtenerPorId/{id}")
+    public ResponseEntity<Usuario> listUsuarioById(@PathVariable int id) {
+        Usuario usuario = iUsuarioService.getUsuarioById(id);
+        if (usuario != null) {
+            System.out.println("Usuario encontrada: ID -->" + usuario.getIdUsuario()+ ", Nombre -->" + usuario.getNombreUsuario());
+            return ResponseEntity.ok(usuario);
+        } else {
+            System.out.println("Usuario no encontrada: ID -->" + id);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
 
 }

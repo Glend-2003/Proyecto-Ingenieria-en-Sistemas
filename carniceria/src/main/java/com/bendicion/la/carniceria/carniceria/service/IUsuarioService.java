@@ -37,5 +37,8 @@ public interface IUsuarioService {
     
      // Registrarse como nuevo usuario 
     public Usuario actualizarContrasena(Usuario usuario);
+    
+    // Obtener usuario por ID
+    public Usuario getUsuarioById(int id);
 
 }

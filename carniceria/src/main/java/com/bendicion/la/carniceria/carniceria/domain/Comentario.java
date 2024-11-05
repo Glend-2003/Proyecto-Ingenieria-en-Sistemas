@@ -35,8 +35,8 @@ public class Comentario {
     private LocalDateTime fechaComentario;
 
     @ManyToOne
-    @JoinColumn(name = "idUsuario", nullable = false)
-    @JsonBackReference // Evita serialización bidireccional
+    @JoinColumn(name = "idUsuario")
+    @JsonBackReference 
     private Usuario usuario;
 
     @Column(name = "numCalificacion")
