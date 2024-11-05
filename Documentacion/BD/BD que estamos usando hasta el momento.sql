@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 04-11-2024 a las 07:41:18
+-- Tiempo de generación: 05-11-2024 a las 03:12:50
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -426,24 +426,23 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spEliminarComentario` (IN `p_idComentario` INT)   BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
-      
         ROLLBACK;
-        SELECT 'Error al intentar eliminar el comentario' AS mensaje;
+        SELECT 'Error al intentar actualizar la verificación del comentario' AS mensaje;
     END;
 
     START TRANSACTION;
 
-   
     IF EXISTS (SELECT 1 FROM tbcomentario WHERE idComentario = p_idComentario) THEN
-     
-          DELETE FROM tbcomentario
-   		 WHERE idComentario = p_idComentario;
+        -- Actualizar la verificación a 0 en lugar de eliminar el comentario
+        UPDATE tbcomentario
+        SET verificacion = 0
+        WHERE idComentario = p_idComentario;
 
         COMMIT;
-        SELECT 'Comentario eliminado con exito' AS mensaje;
+        SELECT 'Comentario marcado como no verificado con éxito' AS mensaje;
     ELSE
         ROLLBACK;
-        SELECT 'Error al borrar comentario' AS mensaje;
+        SELECT 'Error: comentario no encontrado' AS mensaje;
     END IF;
 
 END$$
@@ -631,6 +630,35 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `spMostrarComentario` (IN `p_idComen
 
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spObtenerUsuarioById` (IN `p_idUsuario` INT)   BEGIN
+    -- Manejador de errores para capturar excepciones SQL genéricas
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+    BEGIN
+        -- Si ocurre un error SQL, se hace rollback
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error al obtener el usuario';
+    END;
+
+    -- Iniciar la transacción
+    START TRANSACTION;
+
+    -- Validar si el ID es nulo o menor que 1
+    IF p_idUsuario IS NULL OR p_idUsuario < 1 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ID de usuario inválido';
+    END IF;
+
+    -- Seleccionar el usuario por el ID proporcionado
+    SELECT idUsuario, cedulaUsuario, contraseniaUsuario, correoUsuario, fechaNacimiento, 
+           nombreUsuario, primerApellido, segundoApellido, telefonoUsuario, idDireccion, 
+           idRol, estadoUsuario
+    FROM tbusuario
+    WHERE idUsuario = p_idUsuario;
+
+    -- Hacer commit si todo está bien
+    COMMIT;
+
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spRegistrarUsuario` (IN `p_correoUsuario` VARCHAR(255), IN `p_contraseniaUsuario` VARCHAR(255), IN `p_nombreUsuario` VARCHAR(255), IN `p_primerApellido` VARCHAR(255), IN `p_segundoApellido` VARCHAR(255), IN `p_estadoUsuario` TINYINT)   BEGIN
     -- Declarar la variable para almacenar el ID de la dirección insertada
     DECLARE idDireccion INT;
@@ -693,6 +721,33 @@ END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spVerificarCorreo` (IN `p_correoUsuario` VARCHAR(255))   BEGIN
     SELECT COUNT(*) AS existe FROM tbusuario WHERE correoUsuario = p_correoUsuario;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spVerificarIDUsuario` (IN `p_idUsuario` INT)   BEGIN
+    -- Manejador de errores para capturar excepciones SQL genéricas
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+    BEGIN
+        -- Si ocurre un error SQL, se hace rollback
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error al verificar el ID de usuario';
+    END;
+
+    -- Iniciar la transacción
+    START TRANSACTION;
+
+    -- Validar si el ID del usuario es nulo o menor que 1
+    IF p_idUsuario IS NULL OR p_idUsuario <= 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ID de usuario inválido';
+    END IF;
+
+    -- Verificar si el usuario con el ID especificado existe
+    IF NOT EXISTS (SELECT 1 FROM tbusuario WHERE idUsuario = p_idUsuario) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El ID de usuario no está registrado';
+    END IF;
+
+    -- Hacer commit si la verificación es exitosa
+    COMMIT;
+
 END$$
 
 DELIMITER ;
@@ -868,7 +923,8 @@ INSERT INTO `tbcategoria` (`idCategoria`, `descripcionCategoria`, `nombreCategor
 (5, 'Todos los tipos de embutidos', 'Embutidos', 1),
 (6, 'Todos los tipos de productos lácteos', 'Lácteos', 1),
 (7, 'La mayoría de productos varios', 'Productos varios', 1),
-(20, 'descripcionnnnnnnnnn', 'prueba', 1);
+(20, 'descripcionnnnnnnnnn', 'prueba', 1),
+(23, 'afawfwadawdawd', 'awdad', 0);
 
 -- --------------------------------------------------------
 
@@ -903,8 +959,7 @@ INSERT INTO `tbcomentario` (`idComentario`, `descripcionComentario`, `fechaComen
 (14, 'Este es un comentario de prueba.', '2024-10-30 11:28:19', 11, 5, 0),
 (15, 'Este es un comentario de prueba.', '2024-10-30 11:28:37', 11, 5, 0),
 (16, 'Este es un comentario de prueba.', '2024-10-30 11:33:31', 11, 5, 0),
-(17, 'Este es un comentario de prueba.', '2024-10-30 12:26:34', 11, 5, 0),
-(18, 'Este es un comentario de prueba.', '2024-10-30 12:33:51', 11, 5, 0);
+(17, 'Este es un comentario de prueba.', '2024-10-30 12:26:34', 11, 5, 0);
 
 -- --------------------------------------------------------
 
@@ -932,7 +987,8 @@ INSERT INTO `tbdireccion` (`idDireccion`, `codigoPostalDireccion`, `descripcionD
 (21, NULL, NULL, NULL),
 (22, NULL, NULL, NULL),
 (23, NULL, NULL, NULL),
-(24, NULL, NULL, NULL);
+(24, NULL, NULL, NULL),
+(27, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -1287,7 +1343,8 @@ INSERT INTO `tbusuario` (`idUsuario`, `cedulaUsuario`, `contraseniaUsuario`, `co
 (6, '703100064', '$2a$12$fBMZLlt6aCS9iNemYH7h0e8m/YexlGy.13W2GTCFbnHLLe6fyTqOG', 'jsandi1299@gmail.com', '2004-08-09', 'Jamel', 'Sandí', 'Anderson', '88955772', 13, 3, b'1'),
 (11, NULL, '$2a$12$H7xEK8HgTEGRCaE4flNwL.E1VyjkxeENA7DB9bwB85xUn6S4A0w0q', 'dilan@gmail.com', NULL, 'Dilan', 'Gutiérrez', 'Hérnanandez', NULL, 15, 2, b'1'),
 (12, '7031000222', '$2a$12$woA1cDNHz2UW.Ek3.qyMwuU6qwdzaWkhslWgKGjOjXK5dH8xf.QGy', 'glend@gmail.com', '2004-08-09', 'Glend', 'Rojas', 'Alvarado', '88955771', 16, 2, b'1'),
-(14, NULL, '$2a$12$//YmSKyCUaOul9TXIWPZEO9gr5yyzKc00AG8Wmi8IQUqy9dPPaqwK', 'jsandi12199@gmail.com', NULL, 'JamelZito', 'prueba', 'Sandi', NULL, 18, 3, b'1');
+(14, NULL, '$2a$12$//YmSKyCUaOul9TXIWPZEO9gr5yyzKc00AG8Wmi8IQUqy9dPPaqwK', 'jsandi12199@gmail.com', NULL, 'JamelZito', 'prueba', 'Sandi', NULL, 18, 3, b'1'),
+(23, NULL, '$2a$12$ARcwI6LAA/et4dwOF1QC9.ysaT65uDNz8VBdcblaYooyEQpoj/0YG', 'cucho@gmail.com', NULL, 'cucho', 'Rojas', 'Alvarado', NULL, 27, 3, b'1');
 
 --
 -- Índices para tablas volcadas
@@ -1487,7 +1544,7 @@ ALTER TABLE `tbcarritoproducto`
 -- AUTO_INCREMENT de la tabla `tbcategoria`
 --
 ALTER TABLE `tbcategoria`
-  MODIFY `idCategoria` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `idCategoria` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT de la tabla `tbcomentario`
@@ -1499,7 +1556,7 @@ ALTER TABLE `tbcomentario`
 -- AUTO_INCREMENT de la tabla `tbdireccion`
 --
 ALTER TABLE `tbdireccion`
-  MODIFY `idDireccion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `idDireccion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT de la tabla `tbdistrito`
@@ -1565,7 +1622,7 @@ ALTER TABLE `tbtipopago`
 -- AUTO_INCREMENT de la tabla `tbusuario`
 --
 ALTER TABLE `tbusuario`
-  MODIFY `idUsuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `idUsuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- Restricciones para tablas volcadas
