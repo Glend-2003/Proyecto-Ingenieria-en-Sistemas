@@ -1,0 +1,10 @@
+.sidebar-container {
+    width: 250px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background-color: #042440;
+    z-index: 1000;
+    overflow-y: auto;
+}

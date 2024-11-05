@@ -6,17 +6,19 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import Swal from "sweetalert2";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faTrash, faExclamationTriangle } from "@fortawesome/free-solid-svg-icons";
-import Navbar from "../Navbar";
+import SideBar from "../SideBar/SideBar";
 import useAuth from "../../hooks/useAuth";
 import { Button, Modal } from "react-bootstrap";
+import FooterApp from '../Footer/FooterApp';
 import "./Producto.css";
+import PaginacionApp from "../Paginacion/PaginacionApp";
 
 const ProductoApp = () => {
   const [productos, setProductos] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [productoEdit, setProductoEdit] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const { usuario, handleLogout } = useAuth();
+  const { usuario } = useAuth();
   const [search, setSearch] = useState("");
   const [nombreProducto, setNombreProducto] = useState("");
   const [montoPrecioProducto, setMontoPrecioProducto] = useState("");
@@ -234,19 +236,19 @@ const ProductoApp = () => {
   };
 
   return (
-    <div>
-      <Navbar usuario={usuario} onLogout={handleLogout} />
+    <div className="content-container">
+      <SideBar usuario={usuario} /> 
       <div className="container mt-5">
-        <h1>Gestión de Productos</h1>
+        <h1>Gestión de productos</h1>
         <Button className="custom-button" onClick={() => handleShowModal()}>
-          Agregar Nuevo Producto
+          Agregar producto nuevo
         </Button>
         <div className="mb-2"></div>
         <label>Buscar producto</label>
         <input
           type="text"
           className="form-control my-3"
-          placeholder="Buscar producto"
+          placeholder="Buscar producto por nombre"
           value={search}
           onChange={handleSearchChange}
         />
@@ -265,16 +267,18 @@ const ProductoApp = () => {
               }}
             >
               <div className="mb-3">
+              <label>Nombre del producto</label>
                 <input
                   className="form-control"
                   type="text"
-                  placeholder="Nombre del Producto"
+                  placeholder="Nombre del producto"
                   required
                   value={nombreProducto}
                   onChange={(e) => setNombreProducto(e.target.value)}
                 />
               </div>
               <div className="mb-3">
+              <label>Seleccionar una imagen</label>
                 <input
                   className="form-control"
                   type="file"
@@ -283,25 +287,28 @@ const ProductoApp = () => {
                 />
               </div>
               <div className="mb-3">
+              <label>Precio</label>
                 <input
                   className="form-control"
                   type="number"
-                  placeholder="Precio del Producto"
+                  placeholder="Precio del producto"
                   required
                   value={montoPrecioProducto}
                   onChange={(e) => setMontoPrecioProducto(e.target.value)}
                 />
               </div>
               <div className="mb-3">
+              <label>Describe el producto</label>
                 <textarea
                   className="form-control"
-                  placeholder="Descripción del Producto"
+                  placeholder="Descripción del producto"
                   required
                   value={descripcionProducto}
                   onChange={(e) => setDescripcionProducto(e.target.value)}
                 />
               </div>
               <div className="mb-3">
+              <label>Elegir categoría</label>
                 <select
                   className="form-control"
                   required
@@ -334,6 +341,7 @@ const ProductoApp = () => {
           <table className="table table-hover table-bordered">
             <thead>
               <tr>
+                <th>No.</th>
                 <th>Nombre</th>
                 <th>Imagen</th>
                 <th>Precio</th>
@@ -351,8 +359,9 @@ const ProductoApp = () => {
                   </td>
                 </tr>
               ) : (
-                currentProductos.map((producto) => (
+                currentProductos.map((producto, index) => (
                   <tr key={producto.idProducto}>
+                    <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
                     <td>{producto.nombreProducto}</td>
                     <td>
                       {producto.imgProducto ? (
@@ -399,34 +408,15 @@ const ProductoApp = () => {
             </tbody>
           </table>
         </div>
-
-        <div className="d-flex justify-content-center mt-3">
-          <nav>
-            <ul className="pagination">
-              <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
-                <button className="page-link" onClick={handlePreviousPage}>
-                  Anterior
-                </button>
-              </li>
-              {[...Array(totalPages)].map((_, index) => (
-                <li
-                  key={index}
-                  className={`page-item ${currentPage === index + 1 ? "active" : ""}`}
-                >
-                  <button onClick={() => setCurrentPage(index + 1)} className="page-link">
-                    {index + 1}
-                  </button>
-                </li>
-              ))}
-              <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
-                <button className="page-link" onClick={handleNextPage}>
-                  Siguiente
-                </button>
-              </li>
-            </ul>
-          </nav>
-        </div>
+        <PaginacionApp
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          onNextPage={handleNextPage}
+          onPreviousPage={handlePreviousPage}
+        />
       </div>
+      <FooterApp />
     </div>
   );
 };

@@ -5,6 +5,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 const SideBar = ({ usuario }) => {
     return (
+        
+
         <div id="offcanvas-menu" className="offcanvas offcanvas-start bg-body show" style={{ width: '250px' }} tabIndex="-1" data-bs-backdrop="false">
             <div className="offcanvas-header">
                 <NavLink className="link-body-emphasis d-flex align-items-center me-md-auto mb-3 mb-md-0 text-decoration-none" to="/">
@@ -45,7 +47,7 @@ const SideBar = ({ usuario }) => {
                         <li className="nav-item">
                             <NavLink 
                                 className={({ isActive }) => isActive ? "nav-link active link-light" : "nav-link link-body-emphasis"} 
-                                to="/comentarios" 
+                                to="/ComentarioApp" 
                                 style={({ isActive }) => ({
                                     backgroundColor: isActive ? 'rgb(4, 36, 64)' : 'transparent',
                                 })}

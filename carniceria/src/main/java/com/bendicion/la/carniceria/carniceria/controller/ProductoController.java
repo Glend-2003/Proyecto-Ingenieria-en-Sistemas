@@ -41,9 +41,7 @@ import com.bendicion.la.carniceria.carniceria.service.ProductoService;
 @RequestMapping("/producto")
 public class ProductoController {
 
-    //private static final String IMAGE_DIRECTORY = "C:\\Users\\glend\\OneDrive\\Documentos\\NetBeansProjects\\Proyecto-Ingenieria-en-Sistemas\\carniceria\\images";
-    private static final String IMAGE_DIRECTORY = "C:\\images";
-
+    private static final String IMAGE_DIRECTORY = "src/main/resources/static/images";
     @Autowired
     private ProductoService productoService;
 

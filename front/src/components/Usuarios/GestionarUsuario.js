@@ -8,9 +8,12 @@ import Swal from "sweetalert2";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit } from "@fortawesome/free-solid-svg-icons";
 import useAuth from "../../hooks/useAuth";
-import Navbar from "../Navbar";
+import SideBar from "../SideBar/SideBar";
 import { Button, Modal } from "react-bootstrap";
 import "./Usuarios.css";
+import FooterApp from "../Footer/FooterApp";
+import PaginacionApp from "../Paginacion/PaginacionApp";
+import {faExclamationTriangle} from "@fortawesome/free-solid-svg-icons";
 
 const GestionarUsuario = () => {
   const [users, setUsers] = useState([]);
@@ -20,7 +23,7 @@ const GestionarUsuario = () => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const { usuario, handleLogout } = useAuth();
+  const { usuario} = useAuth();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
@@ -177,19 +180,19 @@ const GestionarUsuario = () => {
   };
 
   return (
-    <div>
-      <Navbar usuario={usuario} onLogout={handleLogout} />
+    <div className="content-container">
+      <SideBar usuario={usuario} /> 
       <div className="container mt-5">
-        <h1>Gestión de Usuarios</h1>
+        <h1>Gestión de usuarios</h1>
         <Button className="custom-button" onClick={() => handleShowModal()}>
-          Agregar Nuevo Usuario
+          Agregar usuario nuevo
         </Button>
         <div className="mb-2"></div>
         <label>Buscar usuario</label>
         <input
           type="text"
           className="form-control my-3"
-          placeholder="Buscar usuario"
+          placeholder="Buscar usuario por nombre"
           value={search}
           onChange={handleSearchChange}
         />
@@ -363,6 +366,7 @@ const GestionarUsuario = () => {
           <table className="table table-hover table-bordered">
             <thead>
               <tr>
+                <th>No.</th>
                 <th>Nombre</th>
                 <th>Primer apellido</th>
                 <th>Segundo apellido</th>
@@ -372,8 +376,16 @@ const GestionarUsuario = () => {
               </tr>
             </thead>
             <tbody>
-              {currentUsers.map((user) => (
+              {currentUsers.length === 0 ? (
+                    <tr className="warning no-result">
+                      <td colSpan="7" className="text-center">
+                        <FontAwesomeIcon icon={faExclamationTriangle} />No hay registros.
+                      </td>
+                    </tr>
+                  ) : 
+                  currentUsers.map((user, index) => (
                 <tr key={user.idUsuario}>
+                  <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
                   <td>{user.nombreUsuario}</td>
                   <td>{user.primerApellido}</td>
                   <td>{user.segundoApellido}</td>
@@ -412,45 +424,15 @@ const GestionarUsuario = () => {
             </tbody>
           </table>
         </div>
-
-        <div className="d-flex justify-content-center mt-3">
-          <nav>
-            <ul className="pagination">
-              <li
-                className={`page-item ${currentPage === 1 ? "disabled" : ""}`}
-              >
-                <button className="page-link" onClick={handlePreviousPage}>
-                  Anterior
-                </button>
-              </li>
-              {[...Array(totalPages)].map((_, index) => (
-                <li
-                  key={index}
-                  className={`page-item ${
-                    currentPage === index + 1 ? "active" : ""
-                  }`}
-                >
-                  <button
-                    onClick={() => setCurrentPage(index + 1)}
-                    className="page-link"
-                  >
-                    {index + 1}
-                  </button>
-                </li>
-              ))}
-              <li
-                className={`page-item ${
-                  currentPage === totalPages ? "disabled" : ""
-                }`}
-              >
-                <button className="page-link" onClick={handleNextPage}>
-                  Siguiente
-                </button>
-              </li>
-            </ul>
-          </nav>
-        </div>
+        <PaginacionApp
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          onNextPage={handleNextPage}
+          onPreviousPage={handlePreviousPage}
+        />
       </div>
+      <FooterApp />
     </div>
   );
 };

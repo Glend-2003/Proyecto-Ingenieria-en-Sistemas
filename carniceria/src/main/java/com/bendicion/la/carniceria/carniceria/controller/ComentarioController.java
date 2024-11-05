@@ -4,13 +4,12 @@
  */
 package com.bendicion.la.carniceria.carniceria.controller;
 
-import com.bendicion.la.carniceria.carniceria.domain.Comentario;
-
-import com.bendicion.la.carniceria.carniceria.service.IComentarioService;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +22,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.bendicion.la.carniceria.carniceria.domain.Comentario;
+import com.bendicion.la.carniceria.carniceria.service.IComentarioService;
 
 /**
  *
@@ -51,23 +53,34 @@ public class ComentarioController {
     }
 
     @PostMapping("/agregar")
-    public ResponseEntity<?> addComentario(@RequestBody Comentario comentario) {
-        try {
-            Comentario nuevoComentario = iComentarioService.addComentario(comentario);
+public ResponseEntity<?> addComentario(@RequestBody Comentario comentario) {
+    try {
+        // Agrega la fecha actual al comentario
+        comentario.setFechaComentario(LocalDateTime.now());
 
-            // Verifica que nuevoComentario no sea nulo y tiene un ID
-           
-                Map<String, Object> response = new HashMap<>();
-                response.put("message", "Comentario guardado con éxito con: " );
-                
-                return ResponseEntity.ok(response);
-           
-            
-        } catch (Exception e) {
+        // Log para verificar los datos recibidos
+        System.out.println("Datos del comentario recibidos: " + comentario);
+
+        Comentario nuevoComentario = iComentarioService.addComentario(comentario);
+
+        if (nuevoComentario != null) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Comentario guardado con éxito con ID: " + nuevoComentario.getIdComentario());
+
+            return ResponseEntity.ok(response);
+        } else {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Collections.singletonMap("error", "Error al agregar el comentario: " + e.getMessage()));
+                    .body(Collections.singletonMap("error", "Error al agregar el comentario"));
         }
+
+    } catch (Exception e) {
+        e.printStackTrace();  // Imprimir el error completo
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Collections.singletonMap("error", "Error al agregar el comentario: " + e.getMessage()));
     }
+}
+
+
 
     @PutMapping("/actualizar")
     public ResponseEntity<?> updateComentario(@RequestBody Comentario comentario) {

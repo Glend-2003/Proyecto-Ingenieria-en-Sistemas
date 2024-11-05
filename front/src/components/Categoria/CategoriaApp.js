@@ -11,10 +11,12 @@ import {
   faEdit,
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
-import Navbar from "../Navbar";
+import SideBar from "../SideBar/SideBar";
 import useAuth from "../../hooks/useAuth";
 import { Button, Modal } from "react-bootstrap";
 import "./Categoria.css";
+import FooterApp from '../Footer/FooterApp';
+import PaginacionApp from "../Paginacion/PaginacionApp";
 
 const CategoriaApp = () => {
   const [categorias, setCategorias] = useState([]);
@@ -195,19 +197,19 @@ const CategoriaApp = () => {
   };
 
   return (
-    <div>
-      <Navbar usuario={usuario} onLogout={handleLogout} />
+    <div className="content-container">
+      <SideBar usuario={usuario} /> 
       <div className="container mt-5">
-        <h1>Gestión de Categorías</h1>
+        <h1>Gestión de categorías</h1>
         <Button className="custom-button" onClick={() => handleShowModal()}>
-          Agregar Nueva Categoría
+          Agregar nueva categoría
         </Button>
         <div className="mb-2"></div>
         <label>Buscar categoría</label>
         <input
           type="text"
           className="form-control my-3"
-          placeholder="Buscar categoría"
+          placeholder="Buscar categoría por nombre"
           value={search}
           onChange={handleSearchChange}
         />
@@ -226,6 +228,7 @@ const CategoriaApp = () => {
               }}
             >
               <div className="mb-3">
+              <label>Nombre de la categoria</label>
                 <input
                   className="form-control"
                   type="text"
@@ -236,6 +239,7 @@ const CategoriaApp = () => {
                 />
               </div>
               <div className="mb-3">
+              <label>Descripción</label>
                 <input
                   className="form-control"
                   type="text"
@@ -263,6 +267,7 @@ const CategoriaApp = () => {
           <table className="table table-hover table-bordered">
             <thead>
               <tr>
+                <th>No.</th>
                 <th>Nombre</th>
                 <th>Descripción</th>
                 <th>Estado</th>
@@ -270,16 +275,17 @@ const CategoriaApp = () => {
               </tr>
             </thead>
             <tbody>
-              {currentCategorias.length === 0 ? (
-                <tr className="warning no-result">
-                  <td colSpan="4" className="text-center">
-                    <FontAwesomeIcon icon={faExclamationTriangle} /> No Result
-                    !!!
-                  </td>
-                </tr>
-              ) : (
-                currentCategorias.map((categoria) => (
+                {currentCategorias.length === 0 ? (
+                  <tr className="warning no-result">
+                    <td colSpan="4" className="text-center">
+                      <FontAwesomeIcon icon={faExclamationTriangle} /> No hay registros.
+                      !!!
+                    </td>
+                  </tr>
+                ) : (
+                currentCategorias.map((categoria, index) => (
                   <tr key={categoria.idCategoria}>
+                    <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
                     <td>{categoria.nombreCategoria}</td>
                     <td>{categoria.descripcionCategoria}</td>
                     <td>
@@ -321,45 +327,15 @@ const CategoriaApp = () => {
             </tbody>
           </table>
         </div>
-
-        <div className="d-flex justify-content-center mt-3">
-          <nav>
-            <ul className="pagination">
-              <li
-                className={`page-item ${currentPage === 1 ? "disabled" : ""}`}
-              >
-                <button className="page-link" onClick={handlePreviousPage}>
-                  Anterior
-                </button>
-              </li>
-              {[...Array(totalPages)].map((_, index) => (
-                <li
-                  key={index}
-                  className={`page-item ${
-                    currentPage === index + 1 ? "active" : ""
-                  }`}
-                >
-                  <button
-                    onClick={() => setCurrentPage(index + 1)}
-                    className="page-link"
-                  >
-                    {index + 1}
-                  </button>
-                </li>
-              ))}
-              <li
-                className={`page-item ${
-                  currentPage === totalPages ? "disabled" : ""
-                }`}
-              >
-                <button className="page-link" onClick={handleNextPage}>
-                  Siguiente
-                </button>
-              </li>
-            </ul>
-          </nav>
-        </div>
+        <PaginacionApp
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          onNextPage={handleNextPage}
+          onPreviousPage={handlePreviousPage}
+        />
       </div>
+      <FooterApp />
     </div>
   );
 };
