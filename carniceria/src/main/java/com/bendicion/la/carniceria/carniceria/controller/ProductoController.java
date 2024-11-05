@@ -43,7 +43,7 @@ public class ProductoController {
 
     private static final String IMAGE_DIRECTORY = "src/main/resources/static/images";
     @Autowired
-    private ProductoService productoService;
+    private ProductoService productoService;//Cambiar a IProductoService...
 
     // Obtener lista de productos
     @GetMapping("/")

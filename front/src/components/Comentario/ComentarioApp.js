@@ -3,11 +3,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faExclamationTriangle,
-  faEdit,
-  faTrash,
-} from "@fortawesome/free-solid-svg-icons";
+import { faExclamationTriangle, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { Button, Modal } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import SideBar from "../SideBar/SideBar";
@@ -26,20 +22,44 @@ const ComentarioApp = () => {
   const [numCalificacion, setNumCalificacion] = useState("");
   const [verificacion, setVerificacion] = useState("Activo");
   const [currentPage, setCurrentPage] = useState(1);
+  const [usuarioCorreos, setUsuarioCorreos] = useState({}); // Para almacenar correos de usuarios
   const itemsPerPage = 5;
 
   useEffect(() => {
     cargarComentarios();
   }, []);
-  
+
   const cargarComentarios = async () => {
     try {
       const response = await axios.get("http://localhost:8080/comentario/admin");
       console.log("Comentarios recibidos del backend:", response.data);
       setComentarios(response.data);
+
+      // Cargar correos de usuarios en paralelo
+      response.data.forEach((comentario) => {
+        if (comentario.usuario && comentario.usuario.idUsuario && !usuarioCorreos[comentario.usuario.idUsuario]) {
+          cargarUsuario(comentario.usuario.idUsuario);
+        }
+      });
     } catch (error) {
       console.error("Error al cargar comentarios:", error);
       toast.error("Ocurrió un error al cargar los comentarios");
+    }
+  };
+
+  const cargarUsuario = async (id) => {
+    try {
+      const response = await axios.get(`http://localhost:8080/usuario/obtenerPorId/${id}`);
+      console.log("Usuario recibido del backend:", response.data);
+
+      // Actualizar el estado con el correo del usuario
+      setUsuarioCorreos((prevCorreos) => ({
+        ...prevCorreos,
+        [id]: response.data.correoUsuario
+      }));
+    } catch (error) {
+      console.error("Error al cargar usuario:", error);
+      toast.error("Ocurrió un error al cargar el usuario");
     }
   };
 
@@ -55,22 +75,22 @@ const ComentarioApp = () => {
     if (!validarCamposComentario()) return;
 
     try {
-        const fechaComentario = new Date().toISOString();
-        const comentarioData = {
-          descripcionComentario: descripcionComentario.trim(),
-          numCalificacion: numCalificacion,
-          fechaComentario: fechaComentario,
-          usuario: { idUsuario: usuario.idUsuario } // Agregar el objeto usuario aquí
+      const fechaComentario = new Date().toISOString();
+      const comentarioData = {
+        descripcionComentario: descripcionComentario.trim(),
+        numCalificacion: numCalificacion,
+        fechaComentario: fechaComentario,
+        usuario: { idUsuario: usuario.idUsuario }
       };
 
-        await axios.post("http://localhost:8080/comentario/agregar", comentarioData);
+      await axios.post("http://localhost:8080/comentario/agregar", comentarioData);
 
-        toast.success("Comentario agregado con éxito");
-        cargarComentarios();
-        handleCloseModal();
+      toast.success("Comentario agregado con éxito");
+      cargarComentarios();
+      handleCloseModal();
     } catch (error) {
-        console.error("Error al agregar comentario:", error);
-        toast.error("Ocurrió un error al agregar el comentario");
+      console.error("Error al agregar comentario:", error);
+      toast.error("Ocurrió un error al agregar el comentario");
     }
   };
 
@@ -98,7 +118,7 @@ const ComentarioApp = () => {
       await axios.put(`http://localhost:8080/comentario/verificar/${id}`);
       toast.success("Cambio realizado con éxito.");
       cargarComentarios();
-    } catch (error){
+    } catch (error) {
       console.error("Error al realizar la verificación del comentario:", error);
       toast.error("Ocurrió un error al cambiar el estado del comentario.");
     }
@@ -194,7 +214,7 @@ const ComentarioApp = () => {
               }}
             >
               <div className="mb-3">
-              <label>Escribe tu comentario</label>
+                <label>Escribe tu comentario</label>
                 <textarea
                   className="form-control"
                   placeholder="Comentar.."
@@ -204,7 +224,7 @@ const ComentarioApp = () => {
                 />
               </div>
               <div className="mb-3">
-              <label>Deja tu calificación</label>
+                <label>Deja tu calificación</label>
                 <input
                   className="form-control"
                   type="number"
@@ -243,18 +263,23 @@ const ComentarioApp = () => {
             </thead>
             <tbody>
               {currentComentarios.length === 0 ? (
-                  <tr className="warning no-result">
-                    <td colSpan="7" className="text-center">
-                      <FontAwesomeIcon icon={faExclamationTriangle} /> No hay registros.
-                    </td>
-                  </tr>
-                ) : (currentComentarios.map((comentario, index) => (
+                <tr className="warning no-result">
+                  <td colSpan="7" className="text-center">
+                    <FontAwesomeIcon icon={faExclamationTriangle} /> No hay registros.
+                  </td>
+                </tr>
+              ) : (
+                currentComentarios.map((comentario, index) => (
                   <tr key={comentario.idComentario}>
                     <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
-                    <td>{comentario.idUsuario ? comentario.idUsuario : "Sin usuario"}</td>
+                    <td>
+                      {comentario.usuario && comentario.usuario.idUsuario
+                        ? usuarioCorreos[comentario.usuario.idUsuario] || "Correo no disponible"
+                        : "Sin usuario"}
+                    </td>
                     <td>{comentario.descripcionComentario}</td>
                     <td>{comentario.numCalificacion}</td>
-                    <td>{comentario.fechaComentario || "Fecha no disponible"}</td>                    
+                    <td>{comentario.fechaComentario || "Fecha no disponible"}</td>
                     <td>
                       <button
                         className={`btn btn-sm ${
@@ -266,7 +291,6 @@ const ComentarioApp = () => {
                       </button>
                     </td>
                     <td className="text-center">
-                      
                       <Button
                         variant="danger"
                         className="btn-sm"

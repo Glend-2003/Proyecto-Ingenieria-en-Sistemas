@@ -37,6 +37,7 @@ const ProductoApp = () => {
   const cargarProductos = async () => {
     try {
       const response = await axios.get("http://localhost:8080/producto/");
+      console.log(response.data);
       const productos = response.data;
 
       // Iterar sobre cada producto y obtener el nombre de la categoría

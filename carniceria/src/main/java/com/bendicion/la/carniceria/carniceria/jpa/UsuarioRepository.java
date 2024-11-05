@@ -100,5 +100,5 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
             @Param("contraseniaUsuario") String contraseniaUsuario);
     
     @Query(value = "{call spObtenerUsuarioById(:idUsuario)}", nativeQuery = true)
-    Usuario listProcedureUsuarioById(@Param("idUsuario") int idUsuario);
+    Usuario listProcedureUsuarioById(@Param("idUsuario") Integer idUsuario);
 }
