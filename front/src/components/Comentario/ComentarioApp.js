@@ -23,6 +23,7 @@ const ComentarioApp = () => {
   const [verificacion, setVerificacion] = useState("Activo");
   const [currentPage, setCurrentPage] = useState(1);
   const [usuarioCorreos, setUsuarioCorreos] = useState({}); // Para almacenar correos de usuarios
+  console.log("UsuarioCorreo" + usuarioCorreos)
   const itemsPerPage = 5;
 
   useEffect(() => {
@@ -257,7 +258,7 @@ const ComentarioApp = () => {
                 <th>Comentario</th>
                 <th>Calificación</th>
                 <th>Fecha</th>
-                <th>Estado</th>
+                <th>Permiso</th>
                 <th>Acción</th>
               </tr>
             </thead>
