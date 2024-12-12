@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 05-11-2024 a las 04:54:05
+-- Tiempo de generación: 12-12-2024 a las 04:59:48
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -224,8 +224,8 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `spAgregarComentario` (IN `p_descrip
 
     
         -- Insertar en la tabla comentario sin incluir el campo autoincremental idComentario
-        INSERT INTO tbcomentario (descripcionComentario, fechaComentario, idUsuario, numCalificacion)
-        VALUES (p_descripcionComentario, p_fechaComentario, p_idUsuario, p_numCalificacionComentario);
+        INSERT INTO tbcomentario (descripcionComentario, fechaComentario, idUsuario, numCalificacion, verificacion)
+        VALUES (p_descripcionComentario, p_fechaComentario, p_idUsuario, p_numCalificacionComentario,0);
 
         -- Hacer commit si todo est  bien
         COMMIT;
@@ -539,7 +539,15 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `spLeerCategoriaPorId` (IN `p_idCate
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spLeerComentarios` ()   BEGIN
-    SELECT * FROM tbcomentario;
+    SELECT
+        c.idComentario,
+        c.descripcionComentario,
+        c.fechaComentario,
+        u.correoUsuario,
+        c.numCalificacion,
+        c.verificacion
+    FROM tbcomentario c 
+    INNER JOIN tbusuario u ON c.idUsuario = u.idUsuario;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spLeerComentariosAdmin` ()   BEGIN
@@ -954,7 +962,9 @@ INSERT INTO `tbcomentario` (`idComentario`, `descripcionComentario`, `fechaComen
 (15, 'Este es un comentario de prueba.', '2024-10-30 11:28:37', 11, 5, b'1'),
 (16, 'Este es un comentario de prueba.', '2024-10-30 11:33:31', 11, 5, b'0'),
 (17, 'Este es un comentario de prueba.', '2024-10-30 12:26:34', 11, 5, b'0'),
-(19, 'dwdw', '2024-11-04 21:12:48', 11, 2, b'1');
+(19, 'dwdw', '2024-11-04 21:12:48', 11, 2, b'1'),
+(20, 'malo', '2024-12-11 21:34:47', 11, 3, b'0'),
+(21, 'zzzz', '2024-12-11 21:41:52', 11, 1, b'0');
 
 -- --------------------------------------------------------
 
@@ -1545,7 +1555,7 @@ ALTER TABLE `tbcategoria`
 -- AUTO_INCREMENT de la tabla `tbcomentario`
 --
 ALTER TABLE `tbcomentario`
-  MODIFY `idComentario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `idComentario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT de la tabla `tbdireccion`
