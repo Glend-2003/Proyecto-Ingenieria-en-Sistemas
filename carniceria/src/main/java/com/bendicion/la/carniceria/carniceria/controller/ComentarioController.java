@@ -38,12 +38,13 @@ public class ComentarioController {
     @Autowired
     IComentarioService iComentarioService;
 
-    @GetMapping("/admin")
-    public ResponseEntity<List<Comentario>> listComentariosAdmin() {
-        List<Comentario> comentarios = iComentarioService.getComentariosAdmin();
-        System.out.println("Listando todos los comentarios: " + comentarios.size() + " comentarios encontrados.");
-        return ResponseEntity.ok(comentarios);
-    }
+ @GetMapping("/admin")
+public ResponseEntity<List<Map<String, Object>>> listComentariosAdmin() {
+    List<Map<String, Object>> comentarios = iComentarioService.getComentariosAdmin();
+    System.out.println("Listando todos los comentarios: " + comentarios.size() + " comentarios encontrados.");
+    return ResponseEntity.ok(comentarios);
+}
+
     
      @GetMapping("/usuario")
     public ResponseEntity<List<Comentario>> listComentariosUsuario() {

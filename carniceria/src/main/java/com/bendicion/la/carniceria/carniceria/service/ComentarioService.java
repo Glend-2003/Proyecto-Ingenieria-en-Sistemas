@@ -15,6 +15,7 @@ import com.bendicion.la.carniceria.carniceria.domain.Comentario;
 import com.bendicion.la.carniceria.carniceria.jpa.ComentarioRepository;
 
 import jakarta.transaction.Transactional;
+import java.util.Map;
 
 /**
  *
@@ -55,9 +56,19 @@ public class ComentarioService implements IComentarioService {
 
     @Override
     @Transactional
-    public List<Comentario> getComentariosAdmin() {
-        return comentarioRepo.leerComentariosAdmin();
-    }
+   public List<Map<String, Object>> getComentariosAdmin() {
+    List<Object[]> resultados = comentarioRepo.leerComentariosAdmin();
+    
+    // Mapea cada fila a un mapa de claves y valores
+    return resultados.stream().map(fila -> Map.of(
+        "idComentario", fila[0],
+        "descripcionComentario", fila[1],
+        "fechaComentario", fila[2],
+        "correoUsuario", fila[3],
+        "numCalificacion", fila[4],
+        "verificacion", fila[5]
+    )).toList();
+}
 
     @Transactional
     @Override
