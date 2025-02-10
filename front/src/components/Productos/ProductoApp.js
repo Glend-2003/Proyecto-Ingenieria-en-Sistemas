@@ -95,6 +95,7 @@ const ProductoApp = () => {
     formData.append("idCategoria", idCategoria);
     formData.append("estadoProducto", estadoProducto);
 
+    
     if (imgProductoFile) {
       formData.append("file", imgProductoFile);
       try {

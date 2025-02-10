@@ -182,4 +182,23 @@ END$$
 DELIMITER ;
 
 
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spBuscarProductoPorId`(IN p_idProducto INT)
+BEGIN
+    -- Selecciona todos los campos del usuario basándose en el correo proporcionado
+    SELECT 
+        p.idProducto, 
+        p.nombreProducto, 
+        p.imgProducto, 
+        p.montoPrecioProducto, 
+        p.descripcionProducto, 
+        p.idCategoria, 
+        p.estadoProducto
+       
+    FROM 
+        tbproducto p
 
+        WHERE p.idProducto = p_idProducto;
+ 
+END$$
+DELIMITER ;

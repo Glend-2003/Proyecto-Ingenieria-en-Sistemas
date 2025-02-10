@@ -51,13 +51,12 @@ public class ProductoService implements IProductoService{
                 producto.getCategoria().getIdCategoria(),
                 producto.isEstadoProducto()
         );
-
+System.out.println("Datos recibidos: " + producto.toString());
         return producto;
     }
 
     // Método para actualizar un producto
-    @Override
-    @Transactional
+   
     public Producto updateProducto(Producto producto) {
         // Validaciones
         if (producto.getIdProducto() <= 0) {
@@ -114,5 +113,16 @@ public class ProductoService implements IProductoService{
             return false;
         }
     }
-    
+ 
+        @Override
+    public Producto buscarUsuario(int id) {
+        Producto producto = productoRepo.buscarProducto(id);
+
+        if (producto == null) {
+            System.out.println("Usuario no encontrado para el id: " + id);
+            return null;
+        }
+
+        return producto;
+    }
 }

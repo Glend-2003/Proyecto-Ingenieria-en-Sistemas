@@ -106,4 +106,11 @@ public class Comentario {
     public void setVerificacion(boolean verificacion) {
         this.verificacion = verificacion;
     }
+
+    @Override
+    public String toString() {
+        return "Comentario{" + "idComentario=" + idComentario + ", descripcionComentario=" + descripcionComentario + ", fechaComentario=" + fechaComentario + ", usuario=" + usuario + ", numCalificacion=" + numCalificacion + ", verificacion=" + verificacion + '}';
+    }
+    
+    
 }

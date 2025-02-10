@@ -19,4 +19,7 @@ public interface IProductoService {
     
     @Transactional
     public boolean deleteProducto(int id);
+    
+        // Buscar 
+    public Producto buscarUsuario(int id);
 }

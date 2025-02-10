@@ -50,7 +50,7 @@ public class ComentarioService implements IComentarioService {
                 comentario.getUsuario().getIdUsuario(),
                 comentario.getNumCalificacion()
         );
-
+System.out.println("Datos recibidos: " + comentario.toString());
         return comentario; // Retorna el comentario
     }
 

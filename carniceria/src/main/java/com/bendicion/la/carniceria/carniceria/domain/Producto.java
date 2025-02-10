@@ -2,12 +2,17 @@ package com.bendicion.la.carniceria.carniceria.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+
 import java.math.BigDecimal;
+import java.util.List;
+
 
 /**
  *
@@ -40,6 +45,9 @@ public class Producto {
     
     @Column(name = "estadoProducto")
     private boolean estadoProducto;
+    
+    @OneToMany(mappedBy = "producto", fetch = FetchType.EAGER)
+    private List<Promocion> promociones;
 
     public Producto(int idProducto, String nombreProducto, String imgProducto, BigDecimal montoPrecioProducto, String descripcionProducto, Categoria categoria, boolean estadoProducto) {
         this.idProducto = idProducto;
@@ -109,7 +117,23 @@ public class Producto {
     public void setEstadoProducto(boolean estadoProducto) {
         this.estadoProducto = estadoProducto;
     }
+
     
     
+    @Override
+    public String toString() {
+        return "Producto{" + "idProducto=" + idProducto + ", nombreProducto=" + nombreProducto + ", imgProducto=" + imgProducto + ", montoPrecioProducto=" + montoPrecioProducto + ", descripcionProducto=" + descripcionProducto + ", categoria=" + categoria + ", estadoProducto=" + estadoProducto + '}';
+    }
+
+
+    public List<Promocion> getPromociones() {
+        return promociones;
+    }
+
+    public void setPromociones(List<Promocion> promociones) {
+        this.promociones = promociones;
+    }
+
+   
     
 }

@@ -177,11 +177,11 @@ const ComentarioApp = () => {
   };
 
   return (
-    <div className="content-container">
+   <div className="content-container">
       <SideBar usuario={usuario} />
       <div className="container mt-5">
         <h1>Gestión de comentarios</h1>
-        <Button className="custom-button" onClick={() => handleShowModal()}>
+         <Button className="custom-button" onClick={() => handleShowModal()}>
           Agregar comentario nuevo
         </Button>
         <div className="mb-2"></div>
