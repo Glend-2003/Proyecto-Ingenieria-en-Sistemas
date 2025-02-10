@@ -1,4 +1,4 @@
-package com.bendicion.la.carniceria.carniceria.controller;
+ package com.bendicion.la.carniceria.carniceria.controller;
 
 import java.io.File;
 import java.io.IOException;
@@ -115,7 +115,7 @@ public ResponseEntity<?> addProductoWithImage(
 
         // Respuesta de éxito
         Map<String, Object> response = new HashMap<>();
-        response.put("message", "Producto agregado con éxito con ID: " + savedProducto.getIdProducto());
+        response.put("message", "Producto agregado con éxito con ID: " + savedProducto.toString());
         response.put("id", savedProducto.getIdProducto());
         return ResponseEntity.ok(response);
     } catch (IOException e) {

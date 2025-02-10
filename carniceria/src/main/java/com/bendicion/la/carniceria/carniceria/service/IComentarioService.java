@@ -8,6 +8,7 @@ import com.bendicion.la.carniceria.carniceria.domain.Comentario;
 import com.bendicion.la.carniceria.carniceria.domain.Usuario;
 import jakarta.transaction.Transactional;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -18,7 +19,7 @@ public interface IComentarioService {
     // Agregar Comentario 
     public Comentario addComentario(Comentario comentario);
 
-    public List<Comentario> getComentariosAdmin();  
+    public List<Map<String, Object>> getComentariosAdmin();
 
     @Transactional // Asegúrate de que esté anotado
     public Comentario updateComentario(Comentario comentario);

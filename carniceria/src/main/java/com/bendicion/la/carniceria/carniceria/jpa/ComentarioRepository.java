@@ -38,7 +38,7 @@ public interface ComentarioRepository extends JpaRepository<Comentario, Integer>
     int verifyIDProcedureUsuario(@Param("idUsuario") int idUsuario);
 
     @Query(value = "{call spLeerComentarios()}", nativeQuery = true)
-    List<Comentario> leerComentariosAdmin();
+    List<Object[]> leerComentariosAdmin();
 
     @Modifying
     @Query(value = "CALL spActualizarComentario(:idComentario, :descripcionComentario, :fechaComentario, :idUsuario, :numCalificacion)", nativeQuery = true)

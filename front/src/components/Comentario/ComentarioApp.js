@@ -34,19 +34,13 @@ const ComentarioApp = () => {
     try {
       const response = await axios.get("http://localhost:8080/comentario/admin");
       console.log("Comentarios recibidos del backend:", response.data);
-      setComentarios(response.data);
-
-      // Cargar correos de usuarios en paralelo
-      response.data.forEach((comentario) => {
-        if (comentario.usuario && comentario.usuario.idUsuario && !usuarioCorreos[comentario.usuario.idUsuario]) {
-          cargarUsuario(comentario.usuario.idUsuario);
-        }
-      });
+      setComentarios(response.data); // Guarda directamente la lista de comentarios
     } catch (error) {
       console.error("Error al cargar comentarios:", error);
       toast.error("Ocurrió un error al cargar los comentarios");
     }
   };
+
 
   const cargarUsuario = async (id) => {
     try {
@@ -184,11 +178,11 @@ const ComentarioApp = () => {
   };
 
   return (
-    <div className="content-container">
+   <div className="content-container">
       <SideBar usuario={usuario} />
       <div className="container mt-5">
         <h1>Gestión de comentarios</h1>
-        <Button className="custom-button" onClick={() => handleShowModal()}>
+         <Button className="custom-button" onClick={() => handleShowModal()}>
           Agregar comentario nuevo
         </Button>
         <div className="mb-2"></div>
@@ -248,7 +242,7 @@ const ComentarioApp = () => {
         </Modal>
 
         <ToastContainer />
-        
+
         <div className="table-responsive mt-5">
           <table className="table table-hover table-bordered">
             <thead>
@@ -273,19 +267,14 @@ const ComentarioApp = () => {
                 currentComentarios.map((comentario, index) => (
                   <tr key={comentario.idComentario}>
                     <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
-                    <td>
-                      {comentario.usuario && comentario.usuario.idUsuario
-                        ? usuarioCorreos[comentario.usuario.idUsuario] || "Correo no disponible"
-                        : "Sin usuario"}
-                    </td>
+                    <td>{comentario.correoUsuario || "Correo no disponible"}</td> {/* Accede directamente al correo */}
                     <td>{comentario.descripcionComentario}</td>
                     <td>{comentario.numCalificacion}</td>
                     <td>{comentario.fechaComentario || "Fecha no disponible"}</td>
                     <td>
                       <button
-                        className={`btn btn-sm ${
-                          comentario.verificacion ? "btn-success" : "btn-danger"
-                        }`} 
+                        className={`btn btn-sm ${comentario.verificacion ? "btn-success" : "btn-danger"
+                          }`}
                         onClick={() => verificacionEstado(comentario.idComentario)}
                       >
                         {comentario.verificacion ? "Visible" : "Oculto"}
@@ -304,6 +293,7 @@ const ComentarioApp = () => {
                 ))
               )}
             </tbody>
+
           </table>
         </div>
         <PaginacionApp
