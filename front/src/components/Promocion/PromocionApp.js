@@ -5,7 +5,7 @@ import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Swal from "sweetalert2";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faTrash, faExclamationTriangle } from "@fortawesome/free-solid-svg-icons";
+import { faEdit, faTrash, faExclamationTriangle, faEnvelope } from "@fortawesome/free-solid-svg-icons";
 import SideBar from "../SideBar/SideBar";
 import useAuth from "../../hooks/useAuth";
 import { Button, Modal } from "react-bootstrap";
@@ -56,51 +56,73 @@ const PromocionApp = () => {
   };
 
   const validarCamposPromocion = () => {
-    if (!fechaInicioPromocion || isNaN(Date.parse(fechaInicioPromocion))) {
-      toast.error("La fecha de inicio es inválida o está vacía");
-      return false;
-    }
-    if (!fechaFinPromocion || isNaN(Date.parse(fechaFinPromocion))) {
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0); // Eliminar la hora para comparar solo fechas
+    
+    const fechaInicio = new Date(fechaInicioPromocion);
+    const fechaFin = new Date(fechaFinPromocion);
+  
+
+  
+    if (!fechaFinPromocion || isNaN(fechaFin)) {
       toast.error("La fecha de fin es inválida o está vacía");
       return false;
     }
-    if (!montoPromocion || !/^\d+(\.\d+)?$/.test(montoPromocion)) {
-      toast.error("El monto de la promoción debe ser un número válido");
+  
+    if (fechaInicio < hoy-2) {
+      toast.error("La fecha de inicio no puede ser menor a la actual");
       return false;
     }
-    if (!idProducto || isNaN(Number(idProducto)) || Number(idProducto) <= 0) {
+  
+    if (fechaFin < fechaInicio) {
+      toast.error("La fecha de fin debe ser mayor o igual a la fecha de inicio");
+      return false;
+    }
+  
+    if (!montoPromocion || isNaN(montoPromocion) || Number(montoPromocion) <= 0) {
+      toast.error("El monto de la promoción debe ser un número mayor a cero");
+      return false;
+    }
+  
+    if (!idProducto || isNaN(Number(idProducto)) || Number(idProducto) <= 0 || !Number.isInteger(Number(idProducto))) {
       toast.error("Debe seleccionar un producto válido");
       return false;
     }
+  
     return true;
   };
+  
+  
 
   const agregarPromocion = async () => {
-    if (!validarCamposPromocion()) return;
+    if (!validarCamposPromocion()) {
 
-
+      return;
+    }
+  
+    const promocionData = {
+      descripcionPromocion: descripcionPromocion.trim(),
+      fechaInicioPromocion: fechaInicioPromocion.trim(),
+      fechaFinPromocion: fechaFinPromocion.trim(),
+      montoPromocion,
+      producto: {
+        idProducto,
+      },
+    };
+  
+    console.log(" Datos enviados al backend:", promocionData);
+    
     try {
-      const promocionData = {
-        descripcionPromocion: descripcionPromocion.trim(),
-        fechaInicioPromocion: fechaInicioPromocion.trim(),
-        fechaFinPromocion: fechaFinPromocion.trim(),
-        montoPromocion,
-        producto: {
-          idProducto,
-        },
-      };
-
-
-      console.log("Datos enviados al backend:", promocionData);
-
       await axios.post("http://localhost:8080/promocion/agregarPromocion", promocionData);
-      toast.success("Producto agregado con éxito");
-      cargarPromociones();
-      handleCloseModal();
+      toast.success("Promoción agregada con éxito");
+      
     } catch (error) {
       console.error("Error al agregar promoción:", error.response?.data || error.message);
-      toast.error("Ocurrió un error al agregar la promoción");
+      toast.error(error.response?.data?.mensaje || "Ocurrió un error al agregar la promoción");
     }
+
+    cargarPromociones();
+      handleCloseModal();
   };
 
 
@@ -153,6 +175,38 @@ const PromocionApp = () => {
       toast.error("Ocurrió un error al eliminar la promoción");
     }
   };
+
+  const enviarMensaje = async (promocion) => {
+    const { isConfirmed } = await Swal.fire({
+        title: "¿Estás seguro?",
+        text: "No podrás revertir esto.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, enviar",
+        cancelButtonText: "No, cancelar",
+        reverseButtons: true,
+    });
+
+    if (!isConfirmed) return;
+
+    console.log("Datos enviados al backend:", promocion);
+
+    try {
+        await axios.post("http://localhost:8080/mensaje", promocion);
+
+        
+            toast.success( "Mensaje enviado con éxito");
+            cargarPromociones();
+       
+          
+        }
+     
+    catch (error) {
+        console.error("Error al enviar mensaje:", error);
+        toast.error(error.response?.data?.error || "Ocurrió un error al enviar el mensaje");
+    }
+};
+
 
   const handleShowModal = (promocion = null) => {
     if (promocion) {
@@ -303,6 +357,7 @@ const PromocionApp = () => {
                 <Button type="submit" variant="primary">
                   {promocionEdit ? "Actualizar" : "Agregar"}
                 </Button>
+                
               </div>
             </form>
           </Modal.Body>
@@ -341,6 +396,13 @@ const PromocionApp = () => {
                     onClick={() => eliminarPromocion(promocion.idPromocion)}
                   >
                     <FontAwesomeIcon icon={faTrash} />
+                  </button>
+
+                  <button
+                    className="btn btn-primar"
+                    onClick={() => enviarMensaje(promocion)}
+                  >
+                    <FontAwesomeIcon icon={faEnvelope} />
                   </button>
                 </td>
               </tr>
