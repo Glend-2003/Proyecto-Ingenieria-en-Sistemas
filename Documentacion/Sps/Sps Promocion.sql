@@ -114,30 +114,21 @@ END$$
 DELIMITER ;
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `spEliminarPromocion`(IN `p_idPromocion` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spLeerPromociones`()
 BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-      
-        ROLLBACK;
-        SELECT 'Error al intentar eliminar la promocion' AS mensaje;
-    END;
-
-    START TRANSACTION;
-
-   
-    IF EXISTS (SELECT 1 FROM tbpromocion WHERE idPromocion = p_idPromocion) THEN
-     
-        UPDATE tbpromocion
-        SET estadoPromocion = 0
-        WHERE idPromocion = p_idPromocion;
-
-        COMMIT;
-        SELECT 'Promocion desactivada con éxito' AS mensaje;
-    ELSE
-        ROLLBACK;
-        SELECT 'Promocion no encontrada' AS mensaje;
-    END IF;
-
+    SELECT 
+        p.idPromocion,
+        p.descripcionPromocion,
+        p.fechaInicioPromocion,
+        p.fechaFinPromocion,
+        p.montoPromocion,
+        p.estadoPromocion,
+        c.nombreProducto
+    FROM 
+        tbpromocion p
+    JOIN 
+        tbproducto c ON p.idProducto = c.idProducto
+    WHERE 
+        p.estadoPromocion = 1;
 END$$
 DELIMITER ;

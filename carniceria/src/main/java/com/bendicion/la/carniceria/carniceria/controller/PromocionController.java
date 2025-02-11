@@ -32,8 +32,9 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * @author Dilan Gutierrez
  */
+
 @RestController
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/promocion")
 public class PromocionController {
 
@@ -145,4 +146,37 @@ public class PromocionController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
         }
     }
+    @PostMapping("/mensaje")
+public ResponseEntity<?> mensaje(@RequestBody Promocion promocion){
+    try {
+        List<Usuario> usuarios = iUsuarioService.getUsuario();
+        Producto producto = iProductoService.buscarUsuario(promocion.getProducto().getIdProducto()); // Corrige el método aquí
+
+        for (Usuario usuario : usuarios) {
+            String mensaje = promocionService.mensajePredeterminado(
+                usuario.getNombreUsuario(),
+                producto.getNombreProducto(),
+                promocion.getFechaInicioPromocion(),
+                promocion.getFechaFinPromocion(),
+                promocion.getMontoPromocion()
+            );
+            promocionService.enviarMensaje(
+                usuario.getCorreoUsuario(),
+                "Nueva Promoción: " + promocion.getDescripcionPromocion(),
+                mensaje
+            );
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Correos enviados correctamente");
+        return ResponseEntity.ok(response);
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Collections.singletonMap("error", "Error al enviar los correos: " + e.getMessage()));
+    }
+}
+
+
 }
