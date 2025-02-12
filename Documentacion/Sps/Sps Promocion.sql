@@ -113,6 +113,7 @@ BEGIN
 END$$
 DELIMITER ;
 
+
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spLeerPromociones`()
 BEGIN

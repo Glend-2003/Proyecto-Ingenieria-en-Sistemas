@@ -56,7 +56,7 @@ System.out.println("Datos recibidos: " + producto.toString());
     }
 
     // Método para actualizar un producto
-   
+    @Transactional
     public Producto updateProducto(Producto producto) {
         // Validaciones
         if (producto.getIdProducto() <= 0) {

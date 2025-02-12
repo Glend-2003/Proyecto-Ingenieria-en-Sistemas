@@ -95,7 +95,7 @@ const ProductoApp = () => {
     formData.append("idCategoria", idCategoria);
     formData.append("estadoProducto", estadoProducto);
 
-    
+
     if (imgProductoFile) {
       formData.append("file", imgProductoFile);
       try {
@@ -138,7 +138,7 @@ const ProductoApp = () => {
     const formData = new FormData();
     formData.append("idProducto", productoEdit.idProducto);
     formData.append("nombreProducto", nombreProducto.trim());
-    formData.append("imgProducto", imgProductoFile);
+    formData.append("file", imgProductoFile);
     formData.append("montoPrecioProducto", montoPrecioProducto);
     formData.append("descripcionProducto", descripcionProducto.trim());
     formData.append("idCategoria", idCategoria);
