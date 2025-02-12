@@ -1,0 +1,13 @@
+.custom-button {
+    background-color: #042440;
+    color: white;
+    border: none;
+  }
+  .custom-button:hover {
+    background-color: #042440;
+  }
+  
+  .content-container {
+    margin-left: 200px;
+    padding: 20px;
+  }

@@ -98,6 +98,8 @@ const ProductoApp = () => {
 
     if (imgProductoFile) {
       formData.append("file", imgProductoFile);
+
+      console.log("Datos enviados al backend:", formData);
       try {
         await axios.post("http://localhost:8080/producto/agregarConImagen", formData, {
           headers: {
@@ -138,26 +140,29 @@ const ProductoApp = () => {
     const formData = new FormData();
     formData.append("idProducto", productoEdit.idProducto);
     formData.append("nombreProducto", nombreProducto.trim());
-    formData.append("file", imgProductoFile);
     formData.append("montoPrecioProducto", montoPrecioProducto);
     formData.append("descripcionProducto", descripcionProducto.trim());
     formData.append("idCategoria", idCategoria);
     formData.append("estadoProducto", estadoProducto ? 1 : 0);
 
-    try {
-      await axios.put("http://localhost:8080/producto/actualizar", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      toast.success("Producto actualizado con éxito");
-      cargarProductos();
-      handleCloseModal();
-    } catch (error) {
-      console.error("Error al actualizar producto:", error);
-      toast.error("Ocurrió un error al actualizar el producto");
+    if (imgProductoFile) {
+        formData.append("file", imgProductoFile); // Cambiado de "file" a "imgProducto"
     }
-  };
+
+    console.log("Datos enviados al backend:", formData);
+    try {
+        await axios.put("http://localhost:8080/producto/actualizar", formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+        });
+        toast.success("Producto actualizado con éxito");
+        cargarProductos();
+        handleCloseModal();
+    } catch (error) {
+        console.error("Error al actualizar producto:", error);
+        toast.error("Ocurrió un error al actualizar el producto");
+    }
+};
+
 
   const eliminarProducto = async (id) => {
     const { isConfirmed } = await Swal.fire({

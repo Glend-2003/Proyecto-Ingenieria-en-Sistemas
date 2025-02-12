@@ -12,6 +12,7 @@ import Usuarios from './components/Usuarios/GestionarUsuario';
 import ProductoApp from './components/Productos/ProductoApp'; // Asegúrate de que esta ruta sea correcta
 import ComentarioApp from './components/Comentario/ComentarioApp';
 import PromocionApp from './components/Promocion/PromocionApp';
+import TipoPagoApp from './components/TipoPago/TipoPagoApp';
 
 // Componente para proteger rutas y mostrar el sidebar si el usuario está autenticado
 // Componente para proteger rutas y mostrar el contenido solo si el usuario está autenticado
@@ -53,6 +54,7 @@ root.render(
       <Route path="/ComentarioApp" element={<PrivateRoute><ComentarioApp /></PrivateRoute>} />
       <Route path="/ProductoApp" element={<PrivateRoute><ProductoApp /></PrivateRoute>} /> {/* Aquí es donde estaba el error */}
       <Route path="/PromocionApp" element={<PrivateRoute><PromocionApp /></PrivateRoute>} />
+      <Route path="/TipoPagoApp" element={<PrivateRoute><TipoPagoApp /></PrivateRoute>} />
     </Routes>
   </Router>
 );
