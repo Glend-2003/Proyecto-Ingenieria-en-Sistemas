@@ -6,4 +6,26 @@
   .custom-button:hover {
     background-color: #042440; /* Cambia este color al que prefieras */
   }
+
+
+.custom-table {
+  width: 80%; /* Cambia el tamaño de la tabla */
+  margin: auto; /* Centrar la tabla */
+  border-collapse: collapse;
+}
+
+.custom-table th, .custom-table td {
+  padding: 10px;
+  border: 1px solid black;
+  text-align: center;
+}
+
+.custom-table th {
+  font-size: 18px; /* Tamaño de la letra para los encabezados */
+}
+
+.custom-table td {
+  font-size: 16px; /* Tamaño de la letra para las celdas */
+}
+
   

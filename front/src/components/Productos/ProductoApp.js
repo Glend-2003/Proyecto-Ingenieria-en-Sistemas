@@ -146,7 +146,7 @@ const ProductoApp = () => {
     formData.append("estadoProducto", estadoProducto ? 1 : 0);
 
     if (imgProductoFile) {
-        formData.append("imgProducto", imgProductoFile); // Cambiado de "file" a "imgProducto"
+        formData.append("file", imgProductoFile); // Cambiado de "file" a "imgProducto"
     }
 
     console.log("Datos enviados al backend:", formData);
