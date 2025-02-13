@@ -20,11 +20,21 @@ function App() {
   const [cart, setCart] = useState(savedCart); // Productos en el carrito
   const [productos, setProductos] = useState([]); // Lista de productos disponibles
   const navigate = useNavigate();
+  const idUsuario = localStorage.getItem('idUsuario');
 
   useEffect(() => {
-    localStorage.setItem("carrito", JSON.stringify(cart));
+    // Verificar si el idUsuario del carrito es diferente del logueado
+    if (cart.length > 0 && cart[0].usuarioId !== idUsuario) {
+     
+      setCart([]);
+      localStorage.setItem("carrito", JSON.stringify([]));
+      
+    } else {
+      localStorage.setItem("carrito", JSON.stringify(cart));
+    }
+
     cargarProductos();
-  }, [cart]);
+  }, [cart, idUsuario]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -38,11 +48,21 @@ function App() {
   const handleShowCart = () => setShowCart(!showCart);
 
   const addToCart = (producto) => {
-    setCart((prevCart) => [...prevCart, producto]);
+   
+    const userCart = {
+      ...producto,
+      usuarioId: idUsuario, // Asociamos el carrito con el idUsuario
+    };
+  
+    setCart((prevCart) => [...prevCart, userCart]);
+
   };
 
   const removeFromCart = (indexToRemove) => {
-    setCart((prevCart) => prevCart.filter((_, idx) => idx !== indexToRemove));
+    const updatedCart = cart.filter((_, idx) => idx !== indexToRemove);
+    setCart(updatedCart);
+    localStorage.setItem("carrito", JSON.stringify(updatedCart));
+    toast.info("Producto eliminado del carrito");
   };
 
   const login = () => {
@@ -54,6 +74,7 @@ function App() {
           localStorage.setItem('correoUsuario', response.data.correoUsuario);
           localStorage.setItem('nombreUsuario', response.data.nombreUsuario);
           localStorage.setItem('nombreRol', response.data.rol.nombreRol);
+          localStorage.setItem('idUsuario', response.data.idUsuario);
 
           setLoginStatus(
             'Login exitoso. Bienvenido ' + response.data.nombreUsuario
@@ -65,7 +86,8 @@ function App() {
             response.data.rol.nombreRol === 'Gerente'
           ) {
             navigate('/principal');
-          } else {
+          } 
+         else {
             setLoginStatus('Rol no reconocido');
           }
         } else {
