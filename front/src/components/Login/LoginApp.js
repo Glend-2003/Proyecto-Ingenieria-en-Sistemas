@@ -4,9 +4,10 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles.min.css';
-import { Offcanvas, Navbar, Container, Nav, Button, ListGroup, Badge } from 'react-bootstrap';
+import { Offcanvas, Navbar, Container, Nav, Button, ListGroup, Badge, Card} from 'react-bootstrap';
 import { toast, ToastContainer } from "react-toastify";
 import Carrito from '../Carrito/CarritoApp'; // Importamos el componente Carrito
+import "./Login.css";
 
 function App() {
   const [loginData, setLoginData] = useState({
@@ -84,6 +85,17 @@ function App() {
   const handleSubmit = (e) => {
     e.preventDefault();
     login();
+  };
+
+  const slideLeft = () => {
+    const slider = document.getElementById("product-slider");
+    slider.scrollLeft = slider.scrollLeft - 300; // Mueve el scroll 300px a la izquierda
+  };
+
+  // Función para desplazar el slider hacia la derecha
+  const slideRight = () => {
+    const slider = document.getElementById("product-slider");
+    slider.scrollLeft = slider.scrollLeft + 300; // Mueve el scroll 300px a la derecha
   };
 
   const cargarProductos = async () => {
@@ -177,7 +189,7 @@ function App() {
         </Offcanvas.Body>
       </Offcanvas>
 
-      {/* Productos Disponibles */}
+      {/* Productos Disponibles 
       <Container className="text-center mt-5">
         <h5>Productos Disponibles</h5>
         <ListGroup className="mb-4">
@@ -205,7 +217,58 @@ function App() {
           ))}
         </ListGroup>
       </Container>
+      */}
+      {/* Contenedor del slider */}
+      <div id="product-slider" className="product-slider">
+        {/* Muestra un mensaje de carga si no hay productos */}
+        {productos.length === 0 ? (
+          <p>Cargando productos...</p>
+        ) : (
+          // Mapea los productos y crea una tarjeta para cada uno
+          productos.map((product) => (
+            <div className="product-card" key={product.id}>
+              <Card style={{ width: "18rem" }}>
+                {/* Imagen del producto, asegurando la ruta correcta */}
+                <Card.Img
+                  variant="top"
+                  src={`http://localhost:8080/producto/images/${product.imgProducto}`}
+                />
 
+              <Card.Body>
+                <Card.Title>{product.nombreProducto}</Card.Title>
+                  {/* Nombre del producto */}
+                  <Card.Text>
+                    <strong>Precio:</strong>{" "}
+                    {new Intl.NumberFormat("es-CR", {
+                      style: "currency",
+                      currency: "CRC",
+                      minimumFractionDigits: 0,
+                    }).format(product.montoPrecioProducto)}
+                  </Card.Text>
+                  {/* Precio del producto */}
+                  {/*  Redirige al detalle del producto */}
+                  <div>  
+                    <Button variant="primary" onClick={()=> navigate(`/producto/${product.id}`)}>Ver Producto</Button>{" "}
+                  
+                    <Button
+                        variant="success"
+                        size="sm"
+                        className="float-end"
+                        onClick={() => addToCart(product)}
+                      >
+                      Agregar
+                    </Button>
+                  </div>
+                  {/* Botón para ver más detalles */}
+                   
+                    
+                  
+                </Card.Body>
+              </Card>
+            </div>
+          ))
+        )}
+      </div>
       {/* Carrito */}
       <Carrito showCart={showCart} handleShowCart={handleShowCart} cart={cart} removeFromCart={removeFromCart} />
     </>

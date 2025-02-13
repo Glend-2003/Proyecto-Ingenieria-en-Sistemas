@@ -23,6 +23,10 @@ const ProductoApp = () => {
   const [nombreProducto, setNombreProducto] = useState("");
   const [montoPrecioProducto, setMontoPrecioProducto] = useState("");
   const [descripcionProducto, setDescripcionProducto] = useState("");
+  const [cantidadProducto, setCantidadProducto] = useState("");
+  const [tipoPesoProducto, setTipoPesoProducto] = useState("");
+  const [codigoProducto, setCodigoProducto] = useState("");
+  const [stockProducto, setStockProducto] = useState("");
   const [idCategoria, setIdCategoria] = useState("");
   const [estadoProducto, setEstadoProducto] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
@@ -70,6 +74,10 @@ const ProductoApp = () => {
     if (
       !nombreProducto.trim() ||
       !descripcionProducto.trim() ||
+      !cantidadProducto.trim() ||
+      !tipoPesoProducto.trim() ||
+      !codigoProducto.trim() ||
+      !stockProducto.trim() ||
       !montoPrecioProducto ||
       !idCategoria
     ) {
@@ -92,6 +100,10 @@ const ProductoApp = () => {
     formData.append("nombreProducto", nombreProducto.trim());
     formData.append("montoPrecioProducto", montoPrecioProducto);
     formData.append("descripcionProducto", descripcionProducto.trim());
+    formData.append("cantidadProducto", cantidadProducto);
+    formData.append("tipoPesoProducto", tipoPesoProducto.trim());
+    formData.append("codigoProducto", codigoProducto.trim());
+    formData.append("stockProducto", stockProducto);
     formData.append("idCategoria", idCategoria);
     formData.append("estadoProducto", estadoProducto);
 
@@ -118,6 +130,10 @@ const ProductoApp = () => {
           nombreProducto: nombreProducto.trim(),
           montoPrecioProducto,
           descripcionProducto: descripcionProducto.trim(),
+          cantidadProducto,
+          tipoPesoProducto: tipoPesoProducto.trim(),
+          codigoProducto: codigoProducto.trim(),
+          stockProducto,
           idCategoria,
           estadoProducto,
         };
@@ -142,6 +158,10 @@ const ProductoApp = () => {
     formData.append("nombreProducto", nombreProducto.trim());
     formData.append("montoPrecioProducto", montoPrecioProducto);
     formData.append("descripcionProducto", descripcionProducto.trim());
+    formData.append("cantidadProducto", cantidadProducto);
+    formData.append("tipoPesoProducto", tipoPesoProducto.trim());
+    formData.append("codigoProducto", codigoProducto.trim());
+    formData.append("stockProducto", stockProducto);
     formData.append("idCategoria", idCategoria);
     formData.append("estadoProducto", estadoProducto ? 1 : 0);
 
@@ -193,6 +213,10 @@ const ProductoApp = () => {
       setNombreProducto(producto.nombreProducto);
       setMontoPrecioProducto(producto.montoPrecioProducto);
       setDescripcionProducto(producto.descripcionProducto);
+      setCantidadProducto(producto.cantidadProducto);
+      setTipoPesoProducto(producto.tipoPesoProducto);
+      setCodigoProducto(producto.codigoProducto);
+      setStockProducto(producto.stockProducto);
       setIdCategoria(producto.categoria?.idCategoria || "");
       setEstadoProducto(producto.estadoProducto);
       setImgProductoFile(null);
@@ -201,6 +225,10 @@ const ProductoApp = () => {
       setNombreProducto("");
       setMontoPrecioProducto("");
       setDescripcionProducto("");
+      setCantidadProducto(0);
+      setTipoPesoProducto("");
+      setCodigoProducto("");
+      setStockProducto(-1);
       setIdCategoria("");
       setEstadoProducto(1);
       setImgProductoFile(null);
@@ -214,6 +242,10 @@ const ProductoApp = () => {
     setNombreProducto("");
     setMontoPrecioProducto("");
     setDescripcionProducto("");
+    setCantidadProducto(0);
+    setTipoPesoProducto("");
+    setCodigoProducto("");
+    setStockProducto(-1);
     setIdCategoria("");
     setEstadoProducto(1);
     setImgProductoFile(null);
@@ -315,6 +347,48 @@ const ProductoApp = () => {
                 />
               </div>
               <div className="mb-3">
+              <label>Ingresa el peso o unidades del producto</label>
+                <textarea
+                  className="form-control"
+                  type="number"
+                  placeholder="Cantidad del producto"
+                  required
+                  value={cantidadProducto}
+                  onChange={(e) => setCantidadProducto(e.target.value)}
+                />
+              </div>
+              <div className="mb-3">
+              <label>Ingresa el tipo de peso</label>
+                <textarea
+                  className="form-control"
+                  placeholder="Kg - Gr - Ud"
+                  required
+                  value={tipoPesoProducto}
+                  onChange={(e) => setTipoPesoProducto(e.target.value)}
+                />
+              </div>
+              <div className="mb-3">
+              <label>Ingresa el código del producto</label>
+                <textarea
+                  className="form-control"
+                  placeholder="Código del producto"
+                  required
+                  value={codigoProducto}
+                  onChange={(e) => setCodigoProducto(e.target.value)}
+                />
+              </div>
+              <div className="mb-3">
+              <label>Ingresa el stock disponible</label>
+                <textarea
+                  className="form-control"
+                  type="number"
+                  placeholder="Stock disponible del producto"
+                  required
+                  value={stockProducto}
+                  onChange={(e) => setStockProducto(e.target.value)}
+                />
+              </div>
+              <div className="mb-3">
               <label>Elegir categoría</label>
                 <select
                   className="form-control"
@@ -353,6 +427,10 @@ const ProductoApp = () => {
                 <th>Imagen</th>
                 <th>Precio</th>
                 <th>Descripción</th>
+                <th>Cantidad</th>
+                <th>Tipo peso</th>
+                <th>Codigo</th>
+                <th>Stock</th>
                 <th>Categoría</th>
                 <th>Estado</th>
                 <th>Acción</th>
@@ -383,6 +461,10 @@ const ProductoApp = () => {
                     </td>
                     <td>{producto.montoPrecioProducto}</td>
                     <td>{producto.descripcionProducto}</td>
+                    <td>{producto.cantidadProducto}</td>
+                    <td>{producto.tipoPesoProducto}</td>
+                    <td>{producto.codigoProducto}</td>
+                    <td>{producto.stockProducto}</td>
                     <td>{producto.nombreCategoria || "Sin categoría"}</td>
                     <td>
                       <button

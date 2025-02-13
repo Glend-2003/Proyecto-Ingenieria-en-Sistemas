@@ -141,6 +141,10 @@ BEGIN
         p.imgProducto,  -- Ruta relativa de la imagen
         p.montoPrecioProducto,
         p.descripcionProducto,
+        p.cantidadProducto,
+        p.tipoPesoProducto,
+        p.codigoProducto,
+        p.stockProducto,
         p.idCategoria,
         c.nombreCategoria,  -- Nombre de la categoría
         p.estadoProducto
@@ -191,7 +195,11 @@ BEGIN
         p.nombreProducto, 
         p.imgProducto, 
         p.montoPrecioProducto, 
-        p.descripcionProducto, 
+        p.descripcionProducto,
+        p.cantidadProducto,
+        p.tipoPesoProducto,
+        p.codigoProducto,
+        p.stockProducto,
         p.idCategoria, 
         p.estadoProducto
        

@@ -19,12 +19,16 @@ public interface ProductoRepository extends JpaRepository<Producto, Integer>{
     
     // Sp Add
     @Modifying
-    @Query(value = "{call spAgregarProducto(:nombreProducto, :imgProducto, :montoPrecioProducto, :descripcionProducto, :idCategoria, :estadoProducto)}", nativeQuery = true)
+    @Query(value = "{call spAgregarProducto(:nombreProducto, :imgProducto, :montoPrecioProducto, :descripcionProducto, :cantidadProducto, :tipoPesoProducto, :codigoProducto, :stockProducto, :idCategoria, :estadoProducto)}", nativeQuery = true)
     void saveProcedureProducto(
         @Param("nombreProducto") String nombreProducto, 
         @Param("imgProducto") String imgProducto,
         @Param("montoPrecioProducto") BigDecimal montoPrecioProducto,
         @Param("descripcionProducto") String descripcionProducto,
+        @Param("cantidadProducto") Double cantidadProducto,
+        @Param("tipoPesoProducto") String tipoPesoProducto,
+        @Param("codigoProducto") String codigoProducto,
+        @Param("stockProducto") Integer stockProducto,
         @Param("idCategoria") Integer idCategoria,
         @Param("estadoProducto") boolean estadoProducto
     );
@@ -33,13 +37,17 @@ public interface ProductoRepository extends JpaRepository<Producto, Integer>{
     
     // Sp Update
     @Modifying
-    @Query(value = "{call spActualizarProducto(:idProducto, :nombreProducto, :imgProducto, :montoPrecioProducto, :descripcionProducto, :idCategoria, :estadoProducto)}", nativeQuery = true)
+    @Query(value = "{call spActualizarProducto(:idProducto, :nombreProducto, :imgProducto, :montoPrecioProducto, :descripcionProducto, :cantidadProducto, :tipoPesoProducto, :codigoProducto, :stockProducto, :idCategoria, :estadoProducto)}", nativeQuery = true)
     void updateProcedureProducto(
         @Param("idProducto") Integer idProducto,
         @Param("nombreProducto") String nombreProducto, 
         @Param("imgProducto") String imgProducto,
         @Param("montoPrecioProducto") BigDecimal montoPrecioProducto,
         @Param("descripcionProducto") String descripcionProducto,
+        @Param("cantidadProducto") Double cantidadProducto,
+        @Param("tipoPesoProducto") String tipoPesoProducto,
+        @Param("codigoProducto") String codigoProducto,
+        @Param("stockProducto") Integer stockProducto,
         @Param("idCategoria") Integer idCategoria,
         @Param("estadoProducto") boolean estadoProducto
     );

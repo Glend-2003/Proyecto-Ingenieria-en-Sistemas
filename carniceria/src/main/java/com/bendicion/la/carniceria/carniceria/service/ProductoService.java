@@ -32,6 +32,18 @@ public class ProductoService implements IProductoService{
         if (producto.getNombreProducto() == null || producto.getNombreProducto().trim().isEmpty()) {
             throw new IllegalArgumentException("El nombre del producto no puede estar vacío");
         }
+        if (producto.getCantidadProducto() <= 0) {
+            throw new IllegalArgumentException("La cantidad debe ser mayor a cero");
+        }
+        if (producto.getTipoPesoProducto() == null || producto.getTipoPesoProducto().trim().isEmpty()) {
+            throw new IllegalArgumentException("El tipo de peso del producto no puede estar vacío");
+        }
+        if (producto.getCodigoProducto() == null || producto.getCodigoProducto().trim().isEmpty()) {
+            throw new IllegalArgumentException("El código del producto no puede estar vacío");
+        }
+        if (producto.getStockProducto() < 0) {
+            throw new IllegalArgumentException("El stock debe ser igual o mayor a cero");
+        }
         if (producto.getMontoPrecioProducto() == null || producto.getMontoPrecioProducto().compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("El precio debe ser mayor a cero");
         }
@@ -48,10 +60,14 @@ public class ProductoService implements IProductoService{
                 producto.getImgProducto(),
                 producto.getMontoPrecioProducto(),
                 producto.getDescripcionProducto(),
+                producto.getCantidadProducto(),
+                producto.getTipoPesoProducto(),
+                producto.getCodigoProducto(),
+                producto.getStockProducto(),
                 producto.getCategoria().getIdCategoria(),
                 producto.isEstadoProducto()
         );
-System.out.println("Datos recibidos: " + producto.toString());
+        System.out.println("Datos recibidos: " + producto.toString());
         return producto;
     }
 
@@ -65,6 +81,18 @@ System.out.println("Datos recibidos: " + producto.toString());
         }
         if (producto.getNombreProducto() != null && producto.getNombreProducto().trim().isEmpty()) {
             throw new IllegalArgumentException("El nombre del producto no puede estar vacío");
+        }
+        if (producto.getCantidadProducto() <= 0) {
+            throw new IllegalArgumentException("La cantidad debe ser mayor a cero");
+        }
+        if (producto.getTipoPesoProducto() == null || producto.getTipoPesoProducto().trim().isEmpty()) {
+            throw new IllegalArgumentException("El tipo de peso del producto no puede estar vacío");
+        }
+        if (producto.getCodigoProducto() == null || producto.getCodigoProducto().trim().isEmpty()) {
+            throw new IllegalArgumentException("El código del producto no puede estar vacío");
+        }
+        if (producto.getStockProducto() < 0) {
+            throw new IllegalArgumentException("El stock debe ser igual o mayor a cero");
         }
         if (producto.getMontoPrecioProducto() != null && producto.getMontoPrecioProducto().compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("El precio debe ser mayor a cero");
@@ -83,6 +111,10 @@ System.out.println("Datos recibidos: " + producto.toString());
                 producto.getImgProducto(),
                 producto.getMontoPrecioProducto(),
                 producto.getDescripcionProducto(),
+                producto.getCantidadProducto(),
+                producto.getTipoPesoProducto(),
+                producto.getCodigoProducto(),
+                producto.getStockProducto(),
                 producto.getCategoria() != null ? producto.getCategoria().getIdCategoria() : null,
                 producto.isEstadoProducto()
         );
