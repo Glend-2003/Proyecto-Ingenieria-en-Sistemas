@@ -6,7 +6,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles.min.css';
 import { Offcanvas, Navbar, Container, Nav, Button, ListGroup, Badge, Card} from 'react-bootstrap';
 import { toast, ToastContainer } from "react-toastify";
-import Carrito from '../Carrito/CarritoApp'; // Importamos el componente Carrito
+import Carrito from '../Carrito/CarritoApp.js'; // Importamos el componente Carrito
 import "./Login.css";
 
 function App() {
@@ -87,7 +87,7 @@ function App() {
     login();
   };
 
-  const slideLeft = () => {
+  /*const slideLeft = () => {
     const slider = document.getElementById("product-slider");
     slider.scrollLeft = slider.scrollLeft - 300; // Mueve el scroll 300px a la izquierda
   };
@@ -96,7 +96,7 @@ function App() {
   const slideRight = () => {
     const slider = document.getElementById("product-slider");
     slider.scrollLeft = slider.scrollLeft + 300; // Mueve el scroll 300px a la derecha
-  };
+  };*/
 
   const cargarProductos = async () => {
     try {

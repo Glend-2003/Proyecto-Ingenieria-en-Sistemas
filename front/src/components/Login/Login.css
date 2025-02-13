@@ -1,72 +1,68 @@
- /* Asegúrate de que el contenedor del slider tenga un padding */
- .product-slider-container {
-    position: relative;
-    display: flex;
-    align-items: center;
-    margin-top: 20px;
-    padding: 0 40px; /* Añade espacio para que los botones no estén sobre las tarjetas */
-  }
-  
-  /* Estilos del slider que contiene los productos */
-  .product-slider {
-    display: flex;
-    overflow-x: scroll;
-    scroll-behavior: smooth;
-    gap: 15px;
-    padding: 10px;
-  }
-  
-  /* Estilos de cada tarjeta de producto */
-  .product-card {
-    flex-shrink: 0;
-    width: 18rem;
-    height: 100%; /* Asegura que todas las tarjetas tengan la misma altura */
-  }
-  
-  /* Ajusta las tarjetas para que tengan un tamaño uniforme */
-  .product-card .card {
-    display: flex;
-    flex-direction: column;
-    height: 100%; /* Ocupa todo el espacio disponible */
-  }
-  
-  /* Establece un tamaño fijo para las imágenes */
-  .product-card img {
-    width: 100%; /* Hace que la imagen ocupe todo el ancho de la card */
-    height: 200px; /* Establece una altura fija */
-    object-fit: cover; /* Ajusta la imagen sin deformarla */
-  }
-  
-  /* Ajusta el cuerpo de la tarjeta para que todas tengan el mismo tamaño */
-  .product-card .card-body {
-    flex-grow: 1; /* Hace que el contenido ocupe el espacio restante */
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between; /* Distribuye el contenido uniformemente */
-  }
-  /* Botones de navegación */
-  .slider-icon {
-    background: white;
-    border-radius: 50%;
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 10; /* Asegúrate de que el botón esté sobre las tarjetas */
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    cursor: pointer;
-  }
-  
-  /* Posición del botón izquierdo */
-  .slider-icon.left {
-    left: 10px; /* Ajusta la posición horizontal del botón izquierdo */
-  }
-  
-  /* Posición del botón derecho */
-  .slider-icon.right {
-    right: 10px; /* Ajusta la posición horizontal del botón derecho */
-  }
-  
-  /* Hover en los botones */
-  .slider-icon:hover {
-    opacity: 0.8;
-  } 
+/* Contenedor principal */
+.product-slider-container {
+  max-width: 100%; /* Asegura que el contenedor no sea más ancho que la pantalla */
+  overflow: hidden; /* Evita que el contenido se salga */
+  padding: 10px; /* Agrega un pequeño padding */
+}
+
+/* Organiza las tarjetas en una cuadrícula */
+.product-slider {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Ajuste automático */
+  gap: 20px; /* Espacio entre las tarjetas */
+  justify-content: center; /* Centra el contenido */
+  padding: 10px;
+}
+
+/* Ajuste de cada tarjeta */
+.product-card {
+  width: 100%;
+  max-width: 300px; /* Tamaño máximo de cada tarjeta */
+  margin: auto; /* Centra las tarjetas */
+}
+
+/* Estilos de las tarjetas */
+.product-card .card {
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Asegura que todas tengan la misma altura */
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Ajuste de imágenes */
+.product-card img {
+  width: 100%;
+  height: 200px; /* Mantiene un tamaño uniforme */
+  object-fit: cover; /* Ajusta la imagen sin deformarla */
+}
+
+/* Cuerpo de la tarjeta */
+.product-card .card-body {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Distribuye el contenido */
+  padding: 10px;
+}
+
+/* Botón de "Añadir al carrito" */
+.product-card .add-to-cart {
+  background-color: #800080; /* Color morado */
+  color: white;
+  border: none;
+  padding: 10px;
+  text-align: center;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.product-card .add-to-cart:hover {
+  background-color: #660066; /* Color morado oscuro al pasar el mouse */
+}
+
+/* Oculta cualquier scroll sobrante */
+.product-slider::-webkit-scrollbar {
+  display: none;
+}
