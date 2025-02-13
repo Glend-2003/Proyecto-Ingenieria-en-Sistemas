@@ -22,4 +22,6 @@ public interface IProductoService {
     
         // Buscar 
     public Producto buscarUsuario(int id);
+    
+       
 }

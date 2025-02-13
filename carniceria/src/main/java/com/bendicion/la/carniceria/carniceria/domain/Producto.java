@@ -39,6 +39,18 @@ public class Producto {
     @Column(name = "descripcionProducto")
     private String descripcionProducto;
     
+    @Column(name = "cantidadProducto")
+    private double cantidadProducto;
+    
+    @Column(name = "tipoPesoProducto")
+    private String tipoPesoProducto;
+    
+    @Column(name = "codigoProducto")
+    private String codigoProducto;
+    
+    @Column(name = "stockProducto")
+    private int stockProducto;
+    
     @OneToOne
     @JoinColumn(name = "idCategoria")
     private Categoria categoria;
@@ -49,12 +61,17 @@ public class Producto {
     @OneToMany(mappedBy = "producto", fetch = FetchType.EAGER)
     private List<Promocion> promociones;
 
-    public Producto(int idProducto, String nombreProducto, String imgProducto, BigDecimal montoPrecioProducto, String descripcionProducto, Categoria categoria, boolean estadoProducto) {
+    public Producto(int idProducto, String nombreProducto, String imgProducto, BigDecimal montoPrecioProducto, String descripcionProducto, 
+            double cantidadProducto, String tipoPesoProducto, String codigoProducto, int stockProducto, Categoria categoria, boolean estadoProducto) {
         this.idProducto = idProducto;
         this.nombreProducto = nombreProducto;
         this.imgProducto = imgProducto;
         this.montoPrecioProducto = montoPrecioProducto;
         this.descripcionProducto = descripcionProducto;
+        this.cantidadProducto = cantidadProducto;
+        this.tipoPesoProducto = tipoPesoProducto;
+        this.codigoProducto = codigoProducto;
+        this.stockProducto = stockProducto;
         this.categoria = categoria;
         this.estadoProducto = estadoProducto;
     }
@@ -118,13 +135,10 @@ public class Producto {
         this.estadoProducto = estadoProducto;
     }
 
-    
-    
     @Override
     public String toString() {
         return "Producto{" + "idProducto=" + idProducto + ", nombreProducto=" + nombreProducto + ", imgProducto=" + imgProducto + ", montoPrecioProducto=" + montoPrecioProducto + ", descripcionProducto=" + descripcionProducto + ", categoria=" + categoria + ", estadoProducto=" + estadoProducto + '}';
     }
-
 
     public List<Promocion> getPromociones() {
         return promociones;
@@ -134,6 +148,35 @@ public class Producto {
         this.promociones = promociones;
     }
 
-   
-    
+    public double getCantidadProducto() {
+        return cantidadProducto;
+    }
+
+    public void setCantidadProducto(double cantidadProducto) {
+        this.cantidadProducto = cantidadProducto;
+    }
+
+    public String getTipoPesoProducto() {
+        return tipoPesoProducto;
+    }
+
+    public void setTipoPesoProducto(String tipoPesoProducto) {
+        this.tipoPesoProducto = tipoPesoProducto;
+    }
+
+    public String getCodigoProducto() {
+        return codigoProducto;
+    }
+
+    public void setCodigoProducto(String codigoProducto) {
+        this.codigoProducto = codigoProducto;
+    }
+
+    public int getStockProducto() {
+        return stockProducto;
+    }
+
+    public void setStockProducto(int stockProducto) {
+        this.stockProducto = stockProducto;
+    }
 }

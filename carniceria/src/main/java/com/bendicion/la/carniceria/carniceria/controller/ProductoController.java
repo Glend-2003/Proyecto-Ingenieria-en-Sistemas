@@ -73,6 +73,10 @@ public ResponseEntity<?> addProductoWithImage(
         @RequestParam("nombreProducto") String nombreProducto,
         @RequestParam("montoPrecioProducto") double montoPrecioProducto,
         @RequestParam("descripcionProducto") String descripcionProducto,
+        @RequestParam("cantidadProducto") double cantidadProducto,
+        @RequestParam("tipoPesoProducto") String tipoPesoProducto,
+        @RequestParam("codigoProducto") String codigoProducto,
+        @RequestParam("stockProducto") int stockProducto,
         @RequestParam("idCategoria") int idCategoria,
         @RequestParam("estadoProducto") int estadoProducto,
         @RequestParam("file") MultipartFile file) { 
@@ -101,6 +105,10 @@ public ResponseEntity<?> addProductoWithImage(
         nuevoProducto.setNombreProducto(nombreProducto);
         nuevoProducto.setMontoPrecioProducto(BigDecimal.valueOf(montoPrecioProducto));
         nuevoProducto.setDescripcionProducto(descripcionProducto);
+        nuevoProducto.setCantidadProducto(cantidadProducto);
+        nuevoProducto.setTipoPesoProducto(tipoPesoProducto);
+        nuevoProducto.setCodigoProducto(codigoProducto);
+        nuevoProducto.setStockProducto(stockProducto);
 
         // Crear y asociar la categoría al producto
         Categoria categoria = new Categoria();
@@ -154,6 +162,10 @@ public ResponseEntity<?> addProductoWithImage(
            @RequestParam(value = "file", required = false) MultipartFile file, // Cambiado a "file"
            @RequestParam("montoPrecioProducto") double montoPrecioProducto,
            @RequestParam("descripcionProducto") String descripcionProducto,
+           @RequestParam("cantidadProducto") double cantidadProducto,
+           @RequestParam("tipoPesoProducto") String tipoPesoProducto,
+           @RequestParam("codigoProducto") String codigoProducto,
+           @RequestParam("stockProducto") int stockProducto,
            @RequestParam("idCategoria") int idCategoria,
            @RequestParam("estadoProducto") int estadoProducto) {
    
@@ -164,6 +176,10 @@ public ResponseEntity<?> addProductoWithImage(
            productoExistente.setNombreProducto(nombreProducto);
            productoExistente.setMontoPrecioProducto(BigDecimal.valueOf(montoPrecioProducto));
            productoExistente.setDescripcionProducto(descripcionProducto);
+           productoExistente.setCantidadProducto(cantidadProducto);
+           productoExistente.setTipoPesoProducto(tipoPesoProducto);
+           productoExistente.setCodigoProducto(codigoProducto);
+           productoExistente.setStockProducto(stockProducto);
    
            // Actualizar la categoría del producto
            Categoria categoria = new Categoria();
@@ -211,20 +227,15 @@ public ResponseEntity<?> addProductoWithImage(
        }
    }
 
-
-
-
     // Eliminar producto
     @DeleteMapping("/eliminar/{id}")
-public ResponseEntity<Boolean> deleteProducto(@PathVariable int id) {
-    boolean eliminado = productoService.deleteProducto(id);
-    if (eliminado) {
-        return ResponseEntity.ok(true);
-    } else {
-        
-        return ResponseEntity.ok(false);
+    public ResponseEntity<Boolean> deleteProducto(@PathVariable int id) {
+        boolean eliminado = productoService.deleteProducto(id);
+        if (eliminado) {
+            return ResponseEntity.ok(true);
+        } else {
+
+            return ResponseEntity.ok(false);
+        }
     }
-}
-
-
 }
