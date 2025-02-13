@@ -1231,6 +1231,10 @@ CREATE TABLE `tbproducto` (
   `imgProducto` varchar(255) DEFAULT NULL,
   `montoPrecioProducto` decimal(38,2) DEFAULT NULL,
   `descripcionProducto` varchar(255) DEFAULT NULL,
+  `cantidadProducto` double DEFAULT NULL,
+  `tipoPesoProducto` varchar(50) DEFAULT NULL,
+  `codigoProducto` varchar(50) DEFAULT NULL,
+  `stockProducto` int(11) DEFAULT NULL,
   `idCategoria` int(11) DEFAULT NULL,
   `estadoProducto` tinyint(1) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -1239,11 +1243,11 @@ CREATE TABLE `tbproducto` (
 -- Volcado de datos para la tabla `tbproducto`
 --
 
-INSERT INTO `tbproducto` (`idProducto`, `nombreProducto`, `imgProducto`, `montoPrecioProducto`, `descripcionProducto`, `idCategoria`, `estadoProducto`) VALUES
-(6, 'Producto1', '911fe0f1-9987-4506-8a1a-7393ac03f08d.jpg', 2300.00, 'Descripcion de prueba', 5, 1),
-(7, 'PruebaCambios', 'd8d76da7-8f90-4c6c-95a0-5dba9e97e89e.jpg', 9000.00, 'Ayer la probe', 7, 0),
-(8, 'Holaa', 'd0991041-874a-4171-a5c9-9b7f0db2bb4a.png', 2222.00, 'Depende', 4, 1),
-(9, 'PruebaFinal', '8bdd33a9-ca23-4b99-a197-ca570489ce98.jpg', 3020.00, 'ayer bla bla bla', 3, 1);
+INSERT INTO `tbproducto` (`idProducto`, `nombreProducto`, `imgProducto`, `montoPrecioProducto`, `descripcionProducto`, `cantidadProducto`, `tipoPesoProducto`, `codigoProducto`, `stockProducto`, `idCategoria`, `estadoProducto`) VALUES
+(6, 'Producto1', '911fe0f1-9987-4506-8a1a-7393ac03f08d.jpg', 2300.00, 'Descripcion de prueba', 100, 'Gr', 'skd002', 10, 5, 1),
+(7, 'PruebaCambios', 'd8d76da7-8f90-4c6c-95a0-5dba9e97e89e.jpg', 9000.00, 'Ayer la probe', 1, 'Ud', 'sgy882', 7, 7, 0),
+(8, 'Holaa', 'd0991041-874a-4171-a5c9-9b7f0db2bb4a.png', 2222.00, 'Depende', 2, 'Kg', 'bnw225', 4, 4, 1),
+(9, 'PruebaFinal', '8bdd33a9-ca23-4b99-a197-ca570489ce98.jpg', 3020.00, 'ayer bla bla bla', 1, 'Ud', 'fkl490', 20, 3, 1);
 
 -- --------------------------------------------------------
 
