@@ -74,10 +74,10 @@ const ProductoApp = () => {
     if (
       !nombreProducto.trim() ||
       !descripcionProducto.trim() ||
-      !cantidadProducto.trim() ||
+      !cantidadProducto < 0 ||
       !tipoPesoProducto.trim() ||
       !codigoProducto.trim() ||
-      !stockProducto.trim() ||
+      !stockProducto < 0 ||
       !montoPrecioProducto ||
       !idCategoria
     ) {
