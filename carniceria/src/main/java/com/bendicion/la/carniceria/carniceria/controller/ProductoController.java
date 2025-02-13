@@ -146,16 +146,17 @@ public ResponseEntity<?> addProductoWithImage(
     
 
    // Actualizar producto con imagen
+  
    @PutMapping(value = "/actualizar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
    public ResponseEntity<?> updateProducto(
            @RequestParam("idProducto") int idProducto,
            @RequestParam("nombreProducto") String nombreProducto,
+           @RequestParam(value = "file", required = false) MultipartFile file, // Cambiado a "file"
            @RequestParam("montoPrecioProducto") double montoPrecioProducto,
            @RequestParam("descripcionProducto") String descripcionProducto,
            @RequestParam("idCategoria") int idCategoria,
-           @RequestParam("estadoProducto") int estadoProducto,
-           @RequestParam(value = "file", required = false) MultipartFile file) {
-
+           @RequestParam("estadoProducto") int estadoProducto) {
+   
        try {
            // Crear y configurar el objeto Producto
            Producto productoExistente = new Producto();
@@ -163,42 +164,42 @@ public ResponseEntity<?> addProductoWithImage(
            productoExistente.setNombreProducto(nombreProducto);
            productoExistente.setMontoPrecioProducto(BigDecimal.valueOf(montoPrecioProducto));
            productoExistente.setDescripcionProducto(descripcionProducto);
-
+   
            // Actualizar la categoría del producto
            Categoria categoria = new Categoria();
            categoria.setIdCategoria(idCategoria);
            productoExistente.setCategoria(categoria);
-
+   
            productoExistente.setEstadoProducto(estadoProducto == 1);
-
+   
            if (file != null && !file.isEmpty()) {
                // Verificar o crear el directorio de imágenes
                File directory = new File(IMAGE_DIRECTORY);
                if (!directory.exists()) {
                    directory.mkdirs();
                }
-
+   
                // Eliminar la imagen anterior si existe
                if (productoExistente.getImgProducto() != null) {
                    Path oldImagePath = Paths.get(IMAGE_DIRECTORY, productoExistente.getImgProducto());
                    Files.deleteIfExists(oldImagePath);
                }
-
+   
                // Generar un nombre único para la nueva imagen
                String fileExtension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.'));
                String uniqueFileName = UUID.randomUUID().toString() + fileExtension;
-
+   
                // Guardar el archivo de imagen
                Path filePath = Paths.get(IMAGE_DIRECTORY, uniqueFileName);
                Files.copy(file.getInputStream(), filePath);
-
+   
                // Asignar el nuevo nombre de la imagen al producto
                productoExistente.setImgProducto(uniqueFileName);
            }
-
+   
            // Guardar los cambios del producto
            Producto productoActualizado = productoService.updateProducto(productoExistente);
-
+   
            // Respuesta de éxito
            Map<String, Object> response = new HashMap<>();
            response.put("message", "Producto actualizado con éxito con ID: " + productoActualizado.getIdProducto());

@@ -1,19 +1,16 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { FaKey, FaTrash } from "react-icons/fa";
+import { FaKey, FaTrash, FaEdit } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Swal from "sweetalert2";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit } from "@fortawesome/free-solid-svg-icons";
 import useAuth from "../../hooks/useAuth";
 import SideBar from "../SideBar/SideBar";
 import { Button, Modal } from "react-bootstrap";
 import "./Usuarios.css";
 import FooterApp from "../Footer/FooterApp";
 import PaginacionApp from "../Paginacion/PaginacionApp";
-import {faExclamationTriangle} from "@fortawesome/free-solid-svg-icons";
 
 const GestionarUsuario = () => {
   const [users, setUsers] = useState([]);
@@ -23,7 +20,7 @@ const GestionarUsuario = () => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const { usuario} = useAuth();
+  const { usuario } = useAuth();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
@@ -41,76 +38,38 @@ const GestionarUsuario = () => {
     }
   };
 
-  const agregarUsuario = async (usuario) => {
-    const email = usuario.correoUsuario.trim();
-    const nombre = usuario.nombreUsuario.trim();
-    const primerApellido = usuario.primerApellido.trim();
-    const segundoApellido = usuario.segundoApellido.trim();
-    const contrasenia = usuario.contraseniaUsuario.trim();
+  // Funciones para cerrar modales
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setUserEdit(null);
+    setPassword("");
+    setConfirmPassword("");
+  };
 
-    if (!email || !nombre || !primerApellido || !segundoApellido) {
-      toast.error(
-        "Todos los campos son obligatorios y no pueden estar vacíos o contener solo espacios"
-      );
-      return;
-    }
+  const handleClosePasswordModal = () => {
+    setShowPasswordModal(false);
+    setPassword("");
+    setConfirmPassword("");
+  };
 
-    if (contrasenia.length < 8) {
-      toast.error("La contraseña debe tener al menos 8 caracteres");
-      return;
-    }
-
-    if (contrasenia !== confirmPassword) {
-      toast.error("Las contraseñas no coinciden");
-      return;
-    }
-
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const userData = { ...userEdit, contraseniaUsuario: password };
     try {
-      await axios.post("http://localhost:8080/usuario/registrar", usuario);
-      toast.success("Usuario agregado con éxito");
+      if (userEdit?.idUsuario) {
+        await axios.put("http://localhost:8080/usuario/actualizar", userData);
+        toast.success("Usuario actualizado con éxito");
+      } else {
+        await axios.post("http://localhost:8080/usuario/registrar", userData);
+        toast.success("Usuario agregado con éxito");
+      }
       cargarUsuarios();
       handleCloseModal();
     } catch (error) {
-      console.error("Error al agregar el usuario:", error);
-      toast.error("Ocurrió un error al agregar el usuario");
+      console.error("Error al procesar el usuario:", error);
+      toast.error("Ocurrió un error al procesar el usuario");
     }
   };
-
-  const actualizarUsuario = async (usuario) => {
-    try {
-      await axios.put("http://localhost:8080/usuario/actualizar", usuario);
-      toast.success("Usuario actualizado con éxito");
-      cargarUsuarios();
-      handleCloseModal();
-    } catch (error) {
-      console.error("Error al actualizar usuario:", error);
-      toast.error("Ocurrió un error al actualizar el usuario");
-    }
-  };
-
-  const actualizarContrasena = async (user) => {
-    if (password !== confirmPassword) {
-      toast.error("Las contraseñas no coinciden");
-      return;
-    }
-    
-    try {
-      // Envía el objeto `Usuario` con `idUsuario` y `contraseniaUsuario`
-      await axios.put("http://localhost:8080/usuario/actualizarContrasena", {
-        idUsuario: user.idUsuario,
-        contraseniaUsuario: password,
-        // Agrega otros atributos necesarios si el backend los requiere
-      });
-      
-      toast.success("Contraseña actualizada con éxito");
-      cargarUsuarios();
-      handleClosePasswordModal();
-    } catch (error) {
-      console.error("Error al actualizar la contraseña:", error);
-      toast.error("Ocurrió un error al actualizar la contraseña");
-    }
-  };
-  
 
   const handleDelete = async (idUsuario) => {
     const { isConfirmed } = await Swal.fire({
@@ -135,56 +94,44 @@ const GestionarUsuario = () => {
     }
   };
 
-  const handleShowPasswordModal = (user) => {
-    setUserEdit(user);
-    setShowPasswordModal(true);
-  };
+  const handlePasswordUpdate = async (e) => {
+    e.preventDefault();
+    if (password !== confirmPassword) {
+      toast.error("Las contraseñas no coinciden");
+      return;
+    }
 
-  const handleClosePasswordModal = () => {
-    setShowPasswordModal(false);
-    setPassword("");
-    setConfirmPassword("");
+    try {
+      await axios.put("http://localhost:8080/usuario/actualizarContrasena", {
+        idUsuario: userEdit.idUsuario,
+        contraseniaUsuario: password,
+      });
+      toast.success("Contraseña actualizada con éxito");
+      handleClosePasswordModal();
+    } catch (error) {
+      console.error("Error al actualizar la contraseña:", error);
+      toast.error("Ocurrió un error al actualizar la contraseña");
+    }
   };
 
   const handleSearchChange = (e) => setSearch(e.target.value);
 
-  const filteredUsers = search
-    ? users.filter((user) =>
-        user.nombreUsuario.toLowerCase().includes(search.toLowerCase())
-      )
-    : users;
+  const filteredUsers = users.filter((user) =>
+    user.nombreUsuario.toLowerCase().includes(search.toLowerCase())
+  );
 
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentUsers = filteredUsers.slice(indexOfFirstItem, indexOfLastItem);
-
-  const handleNextPage = () => {
-    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
-  };
-
-  const handlePreviousPage = () => {
-    if (currentPage > 1) setCurrentPage(currentPage - 1);
-  };
-
-  const handleShowModal = (user = null) => {
-    setUserEdit(user);
-    setShowModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setShowModal(false);
-    setUserEdit(null);
-    setPassword("");
-    setConfirmPassword("");
-  };
+  const currentUsers = filteredUsers.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   return (
     <div className="content-container">
-      <SideBar usuario={usuario} /> 
+      <SideBar usuario={usuario} />
       <div className="container mt-5">
         <h1>Gestión de usuarios</h1>
-        <Button className="custom-button" onClick={() => handleShowModal()}>
+        <Button className="custom-button" onClick={() => setShowModal(true)}>
           Agregar usuario nuevo
         </Button>
         <div className="mb-2"></div>
@@ -197,25 +144,12 @@ const GestionarUsuario = () => {
           onChange={handleSearchChange}
         />
 
-        <Modal show={showModal} onHide={handleCloseModal}>
+        <Modal show={showModal} onHide={() => setShowModal(false)}>
           <Modal.Header closeButton>
-            <Modal.Title>
-              {userEdit && userEdit.idUsuario
-                ? "Actualizar Usuario"
-                : "Agregar Usuario"}
-            </Modal.Title>
+            <Modal.Title>{userEdit ? "Actualizar Usuario" : "Agregar Usuario"}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (userEdit && userEdit.idUsuario) {
-                  actualizarUsuario(userEdit);
-                } else {
-                  agregarUsuario({ ...userEdit, contraseniaUsuario: password });
-                }
-              }}
-            >
+            <form onSubmit={handleSubmit}>
               <div className="mb-3">
                 <label>Correo Electrónico</label>
                 <input
@@ -223,61 +157,44 @@ const GestionarUsuario = () => {
                   type="email"
                   placeholder="Correo Electrónico"
                   required
-                  value={userEdit ? userEdit.correoUsuario : ""}
-                  onChange={(e) =>
-                    setUserEdit({ ...userEdit, correoUsuario: e.target.value })
-                  }
+                  value={userEdit?.correoUsuario || ""}
+                  onChange={(e) => setUserEdit({ ...userEdit, correoUsuario: e.target.value })}
                 />
               </div>
               <div className="row mb-3">
                 <div className="col-sm-6">
-                  <label>Nombre:</label>
+                  <label>Nombre</label>
                   <input
                     className="form-control"
                     type="text"
                     placeholder="Nombre"
                     required
-                    value={userEdit ? userEdit.nombreUsuario : ""}
-                    onChange={(e) =>
-                      setUserEdit({
-                        ...userEdit,
-                        nombreUsuario: e.target.value,
-                      })
-                    }
+                    value={userEdit?.nombreUsuario || ""}
+                    onChange={(e) => setUserEdit({ ...userEdit, nombreUsuario: e.target.value })}
                   />
                 </div>
                 <div className="col-sm-6">
-                  <label>Primer apellido</label>
+                  <label>Primer Apellido</label>
                   <input
                     className="form-control"
                     type="text"
-                    placeholder="Primer apellido"
+                    placeholder="Primer Apellido"
                     required
-                    value={userEdit ? userEdit.primerApellido : ""}
-                    onChange={(e) =>
-                      setUserEdit({
-                        ...userEdit,
-                        primerApellido: e.target.value,
-                      })
-                    }
+                    value={userEdit?.primerApellido || ""}
+                    onChange={(e) => setUserEdit({ ...userEdit, primerApellido: e.target.value })}
                   />
                 </div>
               </div>
               <div className="row mb-3">
                 <div className="col-sm-6">
-                  <label>Segundo apellido</label>
+                  <label>Segundo Apellido</label>
                   <input
                     className="form-control"
                     type="text"
-                    placeholder="Segundo apellido"
+                    placeholder="Segundo Apellido"
                     required
-                    value={userEdit ? userEdit.segundoApellido : ""}
-                    onChange={(e) =>
-                      setUserEdit({
-                        ...userEdit,
-                        segundoApellido: e.target.value,
-                      })
-                    }
+                    value={userEdit?.segundoApellido || ""}
+                    onChange={(e) => setUserEdit({ ...userEdit, segundoApellido: e.target.value })}
                   />
                 </div>
               </div>
@@ -294,7 +211,7 @@ const GestionarUsuario = () => {
                       onChange={(e) => setPassword(e.target.value)}
                     />
                   </div>
-                  <div className="mb-4">
+                  <div className="mb-3">
                     <label>Confirmar Contraseña</label>
                     <input
                       className="form-control"
@@ -312,115 +229,103 @@ const GestionarUsuario = () => {
               </Button>
             </form>
           </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={handleCloseModal}>
-              Cerrar
-            </Button>
-          </Modal.Footer>
         </Modal>
 
-        <Modal show={showPasswordModal} onHide={handleClosePasswordModal}>
-  <Modal.Header closeButton>
-    <Modal.Title>Cambiar Contraseña</Modal.Title>
-  </Modal.Header>
-  <Modal.Body>
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        actualizarContrasena(userEdit); // Pasa el objeto `userEdit`
-      }}
-    >
-      <div className="mb-3">
-        <label>Contraseña</label>
-        <input
-          className="form-control"
-          type="password"
-          placeholder="Nueva Contraseña"
-          required
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </div>
-      <div className="mb-3">
-        <label>Confirmar Contraseña</label>
-        <input
-          className="form-control"
-          type="password"
-          placeholder="Confirmar Contraseña"
-          required
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-        />
-      </div>
-      <Button variant="primary" type="submit">
-        Cambiar Contraseña
-      </Button>
-    </form>
-  </Modal.Body>
-</Modal>
-
+        <Modal show={showPasswordModal} onHide={() => setShowPasswordModal(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>Cambiar Contraseña</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <form onSubmit={handlePasswordUpdate}>
+              <div className="mb-3">
+                <label>Contraseña</label>
+                <input
+                  className="form-control"
+                  type="password"
+                  placeholder="Nueva Contraseña"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
+              <div className="mb-3">
+                <label>Confirmar Contraseña</label>
+                <input
+                  className="form-control"
+                  type="password"
+                  placeholder="Confirmar Contraseña"
+                  required
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+              </div>
+              <Button variant="primary" type="submit">
+                Cambiar Contraseña
+              </Button>
+            </form>
+          </Modal.Body>
+        </Modal>
 
         <ToastContainer />
 
         <div className="table-responsive mt-5">
-          <table className="table table-hover table-bordered">
+          <table className="table table-hover table-bordered table-lg">
             <thead>
               <tr>
                 <th>No.</th>
                 <th>Nombre</th>
-                <th>Primer apellido</th>
-                <th>Segundo apellido</th>
+                <th>Primer Apellido</th>
+                <th>Segundo Apellido</th>
                 <th>Correo</th>
                 <th>Estado</th>
-                <th>Acción</th>
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
               {currentUsers.length === 0 ? (
-                    <tr className="warning no-result">
-                      <td colSpan="7" className="text-center">
-                        <FontAwesomeIcon icon={faExclamationTriangle} />No hay registros.
-                      </td>
-                    </tr>
-                  ) : 
-                  currentUsers.map((user, index) => (
-                <tr key={user.idUsuario}>
-                  <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
-                  <td>{user.nombreUsuario}</td>
-                  <td>{user.primerApellido}</td>
-                  <td>{user.segundoApellido}</td>
-                  <td>{user.correoUsuario}</td>
-                  <td>
-                    <button
-                      className={`btn btn-sm ${
-                        user.estadoUsuario ? "btn-success" : "btn-danger"
-                      }`}
-                    >
-                      {user.estadoUsuario ? "Activo" : "Inactivo"}
-                    </button>
-                  </td>
-                  <td>
-                    <button
-                      className="btn btn-warning btn-sm me-2"
-                      onClick={() => handleShowModal(user)}
-                    >
-                      <FontAwesomeIcon icon={faEdit} />
-                    </button>
-                    <button
-                      className="btn btn-danger btn-sm me-2"
-                      onClick={() => handleDelete(user.idUsuario)}
-                    >
-                      <FaTrash />
-                    </button>
-                    <button
-                      className="btn btn-info btn-sm"
-                      onClick={() => handleShowPasswordModal(user)}
-                    >
-                      <FaKey />
-                    </button>
+                <tr>
+                  <td colSpan="7" className="text-center">
+                    No hay registros.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                currentUsers.map((user, index) => (
+                  <tr key={user.idUsuario}>
+                    <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
+                    <td>{user.nombreUsuario}</td>
+                    <td>{user.primerApellido}</td>
+                    <td>{user.segundoApellido}</td>
+                    <td>{user.correoUsuario}</td>
+                    <td>
+                      <button
+                        className={`btn btn-sm ${user.estadoUsuario ? "btn-success" : "btn-danger"}`}
+                      >
+                        {user.estadoUsuario ? "Activo" : "Inactivo"}
+                      </button>
+                    </td>
+                    <td>
+                      <button
+                        className="btn btn-warning btn-sm me-2"
+                        onClick={() => { setUserEdit(user); setShowModal(true); }}
+                      >
+                        <FaEdit />
+                      </button>
+                      <button
+                        className="btn btn-danger btn-sm me-2"
+                        onClick={() => handleDelete(user.idUsuario)}
+                      >
+                        <FaTrash />
+                      </button>
+                      <button
+                        className="btn btn-info btn-sm"
+                        onClick={() => { setUserEdit(user); setShowPasswordModal(true); }}
+                      >
+                        <FaKey />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -428,8 +333,6 @@ const GestionarUsuario = () => {
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={setCurrentPage}
-          onNextPage={handleNextPage}
-          onPreviousPage={handlePreviousPage}
         />
       </div>
       <FooterApp />

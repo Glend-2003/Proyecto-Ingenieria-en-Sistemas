@@ -71,6 +71,18 @@ const SideBar = ({ usuario }) => {
                                 Promociones
                             </NavLink>
                         </li>
+
+                        <li className="nav-item">
+                            <NavLink 
+                                className={({ isActive }) => isActive ? "nav-link active link-light" : "nav-link link-body-emphasis"} 
+                                to="/TipoPagoApp" 
+                                style={({ isActive }) => ({
+                                    backgroundColor: isActive ? 'rgb(4, 36, 64)' : 'transparent',
+                                })}
+                            >
+                                Tipo Pago
+                            </NavLink>
+                        </li>
                     </ul>
                 </div>
                 <div>
