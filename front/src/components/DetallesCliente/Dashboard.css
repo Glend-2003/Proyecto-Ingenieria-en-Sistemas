@@ -1,0 +1,124 @@
+.dashboard-container {
+    display: flex;
+    height: 100vh; /* Ocupa toda la pantalla */
+}
+
+/* Sidebar */
+.sidebar-container {
+    width: 250px;
+    background-color: #ffffff; /* Color igual al contenido */
+    color: #333;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #2c3e50;
+}
+
+/* Navegación */
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #2c3e50;
+    padding: 10px 15px;
+    margin: 5px 0;
+    font-size: 1rem;
+    border-radius: 5px;
+    transition: background 0.3s, color 0.3s;
+}
+
+.sidebar-link:hover {
+    background-color: #e2e6ea;
+    color: #1a252f;
+}
+
+.sidebar-link .icon {
+    margin-right: 10px;
+    font-size: 1.2rem;
+}
+
+/* Estilo para la opción de cerrar sesión */
+.sidebar-link.logout {
+    margin-top: auto;
+    color: #e74c3c;
+}
+
+.sidebar-link.logout:hover {
+    background-color: #f8d7da;
+    color: #c0392b;
+}
+
+/* Contenido principal */
+.content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px;
+    background-color: #ffffff;
+    top: -50px;
+}
+
+/* Tarjetas */
+.cards-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Tres columnas */
+    gap: 20px;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 160px;
+    height: 120px;
+    background: #f8f9fa; /* Mismo color del fondo */
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    background-color: #e2e6ea;
+}
+
+.card .icon {
+    font-size: 40px;
+    margin-bottom: 10px;
+    color: #555;
+}
+
+/* Estilo especial para cerrar sesión */
+.card.logout {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.card.logout:hover {
+    background-color: #c0392b;
+}
