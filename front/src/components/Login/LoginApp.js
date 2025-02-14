@@ -6,7 +6,10 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles.min.css';
 import { Offcanvas, Navbar, Container, Nav, Button, ListGroup, Badge, Card} from 'react-bootstrap';
 import { toast, ToastContainer } from "react-toastify";
-import Carrito from '../Carrito/CarritoApp.js'; // Importamos el componente Carrito
+import Carrito from '../Carrito/CarritoApp.js'; 
+import DetalleProducto from '../ContenidoProducto/DetalleProducto.js'; // Asegúrate de que la ruta sea correcta
+
+// Importamos el componente Carrito
 import "./Login.css";
 
 function App() {
@@ -23,7 +26,7 @@ function App() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    localStorage.setItem("carrito", JSON.stringify(cart));
+    //localStorage.setItem("carrito", JSON.stringify(cart));
     cargarProductos();
   }, [cart]);
 
@@ -80,6 +83,10 @@ function App() {
         );
         setLoginStatus('Error en el servidor o en las credenciales');
       });
+  };
+
+  const verDetalles = (idProducto) => {
+    navigate(`/producto/${idProducto}`); // Redirige a la página de detalles con el ID del producto
   };
 
   const handleSubmit = (e) => {
@@ -248,8 +255,8 @@ function App() {
                   {/* Precio del producto */}
                   {/*  Redirige al detalle del producto */}
                   <div>  
-                    <Button variant="primary" onClick={()=> navigate(`/producto/${product.id}`)}>Ver Producto</Button>{" "}
-                  
+                   {/* <Button variant="primary" onClick={()=> navigate(`/producto/${product.idProducto}`)}>Ver Producto</Button>{" "}*/}
+                    <Button onClick={() => verDetalles(product.idProducto)}>Ver detalles</Button>
                     <Button
                         variant="success"
                         size="sm"

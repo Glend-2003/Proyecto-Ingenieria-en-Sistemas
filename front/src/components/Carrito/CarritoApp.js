@@ -2,6 +2,7 @@ import React from 'react';
 import { Offcanvas, ListGroup, Button, Badge} from 'react-bootstrap';
 import './Carrito.css';
 
+
 function CarritoApp({ showCart, handleShowCart, cart, removeFromCart }) {
   const groupedCart = cart.reduce((acc, item) => {
     const existingItem = acc.find((i) => i.idProducto === item.idProducto);

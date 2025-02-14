@@ -44,7 +44,12 @@ public class ProductoController {
     private static final String IMAGE_DIRECTORY = "src/main/resources/static/images";
     @Autowired
     private ProductoService productoService;//Cambiar a IProductoService...
-
+    
+    @GetMapping("/{id}")
+    public ResponseEntity<Producto> ObtenerPorId(@PathVariable int id) {
+        return ResponseEntity.ok(productoService.ObtenerPorId(id));
+    }
+    
     // Obtener lista de productos
     @GetMapping("/")
     public ResponseEntity<List<Producto>> listProductos() {

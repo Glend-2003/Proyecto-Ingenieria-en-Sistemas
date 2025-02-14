@@ -71,6 +71,10 @@ public class ProductoService implements IProductoService{
         return producto;
     }
 
+    //Método para obtener por id
+    public Producto ObtenerPorId(int id) {
+        return productoRepo.buscarProducto(id);
+    }
     // Método para actualizar un producto
     @Transactional
     public Producto updateProducto(Producto producto) {
