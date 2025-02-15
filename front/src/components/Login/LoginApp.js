@@ -5,12 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles.min.css';
 import { Offcanvas, Navbar, Container, Nav, Button, ListGroup, Badge, Card} from 'react-bootstrap';
-import { toast, ToastContainer } from "react-toastify";
 import Carrito from '../Carrito/CarritoApp.js'; 
-import DetalleProducto from '../ContenidoProducto/DetalleProducto.js'; // Asegúrate de que la ruta sea correcta
-
-// Importamos el componente Carrito
-import "./Login.css";
+import ListaProductosApp from '../Catalogo/ListaProductosApp.js';
 
 function App() {
   const [loginData, setLoginData] = useState({
@@ -19,16 +15,14 @@ function App() {
   });
   const [showSidebar, setShowSidebar] = useState(false);
   const [showCart, setShowCart] = useState(false);
-  const [loginStatus, setLoginStatus] = useState('');
   const savedCart = JSON.parse(localStorage.getItem("carrito")) || [];
-  const [cart, setCart] = useState(savedCart); // Productos en el carrito
-  const [productos, setProductos] = useState([]); // Lista de productos disponibles
+  const [loginStatus, setLoginStatus] = useState('');
   const navigate = useNavigate();
+  const [cart, setCart] = useState([]);
 
-  useEffect(() => {
-    //localStorage.setItem("carrito", JSON.stringify(cart));
-    cargarProductos();
-  }, [cart]);
+  const addToCart = (producto) => {
+    setCart((prevCart) => [...prevCart, producto]);
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -40,14 +34,6 @@ function App() {
 
   const handleShowSidebar = () => setShowSidebar(!showSidebar);
   const handleShowCart = () => setShowCart(!showCart);
-
-  const addToCart = (producto) => {
-    setCart((prevCart) => [...prevCart, producto]);
-  };
-
-  const removeFromCart = (indexToRemove) => {
-    setCart((prevCart) => prevCart.filter((_, idx) => idx !== indexToRemove));
-  };
 
   const login = () => {
     axios
@@ -85,36 +71,15 @@ function App() {
       });
   };
 
-  const verDetalles = (idProducto) => {
-    navigate(`/producto/${idProducto}`); // Redirige a la página de detalles con el ID del producto
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
     login();
   };
 
-  /*const slideLeft = () => {
-    const slider = document.getElementById("product-slider");
-    slider.scrollLeft = slider.scrollLeft - 300; // Mueve el scroll 300px a la izquierda
+  const removeFromCart = (indexToRemove) => {
+    setCart((prevCart) => prevCart.filter((_, idx) => idx !== indexToRemove));
   };
-
-  // Función para desplazar el slider hacia la derecha
-  const slideRight = () => {
-    const slider = document.getElementById("product-slider");
-    slider.scrollLeft = slider.scrollLeft + 300; // Mueve el scroll 300px a la derecha
-  };*/
-
-  const cargarProductos = async () => {
-    try {
-      const response = await axios.get("http://localhost:8080/producto/");
-      setProductos(response.data);
-    } catch (error) {
-      console.error("Error al cargar productos:", error);
-      toast.error("Ocurrió un error al cargar los productos");
-    }
-  };
-
+  
   return (
     <>
       {/* Navbar */}
@@ -196,88 +161,13 @@ function App() {
         </Offcanvas.Body>
       </Offcanvas>
 
-      {/* Productos Disponibles 
-      <Container className="text-center mt-5">
-        <h5>Productos Disponibles</h5>
-        <ListGroup className="mb-4">
-          {productos.map((product) => (
-            <ListGroup.Item key={product.id}>
-              {product.imgProducto ? (
-                <img
-                  src={`http://localhost:8080/producto/images/${product.imgProducto}`}
-                  alt={product.imgProducto}
-                  width="50"
-                />
-              ) : (
-                "No disponible"
-              )}
-              {product.nombreProducto} - ₡{product.montoPrecioProducto} 1 Kg
-              <Button
-                variant="success"
-                size="sm"
-                className="float-end"
-                onClick={() => addToCart(product)}
-              >
-                Agregar
-              </Button>
-            </ListGroup.Item>
-          ))}
-        </ListGroup>
-      </Container>
-      */}
-      {/* Contenedor del slider */}
-      <div id="product-slider" className="product-slider">
-        {/* Muestra un mensaje de carga si no hay productos */}
-        {productos.length === 0 ? (
-          <p>Cargando productos...</p>
-        ) : (
-          // Mapea los productos y crea una tarjeta para cada uno
-          productos.map((product) => (
-            <div className="product-card" key={product.id}>
-              <Card style={{ width: "18rem" }}>
-                {/* Imagen del producto, asegurando la ruta correcta */}
-                <Card.Img
-                  variant="top"
-                  src={`http://localhost:8080/producto/images/${product.imgProducto}`}
-                />
+      {/* Lista de productos */}
+      <ListaProductosApp addToCart={addToCart} />
 
-              <Card.Body>
-                <Card.Title>{product.nombreProducto}</Card.Title>
-                  {/* Nombre del producto */}
-                  <Card.Text>
-                    <strong>Precio:</strong>{" "}
-                    {new Intl.NumberFormat("es-CR", {
-                      style: "currency",
-                      currency: "CRC",
-                      minimumFractionDigits: 0,
-                    }).format(product.montoPrecioProducto)}
-                  </Card.Text>
-                  {/* Precio del producto */}
-                  {/*  Redirige al detalle del producto */}
-                  <div>  
-                   {/* <Button variant="primary" onClick={()=> navigate(`/producto/${product.idProducto}`)}>Ver Producto</Button>{" "}*/}
-                    <Button onClick={() => verDetalles(product.idProducto)}>Ver detalles</Button>
-                    <Button
-                        variant="success"
-                        size="sm"
-                        className="float-end"
-                        onClick={() => addToCart(product)}
-                      >
-                      Agregar
-                    </Button>
-                  </div>
-                  {/* Botón para ver más detalles */}
-                   
-                    
-                  
-                </Card.Body>
-              </Card>
-            </div>
-          ))
-        )}
-      </div>
       {/* Carrito */}
-      <Carrito showCart={showCart} handleShowCart={handleShowCart} cart={cart} removeFromCart={removeFromCart} />
+      <Carrito showCart={showCart} handleShowCart={handleShowCart} cart={cart} 
+        removeFromCart={removeFromCart} 
+      />
     </>
   );
 }

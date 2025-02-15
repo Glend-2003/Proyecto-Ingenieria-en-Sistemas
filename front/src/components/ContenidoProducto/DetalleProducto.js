@@ -10,17 +10,15 @@ const DetalleProducto = () => {
   const [product, setProduct] = useState(null); // Estado para almacenar los detalles del producto
   const [loading, setLoading] = useState(true); // Estado para manejar la carga de datos
   const [error, setError] = useState(""); // Estado para manejar errores
-  const { addToCart, setShowCartMenu, errorMessage } = useState(); // Funciones del contexto del carrito
-  const [quantity, setQuantity] = useState(1); // Estado para manejar la cantidad seleccionada del producto
+  //const { addToCart, setShowCartMenu, errorMessage } = useState(); // Funciones del contexto del carrito
+  const [quantity, setQuantity] = useState(1); // Estado para manejar la cantidad seleccionada del product
 
   // useEffect se ejecuta al montar el componente y cuando cambia el ID del producto
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         // Realiza una petición GET para obtener los detalles del producto según el ID
-        const response = await axios.get(
-          `http://localhost:8080/producto/${id}`
-        );
+        const response = await axios.get(`http://localhost:8080/producto/${id}`);
         setProduct(response.data); // Guarda la información del producto en el estado
       } catch (err) {
         setError("Error al cargar el producto"); // Si hay un error, lo almacena en el estado
@@ -68,9 +66,10 @@ const DetalleProducto = () => {
           <Col md={6}>
             <Card.Img
               variant="top"
-              src={`http://localhost:8080${product.imgProducto}`} // Obtiene la imagen desde el servidor
+              src={`http://localhost:8080${product.imgProducto}`} 
               className="product-detail-img"
             />
+
           </Col>
 
           {/* Columna con los detalles del producto */}
