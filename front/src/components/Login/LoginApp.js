@@ -21,8 +21,20 @@ function App() {
   const [cart, setCart] = useState([]);
 
   const addToCart = (producto) => {
-    setCart((prevCart) => [...prevCart, producto]);
+    setCart((prevCart) => {
+      const existingItem = prevCart.find(item => item.idProducto === producto.idProducto);
+      if (existingItem) {
+        return prevCart.map(item =>
+          item.idProducto === producto.idProducto
+            ? { ...item, cantidad: item.cantidad + 1 }
+            : item
+        );
+      } else {
+        return [...prevCart, { ...producto, cantidad: 1 }];
+      }
+    });
   };
+  
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

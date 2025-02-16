@@ -14,6 +14,7 @@ import ComentarioApp from './components/Comentario/ComentarioApp';
 import PromocionApp from './components/Promocion/PromocionApp';
 import TipoPagoApp from './components/TipoPago/TipoPagoApp';
 import ListaProductosApp from './components/Catalogo/ListaProductosApp';
+import DetalleProducto from './components/Catalogo/DetalleProducto';
 
 // Componente para proteger rutas y mostrar el sidebar si el usuario está autenticado
 // Componente para proteger rutas y mostrar el contenido solo si el usuario está autenticado
@@ -57,6 +58,7 @@ root.render(
       <Route path="/PromocionApp" element={<PrivateRoute><PromocionApp /></PrivateRoute>} />
       <Route path="/TipoPagoApp" element={<PrivateRoute><TipoPagoApp /></PrivateRoute>} />
       <Route path="/ListaProductosApp" element={<PrivateRoute><ListaProductosApp /></PrivateRoute>} />
+      <Route path="/DetalleProducto" element={<PrivateRoute><DetalleProducto /></PrivateRoute>} />
     </Routes>
   </Router>
 );

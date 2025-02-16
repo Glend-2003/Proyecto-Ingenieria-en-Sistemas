@@ -18,7 +18,7 @@ function ListaProductosApp() {
 
     const verDetalles = (idProducto) => {
         navigate(`/producto/${idProducto}`); // Redirige a la página de detalles con el ID del producto
-    };
+    };    
 
     const cargarProductos = async () => {
         try {
@@ -67,12 +67,10 @@ function ListaProductosApp() {
                             <div>  
                             {/* <Button variant="primary" onClick={()=> navigate(`/producto/${product.idProducto}`)}>Ver Producto</Button>{" "}*/}
                                 <Button onClick={() => verDetalles(product.idProducto)}>Ver detalles</Button>
-                                <Button
-                                    variant="success"
-                                    size="sm"
-                                    className="float-end"
+                                <Button variant="success" size="sm" className="float-end"
                                     onClick={() => addToCart(product)}
                                 >
+
                                 Agregar
                                 </Button>
                             </div>
