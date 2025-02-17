@@ -84,19 +84,20 @@ function App() {
 
           if (
             response.data.rol.nombreRol === 'Administrador' ||
-            
+            response.data.rol.nombreRol === 'Usuario' ||
             response.data.rol.nombreRol === 'Gerente'
           ) {
-          
+            navigate('/principal');
           } 
-          if (
-           
+
+           if (
+            
             response.data.rol.nombreRol === 'Usuario' 
-         
           ) {
             navigate('/');
             setShowSidebar(false);
           } 
+          
          else {
             setLoginStatus('Rol no reconocido');
           }

@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { Link } from 'react-router-dom';
+import { Link , useNavigate} from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from "reactstrap";
 
 
 const DropDown = ({ icon, idUsuario }) => {
     const [isOpen, setIsOpen] = useState(false);
-
+ const navigate = useNavigate();
     const toggle = () => setIsOpen(!isOpen);
 
     const handleShowMenu = (idUsuario) =>{
@@ -16,6 +16,17 @@ const DropDown = ({ icon, idUsuario }) => {
             setIsOpen(true);
         }
     }
+
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('correoUsuario');
+        localStorage.removeItem('nombreUsuario');
+        localStorage.removeItem('nombreUsuario');
+        localStorage.removeItem('nombreRol');
+        localStorage.removeItem('idUsuario');
+        navigate('/');
+    };
+    
     return (
         <Dropdown
             className="custom-dropdown"
@@ -45,7 +56,7 @@ const DropDown = ({ icon, idUsuario }) => {
                 <DropdownItem tag={Link} to="/PerfilUsuario" className="hover:bg-gray-700">
                     Detalles de la cuenta
                 </DropdownItem>
-                <DropdownItem >Cerrar sesión</DropdownItem>
+                <DropdownItem onClick={handleLogout} >Cerrar sesión</DropdownItem>
             </DropdownMenu>
         </Dropdown>
 
