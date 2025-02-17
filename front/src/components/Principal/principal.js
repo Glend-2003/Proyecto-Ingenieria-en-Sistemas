@@ -15,6 +15,13 @@ const Principal = () => {
 
     const navigate = useNavigate();
     const handleLogout = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('correoUsuario');
+        localStorage.removeItem('nombreUsuario');
+        localStorage.removeItem('nombreUsuario');
+        localStorage.removeItem('nombreRol');
+        localStorage.removeItem('idUsuario');
+        
         navigate('/');
     };
     /*const [usuario, setUsuario] = useState(null);

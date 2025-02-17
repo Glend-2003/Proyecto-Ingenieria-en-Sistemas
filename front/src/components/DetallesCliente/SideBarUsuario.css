@@ -1,0 +1,13 @@
+/* Sidebar */
+.sidebar-container {
+    width: 200px; /* Ancho del sidebar */
+    position: relative; /* Permite que se mueva con el scroll */
+    top: 0;
+    left: 0;
+    height: auto; /* Altura automática según el contenido */
+    max-height: 90vh; /* No ocupa más del 90% de la pantalla */
+    background-color: #ffffff; /* Color de fondo */
+    z-index: 1000;
+    overflow-y: auto; /* Permite desplazamiento si el contenido es muy grande */
+    padding-bottom: 20px; /* Espaciado en la parte inferior */
+}

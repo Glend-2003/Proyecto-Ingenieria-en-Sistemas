@@ -7,6 +7,7 @@ import '../styles.min.css';
 import { Offcanvas, Navbar, Container, Nav, Button, ListGroup, Badge, Card} from 'react-bootstrap';
 import Carrito from '../Carrito/CarritoApp.js'; 
 import ListaProductosApp from '../Catalogo/ListaProductosApp.js';
+import DropDown from "../DropDown/DropDown";
 
 function App() {
   const [loginData, setLoginData] = useState({
@@ -18,6 +19,8 @@ function App() {
   const savedCart = JSON.parse(localStorage.getItem("carrito")) || [];
   const [loginStatus, setLoginStatus] = useState('');
   const navigate = useNavigate();
+  const idUsuario = localStorage.getItem('idUsuario');
+  const [isOpen, setIsOpen] = useState(false);
   const [cart, setCart] = useState([]);
 
   const addToCart = (producto) => {
@@ -35,6 +38,30 @@ function App() {
     });
   };
   
+  const addToCart2 = (producto) => {
+   
+    const userCart = {
+      ...producto,
+      usuarioId: idUsuario, // Asociamos el carrito con el idUsuario
+    };
+  
+    setCart((prevCart) => [...prevCart, userCart]);
+
+  };
+
+  useEffect(() => {
+    // Verificar si el idUsuario del carrito es diferente del logueado
+    if (cart.length > 0 && cart[0].usuarioId !== idUsuario) {
+     
+      setCart([]);
+      localStorage.setItem("carrito", JSON.stringify([]));
+      
+    } else {
+      localStorage.setItem("carrito", JSON.stringify(cart));
+    }
+
+    cargarProductos();
+  }, [cart, idUsuario]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -44,8 +71,19 @@ function App() {
     });
   };
 
-  const handleShowSidebar = () => setShowSidebar(!showSidebar);
+  const handleShowSidebar = () => setShowSidebar(!showSidebar && !idUsuario);
   const handleShowCart = () => setShowCart(!showCart);
+
+  const removeFromCart = (indexToRemove) => {
+    const updatedCart = cart.filter((_, idx) => idx !== indexToRemove);
+    setCart(updatedCart);
+    localStorage.setItem("carrito", JSON.stringify(updatedCart));
+    toast.info("Producto eliminado del carrito");
+  };
+
+  const removeFromCart2 = (indexToRemove) => {
+    setCart((prevCart) => prevCart.filter((_, idx) => idx !== indexToRemove));
+  };
 
   const login = () => {
     axios
@@ -56,6 +94,7 @@ function App() {
           localStorage.setItem('correoUsuario', response.data.correoUsuario);
           localStorage.setItem('nombreUsuario', response.data.nombreUsuario);
           localStorage.setItem('nombreRol', response.data.rol.nombreRol);
+          localStorage.setItem('idUsuario', response.data.idUsuario);
 
           setLoginStatus(
             'Login exitoso. Bienvenido ' + response.data.nombreUsuario
@@ -67,7 +106,17 @@ function App() {
             response.data.rol.nombreRol === 'Gerente'
           ) {
             navigate('/principal');
-          } else {
+          } 
+
+           if (
+            
+            response.data.rol.nombreRol === 'Usuario' 
+          ) {
+            navigate('/');
+            setShowSidebar(false);
+          } 
+          
+         else {
             setLoginStatus('Rol no reconocido');
           }
         } else {
@@ -88,9 +137,7 @@ function App() {
     login();
   };
 
-  const removeFromCart = (indexToRemove) => {
-    setCart((prevCart) => prevCart.filter((_, idx) => idx !== indexToRemove));
-  };
+  
   
   return (
     <>
@@ -100,13 +147,19 @@ function App() {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto">
+            <div
+          
+            >
               <Nav.Link onClick={handleShowSidebar}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" fill="currentColor" className="bi bi-person" viewBox="0 0 16 16">
+
+              <DropDown icon = {<svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" fill="currentColor" className="bi bi-person" viewBox="0 0 16 16">
                   <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664z" />
-                </svg>
+                </svg>} idUsuario={idUsuario}/>
+                
               </Nav.Link>
+              </div>
               <Nav.Link onClick={handleShowCart}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" fill="currentColor" className="bi bi-cart" viewBox="0 0 16 16">
+              <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" fill="currentColor" className="bi bi-cart" viewBox="0 0 16 16">
                   <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l1.313 7h8.17l1.313-7zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2" />
                 </svg>
                 {cart.length > 0 && <Badge bg="danger">{cart.length}</Badge>}
@@ -115,7 +168,7 @@ function App() {
           </Navbar.Collapse>
         </Container>
       </Navbar>
-
+       
       {/* Offcanvas Sidebar */}
       <Offcanvas show={showSidebar} onHide={handleShowSidebar} placement="end">
         <Offcanvas.Header closeButton>

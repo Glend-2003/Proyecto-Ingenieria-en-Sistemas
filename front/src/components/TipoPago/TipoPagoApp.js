@@ -20,7 +20,7 @@ const TipoPagoApp = () => {
   const { usuario } = useAuth();
   const [search, setSearch] = useState("");
   const [descripcionTipoPago, setDescripcionTipoPago] = useState("");
-  const [estadoTipoPago, setEstadoTipoPago] = useState("");
+  const [estadoTipoPago, setEstadoTipoPago] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
@@ -63,7 +63,7 @@ const TipoPagoApp = () => {
     try {
       const tipoPagoData = {
         descripcionTipoPago: descripcionTipoPago.trim(),
-        estadoTipoPago: estadoTipoPago.trim(),
+        estadoTipoPago: 1,
       };
 
       await axios.post("http://localhost:8080/tipopago/agregar", tipoPagoData);
@@ -76,50 +76,214 @@ const TipoPagoApp = () => {
     }
   };
 
-  const handleCloseModal = () => {
-    setShowModal(false);
-    setDescripcionTipoPago("");
-    setEstadoTipoPago("");
+  const actualizarTipoPago = async () => {
+    if (!validarCamposTipoPago()) return;
+
+    const tipoPagoDuplicado = tipoPagos.some(
+      (tipoPago) =>
+        tipoPago.descripcionTipoPago.toLowerCase() ===
+        descripcionTipoPago.trim().toLowerCase()
+    );
+
+    if (tipoPagoDuplicado) {
+      toast.error("El nombre del tipo de pago ya existe. Por favor, elige un nombre diferente.");
+      return;
+    }
+      const tipoPagoData = {
+        idTipoPago: tipoPagoEdit.idTipoPago,
+        descripcionTipoPago: descripcionTipoPago.trim(),
+        estadoTipoPago: 1,
+      };
+
+    try {
+      console.log("Datos enviados al backend:", tipoPagoData);
+      await axios.put("http://localhost:8080/tipopago/actualizar", tipoPagoData);
+      toast.success("Tipo pago actualizado con éxito");
+      cargarTipoPago();
+      handleCloseModal();
+    } catch (error) {
+      console.error("Error al actualizar tipo pago:", error);
+      toast.error("Ocurrió un error al actualizar el tipo pago");
+    }
+  
   };
 
+  const eliminarTipoPago = async (id) => {
+    const { isConfirmed } = await Swal.fire({
+      title: "¿Estás seguro?",
+      text: "No podrás revertir esto.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "No, cancelar",
+      reverseButtons: true,
+    });
+
+    if (!isConfirmed) return;
+
+    try {
+      await axios.delete(`http://localhost:8080/tipopago/eliminar/${id}`);
+
+      toast.success("Tipo pago eliminado con éxito");
+      cargarTipoPago();
+    } catch (error) {
+      console.error("Error al eliminar el tipo pago:", error);
+      toast.error("Ocurrió un error al eliminar el tipo pago");
+    }
+  };
+
+  const handleShowModal = (tipoPago = null) => {
+    if (tipoPago) {
+      setTipoPagoEdit(tipoPago);
+      setDescripcionTipoPago(tipoPago.descripcionTipoPago);
+
+    } else {
+      setTipoPagoEdit(null);
+      setDescripcionTipoPago("");
+    
+    }
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setTipoPagoEdit(null);
+    setDescripcionTipoPago("");
+  
+  };
+
+  const handleSearchChange = (e) => setSearch(e.target.value);
+
+  const filteredTIpoPagos = tipoPagos.filter((tipoPago) =>
+    tipoPago.descripcionTipoPago.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const totalPages = Math.ceil(filteredTIpoPagos.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentTipoPagos = filteredTIpoPagos.slice(indexOfFirstItem, indexOfLastItem);
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
+
+
   return (
-    <div>
-      <SideBar />
-      <div className="container mt-4">
-        <h2>Gestión de Tipos de Pago</h2>
-        <Button onClick={() => setShowModal(true)}>Agregar Tipo de Pago</Button>
+    <div className="content-container">
+      <SideBar usuario={usuario} />
+      <div className="container mt-5">
+        <h1>Gestión tipo de pagos</h1>
+        <Button className="custom-button" onClick={() => handleShowModal()}>
+          Agregar nuevo tipo pago
+        </Button>
+        <div className="mb-2"></div>
+        <label>Buscar tipo pago</label>
+        <input
+          type="text"
+          className="form-control my-3"
+          placeholder="Buscar tipo pago por descripción"
+          value={search}
+          onChange={handleSearchChange}
+        />
+
         <Modal show={showModal} onHide={handleCloseModal}>
           <Modal.Header closeButton>
-            <Modal.Title>Agregar Tipo de Pago</Modal.Title>
+            <Modal.Title>
+              {tipoPagoEdit ? "Actualizar Tipo Pago" : "Agregar Tipo Pago"}
+            </Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <input
-              type="text"
-              placeholder="Descripción"
-              className="form-control"
-              value={descripcionTipoPago}
-              onChange={(e) => setDescripcionTipoPago(e.target.value)}
-            />
-            <input
-              type="text"
-              placeholder="Estado"
-              className="form-control mt-2"
-              value={estadoTipoPago}
-              onChange={(e) => setEstadoTipoPago(e.target.value)}
-            />
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                tipoPagoEdit ? actualizarTipoPago() : agregarTipoPago();
+              }}
+            >
+              <div className="mb-3">
+                <label>Nombre del tipo pago</label>
+                <input
+                  className="form-control"
+                  type="text"
+                  placeholder="Nombre del tipo de pago"
+                  required
+                  value={descripcionTipoPago}
+                  onChange={(e) => setDescripcionTipoPago(e.target.value)}
+                />
+              </div>
+
+              <div className="modal-footer">
+                <Button variant="secondary" onClick={handleCloseModal}>
+                  Cerrar
+                </Button>
+                <Button type="submit" variant="primary">
+                  {tipoPagoEdit ? "Actualizar" : "Agregar"}
+                </Button>
+                
+              </div>
+            </form>
           </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={handleCloseModal}>
-              Cancelar
-            </Button>
-            <Button variant="primary" onClick={agregarTipoPago}>
-              Guardar
-            </Button>
-          </Modal.Footer>
         </Modal>
+
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Tipo de pago</th>
+              <th>Estado</th>
+
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentTipoPagos.map((tipoPago, index) => (
+              <tr key={tipoPago.idTipoPago}>
+
+                <td>{tipoPago.descripcionTipoPago}</td>
+                <td>
+                      <button
+                        className={`btn btn-sm ${
+                          tipoPago.estadoTipoPago ? "btn-success" : "btn-danger"
+                        }`}
+                      >
+                        {tipoPago.estadoTipoPago ? "Activo" : "Inactivo"}
+                      </button>
+                    </td>
+                <td>
+                  <button
+                    className="btn btn-warning btn-sm mx-1"
+                    onClick={() => handleShowModal(tipoPago)}
+                  >
+                    <FontAwesomeIcon icon={faEdit} />
+                  </button>
+                  <button
+                    className="btn btn-danger btn-sm"
+                    onClick={() => eliminarTipoPago(tipoPago.idTipoPago)}
+                  >
+                    <FontAwesomeIcon icon={faTrash} />
+                  </button>
+
+                  
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {filteredTIpoPagos.length > itemsPerPage && (
+          <PaginacionApp
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            onNextPage={handleNextPage}
+            onPreviousPage={handlePreviousPage}
+          />
+        )}
       </div>
-      <FooterApp />
       <ToastContainer />
+      <FooterApp />
     </div>
   );
 };
