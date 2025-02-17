@@ -8,6 +8,8 @@ import { Offcanvas, Navbar, Container, Nav, Button, ListGroup, Badge, Card} from
 import Carrito from '../Carrito/CarritoApp.js'; 
 import ListaProductosApp from '../Catalogo/ListaProductosApp.js';
 import DropDown from "../DropDown/DropDown";
+import { toast } from 'react-toastify';
+
 
 function App() {
   const [loginData, setLoginData] = useState({
@@ -22,6 +24,8 @@ function App() {
   const idUsuario = localStorage.getItem('idUsuario');
   const [isOpen, setIsOpen] = useState(false);
   const [cart, setCart] = useState([]);
+  const [productos, setProductos] = useState([]);
+
 
   const addToCart = (producto) => {
     setCart((prevCart) => {
@@ -62,6 +66,16 @@ function App() {
 
     cargarProductos();
   }, [cart, idUsuario]);
+
+  const cargarProductos = async () => {
+    try {
+      const response = await axios.get("http://localhost:8080/producto/");
+      setProductos(response.data);
+    } catch (error) {
+      console.error("Error al cargar productos:", error);
+      toast.error("Ocurrió un error al cargar los productos");
+    }
+};
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
