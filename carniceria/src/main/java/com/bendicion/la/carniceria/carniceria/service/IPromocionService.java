@@ -30,7 +30,9 @@ public interface IPromocionService {
     @Transactional
     public boolean deletePromocion(int id);
     
+    @Transactional 
     public void enviarMensaje(String destino, String sujeto,String mensaje);
     
+    @Transactional 
     public String mensajePredeterminado(String nombre, String descripcion, Date inicioPromocion, Date finPromocion, BigDecimal montoPromocion);
 }

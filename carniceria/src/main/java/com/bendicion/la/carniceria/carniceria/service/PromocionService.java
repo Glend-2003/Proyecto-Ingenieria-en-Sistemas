@@ -137,6 +137,7 @@ public class PromocionService implements IPromocionService {
         }
     }
 
+    @Transactional 
      public void enviarMensaje(String destino, String sujeto, String mensaje) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();

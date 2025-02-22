@@ -113,7 +113,7 @@ BEGIN
 END$$
 DELIMITER ;
 
-
+|---------------------sp leer----------------------|
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spLeerPromociones`()
 BEGIN
@@ -129,7 +129,7 @@ BEGIN
         tbpromocion p
     JOIN 
         tbproducto c ON p.idProducto = c.idProducto
-    WHERE 
-        p.estadoPromocion = 1;
+    ORDER BY
+        p.estadoPromocion DESC;
 END$$
 DELIMITER ;

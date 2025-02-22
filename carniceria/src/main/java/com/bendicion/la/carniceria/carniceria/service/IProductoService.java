@@ -15,7 +15,7 @@ public interface IProductoService {
     @Transactional 
     public Producto updateProducto(Producto producto);
     
-    public List<Producto> getProducto();   
+    public List<Producto> getProducto(boolean estadoProducto);   
     
     @Transactional
     public boolean deleteProducto(int id);

@@ -67,16 +67,13 @@ DELIMITER ;
 -- Leer
 
 DELIMITER $$
-
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spLeerTipoPago`()
 BEGIN
     -- Leer solo los tipos de pago donde el estado sea 1 (activo)
     SELECT * FROM tbtipopago
-    WHERE estadoTipoPago = 1;
+    ORDER BY estadoTipoPago DESC;
 END$$
-
 DELIMITER ;
-
 
 -- Leer por ID
 

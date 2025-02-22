@@ -219,6 +219,7 @@ DELIMITER ;
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spLeerUsuario`()
 BEGIN
+    -- Leer solo los usuarios donde el estado sea 1 (activo)
     SELECT 
         u.idUsuario, 
         u.cedulaUsuario, 
@@ -231,10 +232,12 @@ BEGIN
         u.fechaNacimiento,
         u.idDireccion,
         u.idRol, 
+        u.estadoUsuario, -- Incluir el estado en la consulta
         d.idDistrito 
     FROM 
         tbusuario u
-    LEFT JOIN tbdireccion d ON u.idDireccion = d.idDireccion;
+    LEFT JOIN tbdireccion d ON u.idDireccion = d.idDireccion
+    ORDER BY estadoUsuario DESC;
 END$$
 DELIMITER ;
 

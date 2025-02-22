@@ -189,8 +189,9 @@ DELIMITER ;
 
 
 DELIMITER $$
-CREATE PROCEDURE `spLeerProducto`()
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spLeerProducto`(IN p_filtrarInactivos BOOLEAN)
 BEGIN
+IF p_filtrarInactivos THEN
     SELECT 
         p.idProducto,
         p.nombreProducto,
@@ -208,8 +209,28 @@ BEGIN
         tbproducto p
     JOIN 
         tbcategoria c ON p.idCategoria = c.idCategoria  -- Unión con la tabla de categorías
-    WHERE 
-        p.estadoProducto = true;  -- Solo muestra productos activos
+    WHERE p.estadoProducto = 1;
+    ELSE
+    SELECT 	
+       p.idProducto,
+        p.nombreProducto,
+        p.imgProducto,  -- Ruta relativa de la imagen
+        p.montoPrecioProducto,
+        p.descripcionProducto,
+        p.cantidadProducto,
+        p.tipoPesoProducto,
+        p.codigoProducto,
+        p.stockProducto,
+        p.idCategoria,
+        c.nombreCategoria,  -- Nombre de la categoría
+        p.estadoProducto
+    FROM 
+        tbproducto p
+    JOIN 
+        tbcategoria c ON p.idCategoria = c.idCategoria  -- Unión con la tabla de categorías
+    ORDER BY p.estadoProducto DESC;
+ 
+    END IF;
 END$$
 DELIMITER ;
 

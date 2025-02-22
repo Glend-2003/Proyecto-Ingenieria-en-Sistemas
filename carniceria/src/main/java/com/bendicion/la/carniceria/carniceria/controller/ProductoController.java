@@ -52,8 +52,8 @@ public class ProductoController {
     
     // Obtener lista de productos
     @GetMapping("/")
-    public ResponseEntity<List<Producto>> listProductos() {
-        List<Producto> productos = productoService.getProducto();
+    public ResponseEntity<List<Producto>> listProductos(boolean estadoProducto) {
+        List<Producto> productos = productoService.getProducto(estadoProducto);
         return ResponseEntity.ok(productos);
     }
 

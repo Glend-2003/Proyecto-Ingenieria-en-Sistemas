@@ -129,8 +129,8 @@ public class ProductoService implements IProductoService{
     // Método para listar productos
     @Override
     @Transactional 
-    public List<Producto> getProducto() {
-        return productoRepo.listProcedureProducto();
+    public List<Producto> getProducto(boolean estadoProducto) {
+        return productoRepo.listProcedureProducto(estadoProducto);
     }
 
     // Método para eliminar un producto
