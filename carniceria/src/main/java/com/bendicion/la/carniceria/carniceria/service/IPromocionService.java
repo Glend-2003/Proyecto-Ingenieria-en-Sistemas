@@ -21,6 +21,7 @@ public interface IPromocionService {
     public Promocion addPromocion(Promocion promocion);
     
     //Lista de promociones
+    @Transactional
      public List<Map<String, Object>> getPromociones();
      
     //Actualizar Promocion
