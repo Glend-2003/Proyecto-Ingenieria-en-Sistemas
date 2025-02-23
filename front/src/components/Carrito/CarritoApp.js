@@ -1,6 +1,8 @@
 import React from 'react';
 import { Offcanvas, ListGroup, Button, Badge} from 'react-bootstrap';
+import { createContext, useContext, useState, useEffect } from "react";
 import './Carrito.css';
+
 
 function CarritoApp({ showCart, handleShowCart, cart, removeFromCart }) {
   const groupedCart = cart.reduce((acc, item) => {

@@ -40,7 +40,9 @@ const ProductoApp = () => {
 
   const cargarProductos = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/producto/");
+      const response = await axios.get("http://localhost:8080/producto/", {
+        params: { estadoProducto: 0 }
+      });
       console.log(response.data);
       const productos = response.data;
 
@@ -62,7 +64,9 @@ const ProductoApp = () => {
 
   const cargarCategorias = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/categoria/");
+      const response = await axios.get("http://localhost:8080/categoria/", {
+        params: { estadoCategoria: 1 }
+      });
       setCategorias(response.data);
     } catch (error) {
       console.error("Error al cargar categorías:", error);
@@ -74,10 +78,10 @@ const ProductoApp = () => {
     if (
       !nombreProducto.trim() ||
       !descripcionProducto.trim() ||
-      !cantidadProducto.trim() ||
+      !cantidadProducto < 0 ||
       !tipoPesoProducto.trim() ||
       !codigoProducto.trim() ||
-      !stockProducto.trim() ||
+      !stockProducto < 0 ||
       !montoPrecioProducto ||
       !idCategoria
     ) {

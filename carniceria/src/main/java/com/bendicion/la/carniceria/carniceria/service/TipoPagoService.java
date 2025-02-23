@@ -21,6 +21,7 @@ public class TipoPagoService implements ITipoPagoService{
     private TipoPagoRepository tipoPagoRep;
     
     @Override
+    @Transactional
     public TipoPago addTipoPago(TipoPago tipoPago) {
         System.out.println("Agregando tipo de pago: " + tipoPago.getDescripcionTipoPago());
         tipoPago.setEstadoTipoPago(true);
@@ -44,11 +45,13 @@ public class TipoPagoService implements ITipoPagoService{
     }
 
     @Override
+    @Transactional
     public TipoPago getTipoPagoById(int id) {
         return tipoPagoRep.listProcedureTipoPagoById(id);
     }
 
     @Override
+    @Transactional
     public boolean deleteTipoPago(int id) {
         try {
             System.out.println("Eliminando tipo de pago con ID: " + id);

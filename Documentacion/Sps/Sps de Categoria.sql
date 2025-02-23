@@ -58,9 +58,15 @@ END$$
 DELIMITER ;
 --_____________________________________________________________________________________________________________________________
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `spLeerCategoria`()
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spLeerCategoria`(IN `p_filtrarInactivos` BOOLEAN)
 BEGIN
-    SELECT * FROM tbcategoria;
+    IF p_filtrarInactivos THEN
+    SELECT * FROM tbcategoria
+    WHERE estadoCategoria = 1;
+    ELSE
+      SELECT * FROM tbcategoria
+    ORDER BY estadoCategoria DESC;
+    END IF;
 END$$
 DELIMITER ;
 --_____________________________________________________________________________________________________________________________

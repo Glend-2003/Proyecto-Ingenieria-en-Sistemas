@@ -47,7 +47,9 @@ const PromocionApp = () => {
 
   const cargarProductos = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/producto/");
+      const response = await axios.get("http://localhost:8080/producto/", {
+        params: { estadoProducto: 1 }
+      });
       setProductos(response.data);
     } catch (error) {
       console.error("Error al cargar productos:", error);
@@ -191,19 +193,40 @@ const PromocionApp = () => {
 
     console.log("Datos enviados al backend:", promocion);
 
-    try {
-        await axios.post("http://localhost:8080/mensaje", promocion);
+    // Mostrar un indicador de carga mientras se envía el correo
+    const loadingToast = toast.loading("Enviando mensaje...");
 
-        
-            toast.success( "Mensaje enviado con éxito");
-            cargarPromociones();
-       
-          
+    try {
+        // Enviar la solicitud de backend
+        const response = await axios.post(`http://localhost:8080/promocion/mensaje?nombreProducto=${encodeURIComponent(promocion.nombreProducto)}`, promocion);
+
+        // Verificar la respuesta del servidor
+        if (response.status === 200) {
+            // Cerrar el indicador de carga y mostrar el mensaje de éxito
+            toast.update(loadingToast, {
+                render: "Mensaje enviado con éxito",
+                type: "success",
+                isLoading: false,
+                autoClose: 5000,
+            });
+            cargarPromociones();  // Recargar las promociones después de enviar el correo
+        } else {
+            // En caso de error, mostrar mensaje de error
+            toast.update(loadingToast, {
+                render: "Ocurrió un error al enviar el mensaje",
+                type: "error",
+                isLoading: false,
+                autoClose: 5000,
+            });
         }
-     
-    catch (error) {
+    } catch (error) {
         console.error("Error al enviar mensaje:", error);
-        toast.error(error.response?.data?.error || "Ocurrió un error al enviar el mensaje");
+        toast.update(loadingToast, {
+            render: error.response?.data?.error || "Ocurrió un error al enviar el mensaje",
+            type: "error",
+            isLoading: false,
+            autoClose: 5000,
+        });
     }
 };
 
@@ -384,6 +407,16 @@ const PromocionApp = () => {
                 <td>{new Date(promocion.fechaInicioPromocion).toLocaleDateString()}</td>
                 <td>{new Date(promocion.fechaFinPromocion).toLocaleDateString()}</td>
                 <td>{promocion.montoPromocion}</td>
+                <td>
+                      <button
+                        className={`btn btn-sm ${
+                          promocion.estadoPromocion ? "btn-success" : "btn-danger"
+                        }`}
+                      >
+                        {promocion.estadoPromocion ? "Activo" : "Inactivo"}
+                      </button>
+                </td>
+                
                 <td>
                   <button
                     className="btn btn-warning btn-sm mx-1"

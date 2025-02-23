@@ -17,7 +17,7 @@ public interface ICategoriaService {
     @Transactional // Asegúrate de que esté anotado
     public Categoria updateCategoria(Categoria categoria);
     
-    public List<Categoria> getCategoria();
+    public List<Categoria> getCategoria(Boolean estadoCategoria);
 
     public Categoria getCategoriaById(int id);
     

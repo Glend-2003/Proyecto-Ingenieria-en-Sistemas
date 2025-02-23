@@ -35,8 +35,8 @@ public interface CategoriaRepository extends JpaRepository<Categoria, Integer>{
         @Param("estadoCategoria") Boolean estadoCategoria
     );
     // SP Read
-    @Query(value = "{call spLeerCategoria()}", nativeQuery = true)
-    List<Categoria> listProcedureCategoria();
+    @Query(value = "{call spLeerCategoria(:estadoCategoria)}", nativeQuery = true)
+    List<Categoria> listProcedureCategoria(@Param("estadoCategoria") Boolean estadoCategoria);
 
     //sp read by id
     @Query(value = "{call spLeerCategoriaPorId(:idCategoria)}", nativeQuery = true)

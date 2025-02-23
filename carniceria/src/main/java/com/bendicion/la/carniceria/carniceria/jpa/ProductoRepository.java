@@ -56,8 +56,8 @@ public interface ProductoRepository extends JpaRepository<Producto, Integer>{
 // -----------------------------------------------------------------------------   
     
     // SP Read
-    @Query(value = "{call spLeerProducto()}", nativeQuery = true)
-    List<Producto> listProcedureProducto();
+    @Query(value = "{call spLeerProducto(:estadoProducto)}", nativeQuery = true)
+    List<Producto> listProcedureProducto( @Param("estadoProducto") boolean estadoProducto);
     
 // -----------------------------------------------------------------------------     
     

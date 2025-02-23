@@ -35,10 +35,10 @@ public class CategoriaController {
     
     // Read
     @GetMapping("/")
-    public ResponseEntity<List<Categoria>> listCategoria() {
-        List<Categoria> categorias = iCategoriaService.getCategoria();
+    public ResponseEntity<List<Categoria>> listCategoria(Boolean estadoCategoria) {
+        List<Categoria> categorias = iCategoriaService.getCategoria(estadoCategoria);
         System.out.println("Listando todas las categorias: " + categorias.size() + " categorias encontradas.");
-        return ResponseEntity.ok(iCategoriaService.getCategoria());
+        return ResponseEntity.ok(iCategoriaService.getCategoria(estadoCategoria));
     }
 
     // Read by ID

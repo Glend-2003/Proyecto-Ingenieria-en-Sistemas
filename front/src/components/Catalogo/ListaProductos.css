@@ -1,0 +1,69 @@
+/* Contenedor principal */
+.product-slider-container {
+    max-width: 100%; /* Asegura que el contenedor no sea más ancho que la pantalla */
+    overflow: hidden; /* Evita que el contenido se salga */
+    padding: 10px; /* Agrega un pequeño padding */
+  }
+  
+  /* Organiza las tarjetas en una cuadrícula */
+  .product-slider {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Ajuste automático */
+    gap: 20px; /* Espacio entre las tarjetas */
+    justify-content: center; /* Centra el contenido */
+    padding: 10px;
+  }
+  
+  /* Ajuste de cada tarjeta */
+  .product-card {
+    width: 100%;
+    max-width: 300px; /* Tamaño máximo de cada tarjeta */
+    margin: auto; /* Centra las tarjetas */
+  }
+  
+  /* Estilos de las tarjetas */
+  .product-card .card {
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* Asegura que todas tengan la misma altura */
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  /* Ajuste de imágenes */
+  .product-card img {
+    width: 100%;
+    height: 200px; /* Mantiene un tamaño uniforme */
+    object-fit: cover; /* Ajusta la imagen sin deformarla */
+  }
+  
+  /* Cuerpo de la tarjeta */
+  .product-card .card-body {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Distribuye el contenido */
+    padding: 10px;
+  }
+  
+  /* Botón de "Añadir al carrito" */
+  .product-card .add-to-cart {
+    background-color: #800080; /* Color morado */
+    color: white;
+    border: none;
+    padding: 10px;
+    text-align: center;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .product-card .add-to-cart:hover {
+    background-color: #660066; /* Color morado oscuro al pasar el mouse */
+  }
+  
+  /* Oculta cualquier scroll sobrante */
+  .product-slider::-webkit-scrollbar {
+    display: none;
+  }
+  
