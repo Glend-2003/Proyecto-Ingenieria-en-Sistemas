@@ -104,4 +104,16 @@ public class CategoriaController {
         }
     }
 
+    @PutMapping("/activar/{id}")
+    public ResponseEntity<Boolean> activarCategoria(@PathVariable int id) {
+        boolean estado = iCategoriaService.activarCategoria(id);
+
+        if (estado) {
+            System.out.println("Estado de categoria modificado: ID -->" + id);
+            return ResponseEntity.ok(true);
+        } else {
+            System.out.println("No se pudo modificar el estado de la categoria: ID -->" + id + " no encontrado.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
+        }
+    }
 }

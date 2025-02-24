@@ -1,3 +1,7 @@
+------------------------------------------------Usuario---------------------------------------------------|
+
+
+---------------------sp agregar usuario----------------------|
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spAgregarUsuario`(
     IN p_cedulaUsuario VARCHAR(255), 
@@ -94,7 +98,9 @@ BEGIN
 END$$
 DELIMITER ;
 
-----------------------------------------
+--***************************************************************
+----------------------sp actualizar usuario----------------------
+--***************************************************************
 
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spActualizarUsuario`(
@@ -174,7 +180,9 @@ BEGIN
 
 END$$
 DELIMITER ;
--------------------------------------------
+
+
+---------------------sp eliminar usuario----------------------|
 
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spEliminarUsuario`(IN p_idUsuario INT, OUT p_salida VARCHAR(30))
@@ -213,8 +221,8 @@ BEGIN
     END IF;
 
 END$$
-DELIMITER ;
-----------------------------------------------
+
+---------------------sp leer usuario----------------------|
 
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spLeerUsuario`()
@@ -241,8 +249,7 @@ BEGIN
 END$$
 DELIMITER ;
 
---------------------------------------------------------
-
+---------------------sp buscar usuario por id----------------------|
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spBuscarUsuarioPorCorreo`(
     IN correoInput VARCHAR(255)
@@ -272,8 +279,7 @@ BEGIN
 END$$
 DELIMITER ;
 
------------------------------------------------------------
-
+---------------------sp verificar por correo----------------------|
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spVerificarCorreo`(IN p_correoUsuario VARCHAR(255))
 BEGIN
@@ -281,7 +287,7 @@ BEGIN
 END$$
 DELIMITER ;
 
--------------------------------------------------------------
+---------------------sp registrar usuario----------------------|
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spRegistrarUsuario`(
     IN `p_correoUsuario` VARCHAR(255), 
@@ -352,7 +358,7 @@ END$$
 DELIMITER ;
 
 
-
+---------------------sp actualizar contraseña usuario----------------------|
 
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spActualizarContrasena`(
@@ -387,3 +393,39 @@ BEGIN
     COMMIT;
 END$$
 DELIMITER ;
+
+
+---------------------sp cambiar estado usuario----------------------|
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spActivarUsuario`(IN `p_idUsuario` INT)
+BEGIN
+    DECLARE done INT DEFAULT 0;
+    DECLARE estadoActual INT;
+
+    -- Manejador de errores para capturar excepciones SQL genéricas
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+    BEGIN
+        -- Si ocurre un error SQL, se hace rollback
+        ROLLBACK;
+        SELECT 'Error al activar el usuario' AS mensaje;
+    END;
+
+    -- Verificar si el usuario existe
+    IF done = 0 AND NOT EXISTS (SELECT 1 FROM tbusuario WHERE idUsuario = p_idUsuario) THEN
+        SET done = 1;
+        SELECT 'Usuario no encontrado' AS mensaje;
+    END IF;
+
+    -- Cambiar el estado del usuario si existe
+    IF done = 0 THEN
+        -- Obtener el estado actual del usuario
+        SELECT estadoUsuario INTO estadoActual FROM tbusuario WHERE idUsuario = p_idUsuario;
+
+        -- Cambiar el valor de estado a 1 si es 0, o a 0 si es 1
+        UPDATE tbusuario
+        SET estadoUsuario = CASE WHEN estadoActual = 1 THEN 0 ELSE 1 END
+        WHERE idUsuario = p_idUsuario;  -- Aquí corregido: usar idProducto en lugar de p_idProducto
+
+        SELECT 'usaurio activado con éxito' AS mensaje;
+    END IF;
+END

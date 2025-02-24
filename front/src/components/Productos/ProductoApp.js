@@ -211,6 +211,17 @@ const ProductoApp = () => {
     }
   };
 
+  const activarDesactivarProductos = async (id) => {
+    try {
+      await axios.put(`http://localhost:8080/producto/activar/${id}`);
+      toast.success("Cambio realizado con éxito.");
+      cargarProductos();
+    } catch (error) {
+      console.error("Error al realizar el cambio:", error);
+      toast.error("Ocurrió un error al cambiar el estado del producto.");
+    }
+  };
+
   const handleShowModal = (producto = null) => {
     if (producto) {
       setProductoEdit(producto);
@@ -475,6 +486,7 @@ const ProductoApp = () => {
                         className={`btn btn-sm ${
                           producto.estadoProducto ? "btn-success" : "btn-danger"
                         }`}
+                        onClick={() => activarDesactivarProductos(producto.idProducto)}
                       >
                         {producto.estadoProducto ? "Activo" : "Inactivo"}
                       </button>

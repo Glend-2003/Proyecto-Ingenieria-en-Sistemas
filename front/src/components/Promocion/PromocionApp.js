@@ -230,6 +230,16 @@ const PromocionApp = () => {
     }
 };
 
+const activarDesactivarPromocion = async (id) => {
+  try {
+    await axios.put(`http://localhost:8080/promocion/activar/${id}`);
+    toast.success("Cambio realizado con éxito.");
+    cargarPromociones();
+  } catch (error) {
+    console.error("Error al realizar el cambio:", error);
+    toast.error("Ocurrió un error al cambiar el estado de la promocion.");
+  }
+};
 
   const handleShowModal = (promocion = null) => {
     if (promocion) {
@@ -412,6 +422,7 @@ const PromocionApp = () => {
                         className={`btn btn-sm ${
                           promocion.estadoPromocion ? "btn-success" : "btn-danger"
                         }`}
+                        onClick={() => activarDesactivarPromocion(promocion.idPromocion)}
                       >
                         {promocion.estadoPromocion ? "Activo" : "Inactivo"}
                       </button>
