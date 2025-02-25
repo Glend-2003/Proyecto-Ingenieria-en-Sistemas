@@ -129,8 +129,8 @@ public class ProductoService implements IProductoService{
     // Método para listar productos
     @Override
     @Transactional 
-    public List<Producto> getProducto() {
-        return productoRepo.listProcedureProducto();
+    public List<Producto> getProducto(boolean estadoProducto) {
+        return productoRepo.listProcedureProducto(estadoProducto);
     }
 
     // Método para eliminar un producto
@@ -162,4 +162,26 @@ public class ProductoService implements IProductoService{
 
         return producto;
     }
+    
+     @Override
+     @Transactional 
+    public boolean activarProducto(int id) {
+        try {
+            // Verificar si el comentario existe
+            if (!productoRepo.existsById(id)) { // Verifica si el producto existe
+                System.err.println("El prodcuto con ID: " + id + " no existe.");
+                return false; // Retorna false si no existe
+            }
+
+            System.out.println("activando producto con ID: " + id);
+            productoRepo.activarProducto(id);
+            return true; 
+        } catch (Exception e) {
+            System.err.println("Error al activar el producto con ID: " + id + ". Detalles: " + e.getMessage());
+            return false; // Retorna false en caso de error
+        }
+    }
+
+
+
 }

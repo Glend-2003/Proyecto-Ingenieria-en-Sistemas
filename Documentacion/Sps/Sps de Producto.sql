@@ -189,8 +189,9 @@ DELIMITER ;
 
 
 DELIMITER $$
-CREATE PROCEDURE `spLeerProducto`()
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spLeerProducto`(IN p_filtrarInactivos BOOLEAN)
 BEGIN
+IF p_filtrarInactivos THEN
     SELECT 
         p.idProducto,
         p.nombreProducto,
@@ -208,8 +209,28 @@ BEGIN
         tbproducto p
     JOIN 
         tbcategoria c ON p.idCategoria = c.idCategoria  -- Unión con la tabla de categorías
-    WHERE 
-        p.estadoProducto = true;  -- Solo muestra productos activos
+    WHERE p.estadoProducto = 1;
+    ELSE
+    SELECT 	
+       p.idProducto,
+        p.nombreProducto,
+        p.imgProducto,  -- Ruta relativa de la imagen
+        p.montoPrecioProducto,
+        p.descripcionProducto,
+        p.cantidadProducto,
+        p.tipoPesoProducto,
+        p.codigoProducto,
+        p.stockProducto,
+        p.idCategoria,
+        c.nombreCategoria,  -- Nombre de la categoría
+        p.estadoProducto
+    FROM 
+        tbproducto p
+    JOIN 
+        tbcategoria c ON p.idCategoria = c.idCategoria  -- Unión con la tabla de categorías
+    ORDER BY p.estadoProducto DESC;
+ 
+    END IF;
 END$$
 DELIMITER ;
 
@@ -266,3 +287,39 @@ BEGIN
  
 END$$
 DELIMITER ;
+
+--_____________________________Modificar estado producto________________________________________
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spActivarProducto`(IN `p_idProducto` INT)
+BEGIN
+    DECLARE done INT DEFAULT 0;
+    DECLARE estadoActual INT;
+
+    -- Manejador de errores para capturar excepciones SQL genéricas
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+    BEGIN
+        -- Si ocurre un error SQL, se hace rollback
+        ROLLBACK;
+        SELECT 'Error al activar el producto' AS mensaje;
+    END;
+
+    -- Verificar si el producto existe
+    IF done = 0 AND NOT EXISTS (SELECT 1 FROM tbproducto WHERE idProducto = p_idProducto) THEN
+        SET done = 1;
+        SELECT 'Producto no encontrado' AS mensaje;
+    END IF;
+
+    -- Cambiar el estado del producto si existe
+    IF done = 0 THEN
+        -- Obtener el estado actual del producto
+        SELECT estadoProducto INTO estadoActual FROM tbproducto WHERE idProducto = p_idProducto;
+
+        -- Cambiar el valor de estado a 1 si es 0, o a 0 si es 1
+        UPDATE tbproducto
+        SET estadoProducto = CASE WHEN estadoActual = 1 THEN 0 ELSE 1 END
+        WHERE idProducto = p_idProducto;  -- Aquí corregido: usar idProducto en lugar de p_idProducto
+
+        SELECT 'Producto activado con éxito' AS mensaje;
+    END IF;
+END

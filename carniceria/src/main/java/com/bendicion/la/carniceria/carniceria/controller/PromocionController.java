@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -34,7 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "*")
 @RequestMapping("/promocion")
 public class PromocionController {
 
@@ -73,7 +74,7 @@ public class PromocionController {
         List<Usuario> usuarios = iUsuarioService.getUsuario();
 
         Producto producto = iProductoService.buscarUsuario(promocion.getProducto().getIdProducto());
-        // Enviar correo a cada cliente
+        /*// Enviar correo a cada cliente
         for (Usuario usuario : usuarios) {
             String mensaje = promocionService.mensajePredeterminado(
                usuario.getNombreUsuario(),
@@ -83,7 +84,7 @@ public class PromocionController {
                promocion.getMontoPromocion()
             );
             promocionService.enviarMensaje(usuario.getCorreoUsuario(), "Nueva Promoción: " + nuevaPromocion.getDescripcionPromocion(), mensaje);
-        }
+        }*/
         if (nuevaPromocion != null) {
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Promocion guardada con éxito con ID: " + nuevaPromocion.getIdPromocion());
@@ -147,15 +148,14 @@ public class PromocionController {
         }
     }
     @PostMapping("/mensaje")
-public ResponseEntity<?> mensaje(@RequestBody Promocion promocion){
+public ResponseEntity<?> mensaje(@RequestBody Promocion promocion, @RequestParam String nombreProducto ){
     try {
         List<Usuario> usuarios = iUsuarioService.getUsuario();
-        Producto producto = iProductoService.buscarUsuario(promocion.getProducto().getIdProducto()); // Corrige el método aquí
-
+    
         for (Usuario usuario : usuarios) {
             String mensaje = promocionService.mensajePredeterminado(
                 usuario.getNombreUsuario(),
-                producto.getNombreProducto(),
+                nombreProducto,
                 promocion.getFechaInicioPromocion(),
                 promocion.getFechaFinPromocion(),
                 promocion.getMontoPromocion()
@@ -178,5 +178,16 @@ public ResponseEntity<?> mensaje(@RequestBody Promocion promocion){
     }
 }
 
+  @PutMapping("/activar/{id}")
+    public ResponseEntity<Boolean> activarPromocion(@PathVariable int id) {
+        boolean estado = promocionService.activarPromocion(id);
 
+        if (estado) {
+            System.out.println("Estado de la promocion modificado: ID -->" + id);
+            return ResponseEntity.ok(true);
+        } else {
+            System.out.println("No se pudo modificar el estado de la promocion: ID -->" + id + " no encontrado.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
+        }
+    }
 }

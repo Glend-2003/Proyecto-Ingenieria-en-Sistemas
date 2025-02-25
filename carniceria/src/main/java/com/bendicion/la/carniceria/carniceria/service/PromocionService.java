@@ -137,6 +137,7 @@ public class PromocionService implements IPromocionService {
         }
     }
 
+    @Transactional 
      public void enviarMensaje(String destino, String sujeto, String mensaje) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
@@ -173,5 +174,24 @@ public String mensajePredeterminado(String nombre, String descripcion, Date inic
             nombre, descripcion, inicio, fin, montoPromocion.toString()
     );
 }
+
+   @Override
+     @Transactional 
+    public boolean activarPromocion(int id) {
+        try {
+          
+            if (!promocionRepo.existsById(id)) { 
+                System.err.println("La promocion con ID: " + id + " no existe.");
+                return false;
+            }
+
+            System.out.println("activando categoria con ID: " + id);
+            promocionRepo.activarPromocion(id);
+            return true; 
+        } catch (Exception e) {
+            System.err.println("Error al activar la promocion con ID: " + id + ". Detalles: " + e.getMessage());
+            return false; // Retorna false en caso de error
+        }
+    }
 
 }

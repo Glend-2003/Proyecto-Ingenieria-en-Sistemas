@@ -58,9 +58,49 @@ END$$
 DELIMITER ;
 --_____________________________________________________________________________________________________________________________
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `spLeerCategoria`()
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spLeerCategoria`(IN `p_filtrarInactivos` BOOLEAN)
 BEGIN
-    SELECT * FROM tbcategoria;
+    IF p_filtrarInactivos THEN
+    SELECT * FROM tbcategoria
+    WHERE estadoCategoria = 1;
+    ELSE
+      SELECT * FROM tbcategoria
+    ORDER BY estadoCategoria DESC;
+    END IF;
 END$$
 DELIMITER ;
 --_____________________________________________________________________________________________________________________________
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spActivarCategoria`(IN `p_idCategoria` INT)
+BEGIN
+    DECLARE done INT DEFAULT 0;
+    DECLARE estadoActual INT;
+
+    -- Manejador de errores para capturar excepciones SQL genéricas
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+    BEGIN
+        -- Si ocurre un error SQL, se hace rollback
+        ROLLBACK;
+        SELECT 'Error al activar la categoria' AS mensaje;
+    END;
+
+    -- Verificar si la categoria existe
+    IF done = 0 AND NOT EXISTS (SELECT 1 FROM tbcategoria WHERE idCategoria = p_idCategoria) THEN
+        SET done = 1;
+        SELECT 'Categoraía no encontrado' AS mensaje;
+    END IF;
+
+    -- Cambiar el estado de la categoria si existe
+    IF done = 0 THEN
+        -- Obtener el estado actual de la categoria
+        SELECT estadoCategoria INTO estadoActual FROM tbcategoria WHERE idCategoria = p_idCategoria;
+
+        -- Cambiar el valor de estado a 1 si es 0, o a 0 si es 1
+        UPDATE tbcategoria
+        SET estadoCategoria = CASE WHEN estadoActual = 1 THEN 0 ELSE 1 END
+        WHERE idCategoria = p_idCategoria;  -- Aquí corregido: usar idProducto en lugar de p_idProducto
+
+        SELECT 'Categoria activada con éxito' AS mensaje;
+    END IF;
+END

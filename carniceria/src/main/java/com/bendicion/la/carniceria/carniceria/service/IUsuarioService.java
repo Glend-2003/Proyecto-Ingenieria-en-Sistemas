@@ -41,4 +41,7 @@ public interface IUsuarioService {
     // Obtener usuario por ID
     public Usuario getUsuarioById(int id);
 
+    @Transactional
+    public boolean activarUsuario(int id);
+     
 }

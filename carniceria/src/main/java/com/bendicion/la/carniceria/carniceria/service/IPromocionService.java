@@ -21,6 +21,7 @@ public interface IPromocionService {
     public Promocion addPromocion(Promocion promocion);
     
     //Lista de promociones
+    @Transactional
      public List<Map<String, Object>> getPromociones();
      
     //Actualizar Promocion
@@ -30,7 +31,12 @@ public interface IPromocionService {
     @Transactional
     public boolean deletePromocion(int id);
     
+    @Transactional 
     public void enviarMensaje(String destino, String sujeto,String mensaje);
     
+    @Transactional 
     public String mensajePredeterminado(String nombre, String descripcion, Date inicioPromocion, Date finPromocion, BigDecimal montoPromocion);
+
+      @Transactional
+    public boolean activarPromocion(int id);
 }

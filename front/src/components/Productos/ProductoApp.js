@@ -40,7 +40,9 @@ const ProductoApp = () => {
 
   const cargarProductos = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/producto/");
+      const response = await axios.get("http://localhost:8080/producto/", {
+        params: { estadoProducto: 0 }
+      });
       console.log(response.data);
       const productos = response.data;
 
@@ -62,7 +64,9 @@ const ProductoApp = () => {
 
   const cargarCategorias = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/categoria/");
+      const response = await axios.get("http://localhost:8080/categoria/", {
+        params: { estadoCategoria: 1 }
+      });
       setCategorias(response.data);
     } catch (error) {
       console.error("Error al cargar categorías:", error);
@@ -204,6 +208,17 @@ const ProductoApp = () => {
     } catch (error) {
       console.error("Error al eliminar producto:", error);
       toast.error("Ocurrió un error al eliminar el producto");
+    }
+  };
+
+  const activarDesactivarProductos = async (id) => {
+    try {
+      await axios.put(`http://localhost:8080/producto/activar/${id}`);
+      toast.success("Cambio realizado con éxito.");
+      cargarProductos();
+    } catch (error) {
+      console.error("Error al realizar el cambio:", error);
+      toast.error("Ocurrió un error al cambiar el estado del producto.");
     }
   };
 
@@ -471,6 +486,7 @@ const ProductoApp = () => {
                         className={`btn btn-sm ${
                           producto.estadoProducto ? "btn-success" : "btn-danger"
                         }`}
+                        onClick={() => activarDesactivarProductos(producto.idProducto)}
                       >
                         {producto.estadoProducto ? "Activo" : "Inactivo"}
                       </button>

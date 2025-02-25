@@ -35,10 +35,10 @@ public class CategoriaController {
     
     // Read
     @GetMapping("/")
-    public ResponseEntity<List<Categoria>> listCategoria() {
-        List<Categoria> categorias = iCategoriaService.getCategoria();
+    public ResponseEntity<List<Categoria>> listCategoria(Boolean estadoCategoria) {
+        List<Categoria> categorias = iCategoriaService.getCategoria(estadoCategoria);
         System.out.println("Listando todas las categorias: " + categorias.size() + " categorias encontradas.");
-        return ResponseEntity.ok(iCategoriaService.getCategoria());
+        return ResponseEntity.ok(iCategoriaService.getCategoria(estadoCategoria));
     }
 
     // Read by ID
@@ -104,4 +104,16 @@ public class CategoriaController {
         }
     }
 
+    @PutMapping("/activar/{id}")
+    public ResponseEntity<Boolean> activarCategoria(@PathVariable int id) {
+        boolean estado = iCategoriaService.activarCategoria(id);
+
+        if (estado) {
+            System.out.println("Estado de categoria modificado: ID -->" + id);
+            return ResponseEntity.ok(true);
+        } else {
+            System.out.println("No se pudo modificar el estado de la categoria: ID -->" + id + " no encontrado.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
+        }
+    }
 }

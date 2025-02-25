@@ -35,7 +35,9 @@ const CategoriaApp = () => {
 
   const cargarCategorias = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/categoria/");
+      const response = await axios.get("http://localhost:8080/categoria/",{
+        params: { estadoCategoria: 0 }
+      });
       setCategorias(response.data);
     } catch (error) {
       console.error("Error al cargar categorías:", error);
@@ -151,6 +153,17 @@ const CategoriaApp = () => {
     } catch (error) {
       console.error("Error al eliminar categoría:", error);
       toast.error("Ocurrió un error al eliminar la categoría");
+    }
+  };
+
+  const activarDesactivarCategoria = async (id) => {
+    try {
+      await axios.put(`http://localhost:8080/categoria/activar/${id}`);
+      toast.success("Cambio realizado con éxito.");
+      cargarCategorias();
+    } catch (error) {
+      console.error("Error al realizar el cambio:", error);
+      toast.error("Ocurrió un error al cambiar el estado de la categoria.");
     }
   };
 
@@ -295,6 +308,7 @@ const CategoriaApp = () => {
                             ? "btn-success"
                             : "btn-danger"
                         }`}
+                        onClick={() => activarDesactivarCategoria(categoria.idCategoria)}
                       >
                         {categoria.estadoCategoria ? "Activo" : "Inactivo"}
                       </button>

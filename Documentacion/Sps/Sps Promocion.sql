@@ -1,7 +1,9 @@
-|------------------------------------------------PROMOCION---------------------------------------------------|
+/*
+|--|----------------------------------------------PROMOCION---------------------------------------------------| 
 
-|---------------------sp actualizar----------------------|
-
+/***************************************************************/
+---------------------sp actualizar promocion--------------------
+***************************************************************/
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spActualizarPromocion`(IN `p_idPromocion` INT,  
 	IN `p_descripcionPromocion` VARCHAR(1000), 
@@ -113,7 +115,7 @@ BEGIN
 END$$
 DELIMITER ;
 
-
+|---------------------sp leer----------------------|
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spLeerPromociones`()
 BEGIN
@@ -129,7 +131,43 @@ BEGIN
         tbpromocion p
     JOIN 
         tbproducto c ON p.idProducto = c.idProducto
-    WHERE 
-        p.estadoPromocion = 1;
+    ORDER BY
+        p.estadoPromocion DESC;
 END$$
 DELIMITER ;
+
+|---------------------sp modificar estado promocion----------------------|
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spActivarPromocion`(IN `p_idPromocion` INT)
+BEGIN
+    DECLARE done INT DEFAULT 0;
+    DECLARE estadoActual INT;
+
+    -- Manejador de errores para capturar excepciones SQL genéricas
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+    BEGIN
+        -- Si ocurre un error SQL, se hace rollback
+        ROLLBACK;
+        SELECT 'Error al cambiar el estado de la promoción' AS mensaje;
+    END;
+
+    -- Verificar si la promocion existe
+    IF done = 0 AND NOT EXISTS (SELECT 1 FROM tbpromocion WHERE idPromocion = p_idPromocion) THEN
+        SET done = 1;
+        SELECT 'promocion no encontrada' AS mensaje;
+    END IF;
+
+    -- Cambiar el estado de la promocion si existe
+    IF done = 0 THEN
+        -- Obtener el estado actual de la promocion
+        SELECT estadoPromocion INTO estadoActual FROM tbpromocion WHERE idPromocion = p_idPromocion;
+
+        -- Cambiar el valor de estado a 1 si es 0, o a 0 si es 1
+        UPDATE tbpromocion
+        SET estadoPromocion = CASE WHEN estadoActual = 1 THEN 0 ELSE 1 END
+        WHERE idPromocion = p_idPromocion;  
+
+        SELECT 'Estado de la promocion cambiada con éxito' AS mensaje;
+    END IF;
+END

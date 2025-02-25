@@ -1,3 +1,4 @@
+--____________________________________________________________________________________________________________________________________________________
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spActualizarComentario`(IN `p_idComentario` INT, IN `p_descripcionComentario` VARCHAR(1000), IN `p_fechaComentario` DATETIME, IN `P_idUsuario` INT, IN `p_numCalificacion` INT)
 BEGIN
@@ -10,6 +11,9 @@ BEGIN
     WHERE idComentario = p_idComentario;
 END$$
 DELIMITER ;
+
+
+--___________________________________________________________________________________________________________
 
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spAgregarComentario`(IN `p_descripcionComentario` VARCHAR(1000), IN `p_fechaComentario` DATETIME, IN `p_idUsuario` INT, IN `p_numCalificacionComentario` INT)
@@ -36,6 +40,8 @@ BEGIN
 
 END$$
 DELIMITER ;
+
+--__________________________________________________________________________________________________________________
 
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spEliminarComentario`(IN `p_idComentario` INT)
@@ -64,6 +70,8 @@ BEGIN
 END$$
 DELIMITER ;
 
+--____________________________________________________________________________________________________________________________
+
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spLeerComentarios`()
 BEGIN
@@ -75,17 +83,12 @@ BEGIN
         c.numCalificacion,
         c.verificacion
     FROM tbcomentario c 
-    INNER JOIN tbusuario u ON c.idUsuario = u.idUsuario;
+    INNER JOIN tbusuario u ON c.idUsuario = u.idUsuario
+    ORDER BY verificacion DESC;
 END$$
 DELIMITER ;
 
-DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `spLeerComentariosAdmin`()
-BEGIN
-    SELECT * FROM tbcomentario
-    WHERE verificacion = 0;
-END$$
-DELIMITER ;
+--__________________________________________________________________________________________________________________
 
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spLeerComentariosUsuario`()
@@ -94,6 +97,8 @@ BEGIN
     WHERE verificacion = 1;
 END$$
 DELIMITER ;
+
+--___________________________________________________________________________________________________________________
 
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spMostrarComentario`(IN `p_idComentario` INT)

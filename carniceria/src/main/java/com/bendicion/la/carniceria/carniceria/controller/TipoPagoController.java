@@ -106,5 +106,16 @@ public class TipoPagoController {
         }
     }
     
-    
+      @PutMapping("/activar/{id}")
+    public ResponseEntity<Boolean> activarTipoPago(@PathVariable int id) {
+        boolean estado = iTipoPagoService.activarTipoPago(id);
+
+        if (estado) {
+            System.out.println("Estado del tipo pago modificado: ID -->" + id);
+            return ResponseEntity.ok(true);
+        } else {
+            System.out.println("No se pudo modificar el estado del tipo pago: ID -->" + id + " no encontrado.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
+        }
+    }
 }

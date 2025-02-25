@@ -94,6 +94,17 @@ const GestionarUsuario = () => {
     }
   };
 
+  const activarDesactivarUsuario = async (id) => {
+    try {
+      await axios.put(`http://localhost:8080/usuario/activar/${id}`);
+      toast.success("Cambio realizado con éxito.");
+      cargarUsuarios();
+    } catch (error) {
+      console.error("Error al realizar el cambio:", error);
+      toast.error("Ocurrió un error al cambiar el estado del usuario.");
+    }
+  };
+
   const handlePasswordUpdate = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
@@ -299,6 +310,7 @@ const GestionarUsuario = () => {
                     <td>
                       <button
                         className={`btn btn-sm ${user.estadoUsuario ? "btn-success" : "btn-danger"}`}
+                        onClick={() => activarDesactivarUsuario(user.idUsuario)}
                       >
                         {user.estadoUsuario ? "Activo" : "Inactivo"}
                       </button>
@@ -307,6 +319,7 @@ const GestionarUsuario = () => {
                       <button
                         className="btn btn-warning btn-sm me-2"
                         onClick={() => { setUserEdit(user); setShowModal(true); }}
+                        
                       >
                         <FaEdit />
                       </button>

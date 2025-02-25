@@ -56,8 +56,8 @@ public interface ProductoRepository extends JpaRepository<Producto, Integer>{
 // -----------------------------------------------------------------------------   
     
     // SP Read
-    @Query(value = "{call spLeerProducto()}", nativeQuery = true)
-    List<Producto> listProcedureProducto();
+    @Query(value = "{call spLeerProducto(:estadoProducto)}", nativeQuery = true)
+    List<Producto> listProcedureProducto( @Param("estadoProducto") boolean estadoProducto);
     
 // -----------------------------------------------------------------------------     
     
@@ -70,5 +70,8 @@ public interface ProductoRepository extends JpaRepository<Producto, Integer>{
   
     @Query(value = "{call spBuscarProductoPorId(:idProducto)}", nativeQuery = true)
     Producto buscarProducto(@Param("idProducto") int id);
+    
+    @Query(value = "{call spActivarProducto(:idProducto)}", nativeQuery = true)
+    void activarProducto(@Param("idProducto") Integer idProducto);
     
 }

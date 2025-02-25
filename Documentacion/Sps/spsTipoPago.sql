@@ -67,16 +67,13 @@ DELIMITER ;
 -- Leer
 
 DELIMITER $$
-
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spLeerTipoPago`()
 BEGIN
     -- Leer solo los tipos de pago donde el estado sea 1 (activo)
     SELECT * FROM tbtipopago
-    WHERE estadoTipoPago = 1;
+    ORDER BY estadoTipoPago DESC;
 END$$
-
 DELIMITER ;
-
 
 -- Leer por ID
 
@@ -95,3 +92,37 @@ BEGIN
 END$$
 
 DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spActivarTipoPago`(IN `p_idTipoPago` INT)
+BEGIN
+    DECLARE done INT DEFAULT 0;
+    DECLARE estadoActual INT;
+
+    -- Manejador de errores para capturar excepciones SQL genéricas
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+    BEGIN
+        -- Si ocurre un error SQL, se hace rollback
+        ROLLBACK;
+        SELECT 'Error al cambiar el estado del tipo de pago' AS mensaje;
+    END;
+
+    -- Verificar si el tipo de pago existe
+    IF done = 0 AND NOT EXISTS (SELECT 1 FROM tbtipopago WHERE idTipoPago = p_idTipoPago) THEN
+        SET done = 1;
+        SELECT 'Tipo pago no encontrada' AS mensaje;
+    END IF;
+
+    -- Cambiar el estado del tipo pago si existe
+    IF done = 0 THEN
+        -- Obtener el estado actual del tipo pago
+        SELECT estadoTipoPago INTO estadoActual FROM tbtipopago WHERE idTipoPago = p_idTipoPago;
+
+        -- Cambiar el valor de estado a 1 si es 0, o a 0 si es 1
+        UPDATE tbtipopago
+        SET estadoTipoPago = CASE WHEN estadoActual = 1 THEN 0 ELSE 1 END
+        WHERE idTipoPago = p_idTipoPago;  
+
+        SELECT 'Estado del tipo pago cambiado con éxito' AS mensaje;
+    END IF;
+END

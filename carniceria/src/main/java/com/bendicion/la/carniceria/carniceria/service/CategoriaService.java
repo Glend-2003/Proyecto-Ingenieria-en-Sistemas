@@ -43,8 +43,8 @@ public class CategoriaService implements ICategoriaService {
 
     @Override
     @Transactional // Asegúrate de que esté anotado
-    public List<Categoria> getCategoria() {
-        return categoriaRep.listProcedureCategoria();
+    public List<Categoria> getCategoria(Boolean estadoCategoria) {
+        return categoriaRep.listProcedureCategoria(estadoCategoria);
     }
 
     @Override
@@ -64,4 +64,22 @@ public class CategoriaService implements ICategoriaService {
     }
     }
 
+      @Override
+     @Transactional 
+    public boolean activarCategoria(int id) {
+        try {
+          
+            if (!categoriaRep.existsById(id)) { 
+                System.err.println("El prodcuto con ID: " + id + " no existe.");
+                return false;
+            }
+
+            System.out.println("activando categoria con ID: " + id);
+            categoriaRep.activarCategoria(id);
+            return true; 
+        } catch (Exception e) {
+            System.err.println("Error al activar la categoria con ID: " + id + ". Detalles: " + e.getMessage());
+            return false; // Retorna false en caso de error
+        }
+    }
 }

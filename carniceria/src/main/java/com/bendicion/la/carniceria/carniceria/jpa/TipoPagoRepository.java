@@ -43,4 +43,8 @@ public interface TipoPagoRepository extends JpaRepository <TipoPago, Integer>{
     @Modifying
     @Query(value = "{call spEliminarTipoPago(:idTipoPago)}", nativeQuery = true)
     void deleteProcedureTipoPago(@Param("idTipoPago") Integer idTipoPago);
+    
+    @Query(value = "{call spActivarTipoPago(:idTipoPago)}", nativeQuery = true)
+    void activarTipoPago(@Param("idTipoPago") Integer idTipoPago);
+    
 }
