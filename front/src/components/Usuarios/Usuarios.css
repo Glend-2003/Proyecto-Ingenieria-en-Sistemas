@@ -29,7 +29,7 @@
 }
 
 body {
-  background-image: url('C:/Users/Usuario/Documents/GitHub/Proyecto-Ingenieria-en-Sistemas/Imagenes/vaca2.jpg'); /* Ruta de la imagen */
+  background-color: #f0f0f0; /* Cambia este color al que prefieras */
   background-size: cover; /* Ajusta la imagen para cubrir toda la pantalla */
   background-position: center; /* Centra la imagen */
   background-repeat: no-repeat; /* Evita que la imagen se repita */
