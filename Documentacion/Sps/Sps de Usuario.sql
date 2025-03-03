@@ -285,14 +285,17 @@ DELIMITER ;
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spRegistrarUsuario`(
     IN `p_correoUsuario` VARCHAR(255), 
-    IN `p_contraseniaUsuario` VARCHAR(255),
+    IN `p_contraseniaUsuario` VARCHAR(255), 
     IN `p_nombreUsuario` VARCHAR(255), 
     IN `p_primerApellido` VARCHAR(255), 
-    IN `p_segundoApellido` VARCHAR(255)
+    IN `p_segundoApellido` VARCHAR(255), 
+    IN `p_estadoUsuario` TINYINT,
+    IN `p_numCodigo` VARCHAR(6)  -- Nuevo parámetro para el código de verificación
 )
 BEGIN
-    -- Variable de control
-    DECLARE done INT DEFAULT 0;
+    -- Declarar la variable para almacenar el ID de la dirección insertada
+    DECLARE idDireccion INT;
+    DECLARE idUsuario INT;
 
     -- Manejador de errores para capturar excepciones SQL genéricas
     DECLARE EXIT HANDLER FOR SQLEXCEPTION 
@@ -339,11 +342,18 @@ BEGIN
     INSERT INTO tbdireccion () VALUES ();
 
     -- Obtener el ID de la dirección insertada
-    SET @idDireccion = LAST_INSERT_ID();
+    SET idDireccion = LAST_INSERT_ID();
 
     -- Insertar el usuario
-    INSERT INTO tbusuario (correoUsuario, contraseniaUsuario, nombreUsuario, primerApellido, segundoApellido, idDireccion, idRol)
-    VALUES (p_correoUsuario, p_contraseniaUsuario, p_nombreUsuario, p_primerApellido, p_segundoApellido, @idDireccion, 3);
+    INSERT INTO tbusuario (correoUsuario, contraseniaUsuario, nombreUsuario, primerApellido, segundoApellido, idDireccion, idRol, estadoUsuario)
+    VALUES (p_correoUsuario, p_contraseniaUsuario, p_nombreUsuario, p_primerApellido, p_segundoApellido, idDireccion, 3, p_estadoUsuario);
+
+    -- Obtener el ID del usuario insertado
+    SET idUsuario = LAST_INSERT_ID();
+
+    -- Insertar el código de verificación
+    INSERT INTO tbcodigoverificacion (numCodigo, idUsuario)
+    VALUES (p_numCodigo, idUsuario);  -- Insertar el código proporcionado
 
     -- Hacer commit si todo está bien
     COMMIT;
