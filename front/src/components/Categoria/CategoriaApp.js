@@ -156,6 +156,17 @@ const CategoriaApp = () => {
     }
   };
 
+  const activarDesactivarCategoria = async (id) => {
+    try {
+      await axios.put(`http://localhost:8080/categoria/activar/${id}`);
+      toast.success("Cambio realizado con éxito.");
+      cargarCategorias();
+    } catch (error) {
+      console.error("Error al realizar el cambio:", error);
+      toast.error("Ocurrió un error al cambiar el estado de la categoria.");
+    }
+  };
+
   const handleShowModal = (categoria = null) => {
     if (categoria) {
       setCategoriaEdit(categoria);
@@ -297,6 +308,7 @@ const CategoriaApp = () => {
                             ? "btn-success"
                             : "btn-danger"
                         }`}
+                        onClick={() => activarDesactivarCategoria(categoria.idCategoria)}
                       >
                         {categoria.estadoCategoria ? "Activo" : "Inactivo"}
                       </button>

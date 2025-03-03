@@ -24,4 +24,6 @@ public interface ICategoriaService {
     @Transactional
     public boolean deleteCategoria(int id);
     
+    @Transactional
+    public boolean activarCategoria(int id);
 }

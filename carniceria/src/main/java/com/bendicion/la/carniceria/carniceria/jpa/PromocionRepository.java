@@ -63,5 +63,7 @@ public interface PromocionRepository extends JpaRepository<Promocion, Integer>{
     @Query(value = "{call spEliminarPromocion(:idPromocion)}", nativeQuery = true)
     void deleteProcedurePromoocion(@Param("idPromocion") Integer idPromocion);
     
-
+   @Query(value = "{call spActivarPromocion(:idPromocion)}", nativeQuery = true)
+    void activarPromocion(@Param("idPromocion") Integer idPromocion);
+    
 }

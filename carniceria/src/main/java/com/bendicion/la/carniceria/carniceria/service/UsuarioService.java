@@ -316,4 +316,23 @@ public class UsuarioService implements IUsuarioService {
         return usuarioRepo.listProcedureUsuarioById(id);
     }
 
+    
+     @Override
+     @Transactional 
+    public boolean activarUsuario(int id) {
+        try {
+           
+            if (!usuarioRepo.existsById(id)) { // 
+                System.err.println("El usuario con ID: " + id + " no existe.");
+                return false; 
+            }
+
+            System.out.println("activando usuario con ID: " + id);
+            usuarioRepo.activarUsuario(id);
+            return true; 
+        } catch (Exception e) {
+            System.err.println("Error al activar el usuario con ID: " + id + ". Detalles: " + e.getMessage());
+            return false; // Retorna false en caso de error
+        }
+    }
 }

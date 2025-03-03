@@ -71,4 +71,7 @@ public interface ProductoRepository extends JpaRepository<Producto, Integer>{
     @Query(value = "{call spBuscarProductoPorId(:idProducto)}", nativeQuery = true)
     Producto buscarProducto(@Param("idProducto") int id);
     
+    @Query(value = "{call spActivarProducto(:idProducto)}", nativeQuery = true)
+    void activarProducto(@Param("idProducto") Integer idProducto);
+    
 }

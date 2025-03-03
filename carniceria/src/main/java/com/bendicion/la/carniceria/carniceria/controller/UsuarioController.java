@@ -194,5 +194,19 @@ public class UsuarioController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
+    
+    
+    @PutMapping("/activar/{id}")
+    public ResponseEntity<Boolean> activarUsuario(@PathVariable int id) {
+        boolean estado = iUsuarioService.activarUsuario(id);
+
+        if (estado) {
+            System.out.println("usuario activado: ID -->" + id);
+            return ResponseEntity.ok(true);
+        } else {
+            System.out.println("No se pudo activar el usuario: ID -->" + id + " no encontrado.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
+        }
+    }
 
 }

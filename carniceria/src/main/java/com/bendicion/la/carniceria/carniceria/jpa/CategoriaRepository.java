@@ -46,4 +46,7 @@ public interface CategoriaRepository extends JpaRepository<Categoria, Integer>{
     @Query(value = "{call spEliminarCategoria(:idCategoria)}", nativeQuery = true)
     void deleteProcedureCategoria(@Param("idCategoria") Integer idCategoria);
 
+      @Query(value = "{call spActivarCategoria(:idCategoria)}", nativeQuery = true)
+    void activarCategoria(@Param("idCategoria") Integer idCategoria);
+    
 }

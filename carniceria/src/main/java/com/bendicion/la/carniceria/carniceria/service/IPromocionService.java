@@ -36,4 +36,7 @@ public interface IPromocionService {
     
     @Transactional 
     public String mensajePredeterminado(String nombre, String descripcion, Date inicioPromocion, Date finPromocion, BigDecimal montoPromocion);
+
+      @Transactional
+    public boolean activarPromocion(int id);
 }

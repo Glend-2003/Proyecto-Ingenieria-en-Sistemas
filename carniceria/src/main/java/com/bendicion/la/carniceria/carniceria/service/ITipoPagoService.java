@@ -21,4 +21,7 @@ public interface ITipoPagoService {
     
     @Transactional
     public boolean deleteTipoPago(int id);
+    
+      @Transactional
+    public boolean activarTipoPago(int id);
 }

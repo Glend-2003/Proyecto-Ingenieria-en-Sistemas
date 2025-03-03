@@ -132,6 +132,17 @@ const TipoPagoApp = () => {
     }
   };
 
+  const activarDesactivarTipoPago = async (id) => {
+    try {
+      await axios.put(`http://localhost:8080/tipopago/activar/${id}`);
+      toast.success("Cambio realizado con éxito.");
+      cargarTipoPago();
+    } catch (error) {
+      console.error("Error al realizar el cambio:", error);
+      toast.error("Ocurrió un error al cambiar el estado del tipo pago.");
+    }
+  };
+
   const handleShowModal = (tipoPago = null) => {
     if (tipoPago) {
       setTipoPagoEdit(tipoPago);
@@ -173,7 +184,7 @@ const TipoPagoApp = () => {
 
 
   return (
-    <div className="content-container">
+    <div className="content-tipoPago">
       <SideBar usuario={usuario} />
       <div className="container mt-5">
         <h1>Gestión tipo de pagos</h1>
@@ -247,6 +258,7 @@ const TipoPagoApp = () => {
                         className={`btn btn-sm ${
                           tipoPago.estadoTipoPago ? "btn-success" : "btn-danger"
                         }`}
+                        onClick={() => activarDesactivarTipoPago(tipoPago.idTipoPago)}
                       >
                         {tipoPago.estadoTipoPago ? "Activo" : "Inactivo"}
                       </button>

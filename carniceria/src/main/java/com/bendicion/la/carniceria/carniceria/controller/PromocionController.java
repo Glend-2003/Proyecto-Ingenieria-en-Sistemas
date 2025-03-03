@@ -178,5 +178,16 @@ public ResponseEntity<?> mensaje(@RequestBody Promocion promocion, @RequestParam
     }
 }
 
+  @PutMapping("/activar/{id}")
+    public ResponseEntity<Boolean> activarPromocion(@PathVariable int id) {
+        boolean estado = promocionService.activarPromocion(id);
 
+        if (estado) {
+            System.out.println("Estado de la promocion modificado: ID -->" + id);
+            return ResponseEntity.ok(true);
+        } else {
+            System.out.println("No se pudo modificar el estado de la promocion: ID -->" + id + " no encontrado.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
+        }
+    }
 }
