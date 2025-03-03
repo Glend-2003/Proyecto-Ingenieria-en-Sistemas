@@ -15,7 +15,6 @@ import com.bendicion.la.carniceria.carniceria.jpa.UsuarioRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
-import java.util.Random;
 
 /**
  *
@@ -39,7 +38,7 @@ public class UsuarioService implements IUsuarioService {
 
 // -----------------------------------------------------------------------------
     @Override
-    @Transactional 
+    @Transactional // Asegúrate de que esté anotado
     public Usuario addUsuario(Usuario usuario) {
 
         if (usuario.getCedulaUsuario() == null || usuario.getCedulaUsuario().trim().isEmpty()) {
@@ -103,7 +102,7 @@ public class UsuarioService implements IUsuarioService {
 
 // ----------------------------------------------------------------------------- 
     @Override
-    @Transactional 
+    @Transactional // Asegúrate de que esté anotado
     public Usuario registerUsuario(Usuario usuario) {
 
         // Verificación de correo existente
@@ -134,31 +133,19 @@ public class UsuarioService implements IUsuarioService {
         if (usuario.getSegundoApellido().equals("")) {
             throw new RuntimeException("Debe ingresar el segundo apellido");
         }
-
-        // Código
-        String numCodigo = generateCodigo();
-
-        // Registrar el usuario
+        //System.out.println("Usuario registrado: " + usuario.getNombreUsuario() + " " + usuario.getPrimerApellido() + " " + usuario.getSegundoApellido());
         usuario.setEstadoUsuario(true);
+
         usuarioRepo.registerProcedureUsuario(
                 usuario.getCorreoUsuario(),
                 encriptedPassword,
                 usuario.getNombreUsuario(),
                 usuario.getPrimerApellido(),
                 usuario.getSegundoApellido(),
-                usuario.isEstadoUsuario(),
-                numCodigo  
+                usuario.isEstadoUsuario()
         );
 
         return usuario;
-    }
-
-// -----------------------------------------------------------------------------      
-// Método para generar un código de 6 dígitos único
-    
-    private String generateCodigo() {
-        Random random = new Random();
-        return String.format("%06d", random.nextInt(1000000));  
     }
 
 // -----------------------------------------------------------------------------  

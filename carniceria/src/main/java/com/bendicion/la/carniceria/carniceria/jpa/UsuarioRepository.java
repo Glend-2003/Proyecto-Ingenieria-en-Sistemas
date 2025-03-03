@@ -29,29 +29,24 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
         @Param("correoUsuario") String correoUsuario, 
         @Param("contraseniaUsuario") String contraseniaUsuario,
         @Param("fechaNacimiento") Date fechaNacimiento,
-        //direccion
         @Param("descripcionDireccion") String descripcionDireccion, 
         @Param("codigoPostalDireccion") String codigoPostalDireccion,
         @Param("idDistrito") Integer idDistrito, 
-        //rol
         @Param("idRol") Integer idRol
-        //codigo
-            
     );
 
 // -----------------------------------------------------------------------------    
     
     // SP Register
     @Modifying
-    @Query(value = "{call spRegistrarUsuario(:correoUsuario, :contraseniaUsuario, :nombreUsuario, :primerApellido, :segundoApellido, :estadoUsuario, :numCodigo)}", nativeQuery = true)
+    @Query(value = "{call spRegistrarUsuario(:correoUsuario, :contraseniaUsuario, :nombreUsuario, :primerApellido, :SegundoApellido, :estadoUsuario)}", nativeQuery = true)
     void registerProcedureUsuario(
             @Param("correoUsuario") String correoUsuario,
             @Param("contraseniaUsuario") String contraseniaUsuario,
             @Param("nombreUsuario") String nombreUsuario,
             @Param("primerApellido") String primerApellido,
-            @Param("segundoApellido") String segundoApellido,
-            @Param("estadoUsuario") boolean estadoUsuario,
-            @Param("numCodigo") String numCodigo
+            @Param("SegundoApellido") String SegundoApellido,
+            @Param("estadoUsuario") boolean estadoUsuario
     );
 // -----------------------------------------------------------------------------
     
