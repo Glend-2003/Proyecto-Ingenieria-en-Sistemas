@@ -34,21 +34,22 @@ public class Pedido {
     
     @Column(name = "estadoEntregaPedido")
     private String estadoEntregaPedido;
-/*
+
     @OneToOne
-    @JoinColumn(name = "idCarrito ")
+    @JoinColumn(name = "idCarrito")
     private Carrito carrito;
-*/
+
     @OneToOne
-    @JoinColumn(name = "idTipoPago  ")
+    @JoinColumn(name = "idTipoPago")
     private TipoPago tipoPago;
 
-    public Pedido(int idPedido, BigDecimal montoTotalPedido, LocalDateTime fechaPedido, boolean estadoPedido, String estadoEntregaPedido, TipoPago tipoPago) {
+    public Pedido(int idPedido, BigDecimal montoTotalPedido, LocalDateTime fechaPedido, boolean estadoPedido, String estadoEntregaPedido, TipoPago tipoPago, Carrito carrito) {
         this.idPedido = idPedido;
         this.montoTotalPedido = montoTotalPedido;
         this.fechaPedido = fechaPedido;
         this.estadoPedido = estadoPedido;
         this.estadoEntregaPedido = estadoEntregaPedido;
+        this.carrito = carrito;
         this.tipoPago = tipoPago;
     }
 
