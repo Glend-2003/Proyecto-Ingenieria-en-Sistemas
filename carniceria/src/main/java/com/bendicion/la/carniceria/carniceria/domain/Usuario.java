@@ -198,4 +198,9 @@ public class Usuario {
         this.comentarios = comentarios;
     }
 
+    @Override
+    public String toString() {
+        return "Usuario{" + "idUsuario=" + idUsuario + ", nombreUsuario=" + nombreUsuario + ", primerApellido=" + primerApellido + ", segundoApellido=" + segundoApellido + ", fechaNacimiento=" + fechaNacimiento + ", cedulaUsuario=" + cedulaUsuario + ", rol=" + rol + ", correoUsuario=" + correoUsuario + ", telefonoUsuario=" + telefonoUsuario + ", contraseniaUsuario=" + contraseniaUsuario + ", direccion=" + direccion + ", estadoUsuario=" + estadoUsuario + ", comentarios=" + comentarios + ", token=" + token + '}';
+    }
+
 }

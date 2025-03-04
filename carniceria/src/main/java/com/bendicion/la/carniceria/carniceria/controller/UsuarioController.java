@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bendicion.la.carniceria.carniceria.Logic.JwtService;
+import com.bendicion.la.carniceria.carniceria.domain.Rol;
 import com.bendicion.la.carniceria.carniceria.domain.Usuario;
 import com.bendicion.la.carniceria.carniceria.service.IUsuarioService;
 
@@ -72,7 +73,7 @@ public class UsuarioController {
     @PostMapping("/registrar")
     public ResponseEntity<?> registrarUsuario(@RequestBody Usuario usuario) {
         try {
-
+System.out.println("Datos del usuario recibidos: " + usuario);
             iUsuarioService.registerUsuario(usuario);
             return ResponseEntity.ok("Usuario registrado con éxito");
         } catch (Exception e) {
@@ -208,5 +209,6 @@ public class UsuarioController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
         }
     }
-
+    
+ 
 }

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.bendicion.la.carniceria.carniceria.Logic.JwtService;
 import com.bendicion.la.carniceria.carniceria.Logic.Seguridad;
+import com.bendicion.la.carniceria.carniceria.domain.Rol;
 import com.bendicion.la.carniceria.carniceria.domain.Usuario;
 import com.bendicion.la.carniceria.carniceria.jpa.UsuarioRepository;
 
@@ -102,56 +103,62 @@ public class UsuarioService implements IUsuarioService {
     }
 
 // ----------------------------------------------------------------------------- 
-    @Override
-    @Transactional 
-    public Usuario registerUsuario(Usuario usuario) {
+ @Override
+@Transactional
+public Usuario registerUsuario(Usuario usuario) {
+    int rolCliente = 3; // Valor predeterminado para el rol de cliente
 
-        // Verificación de correo existente
-        int existe = usuarioRepo.verifyCorreoProcedureUsuario(usuario.getCorreoUsuario());
-        String encriptedPassword = seguridad.encriptPassword(usuario.getContraseniaUsuario());
+    // Verificación de correo existente
+    int existe = usuarioRepo.verifyCorreoProcedureUsuario(usuario.getCorreoUsuario());
+    String encriptedPassword = seguridad.encriptPassword(usuario.getContraseniaUsuario());
 
-        if (existe > 0) {
-            throw new RuntimeException("El correo ya está en uso.");
-        }
-
-        // Validaciones básicas
-        if (usuario.getCorreoUsuario().equals("")) {
-            throw new RuntimeException("Debe ingresar un correo");
-        }
-
-        if (encriptedPassword == null || encriptedPassword.equals("")) {
-            throw new RuntimeException("Debe ingresar una contraseña");
-        }
-
-        if (usuario.getNombreUsuario().equals("")) {
-            throw new RuntimeException("Debe ingresar un nombre de usuario");
-        }
-
-        if (usuario.getPrimerApellido().equals("")) {
-            throw new RuntimeException("Debe ingresar el primer apellido");
-        }
-
-        if (usuario.getSegundoApellido().equals("")) {
-            throw new RuntimeException("Debe ingresar el segundo apellido");
-        }
-
-        // Código
-        String numCodigo = generateCodigo();
-
-        // Registrar el usuario
-        usuario.setEstadoUsuario(true);
-        usuarioRepo.registerProcedureUsuario(
-                usuario.getCorreoUsuario(),
-                encriptedPassword,
-                usuario.getNombreUsuario(),
-                usuario.getPrimerApellido(),
-                usuario.getSegundoApellido(),
-                usuario.isEstadoUsuario(),
-                numCodigo  
-        );
-
-        return usuario;
+    if (existe > 0) {
+        throw new RuntimeException("El correo ya está en uso.");
     }
+
+    // Validaciones básicas
+    if (usuario.getCorreoUsuario().equals("")) {
+        throw new RuntimeException("Debe ingresar un correo");
+    }
+
+    if (encriptedPassword == null || encriptedPassword.equals("")) {
+        throw new RuntimeException("Debe ingresar una contraseña");
+    }
+
+    if (usuario.getNombreUsuario().equals("")) {
+        throw new RuntimeException("Debe ingresar un nombre de usuario");
+    }
+
+    if (usuario.getPrimerApellido().equals("")) {
+        throw new RuntimeException("Debe ingresar el primer apellido");
+    }
+
+    if (usuario.getSegundoApellido().equals("")) {
+        throw new RuntimeException("Debe ingresar el segundo apellido");
+    }
+
+    // Código
+    String numCodigo = generateCodigo();
+
+    // Asignar un valor predeterminado si el rol es null
+    Integer idRol = (usuario.getRol() != null) ? usuario.getRol().getIdRol() : rolCliente;
+
+    // Registrar el usuario
+    usuario.setEstadoUsuario(true);
+
+    usuarioRepo.registerProcedureUsuario(
+        usuario.getCorreoUsuario(),
+        encriptedPassword,
+        usuario.getNombreUsuario(),
+        usuario.getPrimerApellido(),
+        usuario.getSegundoApellido(),
+        idRol,  // Usar el valor predeterminado si el rol es null
+        usuario.isEstadoUsuario(),
+        numCodigo  
+    );
+
+    return usuario;
+}
 
 // -----------------------------------------------------------------------------      
 // Método para generar un código de 6 dígitos único
@@ -335,4 +342,5 @@ public class UsuarioService implements IUsuarioService {
             return false; // Retorna false en caso de error
         }
     }
+   
 }
