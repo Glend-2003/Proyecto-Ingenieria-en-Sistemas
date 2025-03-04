@@ -295,8 +295,9 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `spRegistrarUsuario`(
     IN `p_nombreUsuario` VARCHAR(255), 
     IN `p_primerApellido` VARCHAR(255), 
     IN `p_segundoApellido` VARCHAR(255), 
-    IN `p_estadoUsuario` TINYINT,
-    IN `p_numCodigo` VARCHAR(6)  -- Nuevo parámetro para el código de verificación
+    IN `p_idRol` INT,  -- Acepta NULL
+    IN `p_estadoUsuario` TINYINT,  -- Acepta NULL
+    IN `p_numCodigo` VARCHAR(6)  -- Acepta NULL
 )
 BEGIN
     -- Declarar la variable para almacenar el ID de la dirección insertada
@@ -344,27 +345,45 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El correo ya está registrado';
     END IF;
 
-    -- Insertar la dirección
+    -- Insertar la dirección (puede ser NULL si no se proporciona)
     INSERT INTO tbdireccion () VALUES ();
 
     -- Obtener el ID de la dirección insertada
     SET idDireccion = LAST_INSERT_ID();
 
-    -- Insertar el usuario
-    INSERT INTO tbusuario (correoUsuario, contraseniaUsuario, nombreUsuario, primerApellido, segundoApellido, idDireccion, idRol, estadoUsuario)
-    VALUES (p_correoUsuario, p_contraseniaUsuario, p_nombreUsuario, p_primerApellido, p_segundoApellido, idDireccion, 3, p_estadoUsuario);
+    -- Insertar el usuario (manejar valores NULL)
+    INSERT INTO tbusuario (
+        correoUsuario, 
+        contraseniaUsuario, 
+        nombreUsuario, 
+        primerApellido, 
+        segundoApellido, 
+        idDireccion, 
+        idRol, 
+        estadoUsuario
+    ) VALUES (
+        p_correoUsuario, 
+        p_contraseniaUsuario, 
+        p_nombreUsuario, 
+        p_primerApellido, 
+        p_segundoApellido, 
+        idDireccion, 
+        IFNULL(p_idRol, 3),  -- Si p_idRol es NULL, usar 3 como valor predeterminado
+        IFNULL(p_estadoUsuario, 1)  -- Si p_estadoUsuario es NULL, usar 1 (activo) como valor predeterminado
+    );
 
     -- Obtener el ID del usuario insertado
     SET idUsuario = LAST_INSERT_ID();
 
-    -- Insertar el código de verificación
-    INSERT INTO tbcodigoverificacion (numCodigo, idUsuario)
-    VALUES (p_numCodigo, idUsuario);  -- Insertar el código proporcionado
+    -- Insertar el código de verificación (solo si no es NULL)
+    IF p_numCodigo IS NOT NULL THEN
+        INSERT INTO tbcodigoverificacion (numCodigo, idUsuario)
+        VALUES (p_numCodigo, idUsuario);
+    END IF;
 
     -- Hacer commit si todo está bien
     COMMIT;
-
-END$$
+END;
 DELIMITER ;
 
 
