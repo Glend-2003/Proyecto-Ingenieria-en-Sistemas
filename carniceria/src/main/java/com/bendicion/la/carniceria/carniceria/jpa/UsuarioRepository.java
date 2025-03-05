@@ -1,13 +1,11 @@
 package com.bendicion.la.carniceria.carniceria.jpa;
 import java.util.Date;
 import java.util.List;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
 import com.bendicion.la.carniceria.carniceria.domain.Usuario;
 
 /**
@@ -90,24 +88,37 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     
     // SP Delete 
     @Query(value = "{call spEliminarUsuario(:idUsuario)}", nativeQuery = true)
-    void deleteProcedureUsuario(@Param("idUsuario") Integer idUsuario);
+    void deleteProcedureUsuario(
+            @Param("idUsuario") Integer idUsuario);
     
 // -----------------------------------------------------------------------------     
     
     // SP para buscar el usuario por medio del correo, para el Login 
     @Query(value = "{call spBuscarUsuarioPorCorreo(:correoUsuario)}", nativeQuery = true)
-    Usuario searchUsuario(@Param("correoUsuario") String correoUsuario);
-    
+    Usuario searchUsuario(
+            @Param("correoUsuario") String correoUsuario);
+
+// -----------------------------------------------------------------------------      
      // SP para para actualizar ccontraseña
     @Query(value = "{call spActualizarContrasena(:idUsuario, :contraseniaUsuario)}", nativeQuery = true)
     Usuario UpdateProcedureContrasena(
             @Param("idUsuario") int idUsuario,
             @Param("contraseniaUsuario") String contraseniaUsuario);
-    
+
+// -----------------------------------------------------------------------------      
     @Query(value = "{call spObtenerUsuarioById(:idUsuario)}", nativeQuery = true)
-    Usuario listProcedureUsuarioById(@Param("idUsuario") Integer idUsuario);
-    
+    Usuario listProcedureUsuarioById(
+            @Param("idUsuario") Integer idUsuario);
+
+// -----------------------------------------------------------------------------      
     @Query(value = "{call spActivarUsuario(:idUsuario)}", nativeQuery = true)
-    void activarUsuario(@Param("idUsuario") Integer idUsuario);
+    void activarUsuario(
+            @Param("idUsuario") Integer idUsuario);
     
+ // ----------------------------------------------------------------------------
+    @Query(value = "CALL spCambiarContrasenaConCodigo(:numCodigo, :nuevaContrasenia, :nuevoCodigo)", nativeQuery = true)
+    int cambiarContrasenaConCodigo(
+            @Param("numCodigo") String numCodigo,
+            @Param("nuevaContrasenia") String nuevaContrasenia,
+            @Param("nuevoCodigo") String nuevoCodigo);
 }

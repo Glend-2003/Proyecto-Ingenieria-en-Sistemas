@@ -1,0 +1,63 @@
+DELIMITER $$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spObtenerCodigoUsuario`(
+    IN `p_correoUsuario` VARCHAR(255),
+    OUT `p_numCodigo` VARCHAR(6))
+BEGIN
+    DECLARE v_idUsuario INT;
+
+    -- Verificar si el correo existe
+    SELECT idUsuario INTO v_idUsuario
+    FROM tbusuario
+    WHERE correoUsuario = p_correoUsuario;
+
+    IF v_idUsuario IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El correo no está registrado';
+    ELSE
+        -- Obtener el código de verificación asociado al usuario
+        SELECT numCodigo INTO p_numCodigo
+        FROM tbcodigoverificacion
+        WHERE idUsuario = v_idUsuario;
+
+        IF p_numCodigo IS NULL THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'No se encontró un código de verificación para este usuario';
+        END IF;
+    END IF;
+
+END$$
+
+DELIMITER ;
+
+-- Cambiar cobtrasenia segun codigo inresado
+
+DELIMITER $$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spCambiarContrasenaConCodigo`(
+    IN `p_numCodigo` VARCHAR(6),
+    IN `p_nuevaContrasenia` VARCHAR(255),
+    IN `p_nuevoCodigo` VARCHAR(6)  -- Nuevo parámetro para el código de verificación
+)
+BEGIN
+    DECLARE v_idUsuario INT;
+
+    -- Obtener el ID del usuario asociado al código de verificación
+    SELECT idUsuario INTO v_idUsuario
+    FROM tbcodigoverificacion
+    WHERE numCodigo = p_numCodigo;
+
+    IF v_idUsuario IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Código de verificación inválido';
+    ELSE
+        -- Actualizar la contraseña del usuario
+        UPDATE tbusuario
+        SET contraseniaUsuario = p_nuevaContrasenia
+        WHERE idUsuario = v_idUsuario;
+
+        -- Actualizar el código de verificación en tbcodigoverificacion
+        UPDATE tbcodigoverificacion
+        SET numCodigo = p_nuevoCodigo
+        WHERE idUsuario = v_idUsuario;
+    END IF;
+END$$
+
+DELIMITER ;

@@ -151,8 +151,6 @@ public class PromocionService implements IPromocionService {
         }
     }
 
- 
-
 public String mensajePredeterminado(String nombre, String descripcion, Date inicioPromocion, Date finPromocion, BigDecimal montoPromocion) {
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy"); // Formato de fecha legible
     String inicio = dateFormat.format(inicioPromocion);
