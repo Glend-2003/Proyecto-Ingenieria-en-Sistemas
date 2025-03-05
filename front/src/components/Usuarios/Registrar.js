@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify"; // Importar toast y ToastContainer
@@ -8,7 +8,7 @@ import "../styles.min.css";
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 import "../Usuarios/Usuarios.css";
-
+import FooterApp from '../Footer/FooterApp';
 
 
 const Registrar = () => {
@@ -21,7 +21,7 @@ const Registrar = () => {
   const [verifyPassword, setVerifyPassword] = useState("");
   const [emailErrorMsg, setEmailErrorMsg] = useState("");
   const [passwordErrorMsg, setPasswordErrorMsg] = useState("");
-
+const [idRol, setIdRol] = useState(null);
 
   const Alert = React.forwardRef(function Alert(props, ref) {return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;});
   const [openSnackbar, setOpenSnackbar] = useState(false);
@@ -30,6 +30,15 @@ const Registrar = () => {
 
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    document.body.classList.add("body-register");
+
+    // Eliminar la clase cuando el componente se desmonta
+    return () => {
+      document.body.classList.remove("body-register");
+    };
+  }, []);
 
   const validateEmail = (correoUsuario) => {
     const regex = /^[^@]+@[^@]+\.[^@]+$/;
@@ -114,14 +123,18 @@ const Registrar = () => {
     ) {
       if (emailErrorMsg === "" && passwordErrorMsg === "") {
         // Handle form submission
+
+        const registroData = {
+          correoUsuario: correoUsuario,
+          nombreUsuario: nombreUsuario,
+          primerApellido: primerApellido,
+          segundoApellido: segundoApellido,
+          contraseniaUsuario: contraseniaUsuario,
+        }
+
+        console.log(" Datos enviados al backend:", registroData);
         axios
-          .post("http://localhost:8080/usuario/registrar", {
-            correoUsuario: correoUsuario,
-            nombreUsuario: nombreUsuario,
-            primerApellido: primerApellido,
-            segundoApellido: segundoApellido,
-            contraseniaUsuario: contraseniaUsuario,
-          })
+          .post("http://localhost:8080/usuario/registrar", registroData)
           .then((response) => {
             console.log("Usuario registrado con éxito:", response.data);
             handleOpenSnackbar("Usuario registrado con éxito", "success");
@@ -155,7 +168,8 @@ const Registrar = () => {
     navigate("../");
   };
   return (
-    <div className="container d-flex justify-content-center align-items-center" style={{ minHeight: '100vh' }}>
+    <div >
+     <div className=".registrar-container d-flex justify-content-center align-items-center" style={{ minHeight: '100vh' }}>
       <div className="row d-flex justify-content-center">
         <div
           className="col-sm-12 col-lg-10 col-xl-9 col-xxl-10 bg-white shadow-lg"
@@ -280,6 +294,7 @@ const Registrar = () => {
             
           </div>
         </div>
+       
       </div>
       <Snackbar
         open={openSnackbar}
@@ -291,6 +306,8 @@ const Registrar = () => {
           {snackbarMessage}
         </Alert>
       </Snackbar>
+    </div>
+    <FooterApp />
     </div>
   );
 };

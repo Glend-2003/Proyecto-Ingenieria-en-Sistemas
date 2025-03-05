@@ -1,4 +1,5 @@
 package com.bendicion.la.carniceria.carniceria.jpa;
+import com.bendicion.la.carniceria.carniceria.domain.Rol;
 import java.util.Date;
 import java.util.List;
 
@@ -43,13 +44,14 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     
     // SP Register
     @Modifying
-    @Query(value = "{call spRegistrarUsuario(:correoUsuario, :contraseniaUsuario, :nombreUsuario, :primerApellido, :segundoApellido, :estadoUsuario, :numCodigo)}", nativeQuery = true)
+    @Query(value = "{call spRegistrarUsuario(:correoUsuario, :contraseniaUsuario, :nombreUsuario, :primerApellido, :segundoApellido, :idRol, :estadoUsuario, :numCodigo)}", nativeQuery = true)
     void registerProcedureUsuario(
             @Param("correoUsuario") String correoUsuario,
             @Param("contraseniaUsuario") String contraseniaUsuario,
             @Param("nombreUsuario") String nombreUsuario,
             @Param("primerApellido") String primerApellido,
             @Param("segundoApellido") String segundoApellido,
+            @Param("idRol") int idRol,
             @Param("estadoUsuario") boolean estadoUsuario,
             @Param("numCodigo") String numCodigo
     );
@@ -110,4 +112,5 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     @Query(value = "{call spActivarUsuario(:idUsuario)}", nativeQuery = true)
     void activarUsuario(@Param("idUsuario") Integer idUsuario);
     
+  
 }

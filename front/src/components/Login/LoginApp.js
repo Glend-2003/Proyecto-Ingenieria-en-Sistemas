@@ -11,6 +11,7 @@ import { toast } from 'react-toastify';
 import './Login.css';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
+import FooterApp from '../Footer/FooterApp';
 
 function App() {
   const [loginData, setLoginData] = useState({
@@ -110,10 +111,15 @@ function App() {
           localStorage.setItem('idUsuario', response.data.idUsuario);
 
           
+          
           // Mostrar Snackbar de éxito
-          handleOpenSnackbar("Bienvenido a Carnoiceria La Bendición.", "success");
-
+          
+          setTimeout(() => {
+            // Mostrar Snackbar de éxito
+            handleOpenSnackbar("Bienvenido a Carnoiceria La Bendición.", "success");
+          }, 2000);
           setLoginStatus('Login exitoso. Bienvenido ' + response.data.nombreUsuario);
+          handleOpenSnackbar("Bienvenido a Carnoiceria La Bendición.", "success");
 
           if (
             response.data.rol.nombreRol === 'Administrador' ||
@@ -150,7 +156,7 @@ function App() {
   };
 
   return (
-    <>
+    <div className="page-container">
       {/* Navbar */}
       <Navbar expand="lg" variant="dark" style={{ backgroundColor: '#001f3f' }}>
         <Container>
@@ -232,8 +238,11 @@ function App() {
         </Offcanvas.Body>
       </Offcanvas>
 
-      {/* Lista de productos */}
-      <ListaProductosApp addToCart={addToCart} />
+      {/* Contenido principal */}
+      <main className="flex-grow-1">
+        <ListaProductosApp addToCart={addToCart} />
+        <Carrito showCart={showCart} handleShowCart={handleShowCart} cart={cart} removeFromCart={removeFromCart} />
+      </main>
 
       {/* Carrito */}
       <Carrito showCart={showCart} handleShowCart={handleShowCart} cart={cart}
@@ -251,8 +260,11 @@ function App() {
           {snackbarMessage}
         </Alert>
       </Snackbar>
-    </>
+      {/* Footer */}
+      <FooterApp />
+    </div>
   );
 }
 
 export default App;
+
