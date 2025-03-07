@@ -27,6 +27,7 @@ function App() {
   const [isOpen, setIsOpen] = useState(false);
   const [cart, setCart] = useState([]);
   const [productos, setProductos] = useState([]);
+  const [rememberMe, setRememberMe] = useState(false);
 
   // Definir el componente Alert para Snackbar
   const Alert = React.forwardRef(function Alert(props, ref) {
@@ -45,6 +46,31 @@ function App() {
     setSnackbarSeverity(severity);
     setOpenSnackbar(true);
   };
+
+  useEffect(() => {
+    const rememberedEmail = localStorage.getItem('rememberedEmail');
+    const rememberedPassword = localStorage.getItem('rememberedPassword');
+  
+    if (rememberedEmail && rememberedPassword) {
+      setLoginData({
+        correoUsuario: rememberedEmail,
+        contraseniaUsuario: rememberedPassword,
+      });
+      setRememberMe(true); // Marcar el checkbox si hay credenciales guardadas
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('correoUsuario');
+    localStorage.removeItem('nombreUsuario');
+    localStorage.removeItem('nombreRol');
+    localStorage.removeItem('idUsuario');
+    localStorage.removeItem('rememberedEmail');
+    localStorage.removeItem('rememberedPassword');
+    navigate('/');
+  };
+
 
   // Función para cerrar el Snackbar
   const handleCloseSnackbar = (event, reason) => {
@@ -110,31 +136,36 @@ function App() {
           localStorage.setItem('nombreRol', response.data.rol.nombreRol);
           localStorage.setItem('idUsuario', response.data.idUsuario);
 
-          
-          
+          if(rememberMe){
+            localStorage.setItem('rememberedEmail', loginData.correoUsuario);
+            localStorage.setItem('rememberedPassword', loginData.contraseniaUsuario);
+          }else{
+            localStorage.removeItem('rememberedEmail');
+            localStorage.removeItem('rememberedPassword');
+          }
+  
           // Mostrar Snackbar de éxito
-          
-          setTimeout(() => {
-            // Mostrar Snackbar de éxito
-            handleOpenSnackbar("Bienvenido a Carnoiceria La Bendición.", "success");
-          }, 2000);
-          setLoginStatus('Login exitoso. Bienvenido ' + response.data.nombreUsuario);
           handleOpenSnackbar("Bienvenido a Carnoiceria La Bendición.", "success");
-
-          if (
-            response.data.rol.nombreRol === 'Administrador' ||
-            response.data.rol.nombreRol === 'Usuario' ||
-            response.data.rol.nombreRol === 'Gerente'
-          ) {
-            navigate('/principal');
-          }
-
-          if (response.data.rol.nombreRol === 'Usuario') {
-            navigate('/');
-            setShowSidebar(false);
-          }
+  
+         
+          setTimeout(() => {
+            if (
+              response.data.rol.nombreRol === 'Administrador' ||
+              response.data.rol.nombreRol === 'Usuario' ||
+              response.data.rol.nombreRol === 'Gerente'
+            ) {
+              navigate('/principal');
+            }
+  
+            if (response.data.rol.nombreRol === 'Usuario') {
+              navigate('/');
+              setShowSidebar(false);
+            }
+          }, 2000); // (2 segundos) para que el Snackbar se muestre
+  
+          setLoginStatus('Login exitoso. Bienvenido ' + response.data.nombreUsuario);
         } else {
-          // Mostrar Snackbar de error
+  
           handleOpenSnackbar("Error en el ingreso, verificar datos!", "error");
           setLoginStatus('Credenciales incorrectas');
         }
@@ -144,8 +175,8 @@ function App() {
           'Error en el login:',
           error.response ? error.response.data : error.message
         );
-        // Mostrar Snackbar de error
-        handleOpenSnackbar("Error en el ingreso, "+ error.response.data, "error");
+     
+        handleOpenSnackbar("Error en el ingreso, " + error.response.data, "error");
         setLoginStatus('Error en el servidor o en las credenciales');
       });
   };
@@ -216,14 +247,20 @@ function App() {
               </button>
             </div>
             <div className="form-check text-start mb-3">
-              <input className="form-check-input" type="checkbox" id="rememberMe" />
-              <label className="form-check-label" htmlFor="rememberMe">
-                Acuérdate de mí
-              </label>
-              <a href="/forgot-password" className="float-end text-muted">
-                ¿Perdiste tu contraseña?
-              </a>
-            </div>
+  <input
+    className="form-check-input"
+    type="checkbox"
+    id="rememberMe"
+    checked={rememberMe}
+    onChange={(e) => setRememberMe(e.target.checked)}
+  />
+  <label className="form-check-label" htmlFor="rememberMe">
+    Acuérdate de mí
+  </label>
+  <a href="/forgot-password" className="float-end text-muted">
+    ¿Perdiste tu contraseña?
+  </a>
+</div>
             <hr />
             <div className="text-center mt-4">
               <svg xmlns="http://www.w3.org/2000/svg" width="3em" height="3em" fill="currentColor" className="bi bi-person" viewBox="0 0 16 16">
