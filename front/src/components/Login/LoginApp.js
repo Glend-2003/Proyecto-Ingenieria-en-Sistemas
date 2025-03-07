@@ -1,16 +1,17 @@
-// App.js
 import React, { useState, useEffect } from "react";
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles.min.css';
-import { Offcanvas, Navbar, Container, Nav, Button, ListGroup, Badge, Card} from 'react-bootstrap';
-import Carrito from '../Carrito/CarritoApp.js'; 
+import { Offcanvas, Navbar, Container, Nav, Button, ListGroup, Badge, Card } from 'react-bootstrap';
+import Carrito from '../Carrito/CarritoApp.js';
 import ListaProductosApp from '../Catalogo/ListaProductosApp.js';
 import DropDown from "../DropDown/DropDown";
 import { toast } from 'react-toastify';
 import './Login.css';
 import FooterApp from '../Footer/FooterApp';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 
 function App() {
   const [loginData, setLoginData] = useState({
@@ -27,7 +28,52 @@ function App() {
   const [cart, setCart] = useState([]);
   const [productos, setProductos] = useState([]);
 
+  // Definir el componente Alert para Snackbar
+  const Alert = React.forwardRef(function Alert(props, ref) {
+    return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+  });
 
+  // Estados para manejar el Snackbar
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success'); // 'success', 'error', 'warning', 'info'
+
+  // Función para abrir el Snackbar
+  const handleOpenSnackbar = (message, severity) => {
+    
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setOpenSnackbar(true);
+  };
+
+  // Función para cerrar el Snackbar
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenSnackbar(false);
+  };
+
+  // Función para manejar el cambio en los inputs del formulario
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setLoginData({
+      ...loginData,
+      [name]: value,
+    });
+  };
+
+  // Función para mostrar/ocultar el sidebar
+  const handleShowSidebar = () => {
+    setShowSidebar(!showSidebar && !idUsuario);
+  };
+
+  // Función para mostrar/ocultar el carrito
+  const handleShowCart = () => {
+    setShowCart(!showCart);
+  };
+
+  // Función para agregar productos al carrito
   const addToCart = (producto) => {
     setCart((prevCart) => {
       const existingItem = prevCart.find(item => item.idProducto === producto.idProducto);
@@ -42,53 +88,8 @@ function App() {
       }
     });
   };
-  
-  const addToCart2 = (producto) => {
-   
-    const userCart = {
-      ...producto,
-      usuarioId: idUsuario, // Asociamos el carrito con el idUsuario
-    };
-  
-    setCart((prevCart) => [...prevCart, userCart]);
 
-  };
-
-  useEffect(() => {
-    // Verificar si el idUsuario del carrito es diferente del logueado
-    if (cart.length > 0 && cart[0].usuarioId !== idUsuario) {
-     
-      setCart([]);
-      localStorage.setItem("carrito", JSON.stringify([]));
-      
-    } else {
-      localStorage.setItem("carrito", JSON.stringify(cart));
-    }
-
-    cargarProductos();
-  }, [cart, idUsuario]);
-
-  const cargarProductos = async () => {
-    try {
-      const response = await axios.get("http://localhost:8080/producto/");
-      setProductos(response.data);
-    } catch (error) {
-      console.error("Error al cargar productos:", error);
-      toast.error("Ocurrió un error al cargar los productos");
-    }
-};
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setLoginData({
-      ...loginData,
-      [name]: value,
-    });
-  };
-
-  const handleShowSidebar = () => setShowSidebar(!showSidebar && !idUsuario);
-  const handleShowCart = () => setShowCart(!showCart);
-
+  // Función para eliminar productos del carrito
   const removeFromCart = (indexToRemove) => {
     const updatedCart = cart.filter((_, idx) => idx !== indexToRemove);
     setCart(updatedCart);
@@ -96,9 +97,7 @@ function App() {
     toast.info("Producto eliminado del carrito");
   };
 
-  const removeFromCart2 = (indexToRemove) => {
-    setCart((prevCart) => prevCart.filter((_, idx) => idx !== indexToRemove));
-  };
+  // Resto del código...
 
   const login = () => {
     axios
@@ -111,9 +110,11 @@ function App() {
           localStorage.setItem('nombreRol', response.data.rol.nombreRol);
           localStorage.setItem('idUsuario', response.data.idUsuario);
 
-          setLoginStatus(
-            'Login exitoso. Bienvenido ' + response.data.nombreUsuario
-          );
+          
+          // Mostrar Snackbar de éxito
+          handleOpenSnackbar("Bienvenido a Carnoiceria La Bendición.", "success");
+
+          setLoginStatus('Login exitoso. Bienvenido ' + response.data.nombreUsuario);
 
           if (
             response.data.rol.nombreRol === 'Administrador' ||
@@ -121,20 +122,15 @@ function App() {
             response.data.rol.nombreRol === 'Gerente'
           ) {
             navigate('/principal');
-          } 
+          }
 
-           if (
-            
-            response.data.rol.nombreRol === 'Usuario' 
-          ) {
+          if (response.data.rol.nombreRol === 'Usuario') {
             navigate('/');
             setShowSidebar(false);
-          } 
-          
-         else {
-            setLoginStatus('Rol no reconocido');
           }
         } else {
+          // Mostrar Snackbar de error
+          handleOpenSnackbar("Error en el ingreso, verificar datos!", "error");
           setLoginStatus('Credenciales incorrectas');
         }
       })
@@ -143,6 +139,8 @@ function App() {
           'Error en el login:',
           error.response ? error.response.data : error.message
         );
+        // Mostrar Snackbar de error
+        handleOpenSnackbar("Error en el ingreso, "+ error.response.data, "error");
         setLoginStatus('Error en el servidor o en las credenciales');
       });
   };
@@ -247,11 +245,28 @@ function App() {
         <Carrito showCart={showCart} handleShowCart={handleShowCart} cart={cart} removeFromCart={removeFromCart} />
       </main>
 
-      {/* Footer */}
-      <FooterApp />
+ 
+
+      {/* Carrito */}
+      <Carrito showCart={showCart} handleShowCart={handleShowCart} cart={cart}
+        removeFromCart={removeFromCart}
+      />
+
+      {/* Snackbar para mostrar alertas */}
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000} // Duración en milisegundos
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }} // Posición del Snackbar
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+       {/* Footer */}
+       <FooterApp />
     </div>
   );
 }
 
 export default App;
-
