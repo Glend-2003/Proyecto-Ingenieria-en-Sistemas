@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import axios from "axios"
 import { useNavigate } from "react-router-dom"
-import { Card, Button, Modal } from "react-bootstrap"
+import { Card, Button, Modal, Form } from "react-bootstrap"
 import { toast, ToastContainer } from "react-toastify"
 import "./ListaProductos.css"
 
@@ -9,11 +9,13 @@ function ListaProductosApp({ addToCart }) {
   const [productos, setProductos] = useState([])
   const [showModal, setShowModal] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState(null)
+  const [cantidad, setCantidad] = useState(1)
   const navigate = useNavigate()
 
   // Función para mostrar el modal con los detalles del producto
   const verDetalles = (producto) => {
     setSelectedProduct(producto)
+    setCantidad(1)
     setShowModal(true)
   }
 
@@ -21,6 +23,28 @@ function ListaProductosApp({ addToCart }) {
   const handleCloseModal = () => {
     setShowModal(false)
     setSelectedProduct(null)
+  }
+
+  // Función para agregar al carrito desde el modal con la cantidad seleccionada
+  const handleAddToCartFromModal = () => {
+    if (selectedProduct) {
+      // Crear una copia del producto con la cantidad seleccionada
+      const productoConCantidad = {
+        ...selectedProduct,
+        cantidad: cantidad,
+      }
+
+      // Llamar a la función addToCart del componente padre
+      addToCart(productoConCantidad)
+
+      // Mostrar notificación
+      toast.success(
+        `${selectedProduct.nombreProducto} agregado al carrito (${cantidad} unidad${cantidad > 1 ? "es" : ""})`,
+      )
+
+      // Opcional: cerrar el modal después de agregar
+      handleCloseModal()
+    }
   }
 
   const cargarProductos = async () => {
@@ -73,7 +97,17 @@ function ListaProductosApp({ addToCart }) {
                     <Button onClick={() => verDetalles(product)} variant="primary">
                       Ver detalles
                     </Button>
-                    <Button variant="success" size="sm" className="float-end" onClick={() => addToCart(product)}>
+                    <Button
+                      variant="success"
+                      size="sm"
+                      className="float-end"
+                      onClick={() => {
+                        // Agregar con cantidad 1 por defecto
+                        const productoConCantidad = { ...product, cantidad: 1 }
+                        addToCart(productoConCantidad)
+                        toast.success(`${product.nombreProducto} agregado al carrito`)
+                      }}
+                    >
                       Agregar
                     </Button>
                   </div>
@@ -132,15 +166,20 @@ function ListaProductosApp({ addToCart }) {
                   </p>
                 )}
 
-                <Button
-                  variant="success"
-                  className="mt-3 w-100"
-                  onClick={() => {
-                    addToCart(selectedProduct)
-                    toast.success("Producto agregado al carrito")
-                    toast.success(`${selectedProduct.nombreProducto} agregado al carrito`)
-                  }}
-                >
+                <Form.Group className="mb-3">
+                  <Form.Label>
+                    <strong>Cantidad:</strong>
+                  </Form.Label>
+                  <Form.Control
+                    type="number"
+                    min="1"
+                    max={selectedProduct.stockProducto || 10}
+                    value={cantidad}
+                    onChange={(e) => setCantidad(Number.parseInt(e.target.value) || 1)}
+                  />
+                </Form.Group>
+
+                <Button variant="success" className="mt-3 w-100" onClick={handleAddToCartFromModal}>
                   Agregar al carrito
                 </Button>
               </div>
