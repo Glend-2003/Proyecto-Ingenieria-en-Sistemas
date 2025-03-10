@@ -137,7 +137,7 @@ function ListaProductosApp({ addToCart }) {
 
                 {selectedProduct.stockProducto && (
                   <p>
-                    <strong>Stock disponible:</strong> {selectedProduct.stockProducto} unidades
+                    <strong>SKU:</strong> {selectedProduct.codigoProducto} 
                   </p>
                 )}
 
