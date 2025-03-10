@@ -10,6 +10,7 @@ import java.util.List;
 
 public interface IProductoService {
 
+    @Transactional
     public Producto addProducto(Producto producto);
     
     @Transactional 

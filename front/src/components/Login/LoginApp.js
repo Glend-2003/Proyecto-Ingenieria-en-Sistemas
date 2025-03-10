@@ -264,7 +264,7 @@ function App() {
         </Alert>
       </Snackbar>
        {/* Footer */}
-       <FooterApp />
+      <FooterApp />
     </div>
   );
 }
