@@ -2,9 +2,11 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './SideBar.css';
+import FooterApp from '../Footer/FooterApp';
 
 const SideBar = ({ usuario }) => {
     return (
+        <div>
         <div className="sidebar-container">{
             <div id="offcanvas-menu" className="offcanvas offcanvas-start bg-body show" style={{ width: '200px'  }} tabIndex="-1" data-bs-backdrop="false">
             <div className="offcanvas-header">
@@ -103,7 +105,11 @@ const SideBar = ({ usuario }) => {
                 </div>
             </div>
         </div>
-    }</div>  
+        
+    }
+    </div>  
+    
+    </div>
     );
 };
 

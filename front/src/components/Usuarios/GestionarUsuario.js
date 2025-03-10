@@ -23,6 +23,7 @@ const GestionarUsuario = () => {
   const { usuario } = useAuth();
   const [roles, setRoles] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedRole, setSelectedRole] = useState("Todos");
   const itemsPerPage = 5;
 
   useEffect(() => {
@@ -78,13 +79,13 @@ const GestionarUsuario = () => {
     e.preventDefault();
     const idRol = userEdit.idRol; // 3 es el valor predeterminado para el rol de cliente
 
-  const userData = {
-    ...userEdit,
-    contraseniaUsuario: password,
-    rol:{ 
-      idRol
-    }, // Usa el valor predeterminado si no se selecciona un rol
-  };
+    const userData = {
+      ...userEdit,
+      contraseniaUsuario: password,
+      rol: {
+        idRol
+      }, // Usa el valor predeterminado si no se selecciona un rol
+    };
 
     console.log("Datos enviados al backend:", userData); // Verifica que idRol esté correcto
     try {
@@ -159,16 +160,30 @@ const GestionarUsuario = () => {
 
   const handleSearchChange = (e) => setSearch(e.target.value);
 
+  // Filtrar usuarios por nombre o correo
   const filteredUsers = users.filter((user) =>
     user.nombreUsuario.toLowerCase().includes(search.toLowerCase()) ||
     user.correoUsuario.toLowerCase().includes(search.toLowerCase())
   );
 
-  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
-  const currentUsers = filteredUsers.slice(
+  // Obtener roles únicos para el select
+  const uniqueRoles = ["Todos", ...new Set(roles.map((rol) => rol.nombreRol))];
+
+  // Filtrar los datos según el rol seleccionado
+  const filteredData =
+    selectedRole === "Todos"
+      ? filteredUsers
+      : filteredUsers.filter((user) => user.rol.nombreRol === selectedRole);
+
+  // Calcular el número total de páginas basado en los datos filtrados
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+
+  // Obtener los usuarios para la página actual
+  const currentUsers = filteredData.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+
 
   return (
     <div className="content-container">
@@ -179,14 +194,30 @@ const GestionarUsuario = () => {
           Agregar usuario nuevo
         </Button>
         <div className="mb-2"></div>
+        <label>Filtrar usuario por rol</label>
+        <select
+          value={selectedRole}
+          onChange={(e) => setSelectedRole(e.target.value)}
+          className="form-control"
+        >
+          {uniqueRoles.map((rol) => (
+            <option key={rol} value={rol}>
+              {rol}
+            </option>
+          ))}
+        </select>
+            <br></br>
         <label>Buscar usuario</label>
         <input
           type="text"
-          className="form-control my-3"
+          className="form-control"
           placeholder="Buscar usuario por nombre o contraseña"
           value={search}
           onChange={handleSearchChange}
         />
+
+
+
 
         <Modal show={showModal} onHide={() => setShowModal(false)}>
           <Modal.Header closeButton>
