@@ -16,20 +16,8 @@ const Navbar = ({ usuario, onLogout }) => {
                 </button>
                 <div className="collapse navbar-collapse" id="navcol-1">
                     <ul className="navbar-nav ms-auto">
-                        {usuario && (usuario.rol.nombreRol === 'Administrador' || usuario.rol.nombreRol === 'Gerente') && (
-                            <>
-                                <li className="nav-item">
-                                    <a className="nav-link" style={{ color: "#ffffff" }} onClick={() => navigate('/GestionarUsuario')} href="#">
-                                        <FaWpforms />&nbsp;Gestionar usuarios
-                                    </a>
-                                </li>
-                                <li className="nav-item">
-                                    <a className="nav-link" style={{ color: "#ffffff" }} onClick={() => navigate('/CategoriaApp')} href="#">
-                                        <FaStar />&nbsp;Gestionar categorías
-                                    </a>
-                                </li>
-                            </>
-                        )}
+                        
+                            
                         <li className="nav-item">
                             <a className="nav-link" style={{ color: "#ffffff" }} onClick={onLogout} href="#">
                                 <FaUserCircle />&nbsp;Cerrar sesión
