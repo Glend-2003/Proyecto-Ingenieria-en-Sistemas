@@ -12,40 +12,31 @@ function ListaProductosApp({ addToCart }) {
   const [cantidad, setCantidad] = useState(1)
   const navigate = useNavigate()
 
-  // Función para mostrar el modal con los detalles del producto
   const verDetalles = (producto) => {
     setSelectedProduct(producto)
     setCantidad(1)
     setShowModal(true)
   }
 
-  // Función para cerrar el modal
   const handleCloseModal = () => {
     setShowModal(false)
     setSelectedProduct(null)
   }
 
-  // Función para agregar al carrito desde el modal con la cantidad seleccionada
   const handleAddToCartFromModal = () => {
     if (selectedProduct) {
-      // Crear una copia del producto con la cantidad seleccionada
+      const cantidadValida = Math.max(1, Math.min(cantidad, selectedProduct.stockProducto || 10));
       const productoConCantidad = {
         ...selectedProduct,
-        cantidad: cantidad,
-      }
-
-      // Llamar a la función addToCart del componente padre
-      addToCart(productoConCantidad)
-
-      // Mostrar notificación
+        cantidad: cantidadValida,
+      };
+      addToCart(productoConCantidad); // Llama a addToCart
       toast.success(
-        `${selectedProduct.nombreProducto} agregado al carrito (${cantidad} unidad${cantidad > 1 ? "es" : ""})`,
-      )
-
-      // Opcional: cerrar el modal después de agregar
-      handleCloseModal()
+        `${selectedProduct.nombreProducto} agregado al carrito (${cantidadValida} unidad${cantidadValida > 1 ? "es" : ""})`,
+      );
+      handleCloseModal();
     }
-  }
+  };
 
   const cargarProductos = async () => {
     try {
@@ -66,15 +57,12 @@ function ListaProductosApp({ addToCart }) {
       <ToastContainer position="top-right" autoClose={3000} />
 
       <div id="product-slider" className="product-slider">
-        {/* Muestra un mensaje de carga si no hay productos */}
         {productos.length === 0 ? (
           <p>Cargando productos...</p>
         ) : (
-          // Mapea los productos y crea una tarjeta para cada uno
           productos.map((product) => (
             <div className="product-card" key={product.idProducto}>
               <Card style={{ width: "18rem" }}>
-                {/* Imagen del producto, asegurando la ruta correcta */}
                 <Card.Img
                   variant="top"
                   src={`http://localhost:8080/producto/images/${product.imgProducto}`}
@@ -84,7 +72,7 @@ function ListaProductosApp({ addToCart }) {
                   }}
                 />
                 <Card.Body>
-                  <Card.Title>{product.nombreProducto}</Card.Title>
+                  <Card.Title>{product.nombreProducto + " - " + product.cantidadProducto + product.tipoPesoProducto}</Card.Title>
                   <Card.Text>
                     <strong>Precio:</strong>{" "}
                     {new Intl.NumberFormat("es-CR", {
@@ -97,19 +85,7 @@ function ListaProductosApp({ addToCart }) {
                     <Button onClick={() => verDetalles(product)} variant="primary">
                       Ver detalles
                     </Button>
-                    <Button
-                      variant="success"
-                      size="sm"
-                      className="float-end"
-                      onClick={() => {
-                        // Agregar con cantidad 1 por defecto
-                        const productoConCantidad = { ...product, cantidad: 1 }
-                        addToCart(productoConCantidad)
-                        toast.success(`${product.nombreProducto} agregado al carrito`)
-                      }}
-                    >
-                      Agregar
-                    </Button>
+                    
                   </div>
                 </Card.Body>
               </Card>
@@ -118,7 +94,6 @@ function ListaProductosApp({ addToCart }) {
         )}
       </div>
 
-      {/* Modal para mostrar detalles del producto */}
       <Modal show={showModal} onHide={handleCloseModal} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>{selectedProduct?.nombreProducto}</Modal.Title>

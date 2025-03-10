@@ -29,43 +29,36 @@ function App() {
 
   const addToCart = (producto) => {
     setCart((prevCart) => {
-      const existingItem = prevCart.find(item => item.idProducto === producto.idProducto);
+      const existingItem = prevCart.find((item) => item.idProducto === producto.idProducto);
+  
+      let newCart;
       if (existingItem) {
-        return prevCart.map(item =>
+        newCart = prevCart.map((item) =>
           item.idProducto === producto.idProducto
-            ? { ...item, cantidad: item.cantidad + 1 }
+            ? { ...item, cantidad: item.cantidad + producto.cantidad }
             : item
         );
       } else {
-        return [...prevCart, { ...producto, cantidad: 1 }];
+        newCart = [...prevCart, producto];
       }
+  
+      localStorage.setItem("carrito", JSON.stringify(newCart));
+      return newCart;
     });
-  };
-  
-  const addToCart2 = (producto) => {
-   
-    const userCart = {
-      ...producto,
-      usuarioId: idUsuario, // Asociamos el carrito con el idUsuario
-    };
-  
-    setCart((prevCart) => [...prevCart, userCart]);
-
   };
 
   useEffect(() => {
-    // Verificar si el idUsuario del carrito es diferente del logueado
-    if (cart.length > 0 && cart[0].usuarioId !== idUsuario) {
-     
+    const savedCart = JSON.parse(localStorage.getItem("carrito")) || [];
+    setCart(savedCart);
+  }, []);
+
+  // Limpia el carrito si el usuario cambia
+  useEffect(() => {
+    if (idUsuario && cart.length > 0 && cart[0].usuarioId !== idUsuario) {
       setCart([]);
       localStorage.setItem("carrito", JSON.stringify([]));
-      
-    } else {
-      localStorage.setItem("carrito", JSON.stringify(cart));
     }
-
-    cargarProductos();
-  }, [cart, idUsuario]);
+  }, [idUsuario, cart]);
 
   const cargarProductos = async () => {
     try {
@@ -151,8 +144,6 @@ function App() {
     login();
   };
 
-  
-  
   return (
     <>
       {/* Navbar */}

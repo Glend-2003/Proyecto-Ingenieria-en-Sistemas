@@ -8,9 +8,9 @@ function CarritoApp({ showCart, handleShowCart, cart, removeFromCart }) {
   const groupedCart = cart.reduce((acc, item) => {
     const existingItem = acc.find((i) => i.idProducto === item.idProducto);
     if (existingItem) {
-      existingItem.cantidad += 1;
+      existingItem.cantidad += item.cantidad; 
     } else {
-      acc.push({ ...item, cantidad: 1 });
+      acc.push({ ...item });
     }
     return acc;
   }, []);
