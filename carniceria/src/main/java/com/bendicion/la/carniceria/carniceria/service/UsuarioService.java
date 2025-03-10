@@ -9,12 +9,14 @@ import org.springframework.stereotype.Service;
 
 import com.bendicion.la.carniceria.carniceria.Logic.JwtService;
 import com.bendicion.la.carniceria.carniceria.Logic.Seguridad;
+import com.bendicion.la.carniceria.carniceria.domain.Rol;
 import com.bendicion.la.carniceria.carniceria.domain.Usuario;
 import com.bendicion.la.carniceria.carniceria.jpa.UsuarioRepository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
+import java.util.Random;
 
 /**
  *
@@ -38,7 +40,7 @@ public class UsuarioService implements IUsuarioService {
 
 // -----------------------------------------------------------------------------
     @Override
-    @Transactional // Asegúrate de que esté anotado
+    @Transactional 
     public Usuario addUsuario(Usuario usuario) {
 
         if (usuario.getCedulaUsuario() == null || usuario.getCedulaUsuario().trim().isEmpty()) {
@@ -101,51 +103,69 @@ public class UsuarioService implements IUsuarioService {
     }
 
 // ----------------------------------------------------------------------------- 
-    @Override
-    @Transactional // Asegúrate de que esté anotado
-    public Usuario registerUsuario(Usuario usuario) {
+ @Override
+@Transactional
+public Usuario registerUsuario(Usuario usuario) {
+    int rolCliente = 3; // Valor predeterminado para el rol de cliente
 
-        // Verificación de correo existente
-        int existe = usuarioRepo.verifyCorreoProcedureUsuario(usuario.getCorreoUsuario());
-        String encriptedPassword = seguridad.encriptPassword(usuario.getContraseniaUsuario());
+    // Verificación de correo existente
+    int existe = usuarioRepo.verifyCorreoProcedureUsuario(usuario.getCorreoUsuario());
+    String encriptedPassword = seguridad.encriptPassword(usuario.getContraseniaUsuario());
 
-        if (existe > 0) {
-            throw new RuntimeException("El correo ya está en uso.");
-        }
+    if (existe > 0) {
+        throw new RuntimeException("El correo ya está en uso.");
+    }
 
-        // Validaciones básicas
-        if (usuario.getCorreoUsuario().equals("")) {
-            throw new RuntimeException("Debe ingresar un correo");
-        }
+    // Validaciones básicas
+    if (usuario.getCorreoUsuario().equals("")) {
+        throw new RuntimeException("Debe ingresar un correo");
+    }
 
-        if (encriptedPassword == null || encriptedPassword.equals("")) {
-            throw new RuntimeException("Debe ingresar una contraseña");
-        }
+    if (encriptedPassword == null || encriptedPassword.equals("")) {
+        throw new RuntimeException("Debe ingresar una contraseña");
+    }
 
-        if (usuario.getNombreUsuario().equals("")) {
-            throw new RuntimeException("Debe ingresar un nombre de usuario");
-        }
+    if (usuario.getNombreUsuario().equals("")) {
+        throw new RuntimeException("Debe ingresar un nombre de usuario");
+    }
 
-        if (usuario.getPrimerApellido().equals("")) {
-            throw new RuntimeException("Debe ingresar el primer apellido");
-        }
+    if (usuario.getPrimerApellido().equals("")) {
+        throw new RuntimeException("Debe ingresar el primer apellido");
+    }
 
-        if (usuario.getSegundoApellido().equals("")) {
-            throw new RuntimeException("Debe ingresar el segundo apellido");
-        }
-        //System.out.println("Usuario registrado: " + usuario.getNombreUsuario() + " " + usuario.getPrimerApellido() + " " + usuario.getSegundoApellido());
-        usuario.setEstadoUsuario(true);
+    if (usuario.getSegundoApellido().equals("")) {
+        throw new RuntimeException("Debe ingresar el segundo apellido");
+    }
 
-        usuarioRepo.registerProcedureUsuario(
-                usuario.getCorreoUsuario(),
-                encriptedPassword,
-                usuario.getNombreUsuario(),
-                usuario.getPrimerApellido(),
-                usuario.getSegundoApellido(),
-                usuario.isEstadoUsuario()
-        );
+    // Código
+    String numCodigo = generateCodigo();
 
-        return usuario;
+    // Asignar un valor predeterminado si el rol es null
+    Integer idRol = (usuario.getRol() != null) ? usuario.getRol().getIdRol() : rolCliente;
+
+    // Registrar el usuario
+    usuario.setEstadoUsuario(true);
+
+    usuarioRepo.registerProcedureUsuario(
+        usuario.getCorreoUsuario(),
+        encriptedPassword,
+        usuario.getNombreUsuario(),
+        usuario.getPrimerApellido(),
+        usuario.getSegundoApellido(),
+        idRol,  // Usar el valor predeterminado si el rol es null
+        usuario.isEstadoUsuario(),
+        numCodigo  
+    );
+
+    return usuario;
+}
+
+// -----------------------------------------------------------------------------      
+// Método para generar un código de 6 dígitos único
+    
+    private String generateCodigo() {
+        Random random = new Random();
+        return String.format("%06d", random.nextInt(1000000));  
     }
 
 // -----------------------------------------------------------------------------  
@@ -303,4 +323,24 @@ public class UsuarioService implements IUsuarioService {
         return usuarioRepo.listProcedureUsuarioById(id);
     }
 
+    
+     @Override
+     @Transactional 
+    public boolean activarUsuario(int id) {
+        try {
+           
+            if (!usuarioRepo.existsById(id)) { // 
+                System.err.println("El usuario con ID: " + id + " no existe.");
+                return false; 
+            }
+
+            System.out.println("activando usuario con ID: " + id);
+            usuarioRepo.activarUsuario(id);
+            return true; 
+        } catch (Exception e) {
+            System.err.println("Error al activar el usuario con ID: " + id + ". Detalles: " + e.getMessage());
+            return false; // Retorna false en caso de error
+        }
+    }
+   
 }

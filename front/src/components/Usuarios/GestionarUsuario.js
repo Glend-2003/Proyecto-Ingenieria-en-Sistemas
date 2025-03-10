@@ -21,11 +21,13 @@ const GestionarUsuario = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const { usuario } = useAuth();
+  const [roles, setRoles] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
   useEffect(() => {
     cargarUsuarios();
+    cargarRoles();
   }, []);
 
   const cargarUsuarios = async () => {
@@ -38,6 +40,26 @@ const GestionarUsuario = () => {
     }
   };
 
+  const cargarRoles = async () => {
+    try {
+      const response = await axios.get("http://localhost:8080/rol/");
+      setRoles(response.data);
+    } catch (error) {
+      console.error("Error al cargar los roles:", error);
+      toast.error("Ocurrió un error al cargar los roles");
+    }
+  };
+
+  const handleOpenModal = () => {
+    setUserEdit({
+      correoUsuario: "",
+      nombreUsuario: "",
+      primerApellido: "",
+      segundoApellido: "",
+      idRol: "", // Valor predeterminado para el rol de cliente
+    });
+    setShowModal(true);
+  };
   // Funciones para cerrar modales
   const handleCloseModal = () => {
     setShowModal(false);
@@ -54,7 +76,17 @@ const GestionarUsuario = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const userData = { ...userEdit, contraseniaUsuario: password };
+    const idRol = userEdit.idRol; // 3 es el valor predeterminado para el rol de cliente
+
+  const userData = {
+    ...userEdit,
+    contraseniaUsuario: password,
+    rol:{ 
+      idRol
+    }, // Usa el valor predeterminado si no se selecciona un rol
+  };
+
+    console.log("Datos enviados al backend:", userData); // Verifica que idRol esté correcto
     try {
       if (userEdit?.idUsuario) {
         await axios.put("http://localhost:8080/usuario/actualizar", userData);
@@ -94,6 +126,17 @@ const GestionarUsuario = () => {
     }
   };
 
+  const activarDesactivarUsuario = async (id) => {
+    try {
+      await axios.put(`http://localhost:8080/usuario/activar/${id}`);
+      toast.success("Cambio realizado con éxito.");
+      cargarUsuarios();
+    } catch (error) {
+      console.error("Error al realizar el cambio:", error);
+      toast.error("Ocurrió un error al cambiar el estado del usuario.");
+    }
+  };
+
   const handlePasswordUpdate = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
@@ -117,7 +160,8 @@ const GestionarUsuario = () => {
   const handleSearchChange = (e) => setSearch(e.target.value);
 
   const filteredUsers = users.filter((user) =>
-    user.nombreUsuario.toLowerCase().includes(search.toLowerCase())
+    user.nombreUsuario.toLowerCase().includes(search.toLowerCase()) ||
+    user.correoUsuario.toLowerCase().includes(search.toLowerCase())
   );
 
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
@@ -139,7 +183,7 @@ const GestionarUsuario = () => {
         <input
           type="text"
           className="form-control my-3"
-          placeholder="Buscar usuario por nombre"
+          placeholder="Buscar usuario por nombre o contraseña"
           value={search}
           onChange={handleSearchChange}
         />
@@ -197,7 +241,24 @@ const GestionarUsuario = () => {
                     onChange={(e) => setUserEdit({ ...userEdit, segundoApellido: e.target.value })}
                   />
                 </div>
+                <div className="col-sm-6">
+                  <label>Rol del usuario</label>
+                  <select
+                    className="form-control"
+                    required
+                    value={userEdit?.idRol || ""} // Usa un valor predeterminado vacío si es null/undefined
+                    onChange={(e) => setUserEdit({ ...userEdit, idRol: parseInt(e.target.value) })}
+                  >
+                    <option value="">Seleccione un rol</option>
+                    {roles.map((rol) => (
+                      <option key={rol.idRol} value={rol.idRol}>
+                        {rol.nombreRol}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
+
               {!userEdit?.idUsuario && (
                 <>
                   <div className="mb-3">
@@ -272,11 +333,13 @@ const GestionarUsuario = () => {
           <table className="table table-hover table-bordered table-lg">
             <thead>
               <tr>
-                <th>No.</th>
+
                 <th>Nombre</th>
                 <th>Primer Apellido</th>
                 <th>Segundo Apellido</th>
                 <th>Correo</th>
+                <th>Telefono Usuario</th>
+                <th>Rol Usuario</th>
                 <th>Estado</th>
                 <th>Acciones</th>
               </tr>
@@ -291,14 +354,17 @@ const GestionarUsuario = () => {
               ) : (
                 currentUsers.map((user, index) => (
                   <tr key={user.idUsuario}>
-                    <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
+
                     <td>{user.nombreUsuario}</td>
                     <td>{user.primerApellido}</td>
                     <td>{user.segundoApellido}</td>
                     <td>{user.correoUsuario}</td>
+                    <td>{user.telefonoUsuario || "Sin número registrado..."}</td>
+                    <td>{user.rol.nombreRol}</td>
                     <td>
                       <button
                         className={`btn btn-sm ${user.estadoUsuario ? "btn-success" : "btn-danger"}`}
+                        onClick={() => activarDesactivarUsuario(user.idUsuario)}
                       >
                         {user.estadoUsuario ? "Activo" : "Inactivo"}
                       </button>
@@ -307,6 +373,7 @@ const GestionarUsuario = () => {
                       <button
                         className="btn btn-warning btn-sm me-2"
                         onClick={() => { setUserEdit(user); setShowModal(true); }}
+
                       >
                         <FaEdit />
                       </button>

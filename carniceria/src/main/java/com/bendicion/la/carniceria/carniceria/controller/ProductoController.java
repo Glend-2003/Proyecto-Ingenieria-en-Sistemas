@@ -243,4 +243,18 @@ public ResponseEntity<?> addProductoWithImage(
             return ResponseEntity.ok(false);
         }
     }
+    
+    
+    @PutMapping("/activar/{id}")
+    public ResponseEntity<Boolean> activarProducto(@PathVariable int id) {
+        boolean estado = productoService.activarProducto(id);
+
+        if (estado) {
+            System.out.println("producto activado: ID -->" + id);
+            return ResponseEntity.ok(true);
+        } else {
+            System.out.println("No se pudo activar el producto: ID -->" + id + " no encontrado.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
+        }
+    }
 }

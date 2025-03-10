@@ -62,5 +62,24 @@ public class TipoPagoService implements ITipoPagoService{
             return false;
         }
     }
-    
+ 
+     @Override
+     @Transactional 
+    public boolean activarTipoPago(int id) {
+        try {
+          
+            if (!tipoPagoRep.existsById(id)) { 
+                System.err.println("El tipo pago con ID: " + id + " no existe.");
+                return false;
+            }
+
+            System.out.println("activando tipo pago con ID: " + id);
+            tipoPagoRep.activarTipoPago(id);
+            return true; 
+        } catch (Exception e) {
+            System.err.println("Error al activar el tipo pago con ID: " + id + ". Detalles: " + e.getMessage());
+            return false; // Retorna false en caso de error
+        }
+    }
+
 }

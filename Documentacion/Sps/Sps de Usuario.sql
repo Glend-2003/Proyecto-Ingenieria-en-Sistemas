@@ -1,3 +1,7 @@
+------------------------------------------------Usuario---------------------------------------------------|
+
+
+---------------------sp agregar usuario----------------------|
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spAgregarUsuario`(
     IN p_cedulaUsuario VARCHAR(255), 
@@ -94,7 +98,9 @@ BEGIN
 END$$
 DELIMITER ;
 
-----------------------------------------
+--***************************************************************
+----------------------sp actualizar usuario----------------------
+--***************************************************************
 
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spActualizarUsuario`(
@@ -174,7 +180,9 @@ BEGIN
 
 END$$
 DELIMITER ;
--------------------------------------------
+
+
+---------------------sp eliminar usuario----------------------|
 
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spEliminarUsuario`(IN p_idUsuario INT, OUT p_salida VARCHAR(30))
@@ -213,8 +221,8 @@ BEGIN
     END IF;
 
 END$$
-DELIMITER ;
-----------------------------------------------
+
+---------------------sp leer usuario----------------------|
 
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spLeerUsuario`()
@@ -241,8 +249,7 @@ BEGIN
 END$$
 DELIMITER ;
 
---------------------------------------------------------
-
+---------------------sp buscar usuario por id----------------------|
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spBuscarUsuarioPorCorreo`(
     IN correoInput VARCHAR(255)
@@ -272,8 +279,7 @@ BEGIN
 END$$
 DELIMITER ;
 
------------------------------------------------------------
-
+---------------------sp verificar por correo----------------------|
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spVerificarCorreo`(IN p_correoUsuario VARCHAR(255))
 BEGIN
@@ -281,18 +287,22 @@ BEGIN
 END$$
 DELIMITER ;
 
--------------------------------------------------------------
+---------------------sp registrar usuario----------------------|
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spRegistrarUsuario`(
     IN `p_correoUsuario` VARCHAR(255), 
-    IN `p_contraseniaUsuario` VARCHAR(255),
+    IN `p_contraseniaUsuario` VARCHAR(255), 
     IN `p_nombreUsuario` VARCHAR(255), 
     IN `p_primerApellido` VARCHAR(255), 
-    IN `p_segundoApellido` VARCHAR(255)
+    IN `p_segundoApellido` VARCHAR(255), 
+    IN `p_idRol` INT,  -- Acepta NULL
+    IN `p_estadoUsuario` TINYINT,  -- Acepta NULL
+    IN `p_numCodigo` VARCHAR(6)  -- Acepta NULL
 )
 BEGIN
-    -- Variable de control
-    DECLARE done INT DEFAULT 0;
+    -- Declarar la variable para almacenar el ID de la dirección insertada
+    DECLARE idDireccion INT;
+    DECLARE idUsuario INT;
 
     -- Manejador de errores para capturar excepciones SQL genéricas
     DECLARE EXIT HANDLER FOR SQLEXCEPTION 
@@ -335,24 +345,49 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El correo ya está registrado';
     END IF;
 
-    -- Insertar la dirección
+    -- Insertar la dirección (puede ser NULL si no se proporciona)
     INSERT INTO tbdireccion () VALUES ();
 
     -- Obtener el ID de la dirección insertada
-    SET @idDireccion = LAST_INSERT_ID();
+    SET idDireccion = LAST_INSERT_ID();
 
-    -- Insertar el usuario
-    INSERT INTO tbusuario (correoUsuario, contraseniaUsuario, nombreUsuario, primerApellido, segundoApellido, idDireccion, idRol)
-    VALUES (p_correoUsuario, p_contraseniaUsuario, p_nombreUsuario, p_primerApellido, p_segundoApellido, @idDireccion, 3);
+    -- Insertar el usuario (manejar valores NULL)
+    INSERT INTO tbusuario (
+        correoUsuario, 
+        contraseniaUsuario, 
+        nombreUsuario, 
+        primerApellido, 
+        segundoApellido, 
+        idDireccion, 
+        idRol, 
+        estadoUsuario
+    ) VALUES (
+        p_correoUsuario, 
+        p_contraseniaUsuario, 
+        p_nombreUsuario, 
+        p_primerApellido, 
+        p_segundoApellido, 
+        idDireccion, 
+        IFNULL(p_idRol, 3),  -- Si p_idRol es NULL, usar 3 como valor predeterminado
+        IFNULL(p_estadoUsuario, 1)  -- Si p_estadoUsuario es NULL, usar 1 (activo) como valor predeterminado
+    );
+
+    -- Obtener el ID del usuario insertado
+    SET idUsuario = LAST_INSERT_ID();
+
+    -- Insertar el código de verificación (solo si no es NULL)
+    IF p_numCodigo IS NOT NULL THEN
+        INSERT INTO tbcodigoverificacion (numCodigo, idUsuario)
+        VALUES (p_numCodigo, idUsuario);
+    END IF;
 
     -- Hacer commit si todo está bien
     COMMIT;
-
-END$$
+END;
 DELIMITER ;
 
 
-
+---------------------sp actualizar contraseña usuario----------------------|
 
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `spActualizarContrasena`(
@@ -387,3 +422,39 @@ BEGIN
     COMMIT;
 END$$
 DELIMITER ;
+
+
+---------------------sp cambiar estado usuario----------------------|
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spActivarUsuario`(IN `p_idUsuario` INT)
+BEGIN
+    DECLARE done INT DEFAULT 0;
+    DECLARE estadoActual INT;
+
+    -- Manejador de errores para capturar excepciones SQL genéricas
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+    BEGIN
+        -- Si ocurre un error SQL, se hace rollback
+        ROLLBACK;
+        SELECT 'Error al activar el usuario' AS mensaje;
+    END;
+
+    -- Verificar si el usuario existe
+    IF done = 0 AND NOT EXISTS (SELECT 1 FROM tbusuario WHERE idUsuario = p_idUsuario) THEN
+        SET done = 1;
+        SELECT 'Usuario no encontrado' AS mensaje;
+    END IF;
+
+    -- Cambiar el estado del usuario si existe
+    IF done = 0 THEN
+        -- Obtener el estado actual del usuario
+        SELECT estadoUsuario INTO estadoActual FROM tbusuario WHERE idUsuario = p_idUsuario;
+
+        -- Cambiar el valor de estado a 1 si es 0, o a 0 si es 1
+        UPDATE tbusuario
+        SET estadoUsuario = CASE WHEN estadoActual = 1 THEN 0 ELSE 1 END
+        WHERE idUsuario = p_idUsuario;  -- Aquí corregido: usar idProducto en lugar de p_idProducto
+
+        SELECT 'usaurio activado con éxito' AS mensaje;
+    END IF;
+END

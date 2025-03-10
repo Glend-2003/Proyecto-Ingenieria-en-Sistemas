@@ -1,6 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react'; // Importa useState
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles.min.css';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
+
+// Componente Alert personalizado
+const Alert = React.forwardRef(function Alert(props, ref) {
+    return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 const RegistrarForm = ({
     correoUsuario,
@@ -19,6 +26,26 @@ const RegistrarForm = ({
     handleVerifyPasswordChange,
     handleSubmit,
 }) => {
+    // Estado para controlar el Snackbar
+    const [openSnackbar, setOpenSnackbar] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [snackbarSeverity, setSnackbarSeverity] = useState('success'); // 'success', 'error', 'warning', 'info'
+
+    // Función para abrir el Snackbar
+    const handleOpenSnackbar = (message, severity) => {
+        setSnackbarMessage(message);
+        setSnackbarSeverity(severity);
+        setOpenSnackbar(true);
+    };
+
+    // Función para cerrar el Snackbar
+    const handleCloseSnackbar = (event, reason) => {
+        if (reason === 'clickaway') {
+            return; // No cerrar el Snackbar si el usuario hace clic fuera
+        }
+        setOpenSnackbar(false);
+    };
+
     return (
         <div className="container" style={{ position: 'absolute', left: 0, right: 0, top: '50%', transform: 'translateY(-50%)' }}>
             <div className="row d-flex justify-content-center">
@@ -109,6 +136,18 @@ const RegistrarForm = ({
                     </div>
                 </div>
             </div>
+
+            {/* Snackbar para mostrar alertas */}
+            <Snackbar
+                open={openSnackbar}
+                autoHideDuration={2500} // Duración en milisegundos
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: 'top', horizontal: 'right' }} // Posición del Snackbar
+            >
+                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
         </div>
     );
 };

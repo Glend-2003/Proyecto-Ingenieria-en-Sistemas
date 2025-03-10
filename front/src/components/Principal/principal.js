@@ -59,7 +59,7 @@ const Principal = () => {
     };*/
 
     return (
-        <div className="content-container">
+        <div className="principal-container">
             <SideBar usuario={usuario} /> 
 
             <main className="page">

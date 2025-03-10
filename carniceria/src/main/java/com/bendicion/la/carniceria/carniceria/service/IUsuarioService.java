@@ -1,4 +1,5 @@
 package com.bendicion.la.carniceria.carniceria.service;
+import com.bendicion.la.carniceria.carniceria.domain.Rol;
 import java.util.List;
 
 import com.bendicion.la.carniceria.carniceria.domain.Usuario;
@@ -41,4 +42,8 @@ public interface IUsuarioService {
     // Obtener usuario por ID
     public Usuario getUsuarioById(int id);
 
+    @Transactional
+    public boolean activarUsuario(int id);
+ 
+  
 }
