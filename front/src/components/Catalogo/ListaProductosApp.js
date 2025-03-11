@@ -40,7 +40,9 @@ function ListaProductosApp({ addToCart }) {
 
   const cargarProductos = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/producto/")
+      const response = await axios.get("http://localhost:8080/producto/", {
+        params: { estadoProducto: 1 }
+      });
       setProductos(response.data)
     } catch (error) {
       console.error("Error al cargar productos:", error)
