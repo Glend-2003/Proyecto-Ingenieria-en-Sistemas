@@ -10,7 +10,6 @@ import MuiAlert from '@mui/material/Alert';
 import "../Usuarios/Usuarios.css";
 import FooterApp from '../Footer/FooterApp';
 
-
 const Registrar = () => {
     
   const [correoUsuario, setEmail] = useState("");
