@@ -34,7 +34,7 @@ public class UsuarioController {
     IUsuarioService iUsuarioService;
 
     @Autowired
-    private JwtService jwtService;  // Asegúrate de tener este Autowired
+    private JwtService jwtService;
 
     // Read
     // Lee todos los usuarios existentes, trayendo hasta la dirección (Para vista Admin)
@@ -228,7 +228,7 @@ public class UsuarioController {
     
 // ----------------------------------------------------------------------------- 
     // Método para cambiar la contra con código
-    @PostMapping("/cambiarContrasenaConCodigo")
+    @PostMapping("/cambiarContrasena")
     public ResponseEntity<?> cambiarContrasenaConCodigo(@RequestBody Map<String, String> request) {
         try {
             String numCodigo = request.get("numCodigo");
