@@ -9,6 +9,11 @@ function CarritoApp({ showCart, handleShowCart, cart, removeFromCart }) {
 
   const navigate = useNavigate();
 
+  const handleVerOrden = () => {
+    handleShowCart(); 
+    navigate('/verOrden', { state: { cart } }); 
+  };
+
   // Función para manejar el clic en el botón pagar
   const handlePagar = () => {
     // Cerramos el carrito
@@ -78,6 +83,14 @@ function CarritoApp({ showCart, handleShowCart, cart, removeFromCart }) {
                 )}
               </span>
             </div>
+                
+            <Button
+              variant="primary"
+              className="btn-ver-orden"
+              onClick={handleVerOrden}
+            >
+              Ver Orden
+            </Button>
 
             <Button 
               variant="success" 

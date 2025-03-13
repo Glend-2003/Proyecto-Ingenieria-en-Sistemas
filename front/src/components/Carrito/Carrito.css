@@ -202,3 +202,13 @@ header{
 .hidden{
     display: none;
 }
+
+/*Boton ver orden*/
+.btn-ver-orden {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  
+  .btn-pagar {
+    width: 100%;
+  }

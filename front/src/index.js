@@ -17,6 +17,7 @@ import ListaProductosApp from './components/Catalogo/ListaProductosApp';
 import PerfilUsuario from './components/DetallesCliente/PerfilUsuario';
 import Dashboard from './components/DetallesCliente/Dashboard';
 import SideBarUsuario from './components/DetallesCliente/SideBarUsuario';
+import MostrartOrdenApp from './components/Orden/MostrarOdenApp';
 
 // Componente para proteger rutas
 const PrivateRoute = ({ children }) => {
@@ -65,6 +66,7 @@ root.render(
       <Route path="/PerfilUsuario" element={<PrivateRoute><PerfilUsuario /></PrivateRoute>} />
       <Route path="/Dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
       <Route path="/SideBarUsuario" element={<PrivateRoute><SideBarUsuario /></PrivateRoute>} />
+      <Route path="/verOrden" element={<PrivateRoute><MostrartOrdenApp /></PrivateRoute>} />
       
     </Routes>
   </Router>

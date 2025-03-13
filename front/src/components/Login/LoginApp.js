@@ -44,9 +44,8 @@ function LoginApp({ initialPage = "home" }) {
     } else {
       setCurrentPage('home');
     }
+    
   }, [location.pathname]);
-
-  
 
   // Función para cambiar la página actual
   const renderMainContent = () => {
