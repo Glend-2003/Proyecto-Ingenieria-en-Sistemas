@@ -28,8 +28,8 @@ function PedidoCrud() {
   }, []);
 
   // Calcular totales
-  const subtotal = cart.reduce((total, item) => total + (item.precioProducto * item.cantidad), 0);
-  const total = subtotal;
+  const subtotal = cart.reduce((total, item) => total + (item.montoPrecioProducto * item.cantidad), 0);
+  const total = cart.reduce((total, item) => total + (item.montoPrecioProducto * item.cantidad), 0) * 1.15;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -52,7 +52,7 @@ function PedidoCrud() {
       return cart.map((item, index) => (
         <div className="row mb-2 pb-2 border-bottom" key={index}>
           <div className="col-8">{item.nombreProducto || "Producto"} × {item.cantidad}</div>
-          <div className="col-4 text-end">₡{((item.precioProducto || 0) * item.cantidad).toLocaleString()}</div>
+          <div className="col-4 text-end">₡{((item.montoPrecioProducto || 0) * item.cantidad).toLocaleString()}</div>
         </div>
       ));
     } else {
@@ -67,7 +67,7 @@ function PedidoCrud() {
   return (
     
     <div className="container py-4 my-3">
-      
+      <h1 className="text-center">Finalizar pedido</h1>
       <div className="row">
         <div className="col-md-6">
           <div className="mb-10">
@@ -187,6 +187,7 @@ function PedidoCrud() {
                 >
                   <option value="Cédula Física">Cédula Física</option>
                   <option value="Cédula Jurídica">Cédula Jurídica</option>
+                  <option value="DIMEX">DIMEX</option>
                 </select>
               </div>
             </div>
@@ -255,7 +256,7 @@ function PedidoCrud() {
           {renderCartItems()}
           <div className="row mt-3">
             <div className="col-8">
-              <strong>Subtotal:</strong>
+              <strong>Subtotal (sin I.V.A):</strong>
             </div>
             <div className="col-4 text-end">
               ₡{subtotal.toLocaleString()}
@@ -263,7 +264,7 @@ function PedidoCrud() {
           </div>
           <div className="row mt-3">
             <div className="col-8">
-              <strong>Total:</strong>
+              <strong>Total (Con I.V.A):</strong>
             </div>
             <div className="col-4 text-end">
               ₡{total.toLocaleString()}
