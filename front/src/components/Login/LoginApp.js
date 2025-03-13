@@ -42,7 +42,7 @@ function LoginApp() {
 
   // Función para abrir el Snackbar
   const handleOpenSnackbar = (message, severity) => {
-    
+
     setSnackbarMessage(message);
     setSnackbarSeverity(severity);
     setOpenSnackbar(true);
@@ -51,7 +51,7 @@ function LoginApp() {
   useEffect(() => {
     const rememberedEmail = localStorage.getItem('rememberedEmail');
     const rememberedPassword = localStorage.getItem('rememberedPassword');
-  
+
     if (rememberedEmail && rememberedPassword) {
       setLoginData({
         correoUsuario: rememberedEmail,
@@ -106,7 +106,7 @@ function LoginApp() {
   const addToCart = (producto) => {
     setCart((prevCart) => {
       const existingItem = prevCart.find((item) => item.idProducto === producto.idProducto);
-  
+
       let newCart;
       if (existingItem) {
         newCart = prevCart.map((item) =>
@@ -117,7 +117,7 @@ function LoginApp() {
       } else {
         newCart = [...prevCart, producto];
       }
-  
+
       localStorage.setItem("carrito", JSON.stringify(newCart));
       return newCart;
     });
@@ -144,18 +144,18 @@ function LoginApp() {
           localStorage.setItem('nombreRol', response.data.rol.nombreRol);
           localStorage.setItem('idUsuario', response.data.idUsuario);
 
-          if(rememberMe){
+          if (rememberMe) {
             localStorage.setItem('rememberedEmail', loginData.correoUsuario);
             localStorage.setItem('rememberedPassword', loginData.contraseniaUsuario);
-          }else{
+          } else {
             localStorage.removeItem('rememberedEmail');
             localStorage.removeItem('rememberedPassword');
           }
-  
+
           // Mostrar Snackbar de éxito
           handleOpenSnackbar("Bienvenido a Carnoiceria La Bendición.", "success");
-  
-         
+
+
           setTimeout(() => {
             if (
               response.data.rol.nombreRol === 'Administrador' ||
@@ -164,16 +164,16 @@ function LoginApp() {
             ) {
               navigate('/principal');
             }
-  
+
             if (response.data.rol.nombreRol === 'Usuario') {
               navigate('/');
               setShowSidebar(false);
             }
           }, 2000); // (2 segundos) para que el Snackbar se muestre
-  
+
           setLoginStatus('Login exitoso. Bienvenido ' + response.data.nombreUsuario);
         } else {
-  
+
           handleOpenSnackbar("Error en el ingreso, verificar datos!", "error");
           setLoginStatus('Credenciales incorrectas');
         }
@@ -183,7 +183,7 @@ function LoginApp() {
           'Error en el login:',
           error.response ? error.response.data : error.message
         );
-     
+
         handleOpenSnackbar("Error en el ingreso, " + error.response.data, "error");
         setLoginStatus('Error en el servidor o en las credenciales');
       });
@@ -196,25 +196,25 @@ function LoginApp() {
 
   const handleForgotPassword = async (e) => {
     e.preventDefault(); // Evita que el formulario se envíe automáticamente
-  
+
     if (!loginData.correoUsuario) {
       toast.error("Por favor, ingresa tu correo electrónico");
       return;
     }
-  
-   // setIsLoading(true); // Activar el spinner
-  
+
+    setIsLoading(true); // Activar el spinner
+
     try {
       const response = await axios.post("http://localhost:8080/usuario/verificarCambioContrasena", {
         correoUsuario: loginData.correoUsuario,
       });
-  
+
       if (response.status === 200) {
         toast.success("Código enviado con éxito", {
           autoClose: 2000, // Duración de la alerta (2 segundos)
           onClose: () => {
             // Redirigir después de que la alerta se cierre
-            navigate('/reset-password', { state: { correoUsuario: loginData.correoUsuario } });
+            navigate('/ResetPassword', { state: { correoUsuario: loginData.correoUsuario } });
           },
         });
       }
@@ -223,7 +223,7 @@ function LoginApp() {
         autoClose: 3000, // Duración de la alerta (3 segundos)
       });
     } finally {
-     // setIsLoading(false); // Desactivar el spinner
+      setIsLoading(false); // Desactivar el spinner
     }
   };
 
@@ -345,102 +345,102 @@ function LoginApp() {
           ) : (
             // Formulario de "Olvidé mi contraseña"
             <form onSubmit={handleForgotPassword}>
-            {/* Mensaje descriptivo */}
-            <p className="mb-4" style={{ fontSize: '16px', color: '#555', lineHeight: '1.9' }}>
-              Ingresa tu correo electrónico para verificar que eres tú. Te enviaremos un código para restablecer tu contraseña.
-            </p>
+              {/* Mensaje descriptivo */}
+              <p className="mb-4" style={{ fontSize: '16px', color: '#555', lineHeight: '1.9' }}>
+                Ingresa tu correo electrónico para verificar que eres tú. Te enviaremos un código para restablecer tu contraseña.
+              </p>
 
-            {/* Campo de correo */}
-            <div className="mb-3">
-              <label htmlFor="correoUsuario" className="form-label" style={{ fontSize: '16px', color: '#333', fontWeight: '500' }}>
-                Correo electrónico
-              </label>
-              <input
-                className="form-control"
-                type="email"
-                name="correoUsuario"
-                id="correoUsuario"
-                value={loginData.correoUsuario}
-                onChange={handleInputChange}
-                required
-                style={{ fontSize: '16px', padding: '10px', width: '100%', maxWidth: '400px', margin: '0 auto' }}
-              />
-            </div>
+              {/* Campo de correo */}
+              <div className="mb-3">
+                <label htmlFor="correoUsuario" className="form-label" style={{ fontSize: '16px', color: '#333', fontWeight: '500' }}>
+                  Correo electrónico
+                </label>
+                <input
+                  className="form-control"
+                  type="email"
+                  name="correoUsuario"
+                  id="correoUsuario"
+                  value={loginData.correoUsuario}
+                  onChange={handleInputChange}
+                  required
+                  style={{ fontSize: '16px', padding: '10px', width: '100%', maxWidth: '400px', margin: '0 auto' }}
+                />
+              </div>
 
-            {/* Botón de enviar código */}
-            <div className="mb-3">
-              <button
-                className="btn btn-primary d-block w-100"
-                type="submit"
-                disabled={isLoading} // Deshabilitar el botón mientras se carga
-                style={{
-                  fontSize: '16px',
-                  padding: '6px',
-                  maxWidth: '400px',
-                  margin: '0 auto',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                }}
-              >
-                {isLoading ? (
-                  <>
-                    <FaSpinner className="spinner" /> {/* Spinner girando */}
-                    Enviando...
-                  </>
-                ) : (
-                  "Enviar"
-                )}
-              </button>
-            </div>
-            <div className="form-check text-start mb-3">
-  <input
-    className="form-check-input"
-    type="checkbox"
-    id="rememberMe"
-    checked={rememberMe}
-    onChange={(e) => setRememberMe(e.target.checked)}
-  />
-  <label className="form-check-label" htmlFor="rememberMe">
-    Acuérdate de mí
-  </label>
-  <a href="/forgot-password" className="float-end text-muted">
-    ¿Perdiste tu contraseña?
-  </a>
-</div>
-            <hr />
-            <div className="text-center mt-4">
-              <svg xmlns="http://www.w3.org/2000/svg" width="3em" height="3em" fill="currentColor" className="bi bi-person" viewBox="0 0 16 16">
-                <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664z" />
-              </svg>
-              <p className="mt-3">¿Aún no tienes cuenta?</p>
-              <a href="/register" className="btn btn-secondary d-block w-50 mx-auto">
-                Crear una cuenta
-              </a>
-            </div>
-            {/* Botón para volver al inicio de sesión */}
-            <div className="text-center">
-              <button
-                type="button"
-                className="btn btn-link"
-                onClick={() => setShowForgotPassword(false)}
-                style={{
-                  color: '#333',
-                  textDecoration: 'none',
-                  fontSize: '16px',
-                  fontWeight: '500',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px'
-                }}
-              >
-                <FaArrowLeft /> Volver
-              </button>
-            </div>
-          </form>
-          
+              {/* Botón de enviar código */}
+              <div className="mb-3">
+                <button
+                  className="btn btn-primary d-block w-100"
+                  type="submit"
+                  disabled={isLoading} // Deshabilitar el botón mientras se carga
+                  style={{
+                    fontSize: '16px',
+                    padding: '6px',
+                    maxWidth: '400px',
+                    margin: '0 auto',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                  }}
+                >
+                  {isLoading ? (
+                    <>
+                      <FaSpinner className="spinner" /> {/* Spinner girando */}
+                      Enviando...
+                    </>
+                  ) : (
+                    "Enviar"
+                  )}
+                </button>
+              </div>
+              <div className="form-check text-start mb-3">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  id="rememberMe"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                />
+                <label className="form-check-label" htmlFor="rememberMe">
+                  Acuérdate de mí
+                </label>
+                <a href="/forgot-password" className="float-end text-muted">
+                  ¿Perdiste tu contraseña?
+                </a>
+              </div>
+              <hr />
+              <div className="text-center mt-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="3em" height="3em" fill="currentColor" className="bi bi-person" viewBox="0 0 16 16">
+                  <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664z" />
+                </svg>
+                <p className="mt-3">¿Aún no tienes cuenta?</p>
+                <a href="/register" className="btn btn-secondary d-block w-50 mx-auto">
+                  Crear una cuenta
+                </a>
+              </div>
+              {/* Botón para volver al inicio de sesión */}
+              <div className="text-center">
+                <button
+                  type="button"
+                  className="btn btn-link"
+                  onClick={() => setShowForgotPassword(false)}
+                  style={{
+                    color: '#333',
+                    textDecoration: 'none',
+                    fontSize: '16px',
+                    fontWeight: '500',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px'
+                  }}
+                >
+                  <FaArrowLeft /> Volver
+                </button>
+              </div>
+            </form>
+
           )}
         </Offcanvas.Body>
       </Offcanvas>
@@ -451,7 +451,7 @@ function LoginApp() {
         <Carrito showCart={showCart} handleShowCart={handleShowCart} cart={cart} removeFromCart={removeFromCart} />
       </main>
 
- 
+
 
       {/* Carrito */}
       <Carrito showCart={showCart} handleShowCart={handleShowCart} cart={cart}
@@ -469,7 +469,7 @@ function LoginApp() {
           {snackbarMessage}
         </Alert>
       </Snackbar>
-       {/* Footer */}
+      {/* Footer */}
       <FooterApp />
     </div>
   );
