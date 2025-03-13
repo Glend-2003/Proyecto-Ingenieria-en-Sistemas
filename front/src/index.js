@@ -17,10 +17,8 @@ import ListaProductosApp from './components/Catalogo/ListaProductosApp';
 import PerfilUsuario from './components/DetallesCliente/PerfilUsuario';
 import Dashboard from './components/DetallesCliente/Dashboard';
 import SideBarUsuario from './components/DetallesCliente/SideBarUsuario';
-import Pedido from './components/Pedido/PedidoCrud';
 
-// Componente para proteger rutas y mostrar el sidebar si el usuario está autenticado
-// Componente para proteger rutas y mostrar el contenido solo si el usuario está autenticado
+// Componente para proteger rutas
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem('token');
   return token ? (
@@ -51,9 +49,12 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <Router>
     <Routes>
+      
       <Route path="/" element={<LoginApp />} />
-      <Route path="/principal" element={<PrivateRoute><Principal /></PrivateRoute>} />
+       <Route path="/pedido" element={<LoginApp initialPage="pedido" />} /> 
       <Route path="/register" element={<Registrar />} />
+
+      <Route path="/principal" element={<PrivateRoute><Principal /></PrivateRoute>} />
       <Route path="/CategoriaApp" element={<PrivateRoute><Categoria /></PrivateRoute>} />
       <Route path="/GestionarUsuario" element={<PrivateRoute><Usuarios /></PrivateRoute>} />
       <Route path="/ComentarioApp" element={<PrivateRoute><ComentarioApp /></PrivateRoute>} />
@@ -64,7 +65,7 @@ root.render(
       <Route path="/PerfilUsuario" element={<PrivateRoute><PerfilUsuario /></PrivateRoute>} />
       <Route path="/Dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
       <Route path="/SideBarUsuario" element={<PrivateRoute><SideBarUsuario /></PrivateRoute>} />
-      <Route path="/Pedido" element={<PrivateRoute><Pedido /></PrivateRoute>} />
+      
     </Routes>
   </Router>
 );
