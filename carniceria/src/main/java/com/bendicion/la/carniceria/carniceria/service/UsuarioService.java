@@ -322,6 +322,7 @@ public class UsuarioService implements IUsuarioService {
                 descripcionDireccion,
                 codigoPostalDireccion,
                 idDistrito,
+                usuario.getRol().getIdRol(),
                 usuario.isEstadoUsuario()
         );
 
