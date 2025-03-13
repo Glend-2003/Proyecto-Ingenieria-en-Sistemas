@@ -131,7 +131,22 @@ function LoginApp({ initialPage = "home" }) {
     setShowCart(!showCart);
   };
 
-  // Función para agregar productos al carrito
+  useEffect(() => {
+    const savedCart = JSON.parse(localStorage.getItem("carrito")) || [];
+    if (idUsuario) {
+      // Asociar el idUsuario a los productos que no lo tienen
+      const updatedCart = savedCart.map(item => ({
+        ...item,
+        usuarioId: item.usuarioId || idUsuario, // Asignar idUsuario si no existe
+      }));
+      setCart(updatedCart);
+      localStorage.setItem("carrito", JSON.stringify(updatedCart));
+    } else {
+      // Si no hay idUsuario, mantener el carrito sin cambios
+      setCart(savedCart);
+    }
+  }, [idUsuario]);
+  
   const addToCart = (producto) => {
     setCart((prevCart) => {
       const existingItem = prevCart.find((item) => item.idProducto === producto.idProducto);
@@ -144,26 +159,14 @@ function LoginApp({ initialPage = "home" }) {
             : item
         );
       } else {
-        newCart = [...prevCart, producto];
+        // Asociar el idUsuario solo si está disponible
+        newCart = [...prevCart, { ...producto, usuarioId: idUsuario || null }];
       }
   
       localStorage.setItem("carrito", JSON.stringify(newCart));
       return newCart;
     });
   };
-
-  useEffect(() => {
-    const savedCart = JSON.parse(localStorage.getItem("carrito")) || [];
-    setCart(savedCart);
-  }, []);
-
-  // Limpia el carrito si el usuario cambia
-  useEffect(() => {
-    if (idUsuario && cart.length > 0 && cart[0].usuarioId !== idUsuario) {
-      setCart([]);
-      localStorage.setItem("carrito", JSON.stringify([]));
-    }
-  }, [idUsuario, cart]);
 
   // Función para eliminar productos del carrito
   const removeFromCart = (indexToRemove) => {
