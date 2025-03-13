@@ -230,6 +230,7 @@ public Usuario registerUsuario(Usuario usuario) {
                 descripcionDireccion,
                 codigoPostalDireccion,
                 idDistrito,
+                usuario.getRol().getIdRol(),
                 usuario.isEstadoUsuario()
         );
 
