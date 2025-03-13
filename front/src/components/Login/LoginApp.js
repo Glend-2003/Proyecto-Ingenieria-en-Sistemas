@@ -12,9 +12,9 @@ import './Login.css';
 import FooterApp from '../Footer/FooterApp';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
-import NavbarApp from '../Navbar/NavbarApp.js';
+import { FaEye, FaEyeSlash, FaSpinner, FaArrowLeft } from 'react-icons/fa';
 
-function App() {
+function LoginApp() {
   const [loginData, setLoginData] = useState({
     correoUsuario: '',
     contraseniaUsuario: '',
@@ -71,7 +71,9 @@ function App() {
     localStorage.removeItem('rememberedPassword');
     navigate('/');
   };
-
+  const [showForgotPassword, setShowForgotPassword] = useState(false); // Estado para mostrar el formulario de "Olvidé mi contraseña"
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // Estado para el spinner
 
   // Función para cerrar el Snackbar
   const handleCloseSnackbar = (event, reason) => {
@@ -192,12 +194,231 @@ function App() {
     login();
   };
 
+  const handleForgotPassword = async (e) => {
+    e.preventDefault(); // Evita que el formulario se envíe automáticamente
+  
+    if (!loginData.correoUsuario) {
+      toast.error("Por favor, ingresa tu correo electrónico");
+      return;
+    }
+  
+   // setIsLoading(true); // Activar el spinner
+  
+    try {
+      const response = await axios.post("http://localhost:8080/usuario/verificarCambioContrasena", {
+        correoUsuario: loginData.correoUsuario,
+      });
+  
+      if (response.status === 200) {
+        toast.success("Código enviado con éxito", {
+          autoClose: 2000, // Duración de la alerta (2 segundos)
+          onClose: () => {
+            // Redirigir después de que la alerta se cierre
+            navigate('/reset-password', { state: { correoUsuario: loginData.correoUsuario } });
+          },
+        });
+      }
+    } catch (error) {
+      toast.error("Correo inexistente", {
+        autoClose: 3000, // Duración de la alerta (3 segundos)
+      });
+    } finally {
+     // setIsLoading(false); // Desactivar el spinner
+    }
+  };
+
   return (
     <div className="page-container">
       {/* Navbar */}
      <NavbarApp/>
 
      
+      {/* Offcanvas Sidebar */}
+      <Offcanvas show={showSidebar} onHide={handleShowSidebar} placement="end">
+        <Offcanvas.Header closeButton>
+          <Offcanvas.Title style={{ fontSize: '24px', fontWeight: 'bold', color: '#333' }}>
+            {showForgotPassword ? "Recuperar contraseña" : "Iniciar sesión"}
+          </Offcanvas.Title>
+        </Offcanvas.Header>
+        <Offcanvas.Body>
+          {/* Contenido del Offcanvas.Body */}
+          {!showForgotPassword ? (
+            // Formulario de inicio de sesión
+            <form onSubmit={handleSubmit}>
+              {/* Campo de correo */}
+              <div className="mb-3">
+                <label htmlFor="correoUsuario" className="form-label">Correo electrónico</label>
+                <input
+                  className="form-control"
+                  type="email"
+                  name="correoUsuario"
+                  id="correoUsuario"
+                  value={loginData.correoUsuario}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+
+              {/* Campo de contraseña */}
+              <div className="mb-3 position-relative">
+                <label htmlFor="contraseniaUsuario" className="form-label">Contraseña</label>
+                <input
+                  className="form-control"
+                  type={showPassword ? "text" : "password"} // Alternar entre texto y contraseña
+                  name="contraseniaUsuario"
+                  id="contraseniaUsuario"
+                  value={loginData.contraseniaUsuario}
+                  onChange={handleInputChange}
+                  required
+                />
+                {/* Ícono para mostrar/ocultar contraseña */}
+                <span
+                  className="position-absolute end-0 me-3"
+                  style={{
+                    cursor: 'pointer',
+                    top: '60%', // Ajusta este valor para bajar el ícono
+                    transform: 'translateY(-22%)' // Mantén esto para centrar verticalmente
+                  }}
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />} {/* Íconos de ojo */}
+                </span>
+              </div>
+
+              {/* Botón de acceso */}
+              <div className="mb-3">
+                <button className="btn btn-primary d-block w-100" type="submit">
+                  Acceso
+                </button>
+              </div>
+
+              {/* Opciones adicionales */}
+              <div className="form-check text-start mb-3">
+                <input className="form-check-input" type="checkbox" id="rememberMe" />
+                <label className="form-check-label" htmlFor="rememberMe">
+                  Acuérdate de mí
+                </label>
+                <button
+                  className="btn btn-link float-end text-muted"
+                  onClick={() => setShowForgotPassword(true)}
+                >
+                  ¿Perdiste tu contraseña?
+                </button>
+              </div>
+
+              {/* Botón "Crear una cuenta" */}
+              <div className="text-center mt-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="3em" height="3em" fill="currentColor" className="bi bi-person" viewBox="0 0 16 16">
+                  <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664z" />
+                </svg>
+                <p className="mt-3">¿Aún no tienes cuenta?</p>
+                <a href="/register" className="btn btn-secondary d-block w-50 mx-auto">
+                  Crear una cuenta
+                </a>
+              </div>
+            </form>
+          ) : (
+            // Formulario de "Olvidé mi contraseña"
+            <form onSubmit={handleForgotPassword}>
+            {/* Mensaje descriptivo */}
+            <p className="mb-4" style={{ fontSize: '16px', color: '#555', lineHeight: '1.9' }}>
+              Ingresa tu correo electrónico para verificar que eres tú. Te enviaremos un código para restablecer tu contraseña.
+            </p>
+
+            {/* Campo de correo */}
+            <div className="mb-3">
+              <label htmlFor="correoUsuario" className="form-label" style={{ fontSize: '16px', color: '#333', fontWeight: '500' }}>
+                Correo electrónico
+              </label>
+              <input
+                className="form-control"
+                type="email"
+                name="correoUsuario"
+                id="correoUsuario"
+                value={loginData.correoUsuario}
+                onChange={handleInputChange}
+                required
+                style={{ fontSize: '16px', padding: '10px', width: '100%', maxWidth: '400px', margin: '0 auto' }}
+              />
+            </div>
+
+            {/* Botón de enviar código */}
+            <div className="mb-3">
+              <button
+                className="btn btn-primary d-block w-100"
+                type="submit"
+                disabled={isLoading} // Deshabilitar el botón mientras se carga
+                style={{
+                  fontSize: '16px',
+                  padding: '6px',
+                  maxWidth: '400px',
+                  margin: '0 auto',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                }}
+              >
+                {isLoading ? (
+                  <>
+                    <FaSpinner className="spinner" /> {/* Spinner girando */}
+                    Enviando...
+                  </>
+                ) : (
+                  "Enviar"
+                )}
+              </button>
+            </div>
+            <div className="form-check text-start mb-3">
+  <input
+    className="form-check-input"
+    type="checkbox"
+    id="rememberMe"
+    checked={rememberMe}
+    onChange={(e) => setRememberMe(e.target.checked)}
+  />
+  <label className="form-check-label" htmlFor="rememberMe">
+    Acuérdate de mí
+  </label>
+  <a href="/forgot-password" className="float-end text-muted">
+    ¿Perdiste tu contraseña?
+  </a>
+</div>
+            <hr />
+            <div className="text-center mt-4">
+              <svg xmlns="http://www.w3.org/2000/svg" width="3em" height="3em" fill="currentColor" className="bi bi-person" viewBox="0 0 16 16">
+                <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664z" />
+              </svg>
+              <p className="mt-3">¿Aún no tienes cuenta?</p>
+              <a href="/register" className="btn btn-secondary d-block w-50 mx-auto">
+                Crear una cuenta
+              </a>
+            </div>
+            {/* Botón para volver al inicio de sesión */}
+            <div className="text-center">
+              <button
+                type="button"
+                className="btn btn-link"
+                onClick={() => setShowForgotPassword(false)}
+                style={{
+                  color: '#333',
+                  textDecoration: 'none',
+                  fontSize: '16px',
+                  fontWeight: '500',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px'
+                }}
+              >
+                <FaArrowLeft /> Volver
+              </button>
+            </div>
+          </form>
+          
+          )}
+        </Offcanvas.Body>
+      </Offcanvas>
 
       {/* Contenido principal */}
       <main className="flex-grow-1">
@@ -223,4 +444,4 @@ function App() {
   );
 }
 
-export default App;
+export default LoginApp;
