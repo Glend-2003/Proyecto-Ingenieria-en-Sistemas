@@ -46,8 +46,6 @@ function LoginApp({ initialPage = "home" }) {
     }
   }, [location.pathname]);
 
-  
-
   // Función para cambiar la página actual
   const renderMainContent = () => {
     switch (currentPage) {
@@ -168,6 +166,20 @@ function LoginApp({ initialPage = "home" }) {
     });
   };
 
+  useEffect(() => {
+    const savedCart = JSON.parse(localStorage.getItem("carrito")) || [];
+    setCart(savedCart);
+  }, []);
+ 
+
+  // Limpia el carrito si el usuario cambia
+  useEffect(() => {
+    if (idUsuario && cart.length > 0 && cart[0].usuarioId !== idUsuario) {
+      setCart([]);
+      localStorage.setItem("carrito", JSON.stringify([]));
+    }
+  }, [idUsuario, cart]);
+
   // Función para eliminar productos del carrito
   const removeFromCart = (indexToRemove) => {
     const updatedCart = cart.filter((_, idx) => idx !== indexToRemove);
@@ -277,6 +289,9 @@ function LoginApp({ initialPage = "home" }) {
       {/* Navbar */}
       <Navbar expand="lg" variant="dark" style={{ backgroundColor: '#001f3f' }}>
         <Container>
+          {/* Título agregado aquí */}
+          <Navbar.Brand>Carnicería La Bendición</Navbar.Brand>
+          
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto">

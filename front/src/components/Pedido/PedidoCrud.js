@@ -1,17 +1,285 @@
-// PedidoCrud.js ajustado para mejor uso del espacio
-import React from 'react';
-import { Container, Row, Col, Card } from 'react-bootstrap';
+import React, { useState, useEffect } from "react";
+import "bootstrap/dist/css/bootstrap.min.css";
+import '../styles.min.css';
 
 function PedidoCrud() {
-  return (
+  // Estados para los campos del formulario
+  const [formData, setFormData] = useState({
+    nombreUsuario: '',
+    primerApellido: '',
+    segundoApellido: '',
+    telefonoUsuario: '',
+    correoUsuario: '',
+    tipoPersona: 'Física',
+    cedulaUsuario: '',
+    tipoCedula: 'Cédula Física',
+    sucursal: 'Cairo de Cariari',
+    provincia: 'Limón',
+    localidad: 'San José, Carmen',
+    horaRetiro: ''
+  });
 
-    <div>
-      <h1>¡Hola Mundo desde la página de Pedidos!</h1>
+  // Recuperar carrito del localStorage
+  const [cart, setCart] = useState([]);
+  
+  useEffect(() => {
+    const savedCart = JSON.parse(localStorage.getItem("carrito")) || [];
+    setCart(savedCart);
+  }, []);
+
+  // Calcular totales
+  const subtotal = cart.reduce((total, item) => total + (item.precioProducto * item.cantidad), 0);
+  const total = subtotal;
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log('Datos del formulario:', formData);
+    console.log('Productos en el carrito:', cart);
+    // Aquí se enviaría al backend
+  };
+
+  // Renderizar productos del carrito
+  const renderCartItems = () => {
+    if (cart.length > 0) {
+      return cart.map((item, index) => (
+        <div className="row mb-2 pb-2 border-bottom" key={index}>
+          <div className="col-8">{item.nombreProducto || "Producto"} × {item.cantidad}</div>
+          <div className="col-4 text-end">₡{((item.precioProducto || 0) * item.cantidad).toLocaleString()}</div>
+        </div>
+      ));
+    } else {
+      return (
+        <div className="row mb-2 pb-2 border-bottom">
+          <div className="col-12 text-center">No hay productos en el carrito</div>
+        </div>
+      );
+    }
+  };
+
+  return (
+    
+    <div className="container py-4 my-3">
       
+      <div className="row">
+        <div className="col-md-6">
+          <div className="mb-10">
+            <h2 style={{ marginBottom: "25px", fontSize: "25px" }}>
+              Detalles finales de la compra
+            </h2>
+            <div className="row">
+              <div className="col-md-6">
+                <label htmlFor="nombreUsuario" className="form-label">
+                  Nombre
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="nombreUsuario"
+                  name="nombreUsuario"
+                  value={formData.nombreUsuario}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="col-md-6">
+                <label htmlFor="primerApellido" className="form-label">
+                  Primer apellido
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="primerApellido"
+                  name="primerApellido"
+                  value={formData.primerApellido}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+            <div className="row">
+              <div className="col-md-6">
+                <label htmlFor="segundoApellido" className="form-label">
+                  Segundo apellido
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="segundoApellido"
+                  name="segundoApellido"
+                  value={formData.segundoApellido}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="col-md-6">
+                <label htmlFor="telefonoUsuario" className="form-label">
+                  Teléfono
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="telefonoUsuario"
+                  name="telefonoUsuario"
+                  value={formData.telefonoUsuario}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+            <div className="row">
+              <div className="col-md-6">
+                <label htmlFor="correoUsuario" className="form-label">
+                  Correo electrónico
+                </label>
+                <input
+                  type="email"
+                  className="form-control"
+                  id="correoUsuario"
+                  name="correoUsuario"
+                  value={formData.correoUsuario}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="col-md-6">
+                <label htmlFor="tipoPersona" className="form-label">
+                  Tipo de persona
+                </label>
+                <select
+                  className="form-control"
+                  id="tipoPersona"
+                  name="tipoPersona"
+                  value={formData.tipoPersona}
+                  onChange={handleChange}
+                >
+                  <option value="Física">Física</option>
+                  <option value="Jurídica">Jurídica</option>
+                </select>
+              </div>
+            </div>
+            <div className="row">
+              <div className="col-md-6">
+                <label htmlFor="cedulaUsuario" className="form-label">
+                  Cédula
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="cedulaUsuario"
+                  name="cedulaUsuario"
+                  value={formData.cedulaUsuario}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="col-md-6">
+                <label htmlFor="tipoCedula" className="form-label">
+                  Tipo de cédula
+                </label>
+                <select
+                  className="form-control"
+                  id="tipoCedula"
+                  name="tipoCedula"
+                  value={formData.tipoCedula}
+                  onChange={handleChange}
+                >
+                  <option value="Cédula Física">Cédula Física</option>
+                  <option value="Cédula Jurídica">Cédula Jurídica</option>
+                </select>
+              </div>
+            </div>
+            <div className="row">
+              <div className="col-md-6">
+                <label htmlFor="sucursal" className="form-label">
+                  Sucursal
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="sucursal"
+                  name="sucursal"
+                  value={formData.sucursal}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="col-md-6">
+                <label htmlFor="provincia" className="form-label">
+                  Provincia
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="provincia"
+                  name="provincia"
+                  value={formData.provincia}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+            <div className="row">
+              <div className="col-md-6">
+                <label htmlFor="localidad" className="form-label">
+                  Localidad
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="localidad"
+                  name="localidad"
+                  value={formData.localidad}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="col-md-6">
+                <label htmlFor="horaRetiro" className="form-label">
+                  Hora de retiro
+                </label>
+                <input
+                  type="time"
+                  className="form-control"
+                  id="horaRetiro"
+                  name="horaRetiro"
+                  value={formData.horaRetiro}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="col-md-6">
+          <h2 style={{ marginBottom: "25px", fontSize: "25px" }}>
+            Productos en el carrito
+          </h2>
+          {renderCartItems()}
+          <div className="row mt-3">
+            <div className="col-8">
+              <strong>Subtotal:</strong>
+            </div>
+            <div className="col-4 text-end">
+              ₡{subtotal.toLocaleString()}
+            </div>
+          </div>
+          <div className="row mt-3">
+            <div className="col-8">
+              <strong>Total:</strong>
+            </div>
+            <div className="col-4 text-end">
+              ₡{total.toLocaleString()}
+            </div>
+          </div>
+          <div className="row mt-3">
+            <div className="col-12 text-end">
+              <button className="btn btn-primary" onClick={handleSubmit}>
+                Finalizar Pedido
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
-
-    
 }
 
 export default PedidoCrud;
