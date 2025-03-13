@@ -157,6 +157,23 @@ function LoginApp({ initialPage = "home" }) {
     setCart(savedCart);
   }, []);
 
+
+  useEffect(() => {
+    localStorage.setItem("carrito", JSON.stringify(cart));
+    // Verificar si el idUsuario del carrito es diferente del logueado
+    if (cart.length > 0 && cart[0].usuarioId !== idUsuario) {
+
+      setCart([]);
+      localStorage.setItem("carrito", JSON.stringify([]));
+
+    } else {
+      localStorage.setItem("carrito", JSON.stringify(cart));
+    }
+
+    //cargarProductos();
+  }, [cart, idUsuario]);
+ 
+
   // Limpia el carrito si el usuario cambia
   useEffect(() => {
     if (idUsuario && cart.length > 0 && cart[0].usuarioId !== idUsuario) {
