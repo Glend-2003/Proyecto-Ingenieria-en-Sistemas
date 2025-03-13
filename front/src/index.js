@@ -17,6 +17,7 @@ import ListaProductosApp from './components/Catalogo/ListaProductosApp';
 import PerfilUsuario from './components/DetallesCliente/PerfilUsuario';
 import Dashboard from './components/DetallesCliente/Dashboard';
 import SideBarUsuario from './components/DetallesCliente/SideBarUsuario';
+import Pedido from './components/Pedido/PedidoCrud';
 
 // Componente para proteger rutas y mostrar el sidebar si el usuario está autenticado
 // Componente para proteger rutas y mostrar el contenido solo si el usuario está autenticado
@@ -63,6 +64,10 @@ root.render(
       <Route path="/PerfilUsuario" element={<PrivateRoute><PerfilUsuario /></PrivateRoute>} />
       <Route path="/Dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
       <Route path="/SideBarUsuario" element={<PrivateRoute><SideBarUsuario /></PrivateRoute>} />
+<<<<<<< HEAD
+=======
+      <Route path="/Pedido" element={<PrivateRoute><Pedido /></PrivateRoute>} />
+>>>>>>> parent of edc07a5 (12/03/25)
     </Routes>
   </Router>
 );
