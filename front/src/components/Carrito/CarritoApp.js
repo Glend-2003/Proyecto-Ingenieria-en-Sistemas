@@ -10,8 +10,8 @@ function CarritoApp({ showCart, handleShowCart, cart, removeFromCart }) {
   const navigate = useNavigate();
 
   const handleVerOrden = () => {
-    handleShowCart(); 
-    navigate('/verOrden', { state: { cart } }); 
+    handleShowCart();
+    navigate('/verOrden');
   };
 
   // Función para manejar el clic en el botón pagar
@@ -84,11 +84,7 @@ function CarritoApp({ showCart, handleShowCart, cart, removeFromCart }) {
               </span>
             </div>
                 
-            <Button
-              variant="primary"
-              className="btn-ver-orden"
-              onClick={handleVerOrden}
-            >
+            <Button variant="primary" className="btn-ver-orden" onClick={handleVerOrden} >
               Ver Orden
             </Button>
 

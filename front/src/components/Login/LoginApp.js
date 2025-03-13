@@ -36,7 +36,11 @@ function LoginApp({ initialPage = "home" }) {
   const [productos, setProductos] = useState([]);
   const [rememberMe, setRememberMe] = useState(false);
 
-
+  useEffect(() => {
+    const savedCart = JSON.parse(localStorage.getItem("carrito")) || [];
+    setCart(savedCart);
+  }, []);
+  
   // Detectar cambios en la URL para actualizar currentPage
   useEffect(() => {
     if (location.pathname === '/pedido') {

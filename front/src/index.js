@@ -66,7 +66,7 @@ root.render(
       <Route path="/PerfilUsuario" element={<PrivateRoute><PerfilUsuario /></PrivateRoute>} />
       <Route path="/Dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
       <Route path="/SideBarUsuario" element={<PrivateRoute><SideBarUsuario /></PrivateRoute>} />
-      <Route path="/verOrden" element={<PrivateRoute><MostrartOrdenApp /></PrivateRoute>} />
+      <Route path="/verOrden" element={<MostrartOrdenApp />} />
       
     </Routes>
   </Router>
