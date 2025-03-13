@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles.min.css';
 import { Offcanvas, Navbar, Container, Nav, Button, ListGroup, Badge, Card } from 'react-bootstrap';
 import Carrito from '../Carrito/CarritoApp.js';
 import ListaProductosApp from '../Catalogo/ListaProductosApp.js';
+import PedidoCrud from '../Pedido/PedidoCrud.js';
 import DropDown from "../DropDown/DropDown";
 import { toast } from 'react-toastify';
 import './Login.css';
@@ -14,7 +15,12 @@ import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 import { FaEye, FaEyeSlash, FaSpinner, FaArrowLeft } from 'react-icons/fa';
 
-function LoginApp() {
+function LoginApp({ initialPage = "home" }) {
+
+
+  const [currentPage, setCurrentPage] = useState(initialPage);
+  const location = useLocation();
+
   const [loginData, setLoginData] = useState({
     correoUsuario: '',
     contraseniaUsuario: '',
@@ -29,6 +35,27 @@ function LoginApp() {
   const [cart, setCart] = useState([]);
   const [productos, setProductos] = useState([]);
   const [rememberMe, setRememberMe] = useState(false);
+
+
+  // Detectar cambios en la URL para actualizar currentPage
+  useEffect(() => {
+    if (location.pathname === '/pedido') {
+      setCurrentPage('pedido');
+    } else {
+      setCurrentPage('home');
+    }
+  }, [location.pathname]);
+
+  // Función para cambiar la página actual
+  const renderMainContent = () => {
+    switch (currentPage) {
+      case 'pedido':
+        return <PedidoCrud />;
+      case 'home':
+      default:
+        return <ListaProductosApp addToCart={addToCart} />;
+    }
+  };
 
   // Definir el componente Alert para Snackbar
   const Alert = React.forwardRef(function Alert(props, ref) {
@@ -102,7 +129,22 @@ function LoginApp() {
     setShowCart(!showCart);
   };
 
-  // Función para agregar productos al carrito
+  useEffect(() => {
+    const savedCart = JSON.parse(localStorage.getItem("carrito")) || [];
+    if (idUsuario) {
+      // Asociar el idUsuario a los productos que no lo tienen
+      const updatedCart = savedCart.map(item => ({
+        ...item,
+        usuarioId: item.usuarioId || idUsuario, // Asignar idUsuario si no existe
+      }));
+      setCart(updatedCart);
+      localStorage.setItem("carrito", JSON.stringify(updatedCart));
+    } else {
+      // Si no hay idUsuario, mantener el carrito sin cambios
+      setCart(savedCart);
+    }
+  }, [idUsuario]);
+  
   const addToCart = (producto) => {
     setCart((prevCart) => {
       const existingItem = prevCart.find((item) => item.idProducto === producto.idProducto);
@@ -115,13 +157,28 @@ function LoginApp() {
             : item
         );
       } else {
-        newCart = [...prevCart, producto];
+        // Asociar el idUsuario solo si está disponible
+        newCart = [...prevCart, { ...producto, usuarioId: idUsuario || null }];
       }
   
       localStorage.setItem("carrito", JSON.stringify(newCart));
       return newCart;
     });
   };
+
+  useEffect(() => {
+    const savedCart = JSON.parse(localStorage.getItem("carrito")) || [];
+    setCart(savedCart);
+  }, []);
+ 
+
+  // Limpia el carrito si el usuario cambia
+  useEffect(() => {
+    if (idUsuario && cart.length > 0 && cart[0].usuarioId !== idUsuario) {
+      setCart([]);
+      localStorage.setItem("carrito", JSON.stringify([]));
+    }
+  }, [idUsuario, cart]);
 
   // Función para eliminar productos del carrito
   const removeFromCart = (indexToRemove) => {
@@ -230,7 +287,36 @@ function LoginApp() {
   return (
     <div className="page-container">
       {/* Navbar */}
-     <NavbarApp/>
+      <Navbar expand="lg" variant="dark" style={{ backgroundColor: '#001f3f' }}>
+        <Container>
+          {/* Título agregado aquí */}
+          <Navbar.Brand>Carnicería La Bendición</Navbar.Brand>
+          
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
+            <Nav className="ms-auto">
+              <div>
+                <Nav.Link onClick={handleShowSidebar}>
+                  <DropDown
+                    icon={
+                      <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" fill="currentColor" className="bi bi-person" viewBox="0 0 16 16">
+                        <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664z" />
+                      </svg>
+                    }
+                    idUsuario={idUsuario}
+                  />
+                </Nav.Link>
+              </div>
+              <Nav.Link onClick={handleShowCart}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" fill="currentColor" className="bi bi-cart" viewBox="0 0 16 16">
+                  <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l1.313 7h8.17l1.313-7zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2" />
+                </svg>
+                {cart.length > 0 && <Badge bg="danger">{cart.length}</Badge>}
+              </Nav.Link>
+            </Nav>
+          </Navbar.Collapse>
+        </Container>
+      </Navbar>
 
      
       {/* Offcanvas Sidebar */}
@@ -264,7 +350,7 @@ function LoginApp() {
                 <label htmlFor="contraseniaUsuario" className="form-label">Contraseña</label>
                 <input
                   className="form-control"
-                  type={showPassword ? "text" : "password"} // Alternar entre texto y contraseña
+                  type={showPassword ? "text" : "password"}
                   name="contraseniaUsuario"
                   id="contraseniaUsuario"
                   value={loginData.contraseniaUsuario}
@@ -276,12 +362,12 @@ function LoginApp() {
                   className="position-absolute end-0 me-3"
                   style={{
                     cursor: 'pointer',
-                    top: '60%', // Ajusta este valor para bajar el ícono
-                    transform: 'translateY(-22%)' // Mantén esto para centrar verticalmente
+                    top: '60%',
+                    transform: 'translateY(-22%)'
                   }}
                   onClick={() => setShowPassword(!showPassword)}
                 >
-                  {showPassword ? <FaEyeSlash /> : <FaEye />} {/* Íconos de ojo */}
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
                 </span>
               </div>
 
@@ -294,7 +380,13 @@ function LoginApp() {
 
               {/* Opciones adicionales */}
               <div className="form-check text-start mb-3">
-                <input className="form-check-input" type="checkbox" id="rememberMe" />
+                <input 
+                  className="form-check-input" 
+                  type="checkbox" 
+                  id="rememberMe"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                />
                 <label className="form-check-label" htmlFor="rememberMe">
                   Acuérdate de mí
                 </label>
@@ -320,125 +412,107 @@ function LoginApp() {
           ) : (
             // Formulario de "Olvidé mi contraseña"
             <form onSubmit={handleForgotPassword}>
-            {/* Mensaje descriptivo */}
-            <p className="mb-4" style={{ fontSize: '16px', color: '#555', lineHeight: '1.9' }}>
-              Ingresa tu correo electrónico para verificar que eres tú. Te enviaremos un código para restablecer tu contraseña.
-            </p>
+              {/* Contenido del formulario de recuperación (código existente) */}
+              <p className="mb-4" style={{ fontSize: '16px', color: '#555', lineHeight: '1.9' }}>
+                Ingresa tu correo electrónico para verificar que eres tú. Te enviaremos un código para restablecer tu contraseña.
+              </p>
 
-            {/* Campo de correo */}
-            <div className="mb-3">
-              <label htmlFor="correoUsuario" className="form-label" style={{ fontSize: '16px', color: '#333', fontWeight: '500' }}>
-                Correo electrónico
-              </label>
-              <input
-                className="form-control"
-                type="email"
-                name="correoUsuario"
-                id="correoUsuario"
-                value={loginData.correoUsuario}
-                onChange={handleInputChange}
-                required
-                style={{ fontSize: '16px', padding: '10px', width: '100%', maxWidth: '400px', margin: '0 auto' }}
-              />
-            </div>
+              <div className="mb-3">
+                <label htmlFor="correoUsuario" className="form-label" style={{ fontSize: '16px', color: '#333', fontWeight: '500' }}>
+                  Correo electrónico
+                </label>
+                <input
+                  className="form-control"
+                  type="email"
+                  name="correoUsuario"
+                  id="correoUsuario"
+                  value={loginData.correoUsuario}
+                  onChange={handleInputChange}
+                  required
+                  style={{ fontSize: '16px', padding: '10px', width: '100%', maxWidth: '400px', margin: '0 auto' }}
+                />
+              </div>
 
-            {/* Botón de enviar código */}
-            <div className="mb-3">
-              <button
-                className="btn btn-primary d-block w-100"
-                type="submit"
-                disabled={isLoading} // Deshabilitar el botón mientras se carga
-                style={{
-                  fontSize: '16px',
-                  padding: '6px',
-                  maxWidth: '400px',
-                  margin: '0 auto',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                }}
-              >
-                {isLoading ? (
-                  <>
-                    <FaSpinner className="spinner" /> {/* Spinner girando */}
-                    Enviando...
-                  </>
-                ) : (
-                  "Enviar"
-                )}
-              </button>
-            </div>
-            <div className="form-check text-start mb-3">
-  <input
-    className="form-check-input"
-    type="checkbox"
-    id="rememberMe"
-    checked={rememberMe}
-    onChange={(e) => setRememberMe(e.target.checked)}
-  />
-  <label className="form-check-label" htmlFor="rememberMe">
-    Acuérdate de mí
-  </label>
-  <a href="/forgot-password" className="float-end text-muted">
-    ¿Perdiste tu contraseña?
-  </a>
-</div>
-            <hr />
-            <div className="text-center mt-4">
-              <svg xmlns="http://www.w3.org/2000/svg" width="3em" height="3em" fill="currentColor" className="bi bi-person" viewBox="0 0 16 16">
-                <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664z" />
-              </svg>
-              <p className="mt-3">¿Aún no tienes cuenta?</p>
-              <a href="/register" className="btn btn-secondary d-block w-50 mx-auto">
-                Crear una cuenta
-              </a>
-            </div>
-            {/* Botón para volver al inicio de sesión */}
-            <div className="text-center">
-              <button
-                type="button"
-                className="btn btn-link"
-                onClick={() => setShowForgotPassword(false)}
-                style={{
-                  color: '#333',
-                  textDecoration: 'none',
-                  fontSize: '16px',
-                  fontWeight: '500',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px'
-                }}
-              >
-                <FaArrowLeft /> Volver
-              </button>
-            </div>
-          </form>
-          
+              <div className="mb-3">
+                <button
+                  className="btn btn-primary d-block w-100"
+                  type="submit"
+                  disabled={isLoading}
+                  style={{
+                    fontSize: '16px',
+                    padding: '6px',
+                    maxWidth: '400px',
+                    margin: '0 auto',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                  }}
+                >
+                  {isLoading ? (
+                    <>
+                      <FaSpinner className="spinner" />
+                      Enviando...
+                    </>
+                  ) : (
+                    "Enviar"
+                  )}
+                </button>
+              </div>
+
+              <hr />
+              <div className="text-center mt-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="3em" height="3em" fill="currentColor" className="bi bi-person" viewBox="0 0 16 16">
+                  <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664z" />
+                </svg>
+                <p className="mt-3">¿Aún no tienes cuenta?</p>
+                <a href="/register" className="btn btn-secondary d-block w-50 mx-auto">
+                  Crear una cuenta
+                </a>
+              </div>
+              <div className="text-center">
+                <button
+                  type="button"
+                  className="btn btn-link"
+                  onClick={() => setShowForgotPassword(false)}
+                  style={{
+                    color: '#333',
+                    textDecoration: 'none',
+                    fontSize: '16px',
+                    fontWeight: '500',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px'
+                  }}
+                >
+                  <FaArrowLeft /> Volver
+                </button>
+              </div>
+            </form>
           )}
         </Offcanvas.Body>
       </Offcanvas>
 
-      {/* Contenido principal */}
+      {/* Contenido principal modificado para usar renderMainContent */}
       <main className="flex-grow-1">
-        <ListaProductosApp addToCart={addToCart} />
+        {renderMainContent()}
         <Carrito showCart={showCart} handleShowCart={handleShowCart} cart={cart} removeFromCart={removeFromCart} />
       </main>
-
 
       {/* Snackbar para mostrar alertas */}
       <Snackbar
         open={openSnackbar}
-        autoHideDuration={6000} // Duración en milisegundos
+        autoHideDuration={6000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }} // Posición del Snackbar
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
         <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
           {snackbarMessage}
         </Alert>
       </Snackbar>
-       {/* Footer */}
+      
+      {/* Footer */}
       <FooterApp />
     </div>
   );
