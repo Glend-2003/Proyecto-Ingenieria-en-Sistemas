@@ -152,6 +152,19 @@ function LoginApp({ initialPage = "home" }) {
     });
   };
 
+  useEffect(() => {
+    const savedCart = JSON.parse(localStorage.getItem("carrito")) || [];
+    setCart(savedCart);
+  }, []);
+
+  // Limpia el carrito si el usuario cambia
+  useEffect(() => {
+    if (idUsuario && cart.length > 0 && cart[0].usuarioId !== idUsuario) {
+      setCart([]);
+      localStorage.setItem("carrito", JSON.stringify([]));
+    }
+  }, [idUsuario, cart]);
+
   // Función para eliminar productos del carrito
   const removeFromCart = (indexToRemove) => {
     const updatedCart = cart.filter((_, idx) => idx !== indexToRemove);
