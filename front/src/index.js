@@ -17,6 +17,7 @@ import ListaProductosApp from './components/Catalogo/ListaProductosApp';
 import PerfilUsuario from './components/DetallesCliente/PerfilUsuario';
 import Dashboard from './components/DetallesCliente/Dashboard';
 import SideBarUsuario from './components/DetallesCliente/SideBarUsuario';
+import Pedido from './components/Pedido/PedidoCrud';
 
 // Componente para proteger rutas y mostrar el sidebar si el usuario está autenticado
 // Componente para proteger rutas y mostrar el contenido solo si el usuario está autenticado
@@ -56,13 +57,14 @@ root.render(
       <Route path="/CategoriaApp" element={<PrivateRoute><Categoria /></PrivateRoute>} />
       <Route path="/GestionarUsuario" element={<PrivateRoute><Usuarios /></PrivateRoute>} />
       <Route path="/ComentarioApp" element={<PrivateRoute><ComentarioApp /></PrivateRoute>} />
-      <Route path="/ProductoApp" element={<PrivateRoute><ProductoApp /></PrivateRoute>} /> {/* Aquí es donde estaba el error */}
+      <Route path="/ProductoApp" element={<PrivateRoute><ProductoApp /></PrivateRoute>} /> {}
       <Route path="/PromocionApp" element={<PrivateRoute><PromocionApp /></PrivateRoute>} />
       <Route path="/TipoPagoApp" element={<PrivateRoute><TipoPagoApp /></PrivateRoute>} />
       <Route path="/ListaProductosApp" element={<PrivateRoute><ListaProductosApp /></PrivateRoute>} />
       <Route path="/PerfilUsuario" element={<PrivateRoute><PerfilUsuario /></PrivateRoute>} />
       <Route path="/Dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
       <Route path="/SideBarUsuario" element={<PrivateRoute><SideBarUsuario /></PrivateRoute>} />
+      <Route path="/Pedido" element={<PrivateRoute><Pedido /></PrivateRoute>} />
     </Routes>
   </Router>
 );

@@ -1,10 +1,22 @@
 import React from 'react';
 import { Offcanvas, ListGroup, Button, Badge} from 'react-bootstrap';
 import { createContext, useContext, useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 import './Carrito.css';
 
 
 function CarritoApp({ showCart, handleShowCart, cart, removeFromCart }) {
+
+  const navigate = useNavigate();
+
+  // Función para manejar el clic en el botón pagar
+  const handlePagar = () => {
+    // Cerramos el carrito
+    handleShowCart();
+    // Redirigimos a la página de pedido (mantenemos la misma ruta)
+    navigate('/pedido');
+  };
+
   const groupedCart = cart.reduce((acc, item) => {
     const existingItem = acc.find((i) => i.idProducto === item.idProducto);
     if (existingItem) {
@@ -66,6 +78,14 @@ function CarritoApp({ showCart, handleShowCart, cart, removeFromCart }) {
                 )}
               </span>
             </div>
+
+            <Button 
+              variant="success" 
+              className="btn-pagar"
+              onClick={handlePagar}
+            >
+              Pagar
+            </Button>
           </ListGroup>
         ) : (
           <p className="cart-empty">No hay productos en el carrito.</p>
