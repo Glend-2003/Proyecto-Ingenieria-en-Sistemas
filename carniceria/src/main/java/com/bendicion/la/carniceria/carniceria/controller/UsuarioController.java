@@ -1,5 +1,4 @@
 package com.bendicion.la.carniceria.carniceria.controller;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bendicion.la.carniceria.carniceria.Logic.JwtService;
-import com.bendicion.la.carniceria.carniceria.domain.Rol;
 import com.bendicion.la.carniceria.carniceria.domain.Usuario;
 import com.bendicion.la.carniceria.carniceria.service.IUsuarioService;
 
@@ -29,6 +27,7 @@ import jakarta.servlet.http.HttpServletRequest;
  *
  * @author Jamel Sandí
  */
+
 @RestController
 @CrossOrigin(origins = "*")
 @RequestMapping("/usuario")
@@ -38,7 +37,7 @@ public class UsuarioController {
     IUsuarioService iUsuarioService;
 
     @Autowired
-    private JwtService jwtService;  // Asegúrate de tener este Autowired
+    private JwtService jwtService;
 
     // Read
     // Lee todos los usuarios existentes, trayendo hasta la dirección (Para vista Admin)
@@ -48,7 +47,7 @@ public class UsuarioController {
         System.out.println("Listando todos los usuarios: " + usuarios.size() + " usuarios encontrados.");
         return ResponseEntity.ok(usuarios);
     }
-
+    
 // -----------------------------------------------------------------------------    
     // Add
     // Agregar usuarios en vista Admin
@@ -210,5 +209,48 @@ System.out.println("Datos del usuario recibidos: " + usuario);
         }
     }
     
- 
+// -----------------------------------------------------------------------------
+// Método para enviar código al correo ingresado y validar si existe
+    
+    @PostMapping("/verificarCambioContrasena")
+    public ResponseEntity<?> verificarCorreoYEnviarCodigo(@RequestBody Map<String, String> request) {
+        try {
+            String correoUsuario = request.get("correoUsuario");
+
+            if (correoUsuario == null || correoUsuario.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body("El campo de correo no puede estar vacío");
+            }
+
+            iUsuarioService.getCodigo(correoUsuario);
+
+            return ResponseEntity.ok("Código de verificación enviado al correo: " + correoUsuario);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+    
+// ----------------------------------------------------------------------------- 
+    // Método para cambiar la contra con código
+    @PostMapping("/cambiarContrasena")
+    public ResponseEntity<?> cambiarContrasenaConCodigo(@RequestBody Map<String, String> request) {
+        try {
+            String numCodigo = request.get("numCodigo");
+            String nuevaContrasenia = request.get("nuevaContrasenia");
+
+            if (numCodigo == null || nuevaContrasenia == null) {
+                return ResponseEntity.badRequest().body("El código y la nueva contraseña son requeridos");
+            }
+
+            if (nuevaContrasenia.length() < 8) {
+                return ResponseEntity.badRequest().body("La contraseña debe tener al menos 8 caracteres");
+            }
+
+            iUsuarioService.cambiarContrasenaConCodigo(numCodigo, nuevaContrasenia);
+
+            return ResponseEntity.ok("Contraseña cambiada con éxito");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
 }

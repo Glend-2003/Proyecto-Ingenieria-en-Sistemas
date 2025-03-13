@@ -1,20 +1,15 @@
 package com.bendicion.la.carniceria.carniceria.service;
-
 import java.sql.Date;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
-
 import com.bendicion.la.carniceria.carniceria.Logic.JwtService;
 import com.bendicion.la.carniceria.carniceria.Logic.Seguridad;
 import com.bendicion.la.carniceria.carniceria.domain.Rol;
 import com.bendicion.la.carniceria.carniceria.domain.Usuario;
+import com.bendicion.la.carniceria.carniceria.jpa.UsuarioCodigoRepository;
 import com.bendicion.la.carniceria.carniceria.jpa.UsuarioRepository;
-
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import java.util.Random;
 
@@ -35,8 +30,12 @@ public class UsuarioService implements IUsuarioService {
     @Autowired
     private JwtService jwt;
 
-    @PersistenceContext
-    private EntityManager entityManager;
+    @Autowired
+    private UsuarioCodigoRepository usuarioCodigoRepo;
+    
+    @Autowired
+    private CorreoService correoService;
+    
 
 // -----------------------------------------------------------------------------
     @Override
@@ -163,9 +162,105 @@ public Usuario registerUsuario(Usuario usuario) {
 // -----------------------------------------------------------------------------      
 // Método para generar un código de 6 dígitos único
     
-    private String generateCodigo() {
+    @Override
+    public String generateCodigo() {
         Random random = new Random();
         return String.format("%06d", random.nextInt(1000000));  
+    }
+    
+// -----------------------------------------------------------------------------      
+// Método para obtener el código de verificación con el correo ingresado
+    
+    @Override
+    @Transactional
+    public void getCodigo(String correoUsuario) {
+        try {
+            // 1. Verificar si el correo tiene un usuario asociado
+            Usuario usuario = usuarioRepo.searchUsuario(correoUsuario);
+
+            if (usuario == null) {
+                throw new RuntimeException("El correo no está registrado");
+            }
+
+            // 2. Obtener el código de verificación
+            String numCodigo = usuarioCodigoRepo.obtenerCodigoUsuario(correoUsuario);
+
+            if (numCodigo == null) {
+                throw new RuntimeException("No se encontró un código de verificación para este usuario");
+            }
+
+            // 3. Crear el mensaje del correo en HTML
+            String asunto = "Código de Verificación";
+            String mensajeHTML = crearMensajeHTML(numCodigo);
+
+            // 4. Enviar el correo
+            correoService.enviarMensaje(correoUsuario, asunto, mensajeHTML);
+
+            System.out.println("Código de verificación enviado a: " + correoUsuario);
+        } catch (Exception e) {
+            throw new RuntimeException("Error al verificar el correo y enviar el código: " + e.getMessage());
+        }
+    }
+
+// -----------------------------------------------------------------------------     
+
+// Método para crear el mensaje HTML
+    private String crearMensajeHTML(String numCodigo) {
+        return "<!DOCTYPE html>" +
+               "<html lang='es'>" +
+               "<head>" +
+               "    <meta charset='UTF-8'>" +
+               "    <meta name='viewport' content='width=device-width, initial-scale=1.0'>" +
+               "    <title>Código de Verificación</title>" +
+               "    <style>" +
+               "        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }" +
+               "        .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); border: 1px solid #dddddd; }" +  // Agregar borde
+               "        h1 { color: #333333; }" +
+               "        p { color: #555555; line-height: 1.6; }" +
+               "        .code { font-size: 24px; font-weight: bold; color: #007BFF; margin: 20px 0; }" +
+               "        .footer { margin-top: 20px; font-size: 12px; color: #888888; }" +
+               "    </style>" +
+               "</head>" +
+               "<body>" +
+               "    <div class='container'>" +
+               "        <h1>Código de Verificación</h1>" +
+               "        <p>Estimado usuario de Carnicería La Bendición:</p>" +
+               "        <p>Recibimos una solicitud para acceder a tu cuenta. Tu código de verificación es:</p>" +
+               "        <div class='code'>" + numCodigo + "</div>" +
+               "        <p>Si no solicitaste este código, es posible que otra persona esté intentando acceder a tu cuenta. No reenvíes ni proporciones este código a otra persona.</p>" +
+               "        <p>Gracias por ser parte de la familia de Carnicería La Bendición. ¡Esperamos verte pronto!</p>" +
+               "        <div class='footer'>" +
+               "            <p>Atentamente,</p>" +
+               "            <p>El equipo de Carnicería La Bendición</p>" +
+               "        </div>" +
+               "    </div>" +
+               "</body>" +
+               "</html>";
+    }
+    
+// -----------------------------------------------------------------------------  
+    //Método para cambiar la contrasenia con el codigo 
+    @Override
+    @Transactional
+    public String cambiarContrasenaConCodigo(String numCodigo, String nuevaContrasenia) {
+        try {
+            String nuevoCodigo = generateCodigo(); // Generar un nuevo código
+            String encriptedPassword = seguridad.encriptPassword(nuevaContrasenia); // Encriptar la contraseña
+
+            // Llamar al repositorio y obtener el resultado
+            int resultado = usuarioRepo.cambiarContrasenaConCodigo(numCodigo, encriptedPassword, nuevoCodigo);
+
+            // Verificar el resultado
+            if (resultado == 0) {
+                throw new RuntimeException("Código de verificación inválido");
+            } else if (resultado == 1) {
+                return "Contraseña cambiada con éxito";
+            } else {
+                throw new RuntimeException("Error desconocido al cambiar la contraseña");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error al cambiar la contraseña: " + e.getMessage());
+        }
     }
 
 // -----------------------------------------------------------------------------  

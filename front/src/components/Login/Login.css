@@ -86,4 +86,14 @@ html, body {
 main {
   flex: 1; /* Hace que el contenido principal ocupe el espacio restante */
   padding: 20px; /* Espaciado interno */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.spinner {
+  animation: spin 1s linear infinite; /* Gira el ícono infinitamente */
+
+}
+
 }

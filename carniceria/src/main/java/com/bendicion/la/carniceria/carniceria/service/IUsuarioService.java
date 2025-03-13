@@ -1,5 +1,4 @@
 package com.bendicion.la.carniceria.carniceria.service;
-import com.bendicion.la.carniceria.carniceria.domain.Rol;
 import java.util.List;
 
 import com.bendicion.la.carniceria.carniceria.domain.Usuario;
@@ -44,6 +43,13 @@ public interface IUsuarioService {
 
     @Transactional
     public boolean activarUsuario(int id);
- 
-  
+    
+    public String generateCodigo();
+    
+    // Obtener código de verficiación
+    public void getCodigo(String correo);
+    
+    @Transactional
+    public String cambiarContrasenaConCodigo(String numCodigo, String nuevaContrasenia);
+     
 }
