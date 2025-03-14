@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import '../styles.min.css';
+import axios from "axios";
+import FooterApp from '../Footer/FooterApp';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
+import { FaEye, FaEyeSlash, FaSpinner, FaArrowLeft } from 'react-icons/fa';
 
 function PedidoCrud() {
   // Estados para los campos del formulario
@@ -15,9 +20,29 @@ function PedidoCrud() {
     tipoCedula: 'Cédula Física',
     sucursal: 'Cairo de Cariari',
     provincia: 'Limón',
-    localidad: 'San José, Carmen',
+    localidad: 'El cairo Cariari en',
     horaRetiro: ''
   });
+
+
+  // Estado para manejar errores y loading
+  const [status, setStatus] = useState({
+    loading: false,
+    error: null,
+    success: false
+  });
+  
+  // Estado para el Snackbar
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
+  });
+  
+  // Función para cerrar el Snackbar
+  const handleCloseSnackbar = () => {
+    setSnackbar({...snackbar, open: false});
+  };
 
   // Recuperar carrito del localStorage
   const [cart, setCart] = useState([]);
@@ -39,12 +64,86 @@ function PedidoCrud() {
     });
   };
 
-  const handleSubmit = (e) => {
+  // Alert personalizado para Snackbar
+  const Alert = React.forwardRef(function Alert(props, ref) {
+    return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+  });
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Datos del formulario:', formData);
-    console.log('Productos en el carrito:', cart);
-    // Aquí se enviaría al backend
+
+    setStatus({ loading: true, error: null, success: false });
+
+    try{
+
+      const userData = {
+        // Datos del usuario
+        nombreUsuario: formData.nombreUsuario,
+        primerApellido: formData.primerApellido,
+        segundoApellido: formData.segundoApellido,
+        telefonoUsuario: formData.telefonoUsuario,
+        correoUsuario: formData.correoUsuario,
+        tipoPersona: formData.tipoPersona,
+        cedulaUsuario: formData.cedulaUsuario,
+        tipoCedula: formData.tipoCedula,
+        
+        // Datos de la sucursal y retiro
+        sucursal: formData.sucursal,
+        provincia: formData.provincia,
+        localidad: formData.localidad,
+        horaRetiro: formData.horaRetiro,
+        
+        // Datos del pedido
+        subtotal: subtotal,
+        total: total,
+        
+        // Productos del carrito
+        productos: cart.map(item => ({
+          idProducto: item.idProducto,
+          cantidad: item.cantidad,
+          precioUnitario: item.montoPrecioProducto
+        }))
+      };
+
+      const response = await axios.post('http://localhost:8080/pedido/agregar', userData);
+
+      console.log('Pedido registrado de manera exitosa: '+response.data);
+
+      setStatus({ loading: false, error: null, success: true });
+
+      setSnackbar({
+        open: true,
+        message: 'Pedido registrado de manera exitosa',
+        severity: 'success'
+      });
+
+      localStorage.removeItem("carrito");
+      setCart([]);
+
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 2000);
+
+    }catch(error){
+      console.error('Error al registrar el pedido:', error);
+      
+      // Actualizar el estado para mostrar el error
+      setStatus({ 
+        loading: false, 
+        error: error.response?.data?.message || "Error al procesar el pedido", 
+        success: false 
+      });
+      
+      // Mostrar mensaje de error con Snackbar
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.message || "Error al procesar el pedido",
+        severity: 'error'
+      });
+    }
   };
+
+
 
   // Renderizar productos del carrito
   const renderCartItems = () => {
@@ -68,6 +167,17 @@ function PedidoCrud() {
     
     <div className="container py-4 my-3">
       <h1 className="text-center">Finalizar pedido</h1>
+
+{/* Botón para regresar */}
+<div className="mb-3">
+        <button 
+          className="btn btn-outline-secondary" 
+          onClick={() => window.history.back()}
+        >
+          <FaArrowLeft className="me-2" /> Volver
+        </button>
+      </div>
+
       <div className="row">
         <div className="col-md-6">
           <div className="mb-10">
@@ -279,6 +389,19 @@ function PedidoCrud() {
           </div>
         </div>
       </div>
+
+      {/* Snackbar para mensajes de éxito/error */}
+      <Snackbar 
+        open={snackbar.open} 
+        autoHideDuration={6000} 
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+
     </div>
   );
 }
