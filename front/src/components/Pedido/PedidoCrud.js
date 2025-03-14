@@ -21,9 +21,12 @@ function PedidoCrud() {
     sucursal: 'Cairo de Cariari',
     provincia: 'Limón',
     localidad: 'El cairo Cariari en',
-    horaRetiro: ''
+    horaRetiro: '',
+    tipoPago: '' // Nuevo campo para tipo de pago
   });
 
+  // Estado para almacenar los tipos de pago
+  const [tiposPago, setTiposPago] = useState([]);
 
   // Estado para manejar errores y loading
   const [status, setStatus] = useState({
@@ -46,15 +49,43 @@ function PedidoCrud() {
 
   // Recuperar carrito del localStorage
   const [cart, setCart] = useState([]);
+
+  
   
   useEffect(() => {
     const savedCart = JSON.parse(localStorage.getItem("carrito")) || [];
     setCart(savedCart);
+    
+    // Llamada a la API para obtener los tipos de pago
+    const fetchTiposPago = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/tipopago/');
+        setTiposPago(response.data);
+        
+        // Si hay tipos de pago disponibles, establecer el primero como valor por defecto
+        if (response.data && response.data.length > 0) {
+          setFormData(prevData => ({
+            ...prevData,
+            tipoPago: response.data[0].idTipoPago // Usando el campo correcto idTipoPago
+          }));
+        }
+        console.log('Tipos de pago cargados:', response.data); // Para depuración
+      } catch (error) {
+        console.error('Error al obtener tipos de pago:', error);
+        setSnackbar({
+          open: true,
+          message: 'Error al cargar los tipos de pago',
+          severity: 'error'
+        });
+      }
+    };
+    
+    fetchTiposPago();
   }, []);
 
   // Calcular totales
   const subtotal = cart.reduce((total, item) => total + (item.montoPrecioProducto * item.cantidad), 0);
-  const total = cart.reduce((total, item) => total + (item.montoPrecioProducto * item.cantidad), 0) * 1.15;
+const montoTotalPedido = cart.reduce((total, item) => total + (item.montoPrecioProducto * item.cantidad), 0) * 1.15;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -76,6 +107,8 @@ function PedidoCrud() {
 
     try{
 
+      
+
       const userData = {
         // Datos del usuario
         nombreUsuario: formData.nombreUsuario,
@@ -87,23 +120,43 @@ function PedidoCrud() {
         cedulaUsuario: formData.cedulaUsuario,
         tipoCedula: formData.tipoCedula,
         
+        
         // Datos de la sucursal y retiro
         sucursal: formData.sucursal,
         provincia: formData.provincia,
         localidad: formData.localidad,
         horaRetiro: formData.horaRetiro,
         
+        // Tipo de pago
+        tipoPago: {
+          idTipoPago: formData.tipoPago
+        },
+        
         // Datos del pedido
         subtotal: subtotal,
-        total: total,
+        montoTotalPedido: montoTotalPedido,
+        fechaPedido: new Date().toISOString(),
+
+        // Estado del pedido (por defecto activo)
+        estadoPedido: true,
         
+        // Estado de entrega (por defecto "Pendiente")
+        estadoEntregaPedido: "Pendiente",
+
+        // Datos del pedido
+        montoTotalPedido: montoTotalPedido,
+
         // Productos del carrito
         productos: cart.map(item => ({
           idProducto: item.idProducto,
           cantidad: item.cantidad,
           precioUnitario: item.montoPrecioProducto
         }))
+
+        
       };
+
+      console.log('Enviando datos:', JSON.stringify(userData, null, 2));
 
       const response = await axios.post('http://localhost:8080/pedido/agregar', userData);
 
@@ -124,8 +177,22 @@ function PedidoCrud() {
         window.location.href = "/";
       }, 2000);
 
+      console.log('Datos enviados:', userData);
+
+
     }catch(error){
       console.error('Error al registrar el pedido:', error);
+
+      // Log más detallado para diagnosticar
+      console.log('Detalles del error:', {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        message: error.message,
+        stack: error.stack
+      });
+
+      
       
       // Actualizar el estado para mostrar el error
       setStatus({ 
@@ -133,6 +200,8 @@ function PedidoCrud() {
         error: error.response?.data?.message || "Error al procesar el pedido", 
         success: false 
       });
+
+      
       
       // Mostrar mensaje de error con Snackbar
       setSnackbar({
@@ -168,8 +237,8 @@ function PedidoCrud() {
     <div className="container py-4 my-3">
       <h1 className="text-center">Finalizar pedido</h1>
 
-{/* Botón para regresar */}
-<div className="mb-3">
+      {/* Botón para regresar */}
+      <div className="mb-3">
         <button 
           className="btn btn-outline-secondary" 
           onClick={() => window.history.back()}
@@ -357,6 +426,33 @@ function PedidoCrud() {
                 />
               </div>
             </div>
+            
+            {/* Nuevo campo para Tipo de Pago */}
+            <div className="row mt-3">
+              <div className="col-md-6">
+                <label htmlFor="tipoPago" className="form-label">
+                  Tipo de Pago
+                </label>
+                <select
+                  className="form-control"
+                  id="tipoPago"
+                  name="tipoPago"
+                  value={formData.tipoPago}
+                  onChange={handleChange}
+                  disabled={tiposPago.length === 0} // Deshabilitar si no hay opciones
+                >
+                  {tiposPago.length > 0 ? (
+                    tiposPago.map(tipo => (
+                      <option key={tipo.idTipoPago} value={tipo.idTipoPago}>
+                        {tipo.descripcionTipoPago}
+                      </option>
+                    ))
+                  ) : (
+                    <option value="">Cargando tipos de pago...</option>
+                  )}
+                </select>
+              </div>
+            </div>
           </div>
         </div>
         <div className="col-md-6">
@@ -377,13 +473,23 @@ function PedidoCrud() {
               <strong>Total (Con I.V.A):</strong>
             </div>
             <div className="col-4 text-end">
-              ₡{total.toLocaleString()}
+              ₡{montoTotalPedido.toLocaleString()}
             </div>
           </div>
           <div className="row mt-3">
             <div className="col-12 text-end">
-              <button className="btn btn-primary" onClick={handleSubmit}>
-                Finalizar Pedido
+              <button 
+                className="btn btn-primary" 
+                onClick={handleSubmit}
+                disabled={status.loading || tiposPago.length === 0} // Deshabilitar durante carga o si no hay tipos de pago
+              >
+                {status.loading ? (
+                  <>
+                    <FaSpinner className="spinner me-2" /> Procesando...
+                  </>
+                ) : (
+                  'Finalizar Pedido'
+                )}
               </button>
             </div>
           </div>
