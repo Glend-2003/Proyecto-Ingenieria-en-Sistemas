@@ -106,6 +106,7 @@ function ResetPassword() {
 
       if (response.status === 200) {
         handleOpenSnackbar('Contraseña cambiada con éxito', 'success');
+        localStorage.removeItem('resetPasswordRequested');
         setTimeout(() => {
           navigate('/principal');
         }, 2000);
@@ -202,9 +203,12 @@ function ResetPassword() {
             <p className="text-center">
               <span
                 className="text-primary"
+                
                 onClick={() => navigate('/principal')}
+                
               >
                 Volver al inicio de sesión
+                
               </span>
             </p>
           </form>

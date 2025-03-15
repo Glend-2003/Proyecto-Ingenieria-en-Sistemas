@@ -31,6 +31,11 @@ const PrivateRoute = ({ children }) => {
     <Navigate to="/" />
   );
 };
+
+const ResetPasswordRoute = ({ children }) => {
+  const resetPasswordRequested = localStorage.getItem('resetPasswordRequested');
+  return resetPasswordRequested ? children : <Navigate to="/" />;
+};
   
 /*// Componente para proteger rutas y mostrar el sidebar si el usuario está autenticado
 const PrivateRoute = ({ children }) => {
@@ -64,7 +69,7 @@ root.render(
       <Route path="/PerfilUsuario" element={<PrivateRoute><PerfilUsuario /></PrivateRoute>} />
       <Route path="/Dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
       <Route path="/SideBarUsuario" element={<PrivateRoute><SideBarUsuario /></PrivateRoute>} />
-      <Route path="/ResetPassword" element={<ResetPassword/>} /> 
+      <Route path="/ResetPassword" element={<ResetPasswordRoute><ResetPassword /></ResetPasswordRoute>} /> 
     </Routes>
   </Router>
-);
+); 
