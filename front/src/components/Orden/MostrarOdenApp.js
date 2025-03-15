@@ -1,35 +1,132 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
+import { X } from "lucide-react"
+import "./MostrarOrden.css"
+import FooterApp from '../Footer/FooterApp';
 
-function MostrartOrdenApp() {
-  const navigate = useNavigate();
-  const idUsuario = localStorage.getItem('idUsuario'); // Verificar si el usuario está registrado
-  const cart = JSON.parse(localStorage.getItem('carrito')) || []; // Obtener el carrito desde el localStorage
+function MostrarOrdenApp() {
+  const navigate = useNavigate()
+  const idUsuario = localStorage.getItem("idUsuario")
+  const [cart, setCart] = useState(JSON.parse(localStorage.getItem("carrito")) || [])
+
+  const calcularSubtotal = () => {
+    return cart.reduce((total, item) => total + item.cantidad * item.montoPrecioProducto, 0)
+  }
+
+  const subtotal = calcularSubtotal()
+
+  const updateQuantity = (index, increment) => {
+    const newCart = [...cart]
+    if (increment) {
+      newCart[index].cantidad += 1
+    } else {
+      if (newCart[index].cantidad > 1) {
+        newCart[index].cantidad -= 1
+      }
+    }
+    setCart(newCart)
+    localStorage.setItem("carrito", JSON.stringify(newCart))
+  }
+
+  const removeItem = (index) => {
+    const newCart = cart.filter((_, i) => i !== index)
+    setCart(newCart)
+    localStorage.setItem("carrito", JSON.stringify(newCart))
+  }
+
+  // Add placeholder images for products if they don't have images
+  useEffect(() => {
+    const cartWithImages = cart.map((item) => {
+      if (!item.imagenProducto) {
+        return { ...item, imagenProducto: "/placeholder.svg?height=80&width=80" }
+      }
+      return item
+    })
+    if (JSON.stringify(cartWithImages) !== JSON.stringify(cart)) {
+      setCart(cartWithImages)
+      localStorage.setItem("carrito", JSON.stringify(cartWithImages))
+    }
+  }, [])
 
   return (
-    <div>
-      <h1>Detalles de la Orden</h1>
-      {cart.length > 0 ? (
-        <>
-          <ul>
-            {cart.map((item, index) => (
-              <li key={index}>
-                {item.nombreProducto} - {item.cantidad} x ₡{item.montoPrecioProducto}
-              </li>
-            ))}
-          </ul>
+    <div className="page-container"> 
+      <div className="orden-container">
+        <div className="carrito-detalles">
+          <table>
+            <thead>
+              <tr>
+                <th></th>
+                <th>PRODUCTO</th>
+                <th>PRECIO</th>
+                <th>CANTIDAD</th>
+                <th>SUBTOTAL</th>
+              </tr>
+            </thead>
+            <tbody>
+              {cart.map((item, index) => (
+                <tr key={index}>
+                  <td>
+                    <button className="remove-btn" onClick={() => removeItem(index)}>
+                      <X size={16} />
+                    </button>
+                  </td>
+                  <td>
+                    <div className="producto-info">
+                    <img
+                      src={`http://localhost:8080/producto/images/${item.imgProducto}`}
+                      alt={item.nombreProducto}
+                      className="img-fluid rounded"
+                      onError={(e) => {
+                        e.target.onerror = null
+                        e.target.src = "/placeholder-image.jpg"
+                      }}
+                    />
+                      <span>{item.nombreProducto}</span>
+                    </div>
+                  </td>
+                  <td className="precio">₡{item.montoPrecioProducto.toLocaleString()}</td>
+                  <td>
+                    <div className="cantidad-control">
+                      <button className="cantidad-btn" onClick={() => updateQuantity(index, false)}>
+                        -
+                      </button>
+                      <span className="cantidad-valor">{item.cantidad}</span>
+                      <button className="cantidad-btn" onClick={() => updateQuantity(index, true)}>
+                        +
+                      </button>
+                    </div>
+                  </td>
+                  <td className="subtotal">₡{(item.cantidad * item.montoPrecioProducto).toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
           {!idUsuario && (
-            <p>
-              Debes iniciar sesión para continuar con el pago.{" "}
-              <button onClick={() => navigate('/login')}>Iniciar Sesión</button>
-            </p>
+            <div className="iniciar-sesion">
+              <p>Debes iniciar sesión para continuar con el pago.</p>
+              <button onClick={() => navigate("/")}>Iniciar Sesión</button>
+            </div>
           )}
-        </>
-      ) : (
-        <p>No hay productos en la orden.</p>
-      )}
+        </div>
+        <div className="carrito-totales">
+          <h2>TOTALES DEL CARRITO</h2>
+          <div className="totales">
+            <div className="total-line">
+              <span>Subtotal</span>
+              <span className="monto">₡{subtotal.toLocaleString()}</span>
+            </div>
+            <div className="total-line total-final">
+              <span>Total</span>
+              <span className="monto total-monto">₡{subtotal.toLocaleString()}</span>
+            </div>
+            <button className="finalizar-compra">FINALIZAR COMPRA</button>
+          </div>
+        </div>
+      </div>
+        <FooterApp />
     </div>
-  );
+  )
 }
 
-export default MostrartOrdenApp;
+export default MostrarOrdenApp
+
