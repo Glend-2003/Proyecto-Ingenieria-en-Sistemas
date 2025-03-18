@@ -3,9 +3,14 @@ import { Offcanvas, ListGroup, Button, Badge} from 'react-bootstrap';
 import { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import './Carrito.css';
+import { useAppContext } from "../Navbar/AppContext"
 
 
-function CarritoApp({ showCart, handleShowCart, cart, removeFromCart }) {
+function CarritoApp() {
+  const { showCart, handleShowCart, cart, removeFromCart } = useAppContext()
+
+  // Calcular el total del carrito
+  const total = cart.reduce((sum, item) => sum + (item.precio || 0) * item.cantidad, 0)
 
   const navigate = useNavigate();
 
