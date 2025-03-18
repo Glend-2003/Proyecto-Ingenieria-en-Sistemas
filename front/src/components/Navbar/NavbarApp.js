@@ -1,17 +1,49 @@
-import  React from "react"
+import React, { useState, useEffect } from "react"
 import { Navbar as BootstrapNavbar, Container, Nav, Badge } from "react-bootstrap"
 import DropDown from "../DropDown/DropDown"
 import { useAppContext } from "../Navbar/AppContext"
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles.min.css';
 import { Link } from 'react-router-dom';
+import './Navbar.css';
 
 const NavbarApp = () => {
   // Usar el contexto para obtener estados y funciones
   const { handleShowSidebar, handleShowCart, idUsuario, cart } = useAppContext()
 
+   // Estado para controlar si estamos en la parte superior o no
+   const [isScrolled, setIsScrolled] = useState(false)
+
+   // Efecto para detectar el scroll
+   useEffect(() => {
+     const handleScroll = () => {
+       // Consideramos "scrolled" cuando bajamos más de 50px
+       if (window.scrollY > 50) {
+         setIsScrolled(true)
+       } else {
+         setIsScrolled(false)
+       }
+     }
+ 
+     // Añadir el event listener
+     window.addEventListener("scroll", handleScroll)
+ 
+     // Limpiar el event listener cuando el componente se desmonte
+     return () => {
+       window.removeEventListener("scroll", handleScroll)
+     }
+   }, [])
+     // Clases dinámicas basadas en el estado de scroll
+  const navbarClasses = `navbar-transition ${isScrolled ? "navbar-scrolled" : "navbar-top"}`
+
   return (
-    <BootstrapNavbar expand="lg" variant="dark" style={{ backgroundColor: "#001f3f" }}>
+    <BootstrapNavbar
+    expand="lg"
+    variant="dark"
+    style={{ backgroundColor: "#001f3f" }}
+    className={navbarClasses}
+    fixed="top"
+  >
       <Container>
         {/* Título agregado aquí */}
         
