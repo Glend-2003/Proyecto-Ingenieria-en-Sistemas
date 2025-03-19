@@ -15,6 +15,8 @@ import { FaEye, FaEyeSlash, FaSpinner, FaArrowLeft } from "react-icons/fa"
 import NavbarApp from "../Navbar/NavbarApp.js"
 import Carrito from "../Carrito/CarritoApp"
 import { useAppContext } from "../Navbar/AppContext"
+import { use } from "react"
+import Historia from "../Home/Historia.js"
 
 function LoginApp({ initialPage = "home" }) {
   const [currentPage, setCurrentPage] = useState(initialPage)
@@ -37,7 +39,9 @@ function LoginApp({ initialPage = "home" }) {
   useEffect(() => {
     if (location.pathname === "/pedido") {
       setCurrentPage("pedido")
-    } else {
+    } else if (location.pathname === "/Historia"){
+      setCurrentPage("historia")
+    }else{
       setCurrentPage("home")
     }
   }, [location.pathname])
@@ -47,6 +51,8 @@ function LoginApp({ initialPage = "home" }) {
     switch (currentPage) {
       case "pedido":
         return <PedidoCrud />
+        case "historia":
+        return <Historia />
       case "home":
       default:
         return <ListaProductosApp addToCart={addToCart} />
@@ -402,11 +408,12 @@ function LoginApp({ initialPage = "home" }) {
       </Offcanvas>
 
       {/* Contenido principal modificado para usar renderMainContent */}
-      <main className="flex-grow-1">
+      <main className="flex-grow-2" style={{ marginTop: "80px" }}>
         {renderMainContent()}
         <Carrito />
       </main>
-
+      {/* Footer */}
+      <FooterApp />
       {/* Snackbar para mostrar alertas */}
       <Snackbar
         open={openSnackbar}
@@ -419,9 +426,9 @@ function LoginApp({ initialPage = "home" }) {
         </Alert>
       </Snackbar>
 
-      {/* Footer */}
-      <FooterApp />
+      
     </div>
+    
   )
 }
 

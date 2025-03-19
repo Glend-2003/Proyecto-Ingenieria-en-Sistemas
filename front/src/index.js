@@ -18,6 +18,7 @@ import PerfilUsuario from "./components/DetallesCliente/PerfilUsuario";
 import Dashboard from "./components/DetallesCliente/Dashboard";
 import SideBarUsuario from "./components/DetallesCliente/SideBarUsuario";
 
+
 // Componente para proteger rutas
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem("token");
@@ -31,6 +32,7 @@ root.render(
       <Routes>
         <Route path="/" element={<LoginApp />} />
         <Route path="/pedido" element={<LoginApp initialPage="pedido" />} />
+        <Route path="/historia" element={<LoginApp initialPage="historia" />} />
         <Route path="/register" element={<Registrar />} />
         <Route path="/principal" element={<PrivateRoute><Principal /></PrivateRoute>} />
         <Route path="/CategoriaApp" element={<PrivateRoute><Categoria /></PrivateRoute>} />

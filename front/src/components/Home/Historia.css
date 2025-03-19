@@ -1,0 +1,370 @@
+/* Historia.css - Estilos para la página de Historia de Carnicería la Bendición */
+
+/* Variables de colores */
+:root {
+    --color-primary: #001f3f;       /* Azul marino oscuro - Color principal */
+    --color-primary-light: #0e3a63; /* Azul marino medio */
+    --color-primary-lighter: #1c5a96; /* Azul marino claro */
+    --color-primary-dark: #001429;  /* Azul marino muy oscuro */
+    --color-primary-bg: #e6edf5;    /* Fondo azul muy claro */
+    --color-white: #ffffff;
+    --color-black: #000000;
+    --color-gray-50: #f8fafc;
+    --color-gray-100: #f1f5f9;
+    --color-gray-200: #e2e8f0;
+    --color-gray-300: #cbd5e1;
+    --color-gray-700: #334155;
+  }
+  
+  /* Estilos generales */
+  .historia-container {
+    font-family: 'Georgia', serif;
+    background-color: var(--color-gray-50);
+    color: var(--color-gray-700);
+  }
+  
+  /* Hero Section */
+  .historia-hero {
+    position: relative;
+    height: 16rem;
+    background-color: var(--color-primary);
+    overflow: hidden;
+  }
+  
+  .historia-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .historia-title {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--color-white);
+    text-align: center;
+    padding: 0 1rem;
+  }
+  
+  /* Sección de introducción */
+  .historia-intro {
+    max-width: 48rem;
+    margin: 0 auto;
+    text-align: center;
+    padding: 4rem 1rem;
+  }
+  
+  .historia-intro-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin-bottom: 1.5rem;
+  }
+  
+  .historia-intro-text {
+    font-size: 1.125rem;
+    margin-bottom: 2rem;
+  }
+  
+  /* Iconos circulares */
+  .historia-icon-container {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+  }
+  
+  .historia-icon-circle {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 9999px;
+    background-color: var(--color-primary-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 0.5rem auto;
+  }
+  
+  .historia-icon {
+    width: 2rem;
+    height: 2rem;
+    color: var(--color-primary);
+  }
+  
+  /* Timeline */
+  .historia-timeline {
+    max-width: 64rem;
+    margin: 0 auto;
+    padding: 0 1rem 4rem 1rem;
+  }
+  
+  .historia-timeline-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-align: center;
+    color: var(--color-primary);
+    margin-bottom: 3rem;
+  }
+  
+  .historia-timeline-container {
+    position: relative;
+  }
+  
+  .historia-timeline-line {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 100%;
+    width: 0.25rem;
+    background-color: var(--color-primary-bg);
+  }
+  
+  .historia-event {
+    position: relative;
+    margin-bottom: 4rem;
+  }
+  
+  .historia-event-flex {
+    display: flex;
+    align-items: center;
+  }
+  
+  .historia-event-left {
+    width: 50%;
+    padding-right: 2rem;
+    text-align: right;
+  }
+  
+  .historia-event-right {
+    width: 50%;
+    padding-left: 2rem;
+  }
+  
+  .historia-event-circle {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2.5rem;
+    height: 2.5rem;
+    background-color: var(--color-primary);
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  
+  .historia-event-number {
+    color: var(--color-white);
+    font-weight: 700;
+  }
+  
+  .historia-event-year {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-primary);
+  }
+  
+  .historia-event-text {
+    color: var(--color-gray-700);
+    margin-top: 0.5rem;
+  }
+  
+  .historia-event-image-container {
+    background-color: var(--color-gray-200);
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+  
+  .historia-event-image-placeholder {
+    height: 12rem;
+    background-color: var(--color-gray-300);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .historia-event-image {
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+  }
+  
+  /* Valores */
+  .historia-values {
+    background-color: var(--color-primary-bg);
+    border-radius: 0.75rem;
+    padding: 2rem;
+    max-width: 64rem;
+    margin: 0 auto 4rem auto;
+  }
+  
+  .historia-values-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-align: center;
+    color: var(--color-primary);
+    margin-bottom: 2rem;
+  }
+  
+  .historia-values-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 1.5rem;
+  }
+  
+  @media (min-width: 768px) {
+    .historia-values-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  
+  .historia-value-card {
+    background-color: var(--color-white);
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  .historia-value-icon-circle {
+    width: 4rem;
+    height: 4rem;
+    background-color: var(--color-primary-bg);
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem auto;
+  }
+  
+  .historia-value-icon {
+    width: 2rem;
+    height: 2rem;
+    color: var(--color-primary);
+  }
+  
+  .historia-value-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin-bottom: 0.5rem;
+  }
+  
+  .historia-value-text {
+    color: var(--color-gray-700);
+  }
+  
+  /* Testimonial */
+  .historia-testimonial {
+    max-width: 48rem;
+    margin: 0 auto 4rem auto;
+    text-align: center;
+    background-color: var(--color-white);
+    padding: 2rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .historia-quote {
+    font-size: 3rem;
+    color: var(--color-primary);
+    margin-bottom: 1rem;
+  }
+  
+  .historia-testimonial-text {
+    font-size: 1.25rem;
+    color: var(--color-gray-700);
+    font-style: italic;
+    margin-bottom: 1.5rem;
+  }
+  
+  .historia-testimonial-author {
+    font-weight: 700;
+    color: var(--color-primary);
+  }
+  
+  .historia-testimonial-role {
+    color: var(--color-gray-700);
+  }
+  
+  /* Visit Us */
+  .historia-visit {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    border-radius: 0.75rem;
+    padding: 2rem;
+    max-width: 64rem;
+    margin: 0 auto;
+    text-align: center;
+  }
+  
+  .historia-visit-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+  
+  .historia-visit-text {
+    margin-bottom: 1.5rem;
+  }
+  
+  .historia-location {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .historia-location-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-right: 0.5rem;
+  }
+  
+  .historia-button {
+    background-color: var(--color-white);
+    color: var(--color-primary);
+    font-weight: 700;
+    padding: 0.75rem 1.5rem;
+    border-radius: 9999px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .historia-button:hover {
+    background-color: var(--color-primary-bg);
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .historia-icon-container {
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    
+    .historia-event-flex {
+      flex-direction: column;
+    }
+    
+    .historia-event-left,
+    .historia-event-right {
+      width: 100%;
+      text-align: center;
+      padding: 0 1rem;
+    }
+    
+    .historia-event-image-container {
+      margin-top: 1.5rem;
+    }
+    
+    .historia-timeline-line {
+      left: 1.25rem;
+    }
+    
+    .historia-event-circle {
+      left: 1.25rem;
+    }
+  }

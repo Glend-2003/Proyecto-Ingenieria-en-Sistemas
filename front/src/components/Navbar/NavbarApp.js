@@ -45,13 +45,15 @@ const NavbarApp = () => {
     fixed="top"
   >
       <Container>
-        {/* Título agregado aquí */}
-        
-        <BootstrapNavbar.Brand> <Link to="/" style={{ color: 'white', textDecoration: 'none' }}>
+      
+            
+        <BootstrapNavbar.Brand> 
+          <Link to="/Historia" style={{ color: 'white', textDecoration: 'none' }}>
           Carnicería La Bendición
-        </Link></BootstrapNavbar.Brand>
+          </Link>
+        </BootstrapNavbar.Brand>
 
-  {/* Navigation Links - Desktop */}
+        {/* Navigation Links - Desktop */}
   <nav className="hidden md:flex items-center space-x-6">
          
           </nav>
