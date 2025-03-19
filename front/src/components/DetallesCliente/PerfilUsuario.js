@@ -12,6 +12,8 @@ import SideBarUsuario from "../DetallesCliente/SideBarUsuario";
 import useAuth from "../../hooks/useAuth";
 import FooterApp from '../Footer/FooterApp';
 import { FaFileAlt, FaDownload, FaMapMarkerAlt, FaUser, FaSignOutAlt, FaHome } from "react-icons/fa";
+import NavbarApp from "../Navbar/NavbarApp";
+import Carrito from "../Carrito/CarritoApp";
 
 const PerfilUsuario = () => {
   const { usuario } = useAuth();
@@ -64,6 +66,8 @@ const PerfilUsuario = () => {
 
   return (
     <div >
+      <NavbarApp/>
+      <Carrito/>
       <div className="perfil-usuario-container">
 
         {/* Sidebar */}
