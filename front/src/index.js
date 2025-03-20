@@ -18,6 +18,7 @@ import PerfilUsuario from './components/DetallesCliente/PerfilUsuario';
 import Dashboard from './components/DetallesCliente/Dashboard';
 import SideBarUsuario from './components/DetallesCliente/SideBarUsuario';
 import ResetPassword from './components/Login/ResetPassword';
+import DireccionUsuario from './components/DetallesCliente/DireccionUsuario';
 
 // Componente para proteger rutas
 const PrivateRoute = ({ children }) => {
@@ -65,6 +66,7 @@ root.render(
         <Route path="/Dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
         <Route path="/SideBarUsuario" element={<PrivateRoute><SideBarUsuario /></PrivateRoute>} />
         <Route path="/ResetPassword" element={<ResetPasswordRoute><ResetPassword /></ResetPasswordRoute>} />
+        <Route path="/DireccionUsuario" element={<PrivateRoute><DireccionUsuario /></PrivateRoute>} />
       </Routes>
     </Router>
   </AppProvider>

@@ -190,7 +190,7 @@ function LoginApp({ initialPage = "home" }) {
           autoClose: 2000, 
           onClose: () => {
             // Redirigir después de que la alerta se cierre
-            navigate("/reset-password", { state: { correoUsuario: loginData.correoUsuario } })
+            navigate("/ResetPassword", { state: { correoUsuario: loginData.correoUsuario } })
           },
         })
       }
