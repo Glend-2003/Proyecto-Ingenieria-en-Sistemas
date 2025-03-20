@@ -2,7 +2,6 @@ import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { X } from "lucide-react"
 import "./MostrarOrden.css"
-import FooterApp from '../Footer/FooterApp';
 
 function MostrarOrdenApp() {
   const navigate = useNavigate()
@@ -123,7 +122,6 @@ function MostrarOrdenApp() {
           </div>
         </div>
       </div>
-        <FooterApp />
     </div>
   )
 }

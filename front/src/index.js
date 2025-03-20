@@ -50,12 +50,12 @@ root.render(
         <Route path="/PerfilUsuario" element={<PrivateRoute><PerfilUsuario /></PrivateRoute>} />
         <Route path="/Dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
         <Route path="/SideBarUsuario" element={<PrivateRoute><SideBarUsuario /></PrivateRoute>} />
-        <Route path="/verOrden" element={<MostrartOrdenApp />} />
-        <Route path="/cortes-de-res" element={<ResPagina />} />
-        <Route path="/cortes-de-cerdo" element={<CerdoPagina />} />
-        <Route path="/cortes-de-pollo" element={<PolloPagina />} />
-        <Route path="/productos-varios" element={<ProductosVariosPagina />} />
-        <Route path="/productos-destacados" element={<ProductosDestacadosPagina />} />
+        <Route path="/verOrden" element={<LoginApp initialPage="verOrden" />} />
+        <Route path="/cortes-de-res" element={<LoginApp initialPage="res" />} />
+        <Route path="/cortes-de-cerdo" element={<LoginApp initialPage="cerdo" />} />
+        <Route path="/cortes-de-pollo" element={<LoginApp initialPage="pollo" />} />
+        <Route path="/productos-varios" element={<LoginApp initialPage="varios" />} />
+        <Route path="/productos-destacados" element={<LoginApp initialPage="destacados" />} />
       </Routes>
     </Router>
   </AppProvider>

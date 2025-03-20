@@ -17,6 +17,12 @@ import Carrito from "../Carrito/CarritoApp"
 import { useAppContext } from "../Navbar/AppContext"
 import { use } from "react"
 import Historia from "../Home/Historia.js"
+import MostrarOrdenApp from "../Orden/MostrarOdenApp.js"
+import ResPagina from "../../paginas/ResPagina.js"
+import CerdoPagina from "../../paginas/CerdoPagina.js"
+import PolloPagina from "../../paginas/PolloPagina.js"
+import ProductosVariosPagina from "../../paginas/ProductosVariosPagina.js"
+import ProductosDestacadosPagina from "../../paginas/ProductosDestacadosPagina.js"
 
 function LoginApp({ initialPage = "home" }) {
   const [currentPage, setCurrentPage] = useState(initialPage)
@@ -41,6 +47,18 @@ function LoginApp({ initialPage = "home" }) {
       setCurrentPage("pedido")
     } else if (location.pathname === "/Historia"){
       setCurrentPage("historia")
+    }else if (location.pathname === "/verOrden"){
+      setCurrentPage("verOrden")
+    }else if (location.pathname === "/cortes-de-res"){
+      setCurrentPage("res")
+    }else if (location.pathname === "/cortes-de-cerdo"){
+      setCurrentPage("cerdo")
+    }else if (location.pathname === "/cortes-de-pollo"){
+      setCurrentPage("pollo")
+    }else if (location.pathname === "/productos-varios"){
+      setCurrentPage("varios")
+    }else if (location.pathname === "/productos-destacados"){
+      setCurrentPage("destacados")
     }else{
       setCurrentPage("home")
     }
@@ -53,6 +71,18 @@ function LoginApp({ initialPage = "home" }) {
         return <PedidoCrud />
       case "historia":
         return <Historia />
+      case "verOrden":
+        return <MostrarOrdenApp />
+      case "res":
+        return <ResPagina />
+      case "cerdo":
+        return <CerdoPagina />
+      case "pollo":
+        return <PolloPagina />
+      case "varios":
+        return <ProductosVariosPagina />
+      case "destacados":
+        return <ProductosDestacadosPagina />
       case "home":
       default:
         return <ListaProductosApp addToCart={addToCart} />
