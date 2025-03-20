@@ -18,6 +18,11 @@ import PerfilUsuario from './components/DetallesCliente/PerfilUsuario';
 import Dashboard from './components/DetallesCliente/Dashboard';
 import SideBarUsuario from './components/DetallesCliente/SideBarUsuario';
 import MostrartOrdenApp from './components/Orden/MostrarOdenApp';
+import ResPagina from './paginas/ResPagina';
+import CerdoPagina from './paginas/CerdoPagina';
+import PolloPagina from './paginas/PolloPagina';
+import ProductosVariosPagina from './paginas/ProductosVariosPagina';
+import ProductosDestacadosPagina from './paginas/ProductosDestacadosPagina';
 
 // Componente para proteger rutas
 const PrivateRoute = ({ children }) => {
@@ -46,6 +51,11 @@ root.render(
         <Route path="/Dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
         <Route path="/SideBarUsuario" element={<PrivateRoute><SideBarUsuario /></PrivateRoute>} />
         <Route path="/verOrden" element={<MostrartOrdenApp />} />
+        <Route path="/cortes-de-res" element={<ResPagina />} />
+        <Route path="/cortes-de-cerdo" element={<CerdoPagina />} />
+        <Route path="/cortes-de-pollo" element={<PolloPagina />} />
+        <Route path="/productos-varios" element={<ProductosVariosPagina />} />
+        <Route path="/productos-destacados" element={<ProductosDestacadosPagina />} />
       </Routes>
     </Router>
   </AppProvider>

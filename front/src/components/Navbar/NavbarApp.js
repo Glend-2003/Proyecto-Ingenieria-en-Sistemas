@@ -60,22 +60,22 @@ const NavbarApp = () => {
 
         <BootstrapNavbar.Toggle aria-controls="basic-navbar-nav" />
         <Nav>
-        <Nav.Link href="/cortes-de-res" className="text-sm font-medium hover:underline">
+          <Nav.Link as={Link} to="/cortes-de-res" className="text-sm font-medium hover:underline">
               CORTES DE RES
+              </Nav.Link>
+              <Nav.Link as={Link} to="/cortes-de-cerdo" className="text-sm font-medium hover:underline">
+                CORTES DE CERDO
+              </Nav.Link>
+              <Nav.Link as={Link} to="/cortes-de-pollo" className="text-sm font-medium hover:underline">
+                CORTES DE POLLO
+              </Nav.Link>
+              <Nav.Link as={Link} to="/productos-varios" className="text-sm font-medium hover:underline">
+                PRODUCTOS VARIOS
             </Nav.Link>
-            <Nav.Link href="/cortes-de-cerdo" className="text-sm font-medium hover:underline">
-              CORTES DE CERDO
-            </Nav.Link>
-            <Nav.Link href="/cortes-de-pollo" className="text-sm font-medium hover:underline">
-              CORTES DE POLLO
-            </Nav.Link>
-            <Nav.Link href="/productos-varios" className="text-sm font-medium hover:underline">
-              PRODUCTOS VARIOS
-            </Nav.Link>
-            <Nav.Link href="/productos-destacados" className="text-sm font-medium hover:underline">
-              PRODUCTOS DESTACADOS
-            </Nav.Link>
-            </Nav>
+          <Nav.Link as={Link} to="/productos-destacados" className="text-sm font-medium hover:underline">
+            PRODUCTOS DESTACADOS
+          </Nav.Link>
+        </Nav>
         <BootstrapNavbar.Collapse id="basic-navbar-nav">
           <Nav className="ms-auto">
         

@@ -51,7 +51,7 @@ function LoginApp({ initialPage = "home" }) {
     switch (currentPage) {
       case "pedido":
         return <PedidoCrud />
-        case "historia":
+      case "historia":
         return <Historia />
       case "home":
       default:

@@ -1,27 +1,25 @@
-import { useState, useEffect } from "react"
-import axios from "axios"
-import { useNavigate } from "react-router-dom"
-import { Card, Button, Modal, Form } from "react-bootstrap"
-import { toast, ToastContainer } from "react-toastify"
-import "./ListaProductos.css"
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { Card, Button, Modal, Form } from "react-bootstrap";
+import { toast, ToastContainer } from "react-toastify";
+import "./ListaProductos.css";
 
-function ListaProductosApp({ addToCart }) {
-  const [productos, setProductos] = useState([])
-  const [showModal, setShowModal] = useState(false)
-  const [selectedProduct, setSelectedProduct] = useState(null)
-  const [cantidad, setCantidad] = useState(1)
-  const navigate = useNavigate()
+function ListaProductosApp({ addToCart, categoria }) {
+  const [productos, setProductos] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [cantidad, setCantidad] = useState(1);
 
   const verDetalles = (producto) => {
-    setSelectedProduct(producto)
-    setCantidad(1)
-    setShowModal(true)
-  }
+    setSelectedProduct(producto);
+    setCantidad(1);
+    setShowModal(true);
+  };
 
   const handleCloseModal = () => {
-    setShowModal(false)
-    setSelectedProduct(null)
-  }
+    setShowModal(false);
+    setSelectedProduct(null);
+  };
 
   const handleAddToCartFromModal = () => {
     if (selectedProduct) {
@@ -30,7 +28,7 @@ function ListaProductosApp({ addToCart }) {
         ...selectedProduct,
         cantidad: cantidadValida,
       };
-      addToCart(productoConCantidad); // Llama a addToCart
+      addToCart(productoConCantidad);
       toast.success(
         `${selectedProduct.nombreProducto} agregado al carrito (${cantidadValida} unidad${cantidadValida > 1 ? "es" : ""})`,
       );
@@ -41,18 +39,18 @@ function ListaProductosApp({ addToCart }) {
   const cargarProductos = async () => {
     try {
       const response = await axios.get("http://localhost:8080/producto/", {
-        params: { estadoProducto: 1 }
+        params: { estadoProducto: 1, categoriaProducto: categoria }
       });
-      setProductos(response.data)
+      setProductos(response.data);
     } catch (error) {
-      console.error("Error al cargar productos:", error)
-      toast.error("Ocurrió un error al cargar los productos")
+      console.error("Error al cargar productos:", error);
+      toast.error("Ocurrió un error al cargar los productos");
     }
-  }
+  };
 
   useEffect(() => {
-    cargarProductos()
-  }, [])
+    cargarProductos();
+  }, [categoria]);
 
   return (
     <>
@@ -69,8 +67,8 @@ function ListaProductosApp({ addToCart }) {
                   variant="top"
                   src={`http://localhost:8080/producto/images/${product.imgProducto}`}
                   onError={(e) => {
-                    e.target.onerror = null
-                    e.target.src = "/placeholder-image.jpg"
+                    e.target.onerror = null;
+                    e.target.src = "/placeholder-image.jpg";
                   }}
                 />
                 <Card.Body>
@@ -87,7 +85,6 @@ function ListaProductosApp({ addToCart }) {
                     <Button onClick={() => verDetalles(product)} variant="primary">
                       Ver detalles
                     </Button>
-                    
                   </div>
                 </Card.Body>
               </Card>
@@ -109,8 +106,8 @@ function ListaProductosApp({ addToCart }) {
                   alt={selectedProduct.nombreProducto}
                   className="img-fluid rounded"
                   onError={(e) => {
-                    e.target.onerror = null
-                    e.target.src = "/placeholder-image.jpg"
+                    e.target.onerror = null;
+                    e.target.src = "/placeholder-image.jpg";
                   }}
                 />
               </div>
@@ -170,8 +167,7 @@ function ListaProductosApp({ addToCart }) {
         </Modal.Footer>
       </Modal>
     </>
-  )
+  );
 }
 
-export default ListaProductosApp
-
+export default ListaProductosApp;
