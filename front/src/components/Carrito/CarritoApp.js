@@ -1,36 +1,38 @@
 import React from 'react';
-import { Offcanvas, ListGroup, Button, Badge} from 'react-bootstrap';
-import { createContext, useContext, useState, useEffect } from "react";
+import { Offcanvas, ListGroup, Button } from 'react-bootstrap';
+import { useCart } from '../../contexto/ContextoCarrito';
 import { useNavigate } from 'react-router-dom';
 import './Carrito.css';
-import { useAppContext } from "../Navbar/AppContext"
-
 
 function CarritoApp() {
-  const { showCart, handleShowCart, cart, removeFromCart } = useAppContext()
-
-  // Calcular el total del carrito
-  const total = cart.reduce((sum, item) => sum + (item.precio || 0) * item.cantidad, 0)
+  const {
+    cart,
+    increaseQuantity,
+    decreaseQuantity,
+    removeFromCart,
+    clearCart,
+    showCartMenu,
+    setShowCartMenu,
+  } = useCart();
 
   const navigate = useNavigate();
 
+  const total = cart.reduce((sum, item) => sum + (item.montoPrecioProducto || 0) * item.cantidad, 0);
+
   const handleVerOrden = () => {
-    handleShowCart();
-    navigate('/verOrden');
+    setShowCartMenu(false); 
+    navigate('/verOrden'); 
   };
 
-  // Función para manejar el clic en el botón pagar
   const handlePagar = () => {
-    // Cerramos el carrito
-    handleShowCart();
-    // Redirigimos a la página de pedido (mantenemos la misma ruta)
-    navigate('/pedido');
+    setShowCartMenu(false); 
+    navigate('/pedido'); 
   };
 
   const groupedCart = cart.reduce((acc, item) => {
     const existingItem = acc.find((i) => i.idProducto === item.idProducto);
     if (existingItem) {
-      existingItem.cantidad += item.cantidad; 
+      existingItem.cantidad += item.cantidad;
     } else {
       acc.push({ ...item });
     }
@@ -38,7 +40,7 @@ function CarritoApp() {
   }, []);
 
   return (
-    <Offcanvas show={showCart} onHide={handleShowCart} placement="end">
+    <Offcanvas show={showCartMenu} onHide={() => setShowCartMenu(false)} placement="end">
       <Offcanvas.Header closeButton>
         <Offcanvas.Title>Tu carrito de compras</Offcanvas.Title>
       </Offcanvas.Header>
@@ -62,7 +64,8 @@ function CarritoApp() {
                   'No disponible'
                 )}
                 <div className="info-cart-product">
-                  <div className="titulo-producto-carrito">{item.nombreProducto}
+                  <div className="titulo-producto-carrito">
+                    {item.nombreProducto}
                     <span className="cantidad-producto-carrito"> - 1 Kg</span>
                   </div>
                   <div className="precio-producto-carrito">
@@ -73,7 +76,7 @@ function CarritoApp() {
                   variant="danger"
                   size="sm"
                   className="float-end"
-                  onClick={() => removeFromCart(index)}
+                  onClick={() => removeFromCart(item.idProducto)} // Usa item.idProducto
                 >
                   X
                 </Button>
@@ -88,16 +91,12 @@ function CarritoApp() {
                 )}
               </span>
             </div>
-                
-            <Button variant="primary" className="btn-ver-orden" onClick={handleVerOrden} >
+
+            <Button variant="primary" className="btn-ver-orden" onClick={handleVerOrden}>
               Ver Orden
             </Button>
 
-            <Button 
-              variant="success" 
-              className="btn-pagar"
-              onClick={handlePagar}
-            >
+            <Button variant="success" className="btn-pagar" onClick={handlePagar}>
               Pagar
             </Button>
           </ListGroup>

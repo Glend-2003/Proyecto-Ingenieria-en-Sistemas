@@ -6,10 +6,14 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles.min.css';
 import { Link } from 'react-router-dom';
 import './Navbar.css';
+import { useCart } from '../../contexto/ContextoCarrito';
 
 const NavbarApp = () => {
   // Usar el contexto para obtener estados y funciones
-  const { handleShowSidebar, handleShowCart, idUsuario, cart } = useAppContext()
+  //const { handleShowSidebar, handleShowCart, idUsuario, cart } = useAppContext()
+  const { cart, showCartMenu, setShowCartMenu } = useCart();
+  const { handleShowSidebar } = useAppContext();
+  const { idUsuario } = useAppContext(); 
 
    // Estado para controlar si estamos en la parte superior o no
    const [isScrolled, setIsScrolled] = useState(false)
@@ -99,7 +103,7 @@ const NavbarApp = () => {
                 />
               </Nav.Link>
             </div>
-            <Nav.Link onClick={handleShowCart}>
+            <Nav.Link onClick={() => setShowCartMenu(!showCartMenu)}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="1.5em"

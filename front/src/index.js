@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { AppProvider } from "./components/Navbar/AppContext"; // Importar el contexto
+import { AppProvider } from "./components/Navbar/AppContext";
 import "./index.css";
 import LoginApp from "./components/Login/LoginApp";
 import Principal from "./components/Principal/principal";
@@ -17,12 +17,7 @@ import ListaProductosApp from './components/Catalogo/ListaProductosApp';
 import PerfilUsuario from './components/DetallesCliente/PerfilUsuario';
 import Dashboard from './components/DetallesCliente/Dashboard';
 import SideBarUsuario from './components/DetallesCliente/SideBarUsuario';
-import MostrartOrdenApp from './components/Orden/MostrarOdenApp';
-import ResPagina from './paginas/ResPagina';
-import CerdoPagina from './paginas/CerdoPagina';
-import PolloPagina from './paginas/PolloPagina';
-import ProductosVariosPagina from './paginas/ProductosVariosPagina';
-import ProductosDestacadosPagina from './paginas/ProductosDestacadosPagina';
+import { CartProvider } from './contexto/ContextoCarrito';
 
 // Componente para proteger rutas
 const PrivateRoute = ({ children }) => {
@@ -32,31 +27,33 @@ const PrivateRoute = ({ children }) => {
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <AppProvider> {/* Aquí envuelves la aplicación con AppProvider */}
-    <Router>
-      <Routes>
-        <Route path="/" element={<LoginApp />} />
-        <Route path="/pedido" element={<LoginApp initialPage="pedido" />} />
-        <Route path="/historia" element={<LoginApp initialPage="historia" />} />
-        <Route path="/register" element={<Registrar />} />
-        <Route path="/principal" element={<PrivateRoute><Principal /></PrivateRoute>} />
-        <Route path="/CategoriaApp" element={<PrivateRoute><Categoria /></PrivateRoute>} />
-        <Route path="/GestionarUsuario" element={<PrivateRoute><Usuarios /></PrivateRoute>} />
-        <Route path="/ComentarioApp" element={<PrivateRoute><ComentarioApp /></PrivateRoute>} />
-        <Route path="/ProductoApp" element={<PrivateRoute><ProductoApp /></PrivateRoute>} />
-        <Route path="/PromocionApp" element={<PrivateRoute><PromocionApp /></PrivateRoute>} />
-        <Route path="/TipoPagoApp" element={<PrivateRoute><TipoPagoApp /></PrivateRoute>} />
-        <Route path="/ListaProductosApp" element={<PrivateRoute><ListaProductosApp /></PrivateRoute>} />
-        <Route path="/PerfilUsuario" element={<PrivateRoute><PerfilUsuario /></PrivateRoute>} />
-        <Route path="/Dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-        <Route path="/SideBarUsuario" element={<PrivateRoute><SideBarUsuario /></PrivateRoute>} />
-        <Route path="/verOrden" element={<LoginApp initialPage="verOrden" />} />
-        <Route path="/cortes-de-res" element={<LoginApp initialPage="res" />} />
-        <Route path="/cortes-de-cerdo" element={<LoginApp initialPage="cerdo" />} />
-        <Route path="/cortes-de-pollo" element={<LoginApp initialPage="pollo" />} />
-        <Route path="/productos-varios" element={<LoginApp initialPage="varios" />} />
-        <Route path="/productos-destacados" element={<LoginApp initialPage="destacados" />} />
-      </Routes>
-    </Router>
+  <AppProvider>
+    <CartProvider> 
+      <Router>
+        <Routes>
+          <Route path="/" element={<LoginApp />} />
+          <Route path="/pedido" element={<LoginApp initialPage="pedido" />} />
+          <Route path="/historia" element={<LoginApp initialPage="historia" />} />
+          <Route path="/register" element={<Registrar />} />
+          <Route path="/principal" element={<PrivateRoute><Principal /></PrivateRoute>} />
+          <Route path="/CategoriaApp" element={<PrivateRoute><Categoria /></PrivateRoute>} />
+          <Route path="/GestionarUsuario" element={<PrivateRoute><Usuarios /></PrivateRoute>} />
+          <Route path="/ComentarioApp" element={<PrivateRoute><ComentarioApp /></PrivateRoute>} />
+          <Route path="/ProductoApp" element={<PrivateRoute><ProductoApp /></PrivateRoute>} />
+          <Route path="/PromocionApp" element={<PrivateRoute><PromocionApp /></PrivateRoute>} />
+          <Route path="/TipoPagoApp" element={<PrivateRoute><TipoPagoApp /></PrivateRoute>} />
+          <Route path="/ListaProductosApp" element={<PrivateRoute><ListaProductosApp /></PrivateRoute>} />
+          <Route path="/PerfilUsuario" element={<PrivateRoute><PerfilUsuario /></PrivateRoute>} />
+          <Route path="/Dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+          <Route path="/SideBarUsuario" element={<PrivateRoute><SideBarUsuario /></PrivateRoute>} />
+          <Route path="/verOrden" element={<LoginApp initialPage="verOrden" />} />
+          <Route path="/cortes-de-res" element={<LoginApp initialPage="res" />} />
+          <Route path="/cortes-de-cerdo" element={<LoginApp initialPage="cerdo" />} />
+          <Route path="/cortes-de-pollo" element={<LoginApp initialPage="pollo" />} />
+          <Route path="/productos-varios" element={<LoginApp initialPage="varios" />} />
+          <Route path="/productos-destacados" element={<LoginApp initialPage="destacados" />} />
+        </Routes>
+      </Router>
+    </CartProvider>
   </AppProvider>
 );

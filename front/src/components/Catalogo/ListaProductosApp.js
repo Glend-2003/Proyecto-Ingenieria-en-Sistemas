@@ -3,8 +3,10 @@ import axios from "axios";
 import { Card, Button, Modal, Form } from "react-bootstrap";
 import { toast, ToastContainer } from "react-toastify";
 import "./ListaProductos.css";
+import { useCart } from '../../contexto/ContextoCarrito';
 
-function ListaProductosApp({ addToCart, categoria }) {
+function ListaProductosApp({ categoria }) {
+  const { addToCart } = useCart(); 
   const [productos, setProductos] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -28,14 +30,14 @@ function ListaProductosApp({ addToCart, categoria }) {
         ...selectedProduct,
         cantidad: cantidadValida,
       };
-      addToCart(productoConCantidad);
+      addToCart(productoConCantidad, cantidadValida); 
       toast.success(
         `${selectedProduct.nombreProducto} agregado al carrito (${cantidadValida} unidad${cantidadValida > 1 ? "es" : ""})`,
       );
       handleCloseModal();
     }
   };
-
+  
   const cargarProductos = async () => {
     try {
       const response = await axios.get("http://localhost:8080/producto/", {
