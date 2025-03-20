@@ -4,8 +4,8 @@ import "./Footer.css";
 
 const FooterApp = () => {
     return (
-        <footer className="page-footer py-3 border-top" style={{ background: '#042440' }}>
-            <div className="container my-4 footer-container">
+        <footer className="page-footer py border-top" style={{ background: '#042440' }}>
+            <div className="container my- footer-container">
                 <div className="links">
                     <a style={{ color: 'var(--bs-secondary-bg)' }}>Contactos</a>
                 </div>

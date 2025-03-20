@@ -1,0 +1,84 @@
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spAgregarPedido`(
+    IN p_montoTotalPedido DECIMAL(38,2),
+    IN p_fechaPedido DATETIME(6),
+    IN p_estadoPedido BIT(1),
+    IN p_estadoEntregaPedido VARCHAR(255),
+    IN p_idCarrito INT,
+    IN p_idTipoPago INT,
+    IN p_productos JSON -- Nuevo parámetro para recibir los productos
+)
+BEGIN
+    DECLARE v_idPedido INT;
+    DECLARE v_idProducto INT;
+    DECLARE v_cantidad INT;
+    DECLARE v_precioUnitario DECIMAL(38,2);
+    DECLARE i INT DEFAULT 0;
+    DECLARE v_count INT;
+    
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SELECT 'Error al agregar el pedido' AS Mensaje;
+    END;
+    
+    START TRANSACTION;
+    
+    -- Validaciones básicas
+    IF p_montoTotalPedido IS NULL OR p_fechaPedido IS NULL OR 
+       p_idCarrito IS NULL OR p_idTipoPago IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Parámetros obligatorios no pueden ser nulos';
+    END IF;
+    
+    -- Validar relaciones
+    IF NOT EXISTS (SELECT 1 FROM tbcarrito WHERE idCarrito = p_idCarrito) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El carrito especificado no existe';
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM tbtipopago WHERE idTipoPago = p_idTipoPago) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El tipo de pago especificado no existe';
+    END IF;
+    
+    -- Insertar el pedido
+    INSERT INTO tbpedido (
+        montoTotalPedido,
+        fechaPedido,
+        estadoPedido,
+        estadoEntregaPedido,
+        idCarrito,
+        idTipoPago
+    ) VALUES (
+        p_montoTotalPedido,
+        p_fechaPedido,
+        p_estadoPedido,
+        p_estadoEntregaPedido,
+        p_idCarrito,
+        p_idTipoPago
+    );
+    
+    -- Obtener el ID del pedido recién insertado
+    SET v_idPedido = LAST_INSERT_ID();
+    
+    -- Procesar los productos si se proporcionaron
+    IF p_productos IS NOT NULL THEN
+        -- Obtener la cantidad de productos
+        SET v_count = JSON_LENGTH(p_productos);
+        
+        -- Recorrer cada producto y agregarlo a tbpedidoproducto
+        WHILE i < v_count DO
+            SET v_idProducto = JSON_EXTRACT(p_productos, CONCAT('$[', i, '].idProducto'));
+            SET v_cantidad = JSON_EXTRACT(p_productos, CONCAT('$[', i, '].cantidad'));
+            SET v_precioUnitario = JSON_EXTRACT(p_productos, CONCAT('$[', i, '].precioUnitario'));
+            
+            -- Insertar en la tabla relacional
+            INSERT INTO tbpedidoproducto (idPedido, idProducto, cantidad, precioUnitario)
+            VALUES (v_idPedido, v_idProducto, v_cantidad, v_precioUnitario);
+            
+            SET i = i + 1;
+        END WHILE;
+    END IF;
+    
+    -- Retornar el ID del pedido creado
+    SELECT v_idPedido AS idPedido, 'Pedido agregado exitosamente' AS Mensaje;
+    
+    COMMIT;
+END
