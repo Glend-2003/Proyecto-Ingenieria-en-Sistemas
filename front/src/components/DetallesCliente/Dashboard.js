@@ -5,6 +5,9 @@ import "./Dashboard.css";
 import useAuth from "../../hooks/useAuth";
 import { FaFileAlt, FaDownload, FaMapMarkerAlt, FaUser, FaSignOutAlt, FaHome } from "react-icons/fa";
 import FooterApp from '../Footer/FooterApp';
+import NavbarApp from '../Navbar/NavbarApp';
+import { AppProvider } from "../Navbar/AppContext"
+import Carrito from '../Carrito/CarritoApp';
 
 const Dashboard = () => {
     const { usuario } = useAuth();
@@ -20,7 +23,9 @@ const Dashboard = () => {
         navigate('/');
     };
     return (
+        <AppProvider>
         <div>
+             <NavbarApp />
             <div className="dashboard-container">
                 {/* Sidebar */}
                 <div className="sidebar-container">
@@ -73,9 +78,10 @@ const Dashboard = () => {
                         </NavLink>
                     </div>
                 </div>
-
+                <Carrito />
             </div>
             <FooterApp /></div>
+            </AppProvider>
     );
 };
 

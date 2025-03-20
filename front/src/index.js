@@ -1,10 +1,10 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import './index.css';
-import LoginApp from './components/Login/LoginApp';
-import Principal from './components/Principal/principal';
-//import SideBar from './components/SideBar';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { AppProvider } from "./components/Navbar/AppContext"; // Importar el contexto
+import "./index.css";
+import LoginApp from "./components/Login/LoginApp";
+import Principal from "./components/Principal/principal";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Registrar from './components/Usuarios/Registrar';
 import Categoria from './components/Categoria/CategoriaApp';
@@ -19,17 +19,10 @@ import Dashboard from './components/DetallesCliente/Dashboard';
 import SideBarUsuario from './components/DetallesCliente/SideBarUsuario';
 import ResetPassword from './components/Login/ResetPassword';
 
-// Componente para proteger rutas y mostrar el sidebar si el usuario está autenticado
-// Componente para proteger rutas y mostrar el contenido solo si el usuario está autenticado
+// Componente para proteger rutas
 const PrivateRoute = ({ children }) => {
-  const token = localStorage.getItem('token');
-  return token ? (
-    <div className="main-content">
-      {children}
-    </div>
-  ) : (
-    <Navigate to="/" />
-  );
+  const token = localStorage.getItem("token");
+  return token ? <div className="main-content">{children}</div> : <Navigate to="/" />;
 };
 
 const ResetPasswordRoute = ({ children }) => {
@@ -52,24 +45,29 @@ const PrivateRoute = ({ children }) => {
   );
 }; */
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <Router>
-    <Routes>
-      <Route path="/" element={<LoginApp />} />
-      <Route path="/principal" element={<PrivateRoute><Principal /></PrivateRoute>} />
-      <Route path="/register" element={<Registrar />} />
-      <Route path="/CategoriaApp" element={<PrivateRoute><Categoria /></PrivateRoute>} />
-      <Route path="/GestionarUsuario" element={<PrivateRoute><Usuarios /></PrivateRoute>} />
-      <Route path="/ComentarioApp" element={<PrivateRoute><ComentarioApp /></PrivateRoute>} />
-      <Route path="/ProductoApp" element={<PrivateRoute><ProductoApp /></PrivateRoute>} /> 
-      <Route path="/PromocionApp" element={<PrivateRoute><PromocionApp /></PrivateRoute>} />
-      <Route path="/TipoPagoApp" element={<PrivateRoute><TipoPagoApp /></PrivateRoute>} />
-      <Route path="/ListaProductosApp" element={<PrivateRoute><ListaProductosApp /></PrivateRoute>} />
-      <Route path="/PerfilUsuario" element={<PrivateRoute><PerfilUsuario /></PrivateRoute>} />
-      <Route path="/Dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-      <Route path="/SideBarUsuario" element={<PrivateRoute><SideBarUsuario /></PrivateRoute>} />
-      <Route path="/ResetPassword" element={<ResetPasswordRoute><ResetPassword /></ResetPasswordRoute>} /> 
-    </Routes>
-  </Router>
+  <AppProvider> {/* Aquí envuelves la aplicación con AppProvider */}
+    <Router>
+      <Routes>
+        <Route path="/" element={<LoginApp />} />
+        <Route path="/pedido" element={<LoginApp initialPage="pedido" />} />
+        <Route path="/register" element={<Registrar />} />
+        <Route path="/principal" element={<PrivateRoute><Principal /></PrivateRoute>} />
+        <Route path="/CategoriaApp" element={<PrivateRoute><Categoria /></PrivateRoute>} />
+        <Route path="/GestionarUsuario" element={<PrivateRoute><Usuarios /></PrivateRoute>} />
+        <Route path="/ComentarioApp" element={<PrivateRoute><ComentarioApp /></PrivateRoute>} />
+        <Route path="/ProductoApp" element={<PrivateRoute><ProductoApp /></PrivateRoute>} />
+        <Route path="/PromocionApp" element={<PrivateRoute><PromocionApp /></PrivateRoute>} />
+        <Route path="/TipoPagoApp" element={<PrivateRoute><TipoPagoApp /></PrivateRoute>} />
+        <Route path="/ListaProductosApp" element={<PrivateRoute><ListaProductosApp /></PrivateRoute>} />
+        <Route path="/PerfilUsuario" element={<PrivateRoute><PerfilUsuario /></PrivateRoute>} />
+        <Route path="/Dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+        <Route path="/SideBarUsuario" element={<PrivateRoute><SideBarUsuario /></PrivateRoute>} />
+        <Route path="/ResetPassword" element={<ResetPasswordRoute><ResetPassword /></ResetPasswordRoute>} />
+      </Routes>
+    </Router>
+  </AppProvider>
 ); 
+  
+
