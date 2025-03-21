@@ -6,78 +6,83 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles.min.css';
 import { Link } from 'react-router-dom';
 import './Navbar.css';
+import { Search, ShoppingCart, User } from "lucide-react"
+import { Form, InputGroup, FormControl } from "react-bootstrap";
 
 const NavbarApp = () => {
   // Usar el contexto para obtener estados y funciones
   const { handleShowSidebar, handleShowCart, idUsuario, cart } = useAppContext()
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("");
 
-   // Estado para controlar si estamos en la parte superior o no
-   const [isScrolled, setIsScrolled] = useState(false)
+  // Estado para controlar si estamos en la parte superior o no
+  const [isScrolled, setIsScrolled] = useState(false)
 
-   // Efecto para detectar el scroll
-   useEffect(() => {
-     const handleScroll = () => {
-       // Consideramos "scrolled" cuando bajamos más de 50px
-       if (window.scrollY > 50) {
-         setIsScrolled(true)
-       } else {
-         setIsScrolled(false)
-       }
-     }
- 
-     // Añadir el event listener
-     window.addEventListener("scroll", handleScroll)
- 
-     // Limpiar el event listener cuando el componente se desmonte
-     return () => {
-       window.removeEventListener("scroll", handleScroll)
-     }
-   }, [])
-     // Clases dinámicas basadas en el estado de scroll
+  // Efecto para detectar el scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      // Consideramos "scrolled" cuando bajamos más de 50px
+      if (window.scrollY > 50) {
+        setIsScrolled(true)
+      } else {
+        setIsScrolled(false)
+      }
+    }
+
+    // Añadir el event listener
+    window.addEventListener("scroll", handleScroll)
+
+    // Limpiar el event listener cuando el componente se desmonte
+    return () => {
+      window.removeEventListener("scroll", handleScroll)
+    }
+  }, [])
+  // Clases dinámicas basadas en el estado de scroll
   const navbarClasses = `navbar-transition ${isScrolled ? "navbar-scrolled" : "navbar-top"}`
 
+  
   return (
     <BootstrapNavbar
-    expand="lg"
-    variant="dark"
-    style={{ backgroundColor: "#001f3f" }}
-    className={navbarClasses}
-    fixed="top"
-  >
+      expand="lg"
+      variant="dark"
+      style={{ backgroundColor: "#001f3f" }}
+      className={navbarClasses}
+      fixed="top"
+    >
       <Container>
         {/* Título agregado aquí */}
-        
+
         <BootstrapNavbar.Brand> <Link to="/" style={{ color: 'white', textDecoration: 'none' }}>
           Carnicería La Bendición
         </Link></BootstrapNavbar.Brand>
 
-  {/* Navigation Links - Desktop */}
-  <nav className="hidden md:flex items-center space-x-6">
-         
-          </nav>
+        {/* Navigation Links - Desktop */}
+        <nav className="hidden md:flex items-center space-x-6">
+
+        </nav>
 
         <BootstrapNavbar.Toggle aria-controls="basic-navbar-nav" />
         <Nav>
-        <Nav.Link href="/cortes-de-res" className="text-sm font-medium hover:underline">
-              CORTES DE RES
-            </Nav.Link>
-            <Nav.Link href="/cortes-de-cerdo" className="text-sm font-medium hover:underline">
-              CORTES DE CERDO
-            </Nav.Link>
-            <Nav.Link href="/cortes-de-pollo" className="text-sm font-medium hover:underline">
-              CORTES DE POLLO
-            </Nav.Link>
-            <Nav.Link href="/productos-varios" className="text-sm font-medium hover:underline">
-              PRODUCTOS VARIOS
-            </Nav.Link>
-            <Nav.Link href="/productos-destacados" className="text-sm font-medium hover:underline">
-              PRODUCTOS DESTACADOS
-            </Nav.Link>
-            </Nav>
+          <Nav.Link href="/cortes-de-res" className="text-sm font-medium hover:underline">
+            CORTES DE RES
+          </Nav.Link>
+          <Nav.Link href="/cortes-de-cerdo" className="text-sm font-medium hover:underline">
+            CORTES DE CERDO
+          </Nav.Link>
+          <Nav.Link href="/cortes-de-pollo" className="text-sm font-medium hover:underline">
+            CORTES DE POLLO
+          </Nav.Link>
+          <Nav.Link href="/productos-varios" className="text-sm font-medium hover:underline">
+            PRODUCTOS VARIOS
+          </Nav.Link>
+          <Nav.Link href="/productos-destacados" className="text-sm font-medium hover:underline">
+            PRODUCTOS DESTACADOS
+          </Nav.Link>
+        </Nav>
         <BootstrapNavbar.Collapse id="basic-navbar-nav">
           <Nav className="ms-auto">
-        
-          
+
+
             <div>
               <Nav.Link onClick={handleShowSidebar}>
                 <DropDown
@@ -110,6 +115,34 @@ const NavbarApp = () => {
               </svg>
               {cart.length > 0 && <Badge bg="danger">{cart.length}</Badge>}
             </Nav.Link>
+
+            <Nav.Link onClick={() => setSearchOpen(!searchOpen)}>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="1.5em"
+          height="1.5em"
+          fill="currentColor"
+          className="bi bi-search"
+          viewBox="0 0 16 16"
+        >
+          <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.099zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
+        </svg>
+        
+      </Nav.Link>
+
+      {searchOpen && (
+        <Form className="d-flex">
+          <InputGroup>
+            <FormControl
+              type="text"
+              placeholder="Buscar..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              autoFocus
+            />
+          </InputGroup>
+        </Form>
+      )}
           </Nav>
         </BootstrapNavbar.Collapse>
       </Container>
