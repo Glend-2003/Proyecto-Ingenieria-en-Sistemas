@@ -90,10 +90,46 @@ main {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
-
+}
 .spinner {
   animation: spin 1s linear infinite; /* Gira el ícono infinitamente */
 
 }
+/* Añade estos estilos a tu archivo Login.css existente */
 
+/* Social Media Icons */
+.social-media-container {
+  position: fixed !important;
+  right: 20px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 15px !important;
+  z-index: 9999 !important;
 }
+
+.social-icon {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 50px !important;
+  height: 50px !important;
+  border-radius: 50% !important;
+  background-color: #001f3f !important;
+  color: white !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+.social-icon:hover {
+  transform: scale(1.1);
+}
+
+.social-icon.whatsapp:hover {
+  background-color: #25D366;
+}
+
+.social-icon.facebook:hover {
+  background-color: #1877F2;
+}
+
