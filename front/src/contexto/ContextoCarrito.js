@@ -16,29 +16,30 @@ export const CartProvider = ({ children }) => {
   }, [cart]);
 
   const addToCart = (product, quantity) => {
-    const existingProduct = cart.find((item) => item.id === product.id);
+    // Buscar si el producto ya está en el carrito
+    const existingProductIndex = cart.findIndex((item) => item.idProducto === product.idProducto);
 
-    if (existingProduct) {
-      const totalQuantity = existingProduct.quantity + quantity;
+    if (existingProductIndex !== -1) {
+      // Si el producto ya está en el carrito, actualizar la cantidad
+      const updatedCart = [...cart];
+      const totalQuantity = updatedCart[existingProductIndex].quantity + quantity;
 
+      // Verificar si hay suficiente stock
       if (totalQuantity > product.stockProducto) {
         setErrorMessage(
           `No hay suficiente stock disponible. Solo puedes agregar ${
-            product.stockProducto - existingProduct.quantity
+            product.stockProducto - updatedCart[existingProductIndex].quantity
           } unidades más.`
         );
         return;
       } else {
-        setCart(
-          cart.map((item) =>
-            item.id === product.idProducto
-              ? { ...item, quantity: item.quantity + quantity }
-              : item
-          )
-        );
+        // Actualizar la cantidad del producto existente
+        updatedCart[existingProductIndex].quantity += quantity;
+        setCart(updatedCart);
         setErrorMessage("");
       }
     } else {
+      // Si el producto no está en el carrito, agregarlo
       if (quantity > product.stockProducto) {
         setErrorMessage(
           `No hay suficiente stock disponible. Solo puedes agregar ${product.stockProducto} unidades.`
@@ -50,13 +51,13 @@ export const CartProvider = ({ children }) => {
       }
     }
 
-    setShowCartMenu(true); 
+    setShowCartMenu(true); // Mostrar el carrito después de agregar un producto
   };
 
   const increaseQuantity = (productId) => {
     setCart(
       cart.map((item) =>
-        item.id === productId
+        item.idProducto === productId
           ? { ...item, quantity: item.quantity + 1 }
           : item
       )
@@ -66,7 +67,7 @@ export const CartProvider = ({ children }) => {
   const decreaseQuantity = (productId) => {
     setCart(
       cart.map((item) =>
-        item.id === productId && item.quantity > 1
+        item.idProducto === productId && item.quantity > 1
           ? { ...item, quantity: item.quantity - 1 }
           : item
       )
@@ -74,7 +75,7 @@ export const CartProvider = ({ children }) => {
   };
 
   const removeFromCart = (productId) => {
-    setCart(cart.filter((item) => item.id !== productId));
+    setCart(cart.filter((item) => item.idProducto !== productId));
   };
 
   const clearCart = () => {
