@@ -2,10 +2,9 @@ import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import '../styles.min.css';
 import axios from "axios";
-import FooterApp from '../Footer/FooterApp';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
-import { FaEye, FaEyeSlash, FaSpinner, FaArrowLeft } from 'react-icons/fa';
+import { FaSpinner, FaArrowLeft, FaCheck, FaTimes } from 'react-icons/fa'; // Añadidos FaCheck y FaTimes
 
 function PedidoCrud() {
   // Estados para los campos del formulario
@@ -42,6 +41,14 @@ function PedidoCrud() {
     severity: 'success'
   });
   
+  // Estado para la validación de cédula
+  const [cedulaValidation, setCedulaValidation] = useState({
+    isValid: false,
+    isChecking: false,
+    wasChecked: false,
+    message: ''
+  });
+
   // Función para cerrar el Snackbar
   const handleCloseSnackbar = () => {
     setSnackbar({...snackbar, open: false});
@@ -50,7 +57,15 @@ function PedidoCrud() {
   // Recuperar carrito del localStorage
   const [cart, setCart] = useState([]);
 
-  
+  // Debounce para la validación de cédula
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (formData.cedulaUsuario && formData.cedulaUsuario.trim() !== '') {
+        validateCedula(formData.cedulaUsuario);
+      }
+    }, 1000);
+    return () => clearTimeout(delayDebounceFn);
+  }, [formData.cedulaUsuario]);
   
   useEffect(() => {
     const savedCart = JSON.parse(localStorage.getItem("carrito")) || [];
@@ -85,7 +100,55 @@ function PedidoCrud() {
 
   // Calcular totales
   const subtotal = cart.reduce((total, item) => total + (item.montoPrecioProducto * item.cantidad), 0);
-const montoTotalPedido = cart.reduce((total, item) => total + (item.montoPrecioProducto * item.cantidad), 0) * 1.15;
+  const montoTotalPedido = cart.reduce((total, item) => total + (item.montoPrecioProducto * item.cantidad), 0) * 1.15;
+
+  // Función para validar la cédula con la API de Hacienda
+  const validateCedula = async (cedula) => {
+    // Verificamos que la cédula tenga al menos un carácter antes de consultar la API
+    if (!cedula || cedula.trim().length === 0) {
+      setCedulaValidation({
+        isValid: false,
+        isChecking: false,
+        wasChecked: true,
+        message: 'Ingrese un número de cédula válido'
+      });
+      return;
+    }
+    setCedulaValidation({
+      ...cedulaValidation,
+      isChecking: true,
+      message: 'Verificando cédula...'
+    });
+
+    try {
+      const response = await axios.get(`https://api.hacienda.go.cr/fe/ae?identificacion=${cedula}`);
+      
+      if (response.data && response.status === 200) {
+        setCedulaValidation({
+          isValid: true,
+          isChecking: false,
+          wasChecked: true,
+          message: 'Cédula verificada correctamente'
+        });
+      } else {
+        setCedulaValidation({
+          isValid: false,
+          isChecking: false,
+          wasChecked: true,
+          message: 'La cédula no está registrada en Hacienda'
+        });
+      }
+    } catch (error) {
+      console.error('Error al validar cédula:', error);
+      
+      setCedulaValidation({
+        isValid: false,
+        isChecking: false,
+        wasChecked: true,
+        message: 'La cédula no está registrada o hubo un error de verificación'
+      });
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -93,6 +156,16 @@ const montoTotalPedido = cart.reduce((total, item) => total + (item.montoPrecioP
       ...formData,
       [name]: value
     });
+    
+    // Si se cambia la cédula, resetear la validación
+    if (name === 'cedulaUsuario') {
+      setCedulaValidation({
+        isValid: false,
+        isChecking: false,
+        wasChecked: false,
+        message: ''
+      });
+    }
   };
 
   // Alert personalizado para Snackbar
@@ -103,12 +176,19 @@ const montoTotalPedido = cart.reduce((total, item) => total + (item.montoPrecioP
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Verificar que la cédula sea válida antes de enviar
+    if (!cedulaValidation.isValid) {
+      setSnackbar({
+        open: true,
+        message: 'La cédula no es válida. No se puede procesar el pedido.',
+        severity: 'error'
+      });
+      return;
+    }
+
     setStatus({ loading: true, error: null, success: false });
 
-    try{
-
-      
-
+    try {
       const userData = {
         // Datos del usuario
         nombreUsuario: formData.nombreUsuario,
@@ -119,7 +199,6 @@ const montoTotalPedido = cart.reduce((total, item) => total + (item.montoPrecioP
         tipoPersona: formData.tipoPersona,
         cedulaUsuario: formData.cedulaUsuario,
         tipoCedula: formData.tipoCedula,
-        
         
         // Datos de la sucursal y retiro
         sucursal: formData.sucursal,
@@ -143,17 +222,12 @@ const montoTotalPedido = cart.reduce((total, item) => total + (item.montoPrecioP
         // Estado de entrega (por defecto "Pendiente")
         estadoEntregaPedido: "Pendiente",
 
-        // Datos del pedido
-        montoTotalPedido: montoTotalPedido,
-
         // Productos del carrito
         productos: cart.map(item => ({
           idProducto: item.idProducto,
           cantidad: item.cantidad,
           precioUnitario: item.montoPrecioProducto
         }))
-
-        
       };
 
       console.log('Enviando datos:', JSON.stringify(userData, null, 2));
@@ -177,10 +251,7 @@ const montoTotalPedido = cart.reduce((total, item) => total + (item.montoPrecioP
         window.location.href = "/";
       }, 2000);
 
-      console.log('Datos enviados:', userData);
-
-
-    }catch(error){
+    } catch(error) {
       console.error('Error al registrar el pedido:', error);
 
       // Log más detallado para diagnosticar
@@ -191,8 +262,6 @@ const montoTotalPedido = cart.reduce((total, item) => total + (item.montoPrecioP
         message: error.message,
         stack: error.stack
       });
-
-      
       
       // Actualizar el estado para mostrar el error
       setStatus({ 
@@ -200,8 +269,6 @@ const montoTotalPedido = cart.reduce((total, item) => total + (item.montoPrecioP
         error: error.response?.data?.message || "Error al procesar el pedido", 
         success: false 
       });
-
-      
       
       // Mostrar mensaje de error con Snackbar
       setSnackbar({
@@ -211,8 +278,6 @@ const montoTotalPedido = cart.reduce((total, item) => total + (item.montoPrecioP
       });
     }
   };
-
-
 
   // Renderizar productos del carrito
   const renderCartItems = () => {
@@ -232,8 +297,14 @@ const montoTotalPedido = cart.reduce((total, item) => total + (item.montoPrecioP
     }
   };
 
+  // Determinar si el botón de finalizar debe estar deshabilitado
+  const isSubmitDisabled = status.loading || 
+                           tiposPago.length === 0 || 
+                           !cedulaValidation.isValid || 
+                           cedulaValidation.isChecking || 
+                           cart.length === 0;
+
   return (
-    
     <div className="container py-4 my-3">
       <h1 className="text-center">Finalizar pedido</h1>
 
@@ -344,14 +415,34 @@ const montoTotalPedido = cart.reduce((total, item) => total + (item.montoPrecioP
                 <label htmlFor="cedulaUsuario" className="form-label">
                   Cédula
                 </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="cedulaUsuario"
-                  name="cedulaUsuario"
-                  value={formData.cedulaUsuario}
-                  onChange={handleChange}
-                />
+                <div className="input-group">
+                  <input
+                    type="text"
+                    className={`form-control ${cedulaValidation.wasChecked ? (cedulaValidation.isValid ? 'is-valid' : 'is-invalid') : ''}`}
+                    id="cedulaUsuario"
+                    name="cedulaUsuario"
+                    value={formData.cedulaUsuario}
+                    onChange={handleChange}
+                  />
+                  <div className="input-group-append">
+                    <span className="input-group-text">
+                      {cedulaValidation.isChecking ? (
+                        <FaSpinner className="spinner" />
+                      ) : cedulaValidation.wasChecked ? (
+                        cedulaValidation.isValid ? (
+                          <FaCheck className="text-success" />
+                        ) : (
+                          <FaTimes className="text-danger" />
+                        )
+                      ) : null}
+                    </span>
+                  </div>
+                </div>
+                {cedulaValidation.wasChecked && (
+                  <div className={cedulaValidation.isValid ? "valid-feedback d-block" : "invalid-feedback d-block"}>
+                    {cedulaValidation.message}
+                  </div>
+                )}
               </div>
               <div className="col-md-6">
                 <label htmlFor="tipoCedula" className="form-label">
@@ -481,7 +572,7 @@ const montoTotalPedido = cart.reduce((total, item) => total + (item.montoPrecioP
               <button 
                 className="btn btn-primary" 
                 onClick={handleSubmit}
-                disabled={status.loading || tiposPago.length === 0} // Deshabilitar durante carga o si no hay tipos de pago
+                disabled={isSubmitDisabled}
               >
                 {status.loading ? (
                   <>
@@ -491,6 +582,11 @@ const montoTotalPedido = cart.reduce((total, item) => total + (item.montoPrecioP
                   'Finalizar Pedido'
                 )}
               </button>
+              {!cedulaValidation.isValid && cedulaValidation.wasChecked && (
+                <p className="text-danger mt-2">
+                  <small><FaTimes className="me-1" /> Debe ingresar una cédula válida para finalizar el pedido</small>
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -508,6 +604,18 @@ const montoTotalPedido = cart.reduce((total, item) => total + (item.montoPrecioP
         </Alert>
       </Snackbar>
 
+      {/* Para animar el spinner, añadimos estilos globales */}
+      <style>
+        {`
+          .spinner {
+            animation: spin 1s linear infinite;
+          }
+          @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+        `}
+      </style>
     </div>
   );
 }
