@@ -40,7 +40,7 @@ const Dashboard = () => {
                         <NavLink to="/downloads" className="sidebar-link">
                             <FaDownload className="icon" /> Comprobantes
                         </NavLink>
-                        <NavLink to="/DireccionUsuario" className="sidebar-link">
+                        <NavLink to="/addresses" className="sidebar-link">
                             <FaMapMarkerAlt className="icon" /> Dirección
                         </NavLink>
                         <NavLink to="/PerfilUsuario" className="sidebar-link">

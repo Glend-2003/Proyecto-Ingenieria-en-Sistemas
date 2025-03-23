@@ -180,17 +180,15 @@ function LoginApp({ initialPage = "home" }) {
 
     try {
       const response = await axios.post("http://localhost:8080/usuario/verificarCambioContrasena", {
-        
         correoUsuario: loginData.correoUsuario,
       })
 
       if (response.status === 200) {
-      localStorage.setItem('resetPasswordRequested', 'true');
         toast.success("Código enviado con éxito", {
-          autoClose: 2000, 
+          autoClose: 2000, // Duración de la alerta (2 segundos)
           onClose: () => {
             // Redirigir después de que la alerta se cierre
-            navigate("/ResetPassword", { state: { correoUsuario: loginData.correoUsuario } })
+            navigate("/reset-password", { state: { correoUsuario: loginData.correoUsuario } })
           },
         })
       }
@@ -420,6 +418,7 @@ function LoginApp({ initialPage = "home" }) {
           {snackbarMessage}
         </Alert>
       </Snackbar>
+
       {/* Footer */}
       <FooterApp />
     </div>

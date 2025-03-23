@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDate;
 
 /**
  *
@@ -26,13 +27,17 @@ public class CodigoVerificacion {
     @Column(name = "numCodigo")
     private String numCodigo;
     
+    @Column(name = "fechaExpiracion")
+    private LocalDate fechaExpiracion;
+    
     @OneToOne
     @JoinColumn(name = "idUsuario")
     private Usuario usuario;
 
-    public CodigoVerificacion(int idCodigo, String numCodigo, Usuario usuario) {
+    public CodigoVerificacion(int idCodigo, String numCodigo, LocalDate fechaExpiracion, Usuario usuario) {
         this.idCodigo = idCodigo;
         this.numCodigo = numCodigo;
+        this.fechaExpiracion = fechaExpiracion;
         this.usuario = usuario;
     }
 
@@ -47,6 +52,10 @@ public class CodigoVerificacion {
         this.numCodigo = numCodigo;
     }
 
+    public void setFechaExpiracion(LocalDate fechaExpiracion) {
+        this.fechaExpiracion = fechaExpiracion;
+    }
+
     public void setUsuario(Usuario usuario) {
         this.usuario = usuario;
     }
@@ -57,6 +66,10 @@ public class CodigoVerificacion {
 
     public String getNumCodigo() {
         return numCodigo;
+    }
+
+    public LocalDate getFechaExpiracion() {
+        return fechaExpiracion;
     }
 
     public Usuario getUsuario() {

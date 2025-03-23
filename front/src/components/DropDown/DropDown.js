@@ -50,7 +50,7 @@ const DropDown = ({ icon, idUsuario }) => {
                 <DropdownItem tag={Link} to="/" className="hover:bg-gray-700">
                     Comprobantes
                 </DropdownItem>
-                <DropdownItem tag={Link} to="/DireccionUsuario" className="hover:bg-gray-700">
+                <DropdownItem tag={Link} to="/" className="hover:bg-gray-700">
                     Direccion
                 </DropdownItem>
                 <DropdownItem tag={Link} to="/PerfilUsuario" className="hover:bg-gray-700">
