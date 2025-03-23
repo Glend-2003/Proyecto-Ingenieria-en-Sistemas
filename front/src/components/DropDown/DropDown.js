@@ -55,7 +55,7 @@ const DropDown = ({ icon, idUsuario }) => {
                 <DropdownItem onClick={() => handleNavigation('/')} className="hover:bg-gray-700">
                     Comprobantes
                 </DropdownItem>
-                <DropdownItem onClick={() => handleNavigation('/')} className="hover:bg-gray-700">
+                <DropdownItem tag={Link} to="/DireccionUsuario" className="hover:bg-gray-700">
                     Direccion
                 </DropdownItem>
                 <DropdownItem onClick={() => handleNavigation('/PerfilUsuario')} className="hover:bg-gray-700">

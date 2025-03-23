@@ -64,7 +64,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     
     // SP Update 
     @Modifying
-    @Query(value = "{call spActualizarUsuario(:idUsuario, :cedulaUsuario, :nombreUsuario, :primerApellido, :segundoApellido, :telefonoUsuario, :correoUsuario, :contraseniaUsuario, :fechaNacimiento, :descripcionDireccion, :codigoPostalDireccion, :idDistrito, :idRol, :estadoUsuario)}", nativeQuery = true)
+    @Query(value = "{call spActualizarUsuario(:idUsuario, :cedulaUsuario, :nombreUsuario, :primerApellido, :segundoApellido, :telefonoUsuario, :correoUsuario, :contraseniaUsuario, :fechaNacimiento, :descripcionDireccion, :codigoPostalDireccion, :idDistrito, :estadoUsuario)}", nativeQuery = true)
     void updateProcedureUsuario(
         @Param("idUsuario") Integer idUsuario, 
         @Param("cedulaUsuario") String cedulaUsuario, 
@@ -78,7 +78,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
         @Param("descripcionDireccion") String descripcionDireccion, 
         @Param("codigoPostalDireccion") String codigoPostalDireccion,
         @Param("idDistrito") Integer idDistrito,
-        @Param("idRol") Integer idRol,
         @Param("estadoUsuario") boolean estadoUsuario
     );
 
