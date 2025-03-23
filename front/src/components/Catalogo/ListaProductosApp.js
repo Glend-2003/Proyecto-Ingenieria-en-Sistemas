@@ -152,7 +152,7 @@ function ListaProductosApp({ categoria }) {
         <Col md={3}>
           <div className="price-filter">
             <h4>FILTRAR POR PRECIO</h4>
-            <p>Precio: €{priceRange.min} – €{priceRange.max}</p>
+            <p>Precio: ₡{priceRange.min} – ₡{priceRange.max}</p>
             <input
               type="range"
               min={priceRange.min}
