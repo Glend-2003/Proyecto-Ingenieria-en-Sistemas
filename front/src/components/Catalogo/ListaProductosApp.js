@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Card, Button, Modal, Form } from "react-bootstrap";
+import { Card, Button, Modal, Form, Row, Col } from "react-bootstrap";
 import { toast, ToastContainer } from "react-toastify";
 import "./ListaProductos.css";
 import { useCart } from '../../contexto/ContextoCarrito';
@@ -14,6 +14,10 @@ function ListaProductosApp({ categoria }) {
   const [cantidad, setCantidad] = useState(1);
   const [productosFiltrados, setProductosFiltrados] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [priceRange, setPriceRange] = useState({ min: 0, max: 0 });
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [selectedPrice, setSelectedPrice] = useState(0);
+  const [sortOrder, setSortOrder] = useState("default"); // Estado para el ordenamiento
 
   const verDetalles = (producto) => {
     setSelectedProduct(producto);
@@ -40,13 +44,11 @@ function ListaProductosApp({ categoria }) {
       handleCloseModal();
     }
   };
-  
-  // Obtener todas las categorías para mapear nombres a IDs
+
   useEffect(() => {
     const fetchCategorias = async () => {
       try {
         const response = await axios.get('http://localhost:8080/categoria/');
-        console.log("Categorías obtenidas:", response.data);
         setCategorias(response.data);
       } catch (error) {
         console.error('Error al cargar categorías:', error);
@@ -56,13 +58,11 @@ function ListaProductosApp({ categoria }) {
     fetchCategorias();
   }, []);
 
-  // Cargar todos los productos
   useEffect(() => {
     const fetchProductos = async () => {
       try {
         setLoading(true);
         const response = await axios.get('http://localhost:8080/producto/');
-        console.log("Productos obtenidos:", response.data);
         setProductos(response.data);
         setLoading(false);
       } catch (error) {
@@ -74,108 +74,145 @@ function ListaProductosApp({ categoria }) {
     fetchProductos();
   }, []);
 
-// Filtrar productos cuando cambie la categoría o los productos
-useEffect(() => {
-  if (productos.length > 0 && categorias.length > 0) {
-    // Caso especial para "Productos Varios"
-    if (categoria && categoria.toLowerCase() === "varios") {
-      console.log("Filtrando productos varios (excluyendo Res, Cerdo y Pollo)");
-      
-      // Encontrar los IDs de las categorías a excluir
-      const categoriasExcluidas = categorias
-        .filter(cat => 
-          ["res", "cerdo", "pollo"].includes(cat.nombreCategoria.toLowerCase())
-        )
-        .map(cat => cat.idCategoria);
-      
-      console.log("Categorías excluidas:", categoriasExcluidas);
-      
-      // Filtrar productos que NO pertenecen a las categorías excluidas
-      const filtrados = productos.filter(producto => 
-        producto.categoria && !categoriasExcluidas.includes(producto.categoria.idCategoria)
-      );
-      
-      console.log("Productos varios filtrados:", filtrados);
-      setProductosFiltrados(filtrados);
-    } 
-    // Filtrado normal por categoría
-    else if (categoria) {
-      console.log(`Intentando filtrar por categoría: ${categoria}`);
-      
-      // Encontrar el idCategoria correspondiente al nombre de categoría
-      const categoriaObj = categorias.find(cat => 
-        cat.nombreCategoria.toLowerCase() === categoria.toLowerCase()
-      );
-      
-      if (categoriaObj) {
-        const idCategoriaFiltro = categoriaObj.idCategoria;
-        console.log(`Encontrada categoría con ID: ${idCategoriaFiltro}`);
+  useEffect(() => {
+    if (productos.length > 0 && categorias.length > 0) {
+      if (categoria && categoria.toLowerCase() === "varios") {
+        const categoriasExcluidas = categorias
+          .filter(cat => 
+            ["res", "cerdo", "pollo"].includes(cat.nombreCategoria.toLowerCase())
+          )
+          .map(cat => cat.idCategoria);
         
-        // Filtrar productos por idCategoria
         const filtrados = productos.filter(producto => 
-          producto.categoria && producto.categoria.idCategoria === idCategoriaFiltro
+          producto.categoria && !categoriasExcluidas.includes(producto.categoria.idCategoria)
         );
         
-        console.log(`Productos filtrados por categoría ${categoria} (ID: ${idCategoriaFiltro}):`, filtrados);
         setProductosFiltrados(filtrados);
+      } else if (categoria) {
+        const categoriaObj = categorias.find(cat => 
+          cat.nombreCategoria.toLowerCase() === categoria.toLowerCase()
+        );
+        
+        if (categoriaObj) {
+          const idCategoriaFiltro = categoriaObj.idCategoria;
+          const filtrados = productos.filter(producto => 
+            producto.categoria && producto.categoria.idCategoria === idCategoriaFiltro
+          );
+          setProductosFiltrados(filtrados);
+        } else {
+          setProductosFiltrados([]);
+        }
       } else {
-        console.log(`No se encontró la categoría ${categoria} en la lista de categorías`);
-        setProductosFiltrados([]);
+        setProductosFiltrados(productos);
       }
     } else {
-      // Si no hay categoría, mostrar todos los productos
-      setProductosFiltrados(productos);
+      setProductosFiltrados([]);
     }
-  } else {
-    // Si no hay productos o categorías cargados, mostrar lista vacía
-    setProductosFiltrados([]);
-  }
-}, [categoria, productos, categorias]);
+  }, [categoria, productos, categorias]);
+
+  useEffect(() => {
+    if (productosFiltrados.length > 0) {
+      const prices = productosFiltrados.map(p => p.montoPrecioProducto);
+      const minPrice = Math.min(...prices);
+      const maxPrice = Math.max(...prices);
+      setPriceRange({ min: minPrice, max: maxPrice });
+      setSelectedPrice(maxPrice);
+      setFilteredProducts(productosFiltrados);
+    }
+  }, [productosFiltrados]);
+
+  const handlePriceFilter = () => {
+    const filtered = productosFiltrados.filter(product => 
+      product.montoPrecioProducto <= selectedPrice
+    );
+    setFilteredProducts(filtered);
+  };
+
+  // Función para ordenar los productos
+  const handleSortChange = (e) => {
+    const order = e.target.value;
+    setSortOrder(order);
+
+    let sortedProducts = [...filteredProducts];
+
+    if (order === "price-asc") {
+      sortedProducts.sort((a, b) => a.montoPrecioProducto - b.montoPrecioProducto);
+    } else if (order === "price-desc") {
+      sortedProducts.sort((a, b) => b.montoPrecioProducto - a.montoPrecioProducto);
+    }
+
+    setFilteredProducts(sortedProducts);
+  };
 
   return (
     <>
       <ToastContainer position="top-right" autoClose={3000} />
 
-      <div id="product-slider" className="product-slider">
-        {loading ? (
-          <p>Cargando productos...</p>
-        ) : productosFiltrados.length === 0 ? (
-          <p>No hay productos disponibles en esta categoría</p>
-        ) : (
-          productosFiltrados.map((product) => (
-            <div className="product-card" key={product.idProducto}>
-              <Card style={{ width: "18rem" }}>
-                <Card.Img
-                  variant="top"
-                  src={`http://localhost:8080/producto/images/${product.imgProducto}`}
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = "/placeholder-image.jpg";
-                  }}
-                />
-                <Card.Body>
-                  <Card.Title>{product.nombreProducto + " - " + product.cantidadProducto + product.tipoPesoProducto}</Card.Title>
-                  <Card.Text>
-                    <strong>Precio:</strong>{" "}
-                    {new Intl.NumberFormat("es-CR", {
-                      style: "currency",
-                      currency: "CRC",
-                      minimumFractionDigits: 0,
-                    }).format(product.montoPrecioProducto)}
-                  </Card.Text>
-                  <div>
-                    <Button onClick={() => verDetalles(product)} variant="primary">
-                      Ver detalles
-                    </Button>
-                  </div>
-                </Card.Body>
-              </Card>
-            </div>
-          ))
-        )}
-      </div>
+      <Row>
+        <Col md={3}>
+          <div className="price-filter">
+            <h4>FILTRAR POR PRECIO</h4>
+            <p>Precio: €{priceRange.min} – €{priceRange.max}</p>
+            <input
+              type="range"
+              min={priceRange.min}
+              max={priceRange.max}
+              value={selectedPrice}
+              onChange={(e) => setSelectedPrice(Number(e.target.value))}
+              className="price-slider"
+            />
+            <button onClick={handlePriceFilter} className="filter-button">FILTRAR</button>
+          </div>
+        </Col>
+        <Col md={9}>
+          <div className="sort-container">
+            <select value={sortOrder} onChange={handleSortChange} className="sort-dropdown">
+              <option value="default">Orden predeterminado</option>
+              <option value="price-asc">Precio: Menor a Mayor</option>
+              <option value="price-desc">Precio: Mayor a Menor</option>
+            </select>
+          </div>
+          <div className="product-grid">
+            {loading ? (
+              <p>Cargando productos...</p>
+            ) : filteredProducts.length === 0 ? (
+              <p>No hay productos disponibles en esta categoría</p>
+            ) : (
+              filteredProducts.map((product) => (
+                <div className="product-card" key={product.idProducto}>
+                  <Card>
+                    <Card.Img
+                      variant="top"
+                      src={`http://localhost:8080/producto/images/${product.imgProducto}`}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = "/placeholder-image.jpg";
+                      }}
+                    />
+                    <Card.Body>
+                      <Card.Title>{product.nombreProducto + " - " + product.cantidadProducto + product.tipoPesoProducto}</Card.Title>
+                      <Card.Text>
+                        <strong>Precio:</strong>{" "}
+                        {new Intl.NumberFormat("es-CR", {
+                          style: "currency",
+                          currency: "CRC",
+                          minimumFractionDigits: 0,
+                        }).format(product.montoPrecioProducto)}
+                      </Card.Text>
+                      <div>
+                        <Button onClick={() => verDetalles(product)} variant="primary">
+                          Ver detalles
+                        </Button>
+                      </div>
+                    </Card.Body>
+                  </Card>
+                </div>
+              ))
+            )}
+          </div>
+        </Col>
+      </Row>
 
-      {/* Modal (sin cambios) */}
       <Modal show={showModal} onHide={handleCloseModal} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>{selectedProduct?.nombreProducto}</Modal.Title>
