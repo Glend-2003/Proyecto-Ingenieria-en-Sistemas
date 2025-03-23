@@ -8,9 +8,12 @@ import { useCart } from '../../contexto/ContextoCarrito';
 function ListaProductosApp({ categoria }) {
   const { addToCart } = useCart(); 
   const [productos, setProductos] = useState([]);
+  const [categorias, setCategorias] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [cantidad, setCantidad] = useState(1);
+  const [productosFiltrados, setProductosFiltrados] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const verDetalles = (producto) => {
     setSelectedProduct(producto);
@@ -38,31 +41,108 @@ function ListaProductosApp({ categoria }) {
     }
   };
   
-  const cargarProductos = async () => {
-    try {
-      const response = await axios.get("http://localhost:8080/producto/", {
-        params: { estadoProducto: 1, categoriaProducto: categoria }
-      });
-      setProductos(response.data);
-    } catch (error) {
-      console.error("Error al cargar productos:", error);
-      toast.error("Ocurrió un error al cargar los productos");
-    }
-  };
-
+  // Obtener todas las categorías para mapear nombres a IDs
   useEffect(() => {
-    cargarProductos();
-  }, [categoria]);
+    const fetchCategorias = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/categoria/');
+        console.log("Categorías obtenidas:", response.data);
+        setCategorias(response.data);
+      } catch (error) {
+        console.error('Error al cargar categorías:', error);
+      }
+    };
+
+    fetchCategorias();
+  }, []);
+
+  // Cargar todos los productos
+  useEffect(() => {
+    const fetchProductos = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get('http://localhost:8080/producto/');
+        console.log("Productos obtenidos:", response.data);
+        setProductos(response.data);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error al cargar productos:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchProductos();
+  }, []);
+
+// Filtrar productos cuando cambie la categoría o los productos
+useEffect(() => {
+  if (productos.length > 0 && categorias.length > 0) {
+    // Caso especial para "Productos Varios"
+    if (categoria && categoria.toLowerCase() === "varios") {
+      console.log("Filtrando productos varios (excluyendo Res, Cerdo y Pollo)");
+      
+      // Encontrar los IDs de las categorías a excluir
+      const categoriasExcluidas = categorias
+        .filter(cat => 
+          ["res", "cerdo", "pollo"].includes(cat.nombreCategoria.toLowerCase())
+        )
+        .map(cat => cat.idCategoria);
+      
+      console.log("Categorías excluidas:", categoriasExcluidas);
+      
+      // Filtrar productos que NO pertenecen a las categorías excluidas
+      const filtrados = productos.filter(producto => 
+        producto.categoria && !categoriasExcluidas.includes(producto.categoria.idCategoria)
+      );
+      
+      console.log("Productos varios filtrados:", filtrados);
+      setProductosFiltrados(filtrados);
+    } 
+    // Filtrado normal por categoría
+    else if (categoria) {
+      console.log(`Intentando filtrar por categoría: ${categoria}`);
+      
+      // Encontrar el idCategoria correspondiente al nombre de categoría
+      const categoriaObj = categorias.find(cat => 
+        cat.nombreCategoria.toLowerCase() === categoria.toLowerCase()
+      );
+      
+      if (categoriaObj) {
+        const idCategoriaFiltro = categoriaObj.idCategoria;
+        console.log(`Encontrada categoría con ID: ${idCategoriaFiltro}`);
+        
+        // Filtrar productos por idCategoria
+        const filtrados = productos.filter(producto => 
+          producto.categoria && producto.categoria.idCategoria === idCategoriaFiltro
+        );
+        
+        console.log(`Productos filtrados por categoría ${categoria} (ID: ${idCategoriaFiltro}):`, filtrados);
+        setProductosFiltrados(filtrados);
+      } else {
+        console.log(`No se encontró la categoría ${categoria} en la lista de categorías`);
+        setProductosFiltrados([]);
+      }
+    } else {
+      // Si no hay categoría, mostrar todos los productos
+      setProductosFiltrados(productos);
+    }
+  } else {
+    // Si no hay productos o categorías cargados, mostrar lista vacía
+    setProductosFiltrados([]);
+  }
+}, [categoria, productos, categorias]);
 
   return (
     <>
       <ToastContainer position="top-right" autoClose={3000} />
 
       <div id="product-slider" className="product-slider">
-        {productos.length === 0 ? (
+        {loading ? (
           <p>Cargando productos...</p>
+        ) : productosFiltrados.length === 0 ? (
+          <p>No hay productos disponibles en esta categoría</p>
         ) : (
-          productos.map((product) => (
+          productosFiltrados.map((product) => (
             <div className="product-card" key={product.idProducto}>
               <Card style={{ width: "18rem" }}>
                 <Card.Img
@@ -95,6 +175,7 @@ function ListaProductosApp({ categoria }) {
         )}
       </div>
 
+      {/* Modal (sin cambios) */}
       <Modal show={showModal} onHide={handleCloseModal} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>{selectedProduct?.nombreProducto}</Modal.Title>
@@ -130,13 +211,13 @@ function ListaProductosApp({ categoria }) {
                   </p>
                 )}
 
-                {selectedProduct.categoriaProducto && (
+                {selectedProduct.categoria && selectedProduct.categoria.nombreCategoria && (
                   <p>
-                    <strong>Categoría:</strong> {selectedProduct.categoriaProducto}
+                    <strong>Categoría:</strong> {selectedProduct.categoria.nombreCategoria}
                   </p>
                 )}
 
-                {selectedProduct.stockProducto && (
+                {selectedProduct.codigoProducto && (
                   <p>
                     <strong>SKU:</strong> {selectedProduct.codigoProducto} 
                   </p>

@@ -7,11 +7,12 @@ import { Offcanvas } from "react-bootstrap"
 import ListaProductosApp from "../Catalogo/ListaProductosApp.js"
 import PedidoCrud from "../Pedido/PedidoCrud.js"
 import { toast } from "react-toastify"
-import "./Login.css"
+import "../Login/Login.css"
 import FooterApp from "../Footer/FooterApp"
 import Snackbar from "@mui/material/Snackbar"
 import MuiAlert from "@mui/material/Alert"
 import { FaEye, FaEyeSlash, FaSpinner, FaArrowLeft } from "react-icons/fa"
+import { FaWhatsapp, FaFacebook } from "react-icons/fa";
 import NavbarApp from "../Navbar/NavbarApp.js"
 import Carrito from "../Carrito/CarritoApp"
 import { useAppContext } from "../Navbar/AppContext"
@@ -241,6 +242,27 @@ function LoginApp({ initialPage = "home" }) {
     <div className="page-container">
       {/* Navbar Component */}
       <NavbarApp />
+      {/* Redes sociales */}
+    <div className="social-media-container">
+      <a 
+        href="https://wa.me/50688955772"
+        className="social-icon whatsapp"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="WhatsApp"
+      >
+        <FaWhatsapp size={24} />
+      </a>
+      <a
+        href="https://www.facebook.com/jamel.sandi.3"
+        className="social-icon facebook"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Facebook"
+      >
+        <FaFacebook size={20} />
+      </a>
+    </div>
 
       {/* Offcanvas Sidebar */}
       <Offcanvas show={showSidebar} onHide={handleShowSidebar} placement="end">
