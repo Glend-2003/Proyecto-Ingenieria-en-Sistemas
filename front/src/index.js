@@ -6,23 +6,45 @@ import "./index.css";
 import LoginApp from "./components/Login/LoginApp";
 import Principal from "./components/Principal/principal";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Registrar from "./components/Usuarios/Registrar";
-import Categoria from "./components/Categoria/CategoriaApp";
-import Usuarios from "./components/Usuarios/GestionarUsuario";
-import ProductoApp from "./components/Productos/ProductoApp";
-import ComentarioApp from "./components/Comentario/ComentarioApp";
-import PromocionApp from "./components/Promocion/PromocionApp";
-import TipoPagoApp from "./components/TipoPago/TipoPagoApp";
-import ListaProductosApp from "./components/Catalogo/ListaProductosApp";
-import PerfilUsuario from "./components/DetallesCliente/PerfilUsuario";
-import Dashboard from "./components/DetallesCliente/Dashboard";
-import SideBarUsuario from "./components/DetallesCliente/SideBarUsuario";
+import Registrar from './components/Usuarios/Registrar';
+import Categoria from './components/Categoria/CategoriaApp';
+import Usuarios from './components/Usuarios/GestionarUsuario';
+import ProductoApp from './components/Productos/ProductoApp'; // Asegúrate de que esta ruta sea correcta
+import ComentarioApp from './components/Comentario/ComentarioApp';
+import PromocionApp from './components/Promocion/PromocionApp';
+import TipoPagoApp from './components/TipoPago/TipoPagoApp';
+import ListaProductosApp from './components/Catalogo/ListaProductosApp';
+import PerfilUsuario from './components/DetallesCliente/PerfilUsuario';
+import Dashboard from './components/DetallesCliente/Dashboard';
+import SideBarUsuario from './components/DetallesCliente/SideBarUsuario';
+import ResetPassword from './components/Login/ResetPassword';
+import DireccionUsuario from './components/DetallesCliente/DireccionUsuario';
 
 // Componente para proteger rutas
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem("token");
   return token ? <div className="main-content">{children}</div> : <Navigate to="/" />;
 };
+
+const ResetPasswordRoute = ({ children }) => {
+  const resetPasswordRequested = localStorage.getItem('resetPasswordRequested');
+  return resetPasswordRequested ? children : <Navigate to="/" />;
+};
+  
+/*// Componente para proteger rutas y mostrar el sidebar si el usuario está autenticado
+const PrivateRoute = ({ children }) => {
+  const token = localStorage.getItem('token');
+  return token ? (
+    <div className="main-container">
+      <SideBar /> {/* Sidebar solo visible si el usuario está autenticado *///}
+      /*<div className="main-content">
+        {children}
+      </div>
+    </div>
+  ) : (
+    <Navigate to="/" />
+  );
+}; */
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -43,7 +65,11 @@ root.render(
         <Route path="/PerfilUsuario" element={<PrivateRoute><PerfilUsuario /></PrivateRoute>} />
         <Route path="/Dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
         <Route path="/SideBarUsuario" element={<PrivateRoute><SideBarUsuario /></PrivateRoute>} />
+        <Route path="/ResetPassword" element={<ResetPasswordRoute><ResetPassword /></ResetPasswordRoute>} />
+        <Route path="/DireccionUsuario" element={<PrivateRoute><DireccionUsuario /></PrivateRoute>} />
       </Routes>
     </Router>
   </AppProvider>
-);
+); 
+  
+
