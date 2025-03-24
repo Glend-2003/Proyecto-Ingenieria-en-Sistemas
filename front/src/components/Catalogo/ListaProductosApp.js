@@ -4,9 +4,10 @@ import { Card, Button, Modal, Form, Row, Col } from "react-bootstrap";
 import { toast, ToastContainer } from "react-toastify";
 import "./ListaProductos.css";
 import { useCart } from '../../contexto/ContextoCarrito';
+import { useAppContext } from "../Navbar/AppContext"
 
-function ListaProductosApp({ categoria }) {
-  const { addToCart } = useCart(); 
+function ListaProductosApp({ categoria, nombre }) {
+  const { addToCart } = useCart();
   const [productos, setProductos] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -17,19 +18,25 @@ function ListaProductosApp({ categoria }) {
   const [priceRange, setPriceRange] = useState({ min: 0, max: 0 });
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [selectedPrice, setSelectedPrice] = useState(0);
-  const [sortOrder, setSortOrder] = useState("default"); // Estado para el ordenamiento
+  const [sortOrder, setSortOrder] = useState("default");
+  const [searchTerm, setSearchTerm] = useState("");
 
+  const { globalSearchTerm } = useAppContext(); // Solo necesitamos el término de búsqueda del contexto
+
+  // Función para ver detalles del producto
   const verDetalles = (producto) => {
     setSelectedProduct(producto);
     setCantidad(1);
     setShowModal(true);
   };
 
+  // Función para cerrar el modal
   const handleCloseModal = () => {
     setShowModal(false);
     setSelectedProduct(null);
   };
 
+  // Función para agregar un producto al carrito desde el modal
   const handleAddToCartFromModal = () => {
     if (selectedProduct) {
       const cantidadValida = Math.max(1, Math.min(cantidad, selectedProduct.stockProducto || 10));
@@ -37,14 +44,15 @@ function ListaProductosApp({ categoria }) {
         ...selectedProduct,
         cantidad: cantidadValida,
       };
-      addToCart(productoConCantidad, cantidadValida); 
+      addToCart(productoConCantidad, cantidadValida);
       toast.success(
-        `${selectedProduct.nombreProducto} agregado al carrito (${cantidadValida} unidad${cantidadValida > 1 ? "es" : ""})`,
+        `${selectedProduct.nombreProducto} agregado al carrito (${cantidadValida} unidad${cantidadValida > 1 ? "es" : ""})`
       );
       handleCloseModal();
     }
   };
 
+  // Cargar categorías
   useEffect(() => {
     const fetchCategorias = async () => {
       try {
@@ -58,6 +66,7 @@ function ListaProductosApp({ categoria }) {
     fetchCategorias();
   }, []);
 
+  // Cargar productos
   useEffect(() => {
     const fetchProductos = async () => {
       try {
@@ -75,41 +84,82 @@ function ListaProductosApp({ categoria }) {
   }, []);
 
   useEffect(() => {
+    
+    
     if (productos.length > 0 && categorias.length > 0) {
-      if (categoria && categoria.toLowerCase() === "varios") {
-        const categoriasExcluidas = categorias
-          .filter(cat => 
-            ["res", "cerdo", "pollo"].includes(cat.nombreCategoria.toLowerCase())
-          )
-          .map(cat => cat.idCategoria);
-        
-        const filtrados = productos.filter(producto => 
-          producto.categoria && !categoriasExcluidas.includes(producto.categoria.idCategoria)
-        );
-        
-        setProductosFiltrados(filtrados);
-      } else if (categoria) {
-        const categoriaObj = categorias.find(cat => 
-          cat.nombreCategoria.toLowerCase() === categoria.toLowerCase()
-        );
-        
-        if (categoriaObj) {
-          const idCategoriaFiltro = categoriaObj.idCategoria;
-          const filtrados = productos.filter(producto => 
-            producto.categoria && producto.categoria.idCategoria === idCategoriaFiltro
+      let filtrados = productos;
+  
+      // Filtrar por categoría
+      if (categoria) {
+        if (categoria.toLowerCase() === "varios") {
+          const categoriasExcluidas = categorias
+            .filter(cat => ["res", "cerdo", "pollo"].includes(cat.nombreCategoria.toLowerCase()))
+            .map(cat => cat.idCategoria);
+  
+          filtrados = filtrados.filter(producto =>
+            producto.categoria && !categoriasExcluidas.includes(producto.categoria.idCategoria)
           );
-          setProductosFiltrados(filtrados);
         } else {
-          setProductosFiltrados([]);
+          const categoriaObj = categorias.find(cat =>
+            cat.nombreCategoria.toLowerCase() === categoria.toLowerCase()
+          );
+          if (categoriaObj) {
+            filtrados = filtrados.filter(producto =>
+              producto.categoria && producto.categoria.idCategoria === categoriaObj.idCategoria
+            );
+          }
         }
-      } else {
-        setProductosFiltrados(productos);
       }
-    } else {
-      setProductosFiltrados([]);
+  
+      setProductosFiltrados(filtrados);
     }
   }, [categoria, productos, categorias]);
+  useEffect(() => {
+    if (productosFiltrados.length > 0) {
+      let resultados = [...productosFiltrados];
+      
+      // Aplicar filtro de búsqueda si hay término
+      if (globalSearchTerm) {
+        resultados = resultados.filter(producto =>
+          producto.nombreProducto.toLowerCase().includes(globalSearchTerm.toLowerCase())
+        );
+      }
+      
+      // Aplicar filtro de precio
+      resultados = resultados.filter(product => product.montoPrecioProducto <= selectedPrice);
+      
+      // Aplicar ordenamiento
+      if (sortOrder === "price-asc") {
+        resultados.sort((a, b) => a.montoPrecioProducto - b.montoPrecioProducto);
+      } else if (sortOrder === "price-desc") {
+        resultados.sort((a, b) => b.montoPrecioProducto - a.montoPrecioProducto);
+      }
+      
+      setFilteredProducts(resultados);
+      
+      // Calcular rango de precios
+      const prices = productosFiltrados.map(p => p.montoPrecioProducto);
+      const minPrice = Math.min(...prices);
+      const maxPrice = Math.max(...prices);
+      setPriceRange({ min: minPrice, max: maxPrice });
+    }
+  }, [globalSearchTerm, productosFiltrados, selectedPrice, sortOrder]);
 
+
+
+  useEffect(() => {
+    if (nombre) {
+      setProductosFiltrados(prevProductos =>
+        prevProductos.filter(producto =>
+          producto.nombreProducto.toLowerCase().includes(nombre.toLowerCase())
+        )
+      );
+    }
+  }, [nombre]);
+  
+  
+
+  // Calcular el rango de precios y aplicar filtros
   useEffect(() => {
     if (productosFiltrados.length > 0) {
       const prices = productosFiltrados.map(p => p.montoPrecioProducto);
@@ -121,9 +171,20 @@ function ListaProductosApp({ categoria }) {
     }
   }, [productosFiltrados]);
 
+  // Función para filtrar por precio y término de búsqueda
   const handlePriceFilter = () => {
-    const filtered = productosFiltrados.filter(product => 
-      product.montoPrecioProducto <= selectedPrice
+    const filtered = productosFiltrados.filter(product =>
+      product.montoPrecioProducto <= selectedPrice &&
+      product.nombreProducto.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredProducts(filtered);
+  };
+
+  // Función para manejar la búsqueda
+  const handleSearch = (term) => {
+    setSearchTerm(term);
+    const filtered = productosFiltrados.filter(product =>
+      product.nombreProducto.toLowerCase().includes(term.toLowerCase())
     );
     setFilteredProducts(filtered);
   };
@@ -134,7 +195,6 @@ function ListaProductosApp({ categoria }) {
     setSortOrder(order);
 
     let sortedProducts = [...filteredProducts];
-
     if (order === "price-asc") {
       sortedProducts.sort((a, b) => a.montoPrecioProducto - b.montoPrecioProducto);
     } else if (order === "price-desc") {
@@ -147,7 +207,8 @@ function ListaProductosApp({ categoria }) {
   return (
     <>
       <ToastContainer position="top-right" autoClose={3000} />
-
+  {/* Sección del buscador */}
+  
       <Row>
         <Col md={3}>
           <div className="price-filter">
@@ -163,6 +224,7 @@ function ListaProductosApp({ categoria }) {
             />
             <button onClick={handlePriceFilter} className="filter-button">FILTRAR</button>
           </div>
+
         </Col>
         <Col md={9}>
           <div className="sort-container">
@@ -190,7 +252,7 @@ function ListaProductosApp({ categoria }) {
                       }}
                     />
                     <Card.Body>
-                      <Card.Title>{product.nombreProducto + " - " + product.cantidadProducto + product.tipoPesoProducto}</Card.Title>
+                      <Card.Title>{`${product.nombreProducto} - ${product.cantidadProducto}${product.tipoPesoProducto}`}</Card.Title>
                       <Card.Text>
                         <strong>Precio:</strong>{" "}
                         {new Intl.NumberFormat("es-CR", {
@@ -256,7 +318,7 @@ function ListaProductosApp({ categoria }) {
 
                 {selectedProduct.codigoProducto && (
                   <p>
-                    <strong>SKU:</strong> {selectedProduct.codigoProducto} 
+                    <strong>SKU:</strong> {selectedProduct.codigoProducto}
                   </p>
                 )}
 
