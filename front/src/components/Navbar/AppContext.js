@@ -1,6 +1,5 @@
 import { createContext, useState, useContext, useEffect } from "react"
 import { toast } from "react-toastify"
-import axios from "axios";
 
 // Crear el contexto
 const AppContext = createContext()
@@ -11,59 +10,12 @@ export const AppProvider = ({ children }) => {
   const [showCart, setShowCart] = useState(false)
   const [cart, setCart] = useState([])
   const idUsuario = localStorage.getItem("idUsuario")
-  const [filteredCart, setFilteredCart] = useState([]) // Nuevo estado para productos filtrados
-  const [searchTerm, setSearchTerm] = useState("")
-  const [globalSearchTerm, setGlobalSearchTerm] = useState("");
-  const [allProducts, setAllProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
 
   // Cargar el carrito desde localStorage al iniciar
   useEffect(() => {
     const savedCart = JSON.parse(localStorage.getItem("carrito") || "[]")
     setCart(savedCart)
   }, [])
-
-  // Cargar productos
-  const loadProducts = async () => {
-    try {
-      const response = await axios.get('http://localhost:8080/producto/');
-      setAllProducts(response.data);
-      setFilteredProducts(response.data);
-    } catch (error) {
-      console.error('Error al cargar productos:', error);
-    }
-  };
-
-  // Manejar búsqueda global
-  const handleGlobalSearch = (term) => {
-    setGlobalSearchTerm(term);
-    if (term) {
-      const filtered = allProducts.filter(product =>
-        product.nombreProducto.toLowerCase().includes(term.toLowerCase())
-      );
-      setFilteredProducts(filtered);
-    } else {
-      setFilteredProducts(allProducts);
-    }
-  };
-
-
-  useEffect(() => {
-    if (searchTerm) {
-      setFilteredCart(
-        cart.filter((producto) =>
-          producto.nombreProducto.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-      )
-    } else {
-      setFilteredCart(cart)
-    }
-  }, [searchTerm, cart])
-
-  // Función para actualizar el término de búsqueda
-  const handleSearch = (nombre) => {
-    setSearchTerm(nombre)
-  }
 
   // Actualizar el carrito cuando cambia el usuario
   useEffect(() => {
@@ -135,24 +87,17 @@ export const AppProvider = ({ children }) => {
   }
 
   // Valor del contexto que se proporcionará
-// Valor del contexto que se proporcionará
- // Valor del contexto
   const contextValue = {
     showSidebar,
     showCart,
     cart,
-    filteredCart,
     idUsuario,
-    allProducts,
-    filteredProducts,
-    globalSearchTerm,
     handleShowSidebar,
     handleShowCart,
     addToCart,
-    handleGlobalSearch,
-    loadProducts,
-    setFilteredProducts
-  };
+    removeFromCart,
+    clearCart,
+  }
 
   return <AppContext.Provider value={contextValue}>{children}</AppContext.Provider>
 }
