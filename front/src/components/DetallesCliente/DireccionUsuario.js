@@ -4,7 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { NavLink, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./PerfilUsuario.css"; // Reutilizamos los estilos de PerfilUsuario
+import "./PerfilUsuario.css";
 import SideBarUsuario from "../DetallesCliente/SideBarUsuario";
 import useAuth from "../../hooks/useAuth";
 import FooterApp from "../Footer/FooterApp";
@@ -18,15 +18,13 @@ const DireccionUsuario = () => {
   const [provincias, setProvincia] = useState([]);
   const [cantones, setCantones] = useState([]);
   const [distritos, setDistritos] = useState([]);
-  const [idProvincia, setIdProvincia] = useState("");
-  const [idCanton, setIdCanton] = useState("");
 
-  // Estado para el formularios
+  // Estado para el formulario
   const [formData, setFormData] = useState({
     codigoPostal: "",
     descripcionDireccion: "",
     idProvincia: "",
-    idCiudad: "",
+    idCanton: "",
     idDistrito: "",
   });
 
@@ -35,17 +33,28 @@ const DireccionUsuario = () => {
   }, []);
 
   useEffect(() => {
-    if (idProvincia) {
+    if (formData.idProvincia) {
       cargarCantones();
+    } else {
+      setCantones([]);
+      setFormData(prev => ({ ...prev, idCanton: "", idDistrito: "" }));
     }
-  }, [idProvincia]); // Se ejecuta cuando idProvincia cambia
+  }, [formData.idProvincia]);
 
+  useEffect(() => {
+    if (formData.idCanton) {
+      cargarDistritos();
+    } else {
+      setDistritos([]);
+      setFormData(prev => ({ ...prev, idDistrito: "" }));
+    }
+  }, [formData.idCanton]);
 
   const cargarProvincias = async () => {
     try {
       const response = await axios.get("http://localhost:8080/provincia/leer");
       console.log("Provincias recibidas del backend:", response.data);
-      setProvincia(response.data); // Guarda directamente la lista de comentarios
+      setProvincia(response.data);
     } catch (error) {
       console.error("Error al cargar las provincias:", error);
       toast.error("Ocurrió un error al cargar las provincias");
@@ -54,22 +63,31 @@ const DireccionUsuario = () => {
 
   const cargarCantones = async () => {
     try {
-      const response = await axios.get(`http://localhost:8080/canton/leerPorProvincia/${idProvincia}`);
+      const response = await axios.get(`http://localhost:8080/canton/leerPorProvincia/${formData.idProvincia}`);
       console.log("Cantones recibidos del backend:", response.data);
-      setCantones(response.data); // Guarda directamente la lista de comentarios
+      setCantones(response.data);
     } catch (error) {
       console.error("Error al cargar los cantones:", error);
       toast.error("Ocurrió un error al cargar los cantones");
     }
   };
 
-  // Manejar cambios en los inputs
+  const cargarDistritos = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8080/distrito/leerPorCanton/${formData.idCanton}`);
+      console.log("Distritos recibidos del backend:", response.data);
+      setDistritos(response.data);
+    } catch (error) {
+      console.error("Error al cargar los distritos:", error);
+      toast.error("Ocurrió un error al cargar los distritos");
+    }
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  // Manejar envío del formulario
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -80,7 +98,6 @@ const DireccionUsuario = () => {
     }
   };
 
-  // Manejar cierre de sesión
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("correoUsuario");
@@ -156,8 +173,16 @@ const DireccionUsuario = () => {
                 <label>Provincia</label>
                 <select
                   className="form-control"
-                  value={idProvincia}
-                  onChange={(e) => setIdProvincia(e.target.value)}
+                  name="idProvincia"
+                  value={formData.idProvincia}
+                  onChange={(e) => {
+                    setFormData({
+                      ...formData,
+                      idProvincia: e.target.value,
+                      idCanton: "",
+                      idDistrito: ""
+                    });
+                  }}
                   required
                 >
                   <option value="">Seleccione una provincia</option>
@@ -176,21 +201,25 @@ const DireccionUsuario = () => {
                 <label>Ciudad/Cantón</label>
                 <select
                   className="form-control"
-                  value={idProvincia}
+                  name="idCanton"
+                  value={formData.idCanton}
                   onChange={(e) => {
-                    setIdProvincia(e.target.value);
-                    setCantones([]); // Limpia los cantones anteriores
+                    setFormData({
+                      ...formData,
+                      idCanton: e.target.value,
+                      idDistrito: ""
+                    });
                   }}
                   required
+                  disabled={!formData.idProvincia}
                 >
-                  <option value="">Seleccione una provincia</option>
-                  {provincias.map((provincia) => (
-                    <option key={provincia.idProvincia} value={provincia.idProvincia}>
-                      {provincia.nombreProvincia}
+                  <option value="">Seleccione un cantón</option>
+                  {cantones.map((canton) => (
+                    <option key={canton.idCanton} value={canton.idCanton}>
+                      {canton.nombreCanton}
                     </option>
                   ))}
                 </select>
-
               </div>
             </div>
 
@@ -204,11 +233,12 @@ const DireccionUsuario = () => {
                   value={formData.idDistrito}
                   onChange={handleChange}
                   required
+                  disabled={!formData.idCanton}
                 >
                   <option value="">Seleccione un distrito</option>
                   {distritos.map((distrito) => (
-                    <option key={distrito.id} value={distrito.id}>
-                      {distrito.nombre}
+                    <option key={distrito.idDistrito} value={distrito.idDistrito}>
+                      {distrito.nombreDistrito}
                     </option>
                   ))}
                 </select>
