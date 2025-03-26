@@ -17,20 +17,12 @@ import ListaProductosApp from './components/Catalogo/ListaProductosApp';
 import PerfilUsuario from './components/DetallesCliente/PerfilUsuario';
 import Dashboard from './components/DetallesCliente/Dashboard';
 import SideBarUsuario from './components/DetallesCliente/SideBarUsuario';
-import ResetPassword from './components/Login/ResetPassword';
-import DireccionUsuario from './components/DetallesCliente/DireccionUsuario';
 import { CartProvider } from './contexto/ContextoCarrito';
 
 // Componente para proteger rutas
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem("token");
   return token ? <div className="main-content">{children}</div> : <Navigate to="/" />;
-};
-
-// Método para el ResetPassword
-const ResetPasswordRoute = ({ children }) => {
-  const resetPasswordRequested = localStorage.getItem('resetPasswordRequested');
-  return resetPasswordRequested ? children : <Navigate to="/" />;
 };
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
@@ -54,8 +46,6 @@ root.render(
           <Route path="/PerfilUsuario" element={<PrivateRoute><PerfilUsuario /></PrivateRoute>} />
           <Route path="/Dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
           <Route path="/SideBarUsuario" element={<PrivateRoute><SideBarUsuario /></PrivateRoute>} />
-          <Route path="/ResetPassword" element={<ResetPasswordRoute><ResetPassword /></ResetPasswordRoute>} />
-          <Route path="/DireccionUsuario" element={<PrivateRoute><DireccionUsuario /></PrivateRoute>} />
           <Route path="/verOrden" element={<LoginApp initialPage="verOrden" />} />
           <Route path="/cortes-de-res" element={<LoginApp initialPage="res" />} />
           <Route path="/cortes-de-cerdo" element={<LoginApp initialPage="cerdo" />} />
