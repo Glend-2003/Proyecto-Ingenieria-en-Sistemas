@@ -29,5 +29,12 @@ public class DistritoController {
         System.out.println("Listando todos los distritos: " + distritos.size() + " distritos encontradas.");
         return ResponseEntity.ok(iDistritoService.getDistrito());
     }
+    // Trae todos los distritos por medio del canton
+    @GetMapping("/leerPorCanton")
+    public ResponseEntity<List<Distrito>> listDistritos() {
+        List<Distrito> distritos = iDistritoService.getDistritos();
+        System.out.println("Listando todos los distritos: " + distritos.size() + " distritos encontradas.");
+        return ResponseEntity.ok(iDistritoService.getDistritos());
+    }
     
 }

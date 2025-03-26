@@ -1,0 +1,100 @@
+DELIMITER //
+
+CREATE PROCEDURE spObtenerCantonesPorProvincia(
+    IN p_idProvincia INT
+)
+BEGIN
+    SELECT idCanton, nombreCanton
+    FROM tbcanton
+    WHERE idProvincia = p_idProvincia
+    ORDER BY nombreCanton;
+END //
+
+DELIMITER ;
+
+------------------------
+
+DELIMITER //
+
+CREATE PROCEDURE spObtenerProvincias()
+BEGIN
+    SELECT idProvincia, nombreProvincia
+    FROM tbprovincia
+    ORDER BY nombreProvincia;
+END //
+
+DELIMITER ;
+
+-------------------------
+
+DELIMITER //
+
+CREATE PROCEDURE spObtenerDistritosPorCanton(
+    IN p_idCanton INT
+)
+BEGIN
+    SELECT idDistrito, nombreDistrito
+    FROM tbdistrito
+    WHERE idCanton = p_idCanton
+    ORDER BY nombreDistrito;
+END //
+
+DELIMITER ;
+
+------------------------------------
+
+DELIMITER //
+
+CREATE PROCEDURE `spAgregarDireccionUsuario`(
+    IN p_idUsuario INT,
+    IN p_descripcion VARCHAR(255),
+    IN p_codigoPostal VARCHAR(255),
+    IN p_idDistrito INT,
+    OUT p_resultado INT
+)
+BEGIN
+    DECLARE v_idDireccionExistente INT DEFAULT NULL;
+    
+    -- Obtener dirección actual del usuario (si existe)
+    SELECT idDireccion INTO v_idDireccionExistente 
+    FROM tbusuario 
+    WHERE idUsuario = p_idUsuario;
+    
+    -- Validar que el distrito exista
+    IF NOT EXISTS (SELECT 1 FROM tbdistrito WHERE idDistrito = p_idDistrito) THEN
+        SET p_resultado = 0; -- Código de error: distrito no válido
+    ELSE
+        -- Si ya tiene dirección asignada, actualizarla
+        IF v_idDireccionExistente IS NOT NULL THEN
+            UPDATE tbdireccion 
+            SET 
+                descripcionDireccion = p_descripcion,
+                codigoPostalDireccion = p_codigoPostal,
+                idDistrito = p_idDistrito
+            WHERE idDireccion = v_idDireccionExistente;
+            
+            SET p_resultado = 1; -- Actualización exitosa
+        ELSE
+            -- Crear nueva dirección
+            INSERT INTO tbdireccion (
+                descripcionDireccion, 
+                codigoPostalDireccion, 
+                idDistrito
+            ) VALUES (
+                p_descripcion, 
+                p_codigoPostal, 
+                p_idDistrito
+            );
+            
+            -- Asignar la nueva dirección al usuario
+            UPDATE tbusuario 
+            SET idDireccion = LAST_INSERT_ID() 
+            WHERE idUsuario = p_idUsuario;
+            
+            SET p_resultado = 2; -- Creación exitosa
+        END IF;
+    END IF;
+END //
+
+DELIMITER ;
+

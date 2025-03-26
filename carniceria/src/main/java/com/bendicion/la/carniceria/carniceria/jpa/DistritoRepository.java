@@ -16,4 +16,8 @@ public interface DistritoRepository extends JpaRepository<Distrito, Integer>{
     // SP Read
     @Query(value = "{call spLeerDistrito()}", nativeQuery = true)
     List<Distrito> listProcedureDistrito();
+    
+    // SP Read Distritos por Canton
+    @Query(value = "{call spObtenerDistritosPorCanton()}", nativeQuery = true)
+    List<Distrito> listProcedureDistritoCanton();
 }

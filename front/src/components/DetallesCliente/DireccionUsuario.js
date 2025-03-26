@@ -15,64 +15,35 @@ const DireccionUsuario = () => {
   const navigate = useNavigate();
 
   // Estados para los combos
-  const [regiones, setRegiones] = useState([]);
-  const [ciudades, setCiudades] = useState([]);
+  const [provincias, setProvincia] = useState([]);
+  const [cantones, setCantones] = useState([]);
   const [distritos, setDistritos] = useState([]);
+  const [idProvincia, setIdProvincia] = useState("");
+  const [idCanton, setIdCanton] = useState("");
 
   // Estado para el formularios
   const [formData, setFormData] = useState({
     codigoPostal: "",
     descripcionDireccion: "",
-    idRegion: "",
+    idProvincia: "",
     idCiudad: "",
     idDistrito: "",
   });
 
-  // Cargar regiones al montar el componente
   useEffect(() => {
-    const fetchRegiones = async () => {
-      try {
-        const response = await axios.get("/api/regiones");
-        setRegiones(response.data);
-      } catch (error) {
-        toast.error("Error al cargar las regiones");
-      }
-    };
-
-    fetchRegiones();
+    cargarProvincias();
   }, []);
 
-  // Cargar ciudades cuando se selecciona una región
-  useEffect(() => {
-    const fetchCiudades = async () => {
-      if (formData.idRegion) {
-        try {
-          const response = await axios.get(`/api/ciudades?regionId=${formData.idRegion}`);
-          setCiudades(response.data);
-        } catch (error) {
-          toast.error("Error al cargar las ciudades");
-        }
-      }
-    };
-
-    fetchCiudades();
-  }, [formData.idRegion]);
-
-  // Cargar distritos cuando se selecciona una ciudad
-  useEffect(() => {
-    const fetchDistritos = async () => {
-      if (formData.idCiudad) {
-        try {
-          const response = await axios.get(`/api/distritos?ciudadId=${formData.idCiudad}`);
-          setDistritos(response.data);
-        } catch (error) {
-          toast.error("Error al cargar los distritos");
-        }
-      }
-    };
-
-    fetchDistritos();
-  }, [formData.idCiudad]);
+  const cargarProvincias = async () => {
+    try {
+      const response = await axios.get("http://localhost:8080/provincia/leer");
+      console.log("Provincias recibidas del backend:", response.data);
+      setProvincia(response.data); // Guarda directamente la lista de comentarios
+    } catch (error) {
+      console.error("Error al cargar las provincias:", error);
+      toast.error("Ocurrió un error al cargar las provincias");
+    }
+  };
 
   // Manejar cambios en los inputs
   const handleChange = (e) => {
@@ -164,18 +135,17 @@ const DireccionUsuario = () => {
             {/* Región/Provincia */}
             <div className="row mt-3">
               <div className="col-md-6">
-                <label>Región/Provincia</label>
+                <label>Provincia</label>
                 <select
                   className="form-control"
-                  name="idRegion"
-                  value={formData.idRegion}
-                  onChange={handleChange}
+                  value={idProvincia}
+                  onChange={(e) => setIdProvincia(e.target.value)}
                   required
                 >
-                  <option value="">Seleccione una región</option>
-                  {regiones.map((region) => (
-                    <option key={region.id} value={region.id}>
-                      {region.nombre}
+                  <option value="">Seleccione una provincia</option>
+                  {provincias.map((provincia) => (
+                    <option key={provincia.idProvincia} value={provincia.idProvincia}>
+                      {provincia.nombreProvincia}
                     </option>
                   ))}
                 </select>
@@ -189,14 +159,14 @@ const DireccionUsuario = () => {
                 <select
                   className="form-control"
                   name="idCiudad"
-                  value={formData.idCiudad}
+                  value={idCanton}
                   onChange={handleChange}
                   required
                 >
                   <option value="">Seleccione una ciudad</option>
-                  {ciudades.map((ciudad) => (
-                    <option key={ciudad.id} value={ciudad.id}>
-                      {ciudad.nombre}
+                  {cantones.map((canton) => (
+                    <option key={canton.idCanton} value={canton.idCanton}>
+                      {canton.nombreCanton}
                     </option>
                   ))}
                 </select>
