@@ -34,6 +34,13 @@ const DireccionUsuario = () => {
     cargarProvincias();
   }, []);
 
+  useEffect(() => {
+    if (idProvincia) {
+      cargarCantones();
+    }
+  }, [idProvincia]); // Se ejecuta cuando idProvincia cambia
+
+
   const cargarProvincias = async () => {
     try {
       const response = await axios.get("http://localhost:8080/provincia/leer");
@@ -42,6 +49,17 @@ const DireccionUsuario = () => {
     } catch (error) {
       console.error("Error al cargar las provincias:", error);
       toast.error("Ocurrió un error al cargar las provincias");
+    }
+  };
+
+  const cargarCantones = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8080/canton/leerPorProvincia/${idProvincia}`);
+      console.log("Cantones recibidos del backend:", response.data);
+      setCantones(response.data); // Guarda directamente la lista de comentarios
+    } catch (error) {
+      console.error("Error al cargar los cantones:", error);
+      toast.error("Ocurrió un error al cargar los cantones");
     }
   };
 
@@ -158,18 +176,21 @@ const DireccionUsuario = () => {
                 <label>Ciudad/Cantón</label>
                 <select
                   className="form-control"
-                  name="idCiudad"
-                  value={idCanton}
-                  onChange={handleChange}
+                  value={idProvincia}
+                  onChange={(e) => {
+                    setIdProvincia(e.target.value);
+                    setCantones([]); // Limpia los cantones anteriores
+                  }}
                   required
                 >
-                  <option value="">Seleccione una ciudad</option>
-                  {cantones.map((canton) => (
-                    <option key={canton.idCanton} value={canton.idCanton}>
-                      {canton.nombreCanton}
+                  <option value="">Seleccione una provincia</option>
+                  {provincias.map((provincia) => (
+                    <option key={provincia.idProvincia} value={provincia.idProvincia}>
+                      {provincia.nombreProvincia}
                     </option>
                   ))}
                 </select>
+
               </div>
             </div>
 

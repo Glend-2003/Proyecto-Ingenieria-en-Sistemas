@@ -1,13 +1,16 @@
 DELIMITER //
 
-CREATE PROCEDURE spObtenerCantonesPorProvincia(
+CREATE PROCEDURE `spObtenerCantonesPorProvincia`(
     IN p_idProvincia INT
 )
 BEGIN
-    SELECT idCanton, nombreCanton
-    FROM tbcanton
-    WHERE idProvincia = p_idProvincia
-    ORDER BY nombreCanton;
+    SELECT 
+        c.idCanton, 
+        c.nombreCanton,
+        c.idProvincia  -- Añade esta columna esencial
+    FROM tbcanton c
+    WHERE c.idProvincia = p_idProvincia
+    ORDER BY c.nombreCanton;
 END //
 
 DELIMITER ;
@@ -29,14 +32,17 @@ DELIMITER ;
 
 DELIMITER //
 
-CREATE PROCEDURE spObtenerDistritosPorCanton(
+CREATE PROCEDURE `spObtenerDistritosPorCanton`(
     IN p_idCanton INT
 )
 BEGIN
-    SELECT idDistrito, nombreDistrito
-    FROM tbdistrito
-    WHERE idCanton = p_idCanton
-    ORDER BY nombreDistrito;
+    SELECT 
+        d.idDistrito, 
+        d.nombreDistrito,
+        d.idCanton  -- Columna esencial para la relación
+    FROM tbdistrito d
+    WHERE d.idCanton = p_idCanton
+    ORDER BY d.nombreDistrito;
 END //
 
 DELIMITER ;

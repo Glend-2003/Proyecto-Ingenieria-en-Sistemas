@@ -25,7 +25,7 @@ public class DistritoService implements IDistritoService{
     }
     
     @Override
-    public List<Distrito> getDistritos() {
-        return distritoRep.listProcedureDistritoCanton();
+    public List<Distrito> getDistritos(int idCanton) {
+        return distritoRep.listProcedureDistritoCanton(idCanton);
     }
 }
