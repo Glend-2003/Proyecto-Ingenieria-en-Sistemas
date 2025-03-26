@@ -6,13 +6,17 @@ import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./PerfilUsuario.css";
 import SideBarUsuario from "../DetallesCliente/SideBarUsuario";
-import useAuth from "../../hooks/useAuth";
 import FooterApp from "../Footer/FooterApp";
 import { FaFileAlt, FaDownload, FaMapMarkerAlt, FaUser, FaSignOutAlt, FaHome } from "react-icons/fa";
 
 const DireccionUsuario = () => {
-  const { usuario } = useAuth();
   const navigate = useNavigate();
+  const [userData, setUserData] = useState({
+    idUsuario: null,
+    nombreUsuario: '',
+    correoUsuario: '',
+    nombreRol: ''
+  });
 
   // Estados para los combos
   const [provincias, setProvincia] = useState([]);
@@ -28,10 +32,25 @@ const DireccionUsuario = () => {
     idDistrito: "",
   });
 
+  // Obtener datos del usuario al cargar
   useEffect(() => {
-    cargarProvincias();
-  }, []);
+    const storedUser = {
+      idUsuario: localStorage.getItem('idUsuario'),
+      nombreUsuario: localStorage.getItem('nombreUsuario'),
+      correoUsuario: localStorage.getItem('correoUsuario'),
+      nombreRol: localStorage.getItem('nombreRol')
+    };
+    
+    if (!storedUser.idUsuario) {
+      toast.error("Debe iniciar sesión primero");
+      navigate("/login");
+    } else {
+      setUserData(storedUser);
+      cargarProvincias();
+    }
+  }, [navigate]);
 
+  // Cargar combos dependientes
   useEffect(() => {
     if (formData.idProvincia) {
       cargarCantones();
@@ -53,7 +72,6 @@ const DireccionUsuario = () => {
   const cargarProvincias = async () => {
     try {
       const response = await axios.get("http://localhost:8080/provincia/leer");
-      console.log("Provincias recibidas del backend:", response.data);
       setProvincia(response.data);
     } catch (error) {
       console.error("Error al cargar las provincias:", error);
@@ -63,8 +81,14 @@ const DireccionUsuario = () => {
 
   const cargarCantones = async () => {
     try {
-      const response = await axios.get(`http://localhost:8080/canton/leerPorProvincia/${formData.idProvincia}`);
-      console.log("Cantones recibidos del backend:", response.data);
+      const response = await axios.get(
+        `http://localhost:8080/canton/leerPorProvincia/${formData.idProvincia}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
       setCantones(response.data);
     } catch (error) {
       console.error("Error al cargar los cantones:", error);
@@ -74,8 +98,14 @@ const DireccionUsuario = () => {
 
   const cargarDistritos = async () => {
     try {
-      const response = await axios.get(`http://localhost:8080/distrito/leerPorCanton/${formData.idCanton}`);
-      console.log("Distritos recibidos del backend:", response.data);
+      const response = await axios.get(
+        `http://localhost:8080/distrito/leerPorCanton/${formData.idCanton}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
       setDistritos(response.data);
     } catch (error) {
       console.error("Error al cargar los distritos:", error);
@@ -90,21 +120,52 @@ const DireccionUsuario = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!formData.descripcionDireccion || !formData.idDistrito) {
+      toast.error("Descripción y distrito son obligatorios");
+      return;
+    }
+
     try {
-      await axios.post("/api/actualizarDireccion", formData);
-      toast.success("Dirección actualizada con éxito");
+      const response = await axios.post(
+        "http://localhost:8080/direccion/guardar", 
+        null, 
+        {
+          params: {
+            idUsuario: userData.idUsuario,
+            descripcion: formData.descripcionDireccion,
+            codigoPostal: formData.codigoPostal || "",
+            idDistrito: formData.idDistrito
+          },
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
+
+      toast.success(response.data);
     } catch (error) {
-      toast.error("Error al actualizar la dirección");
+      if (error.response?.status === 401) {
+        handleLogout();
+        toast.error("Sesión expirada, por favor ingrese nuevamente");
+      } else {
+        console.error("Error:", error.response?.data);
+        toast.error(error.response?.data || "Error al guardar la dirección");
+      }
     }
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("correoUsuario");
-    localStorage.removeItem("nombreUsuario");
-    localStorage.removeItem("nombreRol");
-    localStorage.removeItem("idUsuario");
-    navigate("/");
+    // Limpiar todos los datos de autenticación
+    localStorage.removeItem('token');
+    localStorage.removeItem('idUsuario');
+    localStorage.removeItem('nombreUsuario');
+    localStorage.removeItem('correoUsuario');
+    localStorage.removeItem('nombreRol');
+    localStorage.removeItem('isAuthenticated');
+    
+    navigate('/login');
+    toast.success("Sesión cerrada correctamente");
   };
 
   return (
@@ -112,7 +173,7 @@ const DireccionUsuario = () => {
       <div className="perfil-usuario-container">
         {/* Sidebar */}
         <div className="sidebar-container">
-          <h3 className="sidebar-title">Bienvenido {usuario?.nombreUsuario || "Usuario"}</h3>
+          <h3 className="sidebar-title">Bienvenido {userData.nombreUsuario || "Usuario"}</h3>
           <nav className="sidebar-nav">
             <NavLink to="/dashboard" className="sidebar-link">
               <FaHome className="icon" /> Inicio
@@ -123,15 +184,15 @@ const DireccionUsuario = () => {
             <NavLink to="/downloads" className="sidebar-link">
               <FaDownload className="icon" /> Comprobantes
             </NavLink>
-            <NavLink to="/addresses" className="sidebar-link">
+            <NavLink to="/addresses" className="sidebar-link active">
               <FaMapMarkerAlt className="icon" /> Dirección
             </NavLink>
-            <NavLink to="/PerfilUsuario" className="sidebar-link">
-              <FaUser className="icon" /> Detalles de la cuenta
+            <NavLink to="/perfil" className="sidebar-link">
+              <FaUser className="icon" /> Mi perfil
             </NavLink>
-            <NavLink to="/" className="sidebar-link logout" onClick={handleLogout}>
+            <button onClick={handleLogout} className="sidebar-link logout">
               <FaSignOutAlt className="icon" /> Cerrar sesión
-            </NavLink>
+            </button>
           </nav>
         </div>
 
@@ -149,6 +210,7 @@ const DireccionUsuario = () => {
                   name="codigoPostal"
                   value={formData.codigoPostal}
                   onChange={handleChange}
+                  placeholder="Ej: 10101"
                 />
               </div>
             </div>
@@ -163,6 +225,8 @@ const DireccionUsuario = () => {
                   value={formData.descripcionDireccion}
                   onChange={handleChange}
                   required
+                  placeholder="Ej: Casa color azul, 100m norte del parque central"
+                  rows={3}
                 />
               </div>
             </div>
@@ -247,14 +311,28 @@ const DireccionUsuario = () => {
 
             {/* Botón de actualizar */}
             <div className="update mt-4">
-              <button type="submit" className="btn btn-primary">
-                Actualizar
+              <button 
+                type="submit" 
+                className="btn btn-primary"
+                disabled={!formData.descripcionDireccion || !formData.idDistrito}
+              >
+                Actualizar dirección
               </button>
             </div>
           </form>
         </div>
 
-        <ToastContainer />
+        <ToastContainer 
+          position="bottom-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
       </div>
       <FooterApp />
     </div>
