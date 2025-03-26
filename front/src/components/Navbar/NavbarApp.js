@@ -55,7 +55,8 @@ const NavbarApp = () => {
     expand="lg"
     variant="dark"
     style={{ backgroundColor: "#001f3f" }}
-  
+    className={navbarClasses}
+    fixed="top"
   >
       <Container>
       
