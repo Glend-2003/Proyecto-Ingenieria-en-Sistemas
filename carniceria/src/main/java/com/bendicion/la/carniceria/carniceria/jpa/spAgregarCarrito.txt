@@ -1,0 +1,40 @@
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spAgregarCarrito`(
+    IN `p_idUsuario` INT, 
+    IN `p_montoTotalCarrito` DECIMAL(38,2), 
+    IN `p_estadoCarrito` TINYINT(1),
+    IN `p_cantidadCarrito` INT
+)
+BEGIN
+    -- Manejador de errores
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error en la inserción del carrito';
+    END;
+
+    -- Iniciar transacción
+    START TRANSACTION;
+
+    -- Validar campos obligatorios y sus longitudes
+    IF NOT EXISTS (SELECT 1 FROM tbusuario WHERE idUsuario = p_idUsuario) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Usuario no existe';
+    END IF;
+
+    IF p_montoTotalCarrito IS NULL OR p_montoTotalCarrito <= 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El monto total del carrito debe ser mayor a cero';
+    END IF;
+
+    IF p_cantidadCarrito IS NOT NULL AND p_cantidadCarrito < 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La cantidad del carrito no puede ser negativo';
+    END IF;
+
+    -- Insertar el carrito si todas las validaciones son exitosas
+    INSERT INTO tbcarrito (
+        idUsuario, montoTotalCarrito, cantidadCarrito, estadoCarrito
+    )
+    VALUES (
+        p_idUsuario, p_montoTotalCarrito, p_montoPrecioProducto, p_cantidadCarrito, p_estadoCarrito
+    );
+
+    COMMIT;
+END

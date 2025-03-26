@@ -10,7 +10,6 @@ import com.bendicion.la.carniceria.carniceria.domain.Usuario;
 import com.bendicion.la.carniceria.carniceria.service.IProductoService;
 import com.bendicion.la.carniceria.carniceria.service.IPromocionService;
 import com.bendicion.la.carniceria.carniceria.service.IUsuarioService;
-import com.bendicion.la.carniceria.carniceria.service.PromocionService;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
