@@ -1,4 +1,3 @@
-
 package com.bendicion.la.carniceria.carniceria.service;
 import com.bendicion.la.carniceria.carniceria.domain.Distrito;
 import com.bendicion.la.carniceria.carniceria.jpa.DistritoRepository;
