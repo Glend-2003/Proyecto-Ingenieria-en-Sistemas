@@ -4,51 +4,82 @@ import "react-toastify/dist/ReactToastify.css";
 import { NavLink, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./PerfilUsuario.css";
-import SideBarUsuario from "../DetallesCliente/SideBarUsuario";
+import "./DireccionUsuario.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSave, faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
 import FooterApp from "../Footer/FooterApp";
-import { FaFileAlt, FaDownload, FaMapMarkerAlt, FaUser, FaSignOutAlt, FaHome } from "react-icons/fa";
+import { FaFileAlt, FaDownload, FaUser, FaSignOutAlt, FaHome, FaMapMarkerAlt } from "react-icons/fa";
+import NavbarApp from "../Navbar/NavbarApp";
+import Carrito from "../Carrito/CarritoApp";
+import useAuth from "../../hooks/useAuth";
 
 const DireccionUsuario = () => {
+  const { usuario } = useAuth();
   const navigate = useNavigate();
-  const [userData, setUserData] = useState({
-    idUsuario: null,
-    nombreUsuario: '',
-    correoUsuario: '',
-    nombreRol: ''
-  });
 
   // Estados para los combos
   const [provincias, setProvincia] = useState([]);
   const [cantones, setCantones] = useState([]);
   const [distritos, setDistritos] = useState([]);
+  const [isValidatingPostalCode, setIsValidatingPostalCode] = useState(false);
 
   // Estado para el formulario
   const [formData, setFormData] = useState({
-    codigoPostal: "",
+    codigoPostalDireccion: "",
     descripcionDireccion: "",
     idProvincia: "",
     idCanton: "",
     idDistrito: "",
   });
 
-  // Obtener datos del usuario al cargar
+  const [isEditing, setIsEditing] = useState(false);
+
+  const isValidPostalCodeFormat = (code) => {
+    return /^\d{5}$/.test(code);
+  };
+
+  const validatePostalCodeWithAPI = async (postalCode, country = "CR") => {
+    try {
+      setIsValidatingPostalCode(true);
+      
+      const username = "CarniceriaLaBendi"; 
+      const response = await fetch(
+        `https://secure.geonames.org/postalCodeLookupJSON?postalcode=${postalCode}&country=${country}&username=${username}`
+      );
+      
+      const data = await response.json();
+      return data.postalcodes && data.postalcodes.length > 0;
+      
+    } catch (error) {
+      console.error("Error validando código postal:", error);
+      toast.warning("No se pudo verificar el código postal. Se aceptará pero no está validado.");
+      return true; 
+    } finally {
+      setIsValidatingPostalCode(false);
+    }
+  };
+
+  // Validación específica para Costa Rica
+  const validateCostaRicaPostalCode = async (postalCode) => {
+    // Primero validamos el formato
+    if (!isValidPostalCodeFormat(postalCode)) {
+      toast.error("El código postal debe tener exactamente 5 dígitos");
+      return false;
+    }
+
+    return await validatePostalCodeWithAPI(postalCode);
+  };
+
   useEffect(() => {
-    const storedUser = {
-      idUsuario: localStorage.getItem('idUsuario'),
-      nombreUsuario: localStorage.getItem('nombreUsuario'),
-      correoUsuario: localStorage.getItem('correoUsuario'),
-      nombreRol: localStorage.getItem('nombreRol')
-    };
-    
-    if (!storedUser.idUsuario) {
-      toast.error("Debe iniciar sesión primero");
-      navigate("/login");
-    } else {
-      setUserData(storedUser);
+    if (usuario) {
+      setFormData({
+        codigoPostalDireccion: usuario.codigoPostalDireccion || "",
+        descripcionDireccion: usuario.descripcionDireccion || "",
+        idDistrito: usuario.idDistrito || ""
+      });
       cargarProvincias();
     }
-  }, [navigate]);
+  }, [usuario]);
 
   // Cargar combos dependientes
   useEffect(() => {
@@ -118,11 +149,26 @@ const DireccionUsuario = () => {
     setFormData({ ...formData, [name]: value });
   };
 
+  const handleBlurPostalCode = async () => {
+    if (formData.codigoPostalDireccion && formData.codigoPostalDireccion.length === 5) {
+      const isValid = await validateCostaRicaPostalCode(formData.codigoPostalDireccion);
+      if (!isValid) {
+        toast.info("Si el código es correcto pero no se valida, puedes continuar igual");
+      }
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!formData.descripcionDireccion || !formData.idDistrito) {
       toast.error("Descripción y distrito son obligatorios");
+      return;
+    }
+
+    // Validación de formato pero no bloqueamos si la API falla
+    if (formData.codigoPostalDireccion && !isValidPostalCodeFormat(formData.codigoPostalDireccion)) {
+      toast.error("El código postal debe tener 5 dígitos");
       return;
     }
 
@@ -132,9 +178,9 @@ const DireccionUsuario = () => {
         null, 
         {
           params: {
-            idUsuario: userData.idUsuario,
+            idUsuario: usuario.idUsuario,
             descripcion: formData.descripcionDireccion,
-            codigoPostal: formData.codigoPostal || "",
+            codigoPostal: formData.codigoPostalDireccion || "",
             idDistrito: formData.idDistrito
           },
           headers: {
@@ -144,6 +190,7 @@ const DireccionUsuario = () => {
       );
 
       toast.success(response.data);
+      setIsEditing(false);
     } catch (error) {
       if (error.response?.status === 401) {
         handleLogout();
@@ -156,24 +203,22 @@ const DireccionUsuario = () => {
   };
 
   const handleLogout = () => {
-    // Limpiar todos los datos de autenticación
     localStorage.removeItem('token');
-    localStorage.removeItem('idUsuario');
-    localStorage.removeItem('nombreUsuario');
     localStorage.removeItem('correoUsuario');
+    localStorage.removeItem('nombreUsuario');
     localStorage.removeItem('nombreRol');
-    localStorage.removeItem('isAuthenticated');
-    
-    navigate('/login');
-    toast.success("Sesión cerrada correctamente");
+    localStorage.removeItem('idUsuario');
+    navigate('/');
   };
 
   return (
-    <div>
+    <div className="profile-page">
+      <NavbarApp />
+      <Carrito />
       <div className="perfil-usuario-container">
         {/* Sidebar */}
         <div className="sidebar-container">
-          <h3 className="sidebar-title">Bienvenido {userData.nombreUsuario || "Usuario"}</h3>
+          <h3 className="sidebar-title">Bienvenido {usuario?.nombreUsuario || "Usuario"}</h3>
           <nav className="sidebar-nav">
             <NavLink to="/dashboard" className="sidebar-link">
               <FaHome className="icon" /> Inicio
@@ -184,155 +229,183 @@ const DireccionUsuario = () => {
             <NavLink to="/downloads" className="sidebar-link">
               <FaDownload className="icon" /> Comprobantes
             </NavLink>
-            <NavLink to="/addresses" className="sidebar-link active">
+            <NavLink to="/DireccionUsuario" className="sidebar-link active">
               <FaMapMarkerAlt className="icon" /> Dirección
             </NavLink>
-            <NavLink to="/perfil" className="sidebar-link">
-              <FaUser className="icon" /> Mi perfil
+            <NavLink to="/PerfilUsuario" className="sidebar-link">
+              <FaUser className="icon" /> Detalles de la cuenta
             </NavLink>
-            <button onClick={handleLogout} className="sidebar-link logout">
+            <NavLink to="/" className="sidebar-link logout" onClick={handleLogout}>
               <FaSignOutAlt className="icon" /> Cerrar sesión
-            </button>
+            </NavLink>
           </nav>
         </div>
 
-        {/* Formulario de dirección */}
-        <div className="container mt-4">
-          <h2 className="text-center">Actualizar mi dirección</h2>
-          <form onSubmit={handleSubmit}>
-            {/* Código Postal */}
-            <div className="row mt-3">
-              <div className="col-md-6">
-                <label>Código Postal (opcional)</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  name="codigoPostal"
-                  value={formData.codigoPostal}
-                  onChange={handleChange}
-                  placeholder="Ej: 10101"
-                />
-              </div>
-            </div>
+        {/* Contenido principal con nuevo diseño */}
+        <div className="profile-content">
+          <div className="profile-header">
+            <h2>Mi Dirección</h2>
+            <p>Administra y actualiza tu información de dirección</p>
+          </div>
 
-            {/* Descripción de la dirección */}
-            <div className="row mt-3">
-              <div className="col-md-12">
-                <label>Descripción de la dirección (obligatoria)</label>
-                <textarea
-                  className="form-control"
-                  name="descripcionDireccion"
-                  value={formData.descripcionDireccion}
-                  onChange={handleChange}
-                  required
-                  placeholder="Ej: Casa color azul, 100m norte del parque central"
-                  rows={3}
-                />
-              </div>
-            </div>
-
-            {/* Región/Provincia */}
-            <div className="row mt-3">
-              <div className="col-md-6">
-                <label>Provincia</label>
-                <select
-                  className="form-control"
-                  name="idProvincia"
-                  value={formData.idProvincia}
-                  onChange={(e) => {
-                    setFormData({
-                      ...formData,
-                      idProvincia: e.target.value,
-                      idCanton: "",
-                      idDistrito: ""
-                    });
+          <div className="profile-card">
+            <div className="card-header">
+              <h3>Información de Dirección</h3>
+              {!isEditing ? (
+                <button 
+                  className="edit-btn"
+                  onClick={() => setIsEditing(true)}
+                >
+                  Editar Dirección
+                </button>
+              ) : (
+                <button 
+                  className="cancel-btn"
+                  onClick={() => {
+                    setIsEditing(false);
+                    if (usuario) {
+                      setFormData({
+                        codigoPostalDireccion: usuario.codigoPostalDireccion || "",
+                        descripcionDireccion: usuario.descripcionDireccion || "",
+                        idDistrito: usuario.idDistrito || ""
+                      });
+                    }
                   }}
-                  required
                 >
-                  <option value="">Seleccione una provincia</option>
-                  {provincias.map((provincia) => (
-                    <option key={provincia.idProvincia} value={provincia.idProvincia}>
-                      {provincia.nombreProvincia}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                  Cancelar
+                </button>
+              )}
             </div>
 
-            {/* Ciudad/Cantón */}
-            <div className="row mt-3">
-              <div className="col-md-6">
-                <label>Ciudad/Cantón</label>
-                <select
-                  className="form-control"
-                  name="idCanton"
-                  value={formData.idCanton}
-                  onChange={(e) => {
-                    setFormData({
-                      ...formData,
-                      idCanton: e.target.value,
-                      idDistrito: ""
-                    });
-                  }}
-                  required
-                  disabled={!formData.idProvincia}
-                >
-                  <option value="">Seleccione un cantón</option>
-                  {cantones.map((canton) => (
-                    <option key={canton.idCanton} value={canton.idCanton}>
-                      {canton.nombreCanton}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
+            <form onSubmit={handleSubmit} className="profile-form">
+              <div className="form-grid">
+                {/* Código Postal */}
+                <div className="form-group">
+                  <label>
+                    <FontAwesomeIcon icon={faMapMarkerAlt} className="input-icon" /> Código Postal
+                  </label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    name="codigoPostalDireccion"
+                    value={formData.codigoPostalDireccion}
+                    onChange={handleChange}
+                    onBlur={handleBlurPostalCode}
+                    placeholder="Ej: 10101 (opcional)"
+                    disabled={!isEditing}
+                    maxLength="5"
+                  />
+                  {isValidatingPostalCode && (
+                    <small className="text-muted">Validando código postal...</small>
+                  )}
+                  <small className="text-muted">Ejemplos válidos: 10101 (San José), 20101 (Alajuela)</small>
+                </div>
 
-            {/* Localidad/Distrito */}
-            <div className="row mt-3">
-              <div className="col-md-6">
-                <label>Localidad/Distrito</label>
-                <select
-                  className="form-control"
-                  name="idDistrito"
-                  value={formData.idDistrito}
-                  onChange={handleChange}
-                  required
-                  disabled={!formData.idCanton}
-                >
-                  <option value="">Seleccione un distrito</option>
-                  {distritos.map((distrito) => (
-                    <option key={distrito.idDistrito} value={distrito.idDistrito}>
-                      {distrito.nombreDistrito}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
+                {/* Descripción */}
+                <div className="form-group full-width">
+                  <label>Descripción de la dirección</label>
+                  <textarea
+                    className="form-input"
+                    name="descripcionDireccion"
+                    value={formData.descripcionDireccion}
+                    onChange={handleChange}
+                    required
+                    placeholder="Ej: Casa color azul, 100m norte del parque central"
+                    rows={3}
+                    disabled={!isEditing}
+                  />
+                </div>
 
-            {/* Botón de actualizar */}
-            <div className="update mt-4">
-              <button 
-                type="submit" 
-                className="btn btn-primary"
-                disabled={!formData.descripcionDireccion || !formData.idDistrito}
-              >
-                Actualizar dirección
-              </button>
-            </div>
-          </form>
+                {/* Provincia */}
+                <div className="form-group">
+                  <label>Provincia</label>
+                  <select
+                    className="form-input"
+                    name="idProvincia"
+                    value={formData.idProvincia}
+                    onChange={(e) => {
+                      setFormData({
+                        ...formData,
+                        idProvincia: e.target.value,
+                        idCanton: "",
+                        idDistrito: ""
+                      });
+                    }}
+                    required
+                    disabled={!isEditing}
+                  >
+                    <option value="">Seleccione una provincia</option>
+                    {provincias.map((provincia) => (
+                      <option key={provincia.idProvincia} value={provincia.idProvincia}>
+                        {provincia.nombreProvincia}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Cantón */}
+                <div className="form-group">
+                  <label>Cantón</label>
+                  <select
+                    className="form-input"
+                    name="idCanton"
+                    value={formData.idCanton}
+                    onChange={(e) => {
+                      setFormData({
+                        ...formData,
+                        idCanton: e.target.value,
+                        idDistrito: ""
+                      });
+                    }}
+                    required
+                    disabled={!formData.idProvincia || !isEditing}
+                  >
+                    <option value="">Seleccione un cantón</option>
+                    {cantones.map((canton) => (
+                      <option key={canton.idCanton} value={canton.idCanton}>
+                        {canton.nombreCanton}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Distrito */}
+                <div className="form-group">
+                  <label>Distrito</label>
+                  <select
+                    className="form-input"
+                    name="idDistrito"
+                    value={formData.idDistrito}
+                    onChange={handleChange}
+                    required
+                    disabled={!formData.idCanton || !isEditing}
+                  >
+                    <option value="">Seleccione un distrito</option>
+                    {distritos.map((distrito) => (
+                      <option key={distrito.idDistrito} value={distrito.idDistrito}>
+                        {distrito.nombreDistrito}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {isEditing && (
+                <div className="form-actions">
+                  <button 
+                    type="submit" 
+                    className="save-btn"
+                    disabled={isValidatingPostalCode}
+                  >
+                    <FontAwesomeIcon icon={faSave} /> Guardar Cambios
+                  </button>
+                </div>
+              )}
+            </form>
+          </div>
         </div>
 
-        <ToastContainer 
-          position="bottom-right"
-          autoClose={3000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-        />
+        <ToastContainer position="bottom-right" autoClose={3000} />
       </div>
       <FooterApp />
     </div>
