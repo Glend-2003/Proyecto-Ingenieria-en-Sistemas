@@ -13,6 +13,7 @@ import ProductoApp from './components/Productos/ProductoApp'; // Asegúrate de q
 import ComentarioApp from './components/Comentario/ComentarioApp';
 import PromocionApp from './components/Promocion/PromocionApp';
 import TipoPagoApp from './components/TipoPago/TipoPagoApp';
+import PedidosApp from './components/Pedido/PedidosApp';
 import ListaProductosApp from './components/Catalogo/ListaProductosApp';
 import PerfilUsuario from './components/DetallesCliente/PerfilUsuario';
 import Dashboard from './components/DetallesCliente/Dashboard';
@@ -42,6 +43,7 @@ root.render(
           <Route path="/ProductoApp" element={<PrivateRoute><ProductoApp /></PrivateRoute>} />
           <Route path="/PromocionApp" element={<PrivateRoute><PromocionApp /></PrivateRoute>} />
           <Route path="/TipoPagoApp" element={<PrivateRoute><TipoPagoApp /></PrivateRoute>} />
+          <Route path="/PedidosApp" element={<PrivateRoute><PedidosApp /></PrivateRoute>} />
           <Route path="/ListaProductosApp" element={<PrivateRoute><ListaProductosApp /></PrivateRoute>} />
           <Route path="/PerfilUsuario" element={<PrivateRoute><PerfilUsuario /></PrivateRoute>} />
           <Route path="/Dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
