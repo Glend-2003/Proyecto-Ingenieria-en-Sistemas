@@ -1,0 +1,14 @@
+DELIMITER //
+CREATE PROCEDURE spAgregarCarritoProducto(
+    IN p_idCarrito INT,
+    IN p_idProducto INT,
+    IN p_cantidadProducto INT
+)
+BEGIN
+    INSERT INTO tbcarritoproducto (idCarrito, idProducto, cantidadProducto)
+    VALUES (p_idCarrito, p_idProducto, p_cantidadProducto);
+    
+    -- Retornar el ID del nuevo registro
+    SELECT LAST_INSERT_ID() AS idCarritoProducto;
+END //
+DELIMITER ;
