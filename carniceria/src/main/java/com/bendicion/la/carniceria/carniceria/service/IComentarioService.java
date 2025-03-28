@@ -5,7 +5,6 @@
 package com.bendicion.la.carniceria.carniceria.service;
 
 import com.bendicion.la.carniceria.carniceria.domain.Comentario;
-import com.bendicion.la.carniceria.carniceria.domain.Usuario;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
