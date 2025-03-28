@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import com.bendicion.la.carniceria.carniceria.domain.CarritoProducto;
 import com.bendicion.la.carniceria.carniceria.jpa.CarritoProductoRepository;
-import com.bendicion.la.carniceria.carniceria.jpa.CarritoRepository;
 
 import jakarta.transaction.Transactional;
 
@@ -18,9 +17,6 @@ public class CarritoProductoService implements ICarritoProductoService {
     
     @Autowired
     private CarritoProductoRepository carritoProductoRepo;
-    
-    @Autowired
-    private CarritoRepository carritoRepo;
 
     @Override
     @Transactional

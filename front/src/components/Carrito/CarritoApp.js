@@ -28,49 +28,49 @@ function CarritoApp() {
   };
 
   const handlePagar = async () => {
-    alert("Usuario actual:" + usuario.nombreUsuario); 
-  if (!usuario || !usuario.idUsuario) {
-    navigate('/register');
-    return;
-  }
-
-    const carritoLocal = JSON.parse(localStorage.getItem('carrito')) || [];
-    
-    if (carritoLocal.length === 0) {
-      alert('El carrito está vacío');
+    if (!usuario?.idUsuario) {
+      navigate('/register');
       return;
     }
-
+  
     try {
       const token = localStorage.getItem('token');
+      const carritoLocal = JSON.parse(localStorage.getItem('carrito')) || [];
       
+      if (carritoLocal.length === 0) {
+        alert('El carrito está vacío');
+        return;
+      }
+  
+      // Calcular totales
       const total = carritoLocal.reduce((sum, item) => sum + (item.montoPrecioProducto || 0) * item.cantidad, 0);
       const cantidadTotal = carritoLocal.reduce((sum, item) => sum + item.cantidad, 0);
-
-      const { data: carritoCreado } = await axios.post('http://localhost:8080/carrito', {
-        idUsuario: usuario.idUsuario,
+  
+      // Crear objeto carrito como lo espera el backend
+      const carritoData = {
+        usuario: { idUsuario: usuario.idUsuario }, // Esto es lo más importante
         montoTotalCarrito: total,
         estadoCarrito: true,
         cantidadCarrito: cantidadTotal
-      }, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      };
+  
+      // Primero crear el carrito
+      const { data: carritoCreado } = await axios.post('http://localhost:8080/carrito', carritoData, {
+        headers: { 'Authorization': `Bearer ${token}` }
       });
-
+  
+      // Luego agregar productos
       await Promise.all(
         carritoLocal.map(item => 
           axios.post(`http://localhost:8080/carrito/${carritoCreado.idCarrito}/productos`, {
             idProducto: item.idProducto,
             cantidadProducto: item.cantidad
           }, {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
+            headers: { 'Authorization': `Bearer ${token}` }
           })
         )
       );
-
+  
       localStorage.removeItem('carrito');
       clearCart();
       navigate('/pedido', { 
@@ -79,9 +79,9 @@ function CarritoApp() {
           total: total 
         }
       });
-
+  
     } catch (error) {
-      console.error('Error en el pago:', error.response?.data || error.message);
+      console.error('Error en el pago:', error);
       alert(error.response?.data?.message || 'Error al procesar el pago');
     }
   };

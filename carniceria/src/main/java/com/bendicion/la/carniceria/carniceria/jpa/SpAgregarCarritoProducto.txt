@@ -1,3 +1,7 @@
+USE bdcarniceria;
+
+DROP PROCEDURE IF EXISTS spAgregarCarritoProducto;
+
 DELIMITER //
 CREATE PROCEDURE spAgregarCarritoProducto(
     IN p_idCarrito INT,
@@ -5,8 +9,32 @@ CREATE PROCEDURE spAgregarCarritoProducto(
     IN p_cantidadProducto INT
 )
 BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error al agregar producto al carrito';
+    END;
+    
+    START TRANSACTION;
+    
+    -- Validaciones
+    IF NOT EXISTS (SELECT 1 FROM tbcarrito WHERE idCarrito = p_idCarrito) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Carrito no existe';
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM tbproducto WHERE idProducto = p_idProducto) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Producto no existe';
+    END IF;
+    
+    IF p_cantidadProducto <= 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Cantidad debe ser mayor a cero';
+    END IF;
+    
+    -- Inserción
     INSERT INTO tbcarritoproducto (idCarrito, idProducto, cantidadProducto)
     VALUES (p_idCarrito, p_idProducto, p_cantidadProducto);
+    
+    COMMIT;
     
     -- Retornar el ID del nuevo registro
     SELECT LAST_INSERT_ID() AS idCarritoProducto;
