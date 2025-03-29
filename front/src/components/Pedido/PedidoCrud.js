@@ -21,7 +21,7 @@ function PedidoCrud() {
     provincia: 'Limón',
     localidad: 'El cairo Cariari en',
     horaRetiro: '',
-    tipoPago: '' // Nuevo campo para tipo de pago
+    tipoPago: '' 
   });
 
   // Estado para almacenar los tipos de pago
@@ -229,89 +229,62 @@ function PedidoCrud() {
     }
   
     setStatus({ loading: true, error: null, success: false });
-  
-    try {
-      const userData = {
-        // Datos del usuario
-        nombreUsuario: formData.nombreUsuario,
-        primerApellido: formData.primerApellido,
-        segundoApellido: formData.segundoApellido,
-        telefonoUsuario: formData.telefonoUsuario,
-        correoUsuario: formData.correoUsuario,
-        tipoPersona: formData.tipoPersona,
-        cedulaUsuario: formData.cedulaUsuario,
-        tipoCedula: formData.tipoCedula,
-        
-        // Datos de la sucursal y retiro
-        sucursal: formData.sucursal,
-        provincia: formData.provincia,
-        localidad: formData.localidad,
-        horaRetiro: formData.horaRetiro,
-        
-        // Tipo de pago
-        tipoPago: {
-          idTipoPago: formData.tipoPago
-        },
-        
-        // Datos del pedido
-        subtotal: subtotal,
-        montoTotalPedido: montoTotalPedido,
-        fechaPedido: new Date().toISOString(),
-  
-        // Estado del pedido (por defecto activo)
-        estadoPedido: true,
-        
-        // Estado de entrega (por defecto "Pendiente")
-        estadoEntregaPedido: "Pendiente",
-  
-        // Productos del carrito
-        productos: cart.map(item => ({
-          idProducto: item.idProducto,
-          cantidad: item.cantidad,
-          precioUnitario: item.montoPrecioProducto
-        }))
-      };
-  
-      console.log('Enviando datos:', JSON.stringify(userData, null, 2));
-  
-      const response = await axios.post('http://localhost:8080/pedido/agregar', userData);
-      console.log('Pedido registrado de manera exitosa: '+response.data);
-  
-      // Actualizar el estado del carrito en la base de datos
-      const usuarioId = localStorage.getItem("usuarioId") || 56;
+
+  try {
+    // Obtener los IDs únicos de los carritos en el carrito actual
+    const carritoIds = [...new Set(cart.map(item => item.idCarrito))];
+    
+    // Añadir los IDs de carrito al objeto userData
+    const userData = {
+      // Datos del usuario, sucursal, etc. (como ya los tienes)
       
-      // Asegurarse de que cart tiene elementos y que tienen idCarrito
-      if (cart.length > 0 && cart[0].idCarrito) {
-        try {
-          await axios.put(`http://localhost:8080/carrito/${cart[0].idCarrito}`, {
-            idUsuario: usuarioId,
-            estadoCarrito: false, // Marcar como procesado o inactivo
-            montoTotalCarrito: montoTotalPedido,
-            cantidadCarrito: cart.length
-          });
-        } catch (cartUpdateError) {
-          console.error('Error al actualizar el estado del carrito:', cartUpdateError);
-          // No interrumpimos el flujo si esto falla
-        }
-      }
-  
-      setStatus({ loading: false, error: null, success: true });
-  
-      setSnackbar({
-        open: true,
-        message: 'Pedido registrado de manera exitosa',
-        severity: 'success'
-      });
-  
-      // Limpiar localStorage y estado local
-      localStorage.removeItem("carrito");
-      setCart([]);
-  
-      setTimeout(() => {
-        window.location.href = "/";
-      }, 2000);
-  
-    } catch(error) {
+      // Añadimos los IDs de carritos como string separado por comas
+      carritosIds: carritoIds.join(','),
+      
+      // Tipo de pago
+      tipoPago: {
+        idTipoPago: formData.tipoPago
+      },
+      
+      // Datos del pedido
+      subtotal: subtotal,
+      montoTotalPedido: montoTotalPedido,
+      fechaPedido: new Date().toISOString(),
+      estadoPedido: true,
+      estadoEntregaPedido: "Pendiente",
+      
+      // Productos del carrito
+      productos: cart.map(item => ({
+        idProducto: item.idProducto,
+        cantidad: item.cantidad,
+        precioUnitario: item.montoPrecioProducto
+      }))
+    };
+
+    console.log('Enviando datos:', JSON.stringify(userData, null, 2));
+
+    const response = await axios.post('http://localhost:8080/pedido/agregar', userData);
+    console.log('Pedido registrado de manera exitosa: '+response.data);
+
+    // Ya no necesitamos actualizar los carritos aquí, el SP lo hará
+
+    setStatus({ loading: false, error: null, success: true });
+
+    setSnackbar({
+      open: true,
+      message: 'Pedido registrado de manera exitosa',
+      severity: 'success'
+    });
+
+    // Limpiar localStorage y estado local
+    localStorage.removeItem("carrito");
+    setCart([]);
+
+    setTimeout(() => {
+      window.location.href = "/";
+    }, 2000);
+
+  } catch(error) {
       console.error('Error al registrar el pedido:', error);
   
       // Log más detallado para diagnosticar
