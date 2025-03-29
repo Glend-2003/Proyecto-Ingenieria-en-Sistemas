@@ -1,7 +1,9 @@
 package com.bendicion.la.carniceria.carniceria.service;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
@@ -112,6 +114,22 @@ public class CarritoService implements ICarritoService{
             e.printStackTrace();
             return false;
         }
+    }
+
+    @Override
+    @Transactional
+    public Map<String, List<Object[]>> obtenerCarritosUsuario(Integer usuarioId) {
+        Map<String, List<Object[]>> resultado = new HashMap<>();
+        
+        // Obtener carritos del usuario
+        List<Object[]> carritos = carritoRepo.findCarritosByUsuarioId(usuarioId);
+        resultado.put("carritos", carritos);
+        
+        // Obtener productos en esos carritos
+        List<Object[]> productos = carritoRepo.findProductosInCarritosByUsuarioId(usuarioId);
+        resultado.put("productos", productos);
+        
+        return resultado;
     }
 
     

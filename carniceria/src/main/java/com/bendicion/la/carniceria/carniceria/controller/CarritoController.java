@@ -1,6 +1,7 @@
 package com.bendicion.la.carniceria.carniceria.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -47,6 +48,12 @@ public class CarritoController {
     @GetMapping
     public ResponseEntity<List<Carrito>> listarCarritos(@RequestParam boolean estado) {
         return ResponseEntity.ok(carritoService.getCarrito(estado));
+    }
+
+    @GetMapping("/usuario/{idUsuario}")
+    public ResponseEntity<Map<String, List<Object[]>>> obtenerCarritosUsuario(@PathVariable Integer idUsuario) {
+        Map<String, List<Object[]>> resultado = carritoService.obtenerCarritosUsuario(idUsuario);
+        return ResponseEntity.ok(resultado);
     }
     
     @DeleteMapping("/{id}")

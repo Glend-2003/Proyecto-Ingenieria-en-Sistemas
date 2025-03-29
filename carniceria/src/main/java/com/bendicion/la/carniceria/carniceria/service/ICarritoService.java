@@ -1,6 +1,7 @@
 package com.bendicion.la.carniceria.carniceria.service;
 
 import java.util.List;
+import java.util.Map;
 
 import com.bendicion.la.carniceria.carniceria.domain.Carrito;
 
@@ -17,4 +18,7 @@ public interface ICarritoService {
     
     @Transactional
     public boolean deleteCarrito(int id);
+
+    @Transactional
+    Map<String, List<Object[]>> obtenerCarritosUsuario(Integer usuarioId);
 }

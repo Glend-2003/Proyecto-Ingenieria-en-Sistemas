@@ -67,37 +67,79 @@ function PedidoCrud() {
     return () => clearTimeout(delayDebounceFn);
   }, [formData.cedulaUsuario]);
   
+  // Primero, modifiquemos el useEffect que actualmente carga el carrito desde localStorage
   useEffect(() => {
-    const savedCart = JSON.parse(localStorage.getItem("carrito")) || [];
-    setCart(savedCart);
+    // Verificar si hay un usuarioId guardado
+    let usuarioId = localStorage.getItem("usuarioId");
     
-    // Llamada a la API para obtener los tipos de pago
-    const fetchTiposPago = async () => {
+    // Si no hay usuarioId almacenado, usar un ID predeterminado y guardarlo
+    if (!usuarioId) {
+      usuarioId = "56"; // ID predeterminado para pruebas
+      localStorage.setItem("usuarioId", usuarioId);
+    }
+    
+    console.log("ID de usuario usado para cargar los carritos:", usuarioId);
+    
+    const fetchCarritosUsuario = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/tipopago/');
-        setTiposPago(response.data);
+        const response = await axios.get(`http://localhost:8080/carrito/usuario/${usuarioId}`);
+        console.log('Datos de carritos obtenidos:', response.data);
         
-        // Si hay tipos de pago disponibles, establecer el primero como valor por defecto
-        if (response.data && response.data.length > 0) {
-          setFormData(prevData => ({
-            ...prevData,
-            tipoPago: response.data[0].idTipoPago // Usando el campo correcto idTipoPago
-          }));
+        // Obtener carritos y productos del response
+        const { carritos, productos } = response.data;
+        
+        // Si hay carritos disponibles
+        if (carritos && carritos.length > 0) {
+          // Filtrar solo los carritos activos
+          const carritosActivos = carritos.filter(carrito => carrito[3] === true);
+          
+          if (carritosActivos.length > 0) {
+            // Obtener todos los IDs de los carritos activos
+            const idsCarritosActivos = carritosActivos.map(carrito => carrito[0]);
+            
+            // Recopilar todos los productos de todos los carritos activos
+            const todosProductos = productos
+              .filter(producto => idsCarritosActivos.includes(producto[1]))
+              .map(producto => ({
+                idCarritoProducto: producto[0],
+                idCarrito: producto[1],
+                idProducto: producto[2],
+                cantidad: producto[3],
+                nombreProducto: producto[8],
+                imgProducto: producto[9],
+                montoPrecioProducto: producto[10],
+                descripcionProducto: producto[11],
+                tipoPesoProducto: producto[12],
+                codigoProducto: producto[13],
+                stockProducto: producto[14],
+                idCategoria: producto[15],
+                estadoProducto: producto[16]
+              }));
+            
+            setCart(todosProductos);
+          } else {
+            // No hay carritos activos, usar localStorage como respaldo
+            const savedCart = JSON.parse(localStorage.getItem("carrito")) || [];
+            setCart(savedCart);
+          }
+        } else {
+          // No hay carritos disponibles, usar localStorage como respaldo
+          const savedCart = JSON.parse(localStorage.getItem("carrito")) || [];
+          setCart(savedCart);
         }
-        console.log('Tipos de pago cargados:', response.data); // Para depuración
       } catch (error) {
-        console.error('Error al obtener tipos de pago:', error);
-        setSnackbar({
-          open: true,
-          message: 'Error al cargar los tipos de pago',
-          severity: 'error'
-        });
+        console.error('Error al obtener los carritos del usuario:', error);
+        
+        // Usar localStorage como respaldo
+        const savedCart = JSON.parse(localStorage.getItem("carrito")) || [];
+        setCart(savedCart);
       }
     };
     
-    fetchTiposPago();
+    fetchCarritosUsuario();
+    
+    // Resto del código para obtener tipos de pago...
   }, []);
-
   // Calcular totales
   const subtotal = cart.reduce((total, item) => total + (item.montoPrecioProducto * item.cantidad), 0);
   const montoTotalPedido = cart.reduce((total, item) => total + (item.montoPrecioProducto * item.cantidad), 0) * 1.15;
@@ -175,7 +217,7 @@ function PedidoCrud() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     // Verificar que la cédula sea válida antes de enviar
     if (!cedulaValidation.isValid) {
       setSnackbar({
@@ -185,9 +227,9 @@ function PedidoCrud() {
       });
       return;
     }
-
+  
     setStatus({ loading: true, error: null, success: false });
-
+  
     try {
       const userData = {
         // Datos del usuario
@@ -215,13 +257,13 @@ function PedidoCrud() {
         subtotal: subtotal,
         montoTotalPedido: montoTotalPedido,
         fechaPedido: new Date().toISOString(),
-
+  
         // Estado del pedido (por defecto activo)
         estadoPedido: true,
         
         // Estado de entrega (por defecto "Pendiente")
         estadoEntregaPedido: "Pendiente",
-
+  
         // Productos del carrito
         productos: cart.map(item => ({
           idProducto: item.idProducto,
@@ -229,31 +271,49 @@ function PedidoCrud() {
           precioUnitario: item.montoPrecioProducto
         }))
       };
-
+  
       console.log('Enviando datos:', JSON.stringify(userData, null, 2));
-
+  
       const response = await axios.post('http://localhost:8080/pedido/agregar', userData);
-
       console.log('Pedido registrado de manera exitosa: '+response.data);
-
+  
+      // Actualizar el estado del carrito en la base de datos
+      const usuarioId = localStorage.getItem("usuarioId") || 56;
+      
+      // Asegurarse de que cart tiene elementos y que tienen idCarrito
+      if (cart.length > 0 && cart[0].idCarrito) {
+        try {
+          await axios.put(`http://localhost:8080/carrito/${cart[0].idCarrito}`, {
+            idUsuario: usuarioId,
+            estadoCarrito: false, // Marcar como procesado o inactivo
+            montoTotalCarrito: montoTotalPedido,
+            cantidadCarrito: cart.length
+          });
+        } catch (cartUpdateError) {
+          console.error('Error al actualizar el estado del carrito:', cartUpdateError);
+          // No interrumpimos el flujo si esto falla
+        }
+      }
+  
       setStatus({ loading: false, error: null, success: true });
-
+  
       setSnackbar({
         open: true,
         message: 'Pedido registrado de manera exitosa',
         severity: 'success'
       });
-
+  
+      // Limpiar localStorage y estado local
       localStorage.removeItem("carrito");
       setCart([]);
-
+  
       setTimeout(() => {
         window.location.href = "/";
       }, 2000);
-
+  
     } catch(error) {
       console.error('Error al registrar el pedido:', error);
-
+  
       // Log más detallado para diagnosticar
       console.log('Detalles del error:', {
         status: error.response?.status,

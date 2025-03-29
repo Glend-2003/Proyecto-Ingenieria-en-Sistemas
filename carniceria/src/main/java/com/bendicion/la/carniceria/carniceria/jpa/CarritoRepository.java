@@ -14,31 +14,32 @@ import com.bendicion.la.carniceria.carniceria.domain.Carrito;
 import com.bendicion.la.carniceria.carniceria.domain.Usuario;
 
 @Repository
-public interface CarritoRepository extends JpaRepository<Carrito, Integer>{
+public interface CarritoRepository extends JpaRepository<Carrito, Integer> {
+
     @Modifying
     @Query(value = "{call spAgregarCarrito(:idUsuario, :montoTotalCarrito, :estadoCarrito, :cantidadCarrito)}", nativeQuery = true)
     void saveProcedureCarrito(
-        @Param("idUsuario") Integer idUsuario, 
-        @Param("montoTotalCarrito") BigDecimal montoTotalCarrito,
-        @Param("estadoCarrito") boolean estadoCarrito,
-        @Param("cantidadCarrito") Integer cantidadCarrito
+            @Param("idUsuario") Integer idUsuario,
+            @Param("montoTotalCarrito") BigDecimal montoTotalCarrito,
+            @Param("estadoCarrito") boolean estadoCarrito,
+            @Param("cantidadCarrito") Integer cantidadCarrito
     );
 
     @Modifying
     @Query(value = "{call spActualizarCarrito(:idCarrito, :idUsuario, :montoTotalCarrito, :estadoCarrito, :cantidadCarrito)}", nativeQuery = true)
     void updateProcedureCarrito(
-        @Param("idCarrito") Integer idCarrito,
-        @Param("idUsuario") Integer idUsuario, 
-        @Param("montoTotalCarrito") BigDecimal montoTotalCarrito,
-        @Param("estadoCarrito") boolean estadoCarrito,
-        @Param("cantidadCarrito") Integer cantidadCarrito
+            @Param("idCarrito") Integer idCarrito,
+            @Param("idUsuario") Integer idUsuario,
+            @Param("montoTotalCarrito") BigDecimal montoTotalCarrito,
+            @Param("estadoCarrito") boolean estadoCarrito,
+            @Param("cantidadCarrito") Integer cantidadCarrito
     );
 
     @Query(value = "{call spEliminarCarrito(:idCarrito)}", nativeQuery = true)
     void deleteProcedureCarrito(@Param("idCarrito") Integer idCarrito);
 
     @Query(value = "{call spLeerCarrito(:estadoCarrito)}", nativeQuery = true)
-    List<Carrito> listProcedureCarrito( @Param("estadoCarrito") boolean estadoCarrito);
+    List<Carrito> listProcedureCarrito(@Param("estadoCarrito") boolean estadoCarrito);
 
     @Query("SELECT c FROM Carrito c WHERE c.usuario.idUsuario = :idUsuario ORDER BY c.idCarrito DESC")
     List<Carrito> findByUsuarioOrderByIdDesc(@Param("idUsuario") Integer idUsuario);
@@ -53,4 +54,22 @@ public interface CarritoRepository extends JpaRepository<Carrito, Integer>{
 
     @Query("SELECT c FROM Carrito c WHERE c.idCarrito = :id AND c.usuario.idUsuario = :usuarioId")
     Optional<Carrito> findByIdAndUsuario(@Param("id") int idCarrito, @Param("usuarioId") int usuarioId);
+
+    @Query(value = "{call sp_ObtenerCarritosUsuario(:usuarioId)}", nativeQuery = true)
+    List<Object[]> obtenerCarritosUsuario(@Param("usuarioId") Integer usuarioId);
+
+    @Query(value = "SELECT c.idCarrito, c.idUsuario, c.montoTotalCarrito, c.estadoCarrito, c.cantidadCarrito "
+            + "FROM tbcarrito c WHERE c.idUsuario = :usuarioId", nativeQuery = true)
+    List<Object[]> findCarritosByUsuarioId(@Param("usuarioId") Integer usuarioId);
+
+    @Query(value = "SELECT cp.idCarritoProducto, cp.idCarrito, cp.idProducto, cp.cantidadProducto, "
+            + "c.idUsuario, c.montoTotalCarrito, c.estadoCarrito, c.cantidadCarrito, "
+            + "p.nombreProducto, p.imgProducto, p.montoPrecioProducto, p.descripcionProducto, "
+            + "p.tipoPesoProducto, p.codigoProducto, p.stockProducto, p.idCategoria, p.estadoProducto "
+            + "FROM tbcarritoproducto cp "
+            + "JOIN tbcarrito c ON cp.idCarrito = c.idCarrito "
+            + "JOIN tbproducto p ON cp.idProducto = p.idProducto "
+            + "WHERE c.idUsuario = :usuarioId", nativeQuery = true)
+    List<Object[]> findProductosInCarritosByUsuarioId(@Param("usuarioId") Integer usuarioId);
+
 }
