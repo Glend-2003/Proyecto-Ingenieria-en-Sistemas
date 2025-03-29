@@ -4,6 +4,9 @@ import '../styles.min.css';
 import axios from "axios";
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
+import useAuth from '../../hooks/userInfo'; 
+import { useNavigate } from 'react-router-dom';
+import { useCart } from '../../contexto/ContextoCarrito';
 import { FaSpinner, FaArrowLeft, FaCheck, FaTimes } from 'react-icons/fa'; // Añadidos FaCheck y FaTimes
 
 function PedidoCrud() {
@@ -23,6 +26,20 @@ function PedidoCrud() {
     horaRetiro: '',
     tipoPago: '' 
   });
+
+  const {
+      increaseQuantity,
+      decreaseQuantity,
+      removeFromCart,
+      clearCart,
+      showCartMenu,
+      setShowCartMenu,
+    } = useCart();
+
+  
+
+  const { usuario } = useAuth();
+  const navigate = useNavigate();
 
   // Estado para almacenar los tipos de pago
   const [tiposPago, setTiposPago] = useState([]);
@@ -337,9 +354,68 @@ function PedidoCrud() {
                            cedulaValidation.isChecking || 
                            cart.length === 0;
 
+  const handlePagar = async () => {
+    if (!usuario?.idUsuario) {
+      navigate('/register');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const carritoLocal = JSON.parse(localStorage.getItem('carrito')) || [];
+      
+      if (carritoLocal.length === 0) {
+        alert('El carrito está vacío');
+        return;
+      }
+
+      // Calcular totales
+      const total = carritoLocal.reduce((sum, item) => sum + (item.montoPrecioProducto || 0) * item.cantidad, 0);
+      const cantidadTotal = carritoLocal.reduce((sum, item) => sum + item.cantidad, 0);
+
+      // Crear objeto carrito como lo espera el backend
+      const carritoData = {
+        usuario: { idUsuario: usuario.idUsuario }, // Esto es lo más importante
+        montoTotalCarrito: total,
+        estadoCarrito: true,
+        cantidadCarrito: cantidadTotal
+      };
+
+      // Primero crear el carrito
+      const { data: carritoCreado } = await axios.post('http://localhost:8080/carrito', carritoData, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      // Luego agregar productos
+      await Promise.all(
+        carritoLocal.map(item => 
+          axios.post(`http://localhost:8080/carrito/${carritoCreado.idCarrito}/productos`, {
+            idProducto: item.idProducto,
+            cantidadProducto: item.cantidad
+          }, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          })
+        )
+      );
+
+      localStorage.removeItem('carrito');
+      clearCart();
+      navigate('/pedido', { 
+        state: { 
+          idCarrito: carritoCreado.idCarrito,
+          total: total 
+        }
+      });
+
+    } catch (error) {
+      console.error('Error en el pago:', error);
+      alert(error.response?.data?.message || 'Error al procesar el pago');
+    }
+  };
+
   return (
     <div className="container py-4 my-3">
-      <h1 className="text-center">Finalizar pedido</h1>
+      <h1 className="text-center" onClick={handlePagar}>Finalizar pedido</h1>
 
       {/* Botón para regresar */}
       <div className="mb-3">
