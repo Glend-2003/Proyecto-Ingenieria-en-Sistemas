@@ -27,6 +27,15 @@ function CarritoApp() {
     navigate('/verOrden'); 
   };
 
+  const handlePagar2 = async () => {
+    if (!usuario?.idUsuario) {
+      navigate('/register');
+      return;
+    } else {
+      navigate('/pedido');
+    }
+  }
+  
   const handlePagar = async () => {
     if (!usuario?.idUsuario) {
       navigate('/register');
@@ -153,7 +162,7 @@ function CarritoApp() {
               Ver Orden
             </Button>
 
-            <Button variant="success" className="btn-pagar" onClick={handlePagar}>
+            <Button variant="success" className="btn-pagar" onClick={handlePagar2}>
               Pagar
             </Button>
           </ListGroup>
