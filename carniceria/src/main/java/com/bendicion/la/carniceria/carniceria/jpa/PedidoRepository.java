@@ -20,7 +20,7 @@ import com.bendicion.la.carniceria.carniceria.domain.Pedido;
 public interface PedidoRepository extends JpaRepository<Pedido, Integer>{
 
     @Modifying
-    @Query(value = "{call spAgregarPedido(:montoTotalPedido, :fechaPedido, :estadoPedido, :estadoEntregaPedido, :idCarrito, :idTipoPago)}", nativeQuery = true)
+    @Query(value = "{call sp_AgregarPedido(:montoTotalPedido, :fechaPedido, :estadoPedido, :estadoEntregaPedido, :idCarrito, :idTipoPago)}", nativeQuery = true)
     void saveProcedurePedido(
         @Param("montoTotalPedido") BigDecimal montoTotalPedido, 
         @Param("fechaPedido") Date fechaPedido,

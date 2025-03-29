@@ -62,6 +62,9 @@ public interface CarritoRepository extends JpaRepository<Carrito, Integer> {
             + "FROM tbcarrito c WHERE c.idUsuario = :usuarioId", nativeQuery = true)
     List<Object[]> findCarritosByUsuarioId(@Param("usuarioId") Integer usuarioId);
 
+    @Query(value = "{call sp_ObtenerCarritoPorId(:idCarrito)}", nativeQuery = true)
+    List<Object[]> obtenerCarritoPorId(@Param("idCarrito") Integer idCarrito);
+
     @Query(value = "SELECT cp.idCarritoProducto, cp.idCarrito, cp.idProducto, cp.cantidadProducto, "
             + "c.idUsuario, c.montoTotalCarrito, c.estadoCarrito, c.cantidadCarrito, "
             + "p.nombreProducto, p.imgProducto, p.montoPrecioProducto, p.descripcionProducto, "

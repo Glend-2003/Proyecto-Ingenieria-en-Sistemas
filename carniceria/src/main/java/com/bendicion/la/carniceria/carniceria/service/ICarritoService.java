@@ -21,4 +21,6 @@ public interface ICarritoService {
 
     @Transactional
     Map<String, List<Object[]>> obtenerCarritosUsuario(Integer usuarioId);
+
+    Carrito obtenerCarritoPorId(Integer idCarrito);
 }

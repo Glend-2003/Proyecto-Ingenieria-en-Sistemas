@@ -132,5 +132,30 @@ public class CarritoService implements ICarritoService{
         return resultado;
     }
 
+    @Override
+    public Carrito obtenerCarritoPorId(Integer idCarrito) {
+        List<Object[]> resultado = carritoRepo.obtenerCarritoPorId(idCarrito);
+        
+        if (resultado == null || resultado.isEmpty()) {
+            return null;
+        }
+        
+        Object[] carritoData = resultado.get(0);
+        
+        Carrito carrito = new Carrito();
+        carrito.setIdCarrito((Integer) carritoData[0]);
+        
+        // Crear y asignar el usuario
+        Usuario usuario = new Usuario();
+        usuario.setIdUsuario((Integer) carritoData[1]);
+        carrito.setUsuario(usuario);
+        
+        carrito.setMontoTotalCarrito((BigDecimal) carritoData[2]);
+        carrito.setEstadoCarrito((Boolean) carritoData[3]);
+        carrito.setCantidadCarrito((Integer) carritoData[4]);
+        
+        return carrito;
+    }
+
     
 }

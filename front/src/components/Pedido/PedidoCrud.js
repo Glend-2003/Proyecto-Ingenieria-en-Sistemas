@@ -4,9 +4,6 @@ import '../styles.min.css';
 import axios from "axios";
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
-import useAuth from '../../hooks/userInfo'; 
-import { useNavigate } from 'react-router-dom';
-import { useCart } from '../../contexto/ContextoCarrito';
 import { FaSpinner, FaArrowLeft, FaCheck, FaTimes } from 'react-icons/fa'; // Añadidos FaCheck y FaTimes
 
 function PedidoCrud() {
@@ -24,22 +21,8 @@ function PedidoCrud() {
     provincia: 'Limón',
     localidad: 'El cairo Cariari en',
     horaRetiro: '',
-    tipoPago: '' 
+    tipoPago: '' // Nuevo campo para tipo de pago
   });
-
-  const {
-      increaseQuantity,
-      decreaseQuantity,
-      removeFromCart,
-      clearCart,
-      showCartMenu,
-      setShowCartMenu,
-    } = useCart();
-
-  
-
-  const { usuario } = useAuth();
-  const navigate = useNavigate();
 
   // Estado para almacenar los tipos de pago
   const [tiposPago, setTiposPago] = useState([]);
@@ -84,79 +67,37 @@ function PedidoCrud() {
     return () => clearTimeout(delayDebounceFn);
   }, [formData.cedulaUsuario]);
   
-  // Primero, modifiquemos el useEffect que actualmente carga el carrito desde localStorage
   useEffect(() => {
-    // Verificar si hay un usuarioId guardado
-    let usuarioId = localStorage.getItem("usuarioId");
+    const savedCart = JSON.parse(localStorage.getItem("carrito")) || [];
+    setCart(savedCart);
     
-    // Si no hay usuarioId almacenado, usar un ID predeterminado y guardarlo
-    if (!usuarioId) {
-      usuarioId = "56"; // ID predeterminado para pruebas
-      localStorage.setItem("usuarioId", usuarioId);
-    }
-    
-    console.log("ID de usuario usado para cargar los carritos:", usuarioId);
-    
-    const fetchCarritosUsuario = async () => {
+    // Llamada a la API para obtener los tipos de pago
+    const fetchTiposPago = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/carrito/usuario/${usuarioId}`);
-        console.log('Datos de carritos obtenidos:', response.data);
+        const response = await axios.get('http://localhost:8080/tipopago/');
+        setTiposPago(response.data);
         
-        // Obtener carritos y productos del response
-        const { carritos, productos } = response.data;
-        
-        // Si hay carritos disponibles
-        if (carritos && carritos.length > 0) {
-          // Filtrar solo los carritos activos
-          const carritosActivos = carritos.filter(carrito => carrito[3] === true);
-          
-          if (carritosActivos.length > 0) {
-            // Obtener todos los IDs de los carritos activos
-            const idsCarritosActivos = carritosActivos.map(carrito => carrito[0]);
-            
-            // Recopilar todos los productos de todos los carritos activos
-            const todosProductos = productos
-              .filter(producto => idsCarritosActivos.includes(producto[1]))
-              .map(producto => ({
-                idCarritoProducto: producto[0],
-                idCarrito: producto[1],
-                idProducto: producto[2],
-                cantidad: producto[3],
-                nombreProducto: producto[8],
-                imgProducto: producto[9],
-                montoPrecioProducto: producto[10],
-                descripcionProducto: producto[11],
-                tipoPesoProducto: producto[12],
-                codigoProducto: producto[13],
-                stockProducto: producto[14],
-                idCategoria: producto[15],
-                estadoProducto: producto[16]
-              }));
-            
-            setCart(todosProductos);
-          } else {
-            // No hay carritos activos, usar localStorage como respaldo
-            const savedCart = JSON.parse(localStorage.getItem("carrito")) || [];
-            setCart(savedCart);
-          }
-        } else {
-          // No hay carritos disponibles, usar localStorage como respaldo
-          const savedCart = JSON.parse(localStorage.getItem("carrito")) || [];
-          setCart(savedCart);
+        // Si hay tipos de pago disponibles, establecer el primero como valor por defecto
+        if (response.data && response.data.length > 0) {
+          setFormData(prevData => ({
+            ...prevData,
+            tipoPago: response.data[0].idTipoPago // Usando el campo correcto idTipoPago
+          }));
         }
+        console.log('Tipos de pago cargados:', response.data); // Para depuración
       } catch (error) {
-        console.error('Error al obtener los carritos del usuario:', error);
-        
-        // Usar localStorage como respaldo
-        const savedCart = JSON.parse(localStorage.getItem("carrito")) || [];
-        setCart(savedCart);
+        console.error('Error al obtener tipos de pago:', error);
+        setSnackbar({
+          open: true,
+          message: 'Error al cargar los tipos de pago',
+          severity: 'error'
+        });
       }
     };
     
-    fetchCarritosUsuario();
-    
-    // Resto del código para obtener tipos de pago...
+    fetchTiposPago();
   }, []);
+
   // Calcular totales
   const subtotal = cart.reduce((total, item) => total + (item.montoPrecioProducto * item.cantidad), 0);
   const montoTotalPedido = cart.reduce((total, item) => total + (item.montoPrecioProducto * item.cantidad), 0) * 1.15;
@@ -246,65 +187,132 @@ function PedidoCrud() {
     }
   
     setStatus({ loading: true, error: null, success: false });
+  
+    try {
+      // Obtener el ID de usuario del localStorage o usar uno por defecto
+      const idUsuario = localStorage.getItem("idUsuario") || 56;
+      
+      // PASO 1: Crear un nuevo carrito en la base de datos
+      const carritoData = {
+        usuario: {
+          idUsuario: parseInt(idUsuario, 10)
+        },
+        montoTotalCarrito: subtotal,
+        estadoCarrito: true,
+        cantidadCarrito: cart.length
+      };
+      
+      const carritoResponse = await axios.post('http://localhost:8080/carrito', carritoData);
+      console.log('Carrito creado:', carritoResponse.data);
+      
+      // Obtener el ID del carrito recién creado
+      const idCarrito = carritoResponse.data.idCarrito;
 
-  try {
-    // Obtener los IDs únicos de los carritos en el carrito actual
-    const carritoIds = [...new Set(cart.map(item => item.idCarrito))];
+      console.log('ID del carrito creado:', idCarrito);
+      
+      // PASO 2: Agregar los productos al carrito (en serie, no en paralelo)
+      for (const item of cart) {
+        const productoCarrito = {
+          carrito: {
+            idCarrito: idCarrito
+          },
+          idProducto: item.idProducto,
+          cantidadProducto: item.cantidad
+        };
+        
+        await axios.post(`http://localhost:8080/carrito/${idCarrito}/productos`, productoCarrito);
+        console.log(`Producto ${item.idProducto} agregado al carrito ${idCarrito}`);
+      }
     
-    // Añadir los IDs de carrito al objeto userData
-    const userData = {
-      // Datos del usuario, sucursal, etc. (como ya los tienes)
+      // PASO 3: Añadir un retraso para asegurar que la base de datos ha procesado todas las transacciones
+      console.log(`Esperando para asegurar que el carrito ${idCarrito} se guarde completamente...`);
+      await new Promise(resolve => setTimeout(resolve, 3000));
+  
+      // Verificación opcional del carrito
+      try {
+        const checkCarritoResponse = await axios.get(`http://localhost:8080/carrito/usuario/${idUsuario}`);
+        console.log(`Verificación de carrito exitosa:`, checkCarritoResponse.data);
+      } catch (verifyError) {
+        console.error(`Error al verificar carrito para usuario ${idUsuario}:`, verifyError);
+        // No interrumpir el flujo, solo registrar el error
+      }
+  
+      // PASO 4: Crear el pedido con el carrito recién creado
+      const pedidoData = {
+        // Datos del usuario
+        
+        nombreUsuario: formData.nombreUsuario,
+        primerApellido: formData.primerApellido,
+        segundoApellido: formData.segundoApellido,
+        telefonoUsuario: formData.telefonoUsuario,
+        correoUsuario: formData.correoUsuario,
+        tipoPersona: formData.tipoPersona,
+        cedulaUsuario: formData.cedulaUsuario,
+        tipoCedula: formData.tipoCedula,
+        
+        // Datos de la sucursal y retiro
+        sucursal: formData.sucursal,
+        provincia: formData.provincia,
+        localidad: formData.localidad,
+        horaRetiro: formData.horaRetiro,
+        
+        // Asociar con el carrito recién creado (usando objeto anidado)
+        carrito: {
+          idCarrito: idCarrito,
+          usuario: {
+            idUsuario: parseInt(idUsuario, 10)
+          }
+        },
+
+        
+        
+        // Tipo de pago (usando objeto anidado)
+        tipoPago: {
+          idTipoPago: parseInt(formData.tipoPago, 10)
+        },
+        
+        // Datos del pedido
+        subtotal: subtotal,
+        montoTotalPedido: montoTotalPedido,
+        fechaPedido: new Date().toISOString(),
+        estadoPedido: true,
+        estadoEntregaPedido: "Pendiente"
+      };
       
-      // Añadimos los IDs de carritos como string separado por comas
-      carritosIds: carritoIds.join(','),
+      console.log('Enviando datos del pedido:', JSON.stringify(pedidoData, null, 2));
       
-      // Tipo de pago
-      tipoPago: {
-        idTipoPago: formData.tipoPago
-      },
+      const pedidoResponse = await axios.post('http://localhost:8080/pedido/agregar', pedidoData);
+      console.log('Pedido registrado de manera exitosa:', pedidoResponse.data);
       
-      // Datos del pedido
-      subtotal: subtotal,
-      montoTotalPedido: montoTotalPedido,
-      fechaPedido: new Date().toISOString(),
-      estadoPedido: true,
-      estadoEntregaPedido: "Pendiente",
-      
-      // Productos del carrito
-      productos: cart.map(item => ({
-        idProducto: item.idProducto,
-        cantidad: item.cantidad,
-        precioUnitario: item.montoPrecioProducto
-      }))
-    };
-
-    console.log('Enviando datos:', JSON.stringify(userData, null, 2));
-
-    const response = await axios.post('http://localhost:8080/pedido/agregar', userData);
-    console.log('Pedido registrado de manera exitosa: '+response.data);
-
-    // Ya no necesitamos actualizar los carritos aquí, el SP lo hará
-
-    setStatus({ loading: false, error: null, success: true });
-
-    setSnackbar({
-      open: true,
-      message: 'Pedido registrado de manera exitosa',
-      severity: 'success'
-    });
-
-    // Limpiar localStorage y estado local
-    localStorage.removeItem("carrito");
-    setCart([]);
-
-    setTimeout(() => {
-      window.location.href = "/";
-    }, 2000);
-
-  } catch(error) {
+      // PASO 5: Actualizar el estado del carrito a inactivo
+      await axios.put(`http://localhost:8080/carrito/${idCarrito}`, {
+        usuario: {
+          idUsuario: parseInt(idUsuario, 10)
+        },
+        montoTotalCarrito: subtotal,
+        estadoCarrito: false,  // Marcar como inactivo
+        cantidadCarrito: cart.length
+      });
+  
+      setStatus({ loading: false, error: null, success: true });
+  
+      setSnackbar({
+        open: true,
+        message: 'Pedido registrado de manera exitosa',
+        severity: 'success'
+      });
+  
+      localStorage.removeItem("carrito");
+      setCart([]);
+  
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 2000);
+  
+    } catch(error) {
       console.error('Error al registrar el pedido:', error);
   
-      // Log más detallado para diagnosticar
+      // Log detallado para diagnóstico
       console.log('Detalles del error:', {
         status: error.response?.status,
         statusText: error.response?.statusText,
@@ -313,14 +321,12 @@ function PedidoCrud() {
         stack: error.stack
       });
       
-      // Actualizar el estado para mostrar el error
       setStatus({ 
         loading: false, 
         error: error.response?.data?.message || "Error al procesar el pedido", 
         success: false 
       });
       
-      // Mostrar mensaje de error con Snackbar
       setSnackbar({
         open: true,
         message: error.response?.data?.message || "Error al procesar el pedido",
@@ -354,68 +360,9 @@ function PedidoCrud() {
                            cedulaValidation.isChecking || 
                            cart.length === 0;
 
-  const handlePagar = async () => {
-    if (!usuario?.idUsuario) {
-      navigate('/register');
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem('token');
-      const carritoLocal = JSON.parse(localStorage.getItem('carrito')) || [];
-      
-      if (carritoLocal.length === 0) {
-        alert('El carrito está vacío');
-        return;
-      }
-
-      // Calcular totales
-      const total = carritoLocal.reduce((sum, item) => sum + (item.montoPrecioProducto || 0) * item.cantidad, 0);
-      const cantidadTotal = carritoLocal.reduce((sum, item) => sum + item.cantidad, 0);
-
-      // Crear objeto carrito como lo espera el backend
-      const carritoData = {
-        usuario: { idUsuario: usuario.idUsuario }, // Esto es lo más importante
-        montoTotalCarrito: total,
-        estadoCarrito: true,
-        cantidadCarrito: cantidadTotal
-      };
-
-      // Primero crear el carrito
-      const { data: carritoCreado } = await axios.post('http://localhost:8080/carrito', carritoData, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      // Luego agregar productos
-      await Promise.all(
-        carritoLocal.map(item => 
-          axios.post(`http://localhost:8080/carrito/${carritoCreado.idCarrito}/productos`, {
-            idProducto: item.idProducto,
-            cantidadProducto: item.cantidad
-          }, {
-            headers: { 'Authorization': `Bearer ${token}` }
-          })
-        )
-      );
-
-      localStorage.removeItem('carrito');
-      clearCart();
-      navigate('/pedido', { 
-        state: { 
-          idCarrito: carritoCreado.idCarrito,
-          total: total 
-        }
-      });
-
-    } catch (error) {
-      console.error('Error en el pago:', error);
-      alert(error.response?.data?.message || 'Error al procesar el pago');
-    }
-  };
-
   return (
     <div className="container py-4 my-3">
-      <h1 className="text-center" onClick={handlePagar}>Finalizar pedido</h1>
+      <h1 className="text-center">Finalizar pedido</h1>
 
       {/* Botón para regresar */}
       <div className="mb-3">

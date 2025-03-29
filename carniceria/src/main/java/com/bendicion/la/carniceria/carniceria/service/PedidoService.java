@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
+import com.bendicion.la.carniceria.carniceria.domain.Carrito;
 import com.bendicion.la.carniceria.carniceria.domain.Pedido;
 import com.bendicion.la.carniceria.carniceria.jpa.PedidoRepository;
 
@@ -25,13 +26,34 @@ import jakarta.transaction.Transactional;
 
     @Autowired
     private PedidoRepository pedidoRepo;
+    @Autowired
+    private CarritoService carritoRepo;
 
 
     @Transactional
     @Override
     public Pedido addPedido(Pedido pedido) {
+        // Obtener el ID del carrito del objeto pedido
+        Integer idCarrito = pedido.getCarrito().getIdCarrito();
+        Integer idTipoPago = pedido.getTipoPago().getIdTipoPago();
+        
+        // Verificar que el carrito exista antes de usarlo
+        Carrito carritos = carritoRepo.obtenerCarritoPorId(idCarrito);
+        if (carritos == null ) {
+            throw new RuntimeException("El carrito con ID " + idCarrito + " no existe");
+        }
+        
+        // Una vez verificado que el carrito existe, proceder con el pedido
         Date fechaPedido = Date.from(pedido.getFechaPedido().atZone(ZoneId.systemDefault()).toInstant());
-        pedidoRepo.saveProcedurePedido(pedido.getMontoTotalPedido(),fechaPedido,pedido.isEstadoPedido(),pedido.getEstadoEntregaPedido(), 1, 1);
+        pedidoRepo.saveProcedurePedido(
+            pedido.getMontoTotalPedido(),
+            fechaPedido,
+            pedido.isEstadoPedido(),
+            pedido.getEstadoEntregaPedido(), 
+            idCarrito, 
+            idTipoPago
+        );
+        
         return pedido;
     }
 
