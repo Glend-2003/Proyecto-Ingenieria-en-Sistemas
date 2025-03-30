@@ -83,7 +83,14 @@ import jakarta.transaction.Transactional;
     }
 
 
-    
-
+    @Override
+    @Transactional
+    public void updateStatePedido(int idPedido, String nuevoEstado) {
+        try {
+            pedidoRepo.updateStateEntrega(idPedido, nuevoEstado);
+        } catch (Exception e) {
+            throw new RuntimeException("Error al actualizar estado de entrega: " + e.getMessage());
+        }
+    }
     
 }

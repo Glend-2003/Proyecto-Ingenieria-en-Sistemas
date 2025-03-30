@@ -1,10 +1,8 @@
 package com.bendicion.la.carniceria.carniceria.controller;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,11 +12,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.bendicion.la.carniceria.carniceria.domain.Pedido;
 import com.bendicion.la.carniceria.carniceria.service.IPedidoService;
-
-
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  *
@@ -49,7 +47,7 @@ public class PedidoController {
             System.out.println("FechaPedido: " + pedido.getFechaPedido());
             System.out.println("Estado: " + pedido.isEstadoPedido());
             System.out.println("EstadoEntrega: " + pedido.getEstadoEntregaPedido());
-            
+
             // Imprimir detalles del carrito
             if (pedido.getCarrito() != null) {
                 System.out.println("Carrito ID: " + pedido.getCarrito().getIdCarrito());
@@ -62,25 +60,25 @@ public class PedidoController {
             } else {
                 System.out.println("¡ATENCIÓN! El carrito es NULL");
             }
-            
+
             // Imprimir detalles del tipo de pago
             if (pedido.getTipoPago() != null) {
                 System.out.println("TipoPago ID: " + pedido.getTipoPago().getIdTipoPago());
             } else {
                 System.out.println("¡ATENCIÓN! El tipo de pago es NULL");
             }
-            
+
             Pedido pedidoNuevo = pedidoService.addPedido(pedido);
             System.out.println("Pedido agregado: " + pedidoNuevo.getIdPedido());
-    
+
             Map<String, Object> response = new HashMap<>();
             response.put("mensaje", "Pedido agregado con éxito");
             response.put("pedido", pedidoNuevo.getIdPedido());
-    
+
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             e.printStackTrace(); // Imprimir stack trace para ver el error completo
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("error","Error al agregar el pedido: "+ e.getMessage()));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("error", "Error al agregar el pedido: " + e.getMessage()));
         }
     }
 
@@ -96,7 +94,7 @@ public class PedidoController {
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("error","Error al actualizar el pedido: "+ e.getMessage()));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("error", "Error al actualizar el pedido: " + e.getMessage()));
         }
     }
 
@@ -110,17 +108,24 @@ public class PedidoController {
             System.out.println("Error al eliminar el pedido: " + id + " no encontrado");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
         }
-    
-    
+
     }
 
+    @PutMapping("/actualizarestado/{idPedido}")
+    public ResponseEntity<?> updateStatePedido(
+            @PathVariable int idPedido,
+            @RequestParam String estado) {
 
+        try {
+            pedidoService.updateStatePedido(idPedido, estado);
+            return ResponseEntity.ok().body(
+                    Collections.singletonMap("mensaje", "Estado de entrega actualizado correctamente")
+            );
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(
+                    Collections.singletonMap("error", e.getMessage())
+            );
+        }
+    }
 
-
-    
-
-    
-
-
-    
 }

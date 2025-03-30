@@ -48,4 +48,11 @@ public interface PedidoRepository extends JpaRepository<Pedido, Integer>{
     @Query(value = "{call spEliminarPedido(:idPedido)}", nativeQuery = true)
     void deleteProcedurePedido(@Param("idPedido") Integer idPedido);
     
+    @Modifying
+    @Query(value = "{call spActualizarEstadoEntregaPedido(:idPedido, :nuevoEstado)}", nativeQuery = true)
+    void updateStateEntrega(
+        @Param("idPedido") Integer idPedido,
+        @Param("nuevoEstado") String nuevoEstado
+    );
+    
 }
