@@ -1,6 +1,7 @@
 import React from "react";
 import { Calendar, Award, Clock, Users, MapPin } from "lucide-react";
 import '../Home/Historia.css';
+import dueaImage from '../../assets/images/Duena-carniceria.png';
 
 const Historia = () => {
   return (
@@ -55,7 +56,7 @@ const Historia = () => {
               <div className="historia-event-flex">
                 <div className="historia-event-left">
                   <h4 className="historia-event-year">1982</h4>
-                  <p className="historia-event-text">Don Roberto Mendoza fundó Carnicería la Bendición con un pequeño local y el sueño de ofrecer los mejores cortes de carne a su comunidad.</p>
+                  <p className="historia-event-text">Doña XXX fundó Carnicería la Bendición con un pequeño local y el sueño de ofrecer los mejores cortes de carne a su comunidad.</p>
                 </div>
                 <div className="historia-event-circle">
                   <span className="historia-event-number">1</span>
@@ -63,7 +64,7 @@ const Historia = () => {
                 <div className="historia-event-right">
                   <div className="historia-event-image-container">
                     <div className="historia-event-image-placeholder">
-                      <img src="/api/placeholder/500/300" alt="Fundación de la carnicería" className="historia-event-image" />
+                    <img src={require('../../assets/images/Duena-carniceria.png')} alt="Fundación de la carnicería" className="historia-event-image" />
                     </div>
                   </div>
                 </div>
@@ -76,7 +77,7 @@ const Historia = () => {
                 <div className="historia-event-left">
                   <div className="historia-event-image-container">
                     <div className="historia-event-image-placeholder">
-                      <img src="/api/placeholder/500/300" alt="Expansión del negocio" className="historia-event-image" />
+                    <img src={require('../../assets/images/expansion.png')} alt="Fundación de la carnicería" className="historia-event-image" />
                     </div>
                   </div>
                 </div>
@@ -103,7 +104,7 @@ const Historia = () => {
                 <div className="historia-event-right">
                   <div className="historia-event-image-container">
                     <div className="historia-event-image-placeholder">
-                      <img src="/api/placeholder/500/300" alt="Segunda generación" className="historia-event-image" />
+                    <img src={require('../../assets/images/tercera.png')} alt="Fundación de la carnicería" className="historia-event-image" />
                     </div>
                   </div>
                 </div>
@@ -116,7 +117,7 @@ const Historia = () => {
                 <div className="historia-event-left">
                   <div className="historia-event-image-container">
                     <div className="historia-event-image-placeholder">
-                      <img src="/api/placeholder/500/300" alt="Carnicería actual" className="historia-event-image" />
+                    <img src={require('../../assets/images/actualmente.png')} alt="Fundación de la carnicería" className="historia-event-image" />
                     </div>
                   </div>
                 </div>
@@ -176,7 +177,7 @@ const Historia = () => {
           <p className="historia-visit-text">Te invitamos a nuestra tienda para experimentar la calidad y tradición que nos distingue.</p>
           <div className="historia-location">
             <MapPin className="historia-location-icon" />
-            <span>Av. Principal #123, Ciudad</span>
+            <span>El cairo de Siquirres</span>
           </div>
           <button className="historia-button">
             Cómo Llegar

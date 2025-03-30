@@ -1,6 +1,5 @@
 package com.bendicion.la.carniceria.carniceria.domain;
 
-import jakarta.persistence.CascadeType;
 import java.time.LocalDate;
 
 import jakarta.persistence.Column;
