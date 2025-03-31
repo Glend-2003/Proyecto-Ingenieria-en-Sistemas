@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import com.bendicion.la.carniceria.carniceria.domain.Usuario;
 import jakarta.transaction.Transactional;
+import java.time.LocalDate;
 
 /**
  *
