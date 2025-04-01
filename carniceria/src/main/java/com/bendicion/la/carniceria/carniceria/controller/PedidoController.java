@@ -111,7 +111,7 @@ public class PedidoController {
 
     }
 
-    @PutMapping("/actualizarestado/{idPedido}")
+    @PutMapping("/actualizarEstadoPedido/{idPedido}")
     public ResponseEntity<?> updateStatePedido(
             @PathVariable int idPedido,
             @RequestParam String estado) {

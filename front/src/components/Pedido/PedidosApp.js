@@ -16,7 +16,7 @@ const PedidosApp = () => {
     const fetchPedidos = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('http://localhost:8080/pedido/listar');
+        const response = await axios.get('http://localhost:8080/pedido/');
         setPedidos(response.data);
         setFilteredPedidos(response.data);
         setLoading(false);
@@ -37,11 +37,11 @@ const PedidosApp = () => {
     // Filter by search term
     if (searchTerm) {
       result = result.filter(
-        pedido => 
+        pedido =>
           pedido.idPedido.toString().includes(searchTerm) ||
-          (pedido.carrito.usuario.nombreUsuario && 
+          (pedido.carrito.usuario.nombreUsuario &&
             pedido.carrito.usuario.nombreUsuario.toLowerCase().includes(searchTerm.toLowerCase())) ||
-          (pedido.carrito.usuario.primerApellido && 
+          (pedido.carrito.usuario.primerApellido &&
             pedido.carrito.usuario.primerApellido.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
@@ -60,31 +60,39 @@ const PedidosApp = () => {
     setFilteredPedidos(result);
   }, [searchTerm, filterStatus, pedidos]);
 
-  // Handle state changes for delivery status
+  const [updatingStatus, setUpdatingStatus] = useState(null);
+
   const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
+    if (nuevoEstado === 'Cancelado' &&
+      !window.confirm('¿Está seguro que desea cancelar este pedido?')) {
+      return;
+    }
+
+    setUpdatingStatus(pedidoId);
     try {
-      await axios.put(`http://localhost:8080/pedido/actualizarEstadoEntrega/${pedidoId}`, {
-        estadoEntregaPedido: nuevoEstado
-      });
-      
-      // Update local state
+      await axios.put(`http://localhost:8080/pedido/actualizarEstadoPedido/${pedidoId}?estado=${encodeURIComponent(nuevoEstado)}`);
+
       const updatedPedidos = pedidos.map(pedido => {
         if (pedido.idPedido === pedidoId) {
           return { ...pedido, estadoEntregaPedido: nuevoEstado };
         }
         return pedido;
       });
-      
+
       setPedidos(updatedPedidos);
-      
-      // If a pedido is selected, update it too
+
       if (selectedPedido && selectedPedido.idPedido === pedidoId) {
         setSelectedPedido({ ...selectedPedido, estadoEntregaPedido: nuevoEstado });
       }
 
+      // Opcional: Mostrar notificación de éxito
+      alert(`Estado actualizado a "${nuevoEstado}" correctamente`);
     } catch (err) {
       console.error('Error updating pedido status:', err);
-      alert('Error al actualizar el estado del pedido');
+      alert('Error al actualizar el estado del pedido: ' +
+        (err.response?.data?.error || err.message));
+    } finally {
+      setUpdatingStatus(null);
     }
   };
 
@@ -108,8 +116,6 @@ const PedidosApp = () => {
         return 'status-badge-yellow';
       case 'En Proceso':
         return 'status-badge-blue';
-      case 'Enviado':
-        return 'status-badge-purple';
       case 'Entregado':
         return 'status-badge-green';
       case 'Cancelado':
@@ -142,7 +148,7 @@ const PedidosApp = () => {
   return (
     <div className="pedidos-app">
       <h1>Gestión de Pedidos</h1>
-      
+
       <div className="filters-container">
         <div className="search-container">
           <input
@@ -153,7 +159,7 @@ const PedidosApp = () => {
             className="search-input"
           />
         </div>
-        
+
         <div className="filter-select">
           <label htmlFor="status-filter">Filtrar por estado:</label>
           <select
@@ -166,7 +172,6 @@ const PedidosApp = () => {
             <option value="inactivo">Inactivo</option>
             <option value="Pendiente">Pendiente</option>
             <option value="En Proceso">En Proceso</option>
-            <option value="Enviado">Enviado</option>
             <option value="Entregado">Entregado</option>
             <option value="Cancelado">Cancelado</option>
           </select>
@@ -194,7 +199,7 @@ const PedidosApp = () => {
                 <tr key={pedido.idPedido} className={pedido.estadoPedido ? '' : 'inactive-row'}>
                   <td>{pedido.idPedido}</td>
                   <td>
-                    {pedido.carrito && pedido.carrito.usuario 
+                    {pedido.carrito && pedido.carrito.usuario
                       ? `${pedido.carrito.usuario.nombreUsuario} ${pedido.carrito.usuario.primerApellido}`
                       : 'N/A'}
                   </td>
@@ -209,7 +214,7 @@ const PedidosApp = () => {
                     {renderStatusBadge(pedido.estadoEntregaPedido)}
                   </td>
                   <td>
-                    <button 
+                    <button
                       className="view-btn"
                       onClick={() => handleSelectPedido(pedido)}
                     >
@@ -227,26 +232,26 @@ const PedidosApp = () => {
           <div className="pedido-details-modal">
             <div className="pedido-details-content">
               <button className="close-btn" onClick={handleCloseDetails}>×</button>
-              
+
               <h2>Detalles del Pedido #{selectedPedido.idPedido}</h2>
-              
+
               <div className="pedido-info">
                 <div className="info-section">
                   <h3>Información del Pedido</h3>
                   <p><strong>Fecha:</strong> {formatDate(selectedPedido.fechaPedido)}</p>
                   <p><strong>Monto Total:</strong> ₡{selectedPedido.montoTotalPedido ? selectedPedido.montoTotalPedido.toLocaleString() : '0'}</p>
                   <p>
-                    <strong>Estado:</strong> 
+                    <strong>Estado:</strong>
                     <span className={`active-status ${selectedPedido.estadoPedido ? 'active' : 'inactive'}`}>
                       {selectedPedido.estadoPedido ? 'Activo' : 'Inactivo'}
                     </span>
                   </p>
                   <p>
-                    <strong>Estado de Entrega:</strong> 
+                    <strong>Estado de Entrega:</strong>
                     {renderStatusBadge(selectedPedido.estadoEntregaPedido)}
                   </p>
                   <p>
-                    <strong>Método de Pago:</strong> 
+                    <strong>Método de Pago:</strong>
                     {selectedPedido.tipoPago ? selectedPedido.tipoPago.descripcionTipoPago : 'N/A'}
                   </p>
                 </div>
@@ -287,35 +292,47 @@ const PedidosApp = () => {
               <div className="actions-section">
                 <h3>Actualizar Estado de Entrega</h3>
                 <div className="status-buttons">
-                  <button 
+                  <button
                     className={`status-btn ${selectedPedido.estadoEntregaPedido === 'Pendiente' ? 'selected' : ''}`}
                     onClick={() => handleChangeEstadoEntrega(selectedPedido.idPedido, 'Pendiente')}
+                    disabled={updatingStatus === selectedPedido.idPedido}
                   >
-                    Pendiente
+                    {updatingStatus === selectedPedido.idPedido ? (
+                      <span className="loading-spinner"></span>
+                    ) : 'Pendiente'}
                   </button>
-                  <button 
+
+                  {/* Botón En Proceso */}
+                  <button
                     className={`status-btn ${selectedPedido.estadoEntregaPedido === 'En Proceso' ? 'selected' : ''}`}
                     onClick={() => handleChangeEstadoEntrega(selectedPedido.idPedido, 'En Proceso')}
+                    disabled={updatingStatus === selectedPedido.idPedido}
                   >
-                    En Proceso
+                    {updatingStatus === selectedPedido.idPedido ? (
+                      <span className="loading-spinner"></span>
+                    ) : 'En Proceso'}
                   </button>
-                  <button 
-                    className={`status-btn ${selectedPedido.estadoEntregaPedido === 'Enviado' ? 'selected' : ''}`}
-                    onClick={() => handleChangeEstadoEntrega(selectedPedido.idPedido, 'Enviado')}
-                  >
-                    Enviado
-                  </button>
-                  <button 
+
+                  {/* Botón Entregado */}
+                  <button
                     className={`status-btn ${selectedPedido.estadoEntregaPedido === 'Entregado' ? 'selected' : ''}`}
                     onClick={() => handleChangeEstadoEntrega(selectedPedido.idPedido, 'Entregado')}
+                    disabled={updatingStatus === selectedPedido.idPedido}
                   >
-                    Entregado
+                    {updatingStatus === selectedPedido.idPedido ? (
+                      <span className="loading-spinner"></span>
+                    ) : 'Entregado'}
                   </button>
-                  <button 
+
+                  {/* Botón Cancelado */}
+                  <button
                     className={`status-btn cancel-btn ${selectedPedido.estadoEntregaPedido === 'Cancelado' ? 'selected' : ''}`}
                     onClick={() => handleChangeEstadoEntrega(selectedPedido.idPedido, 'Cancelado')}
+                    disabled={updatingStatus === selectedPedido.idPedido}
                   >
-                    Cancelado
+                    {updatingStatus === selectedPedido.idPedido ? (
+                      <span className="loading-spinner"></span>
+                    ) : 'Cancelado'}
                   </button>
                 </div>
               </div>
@@ -323,7 +340,7 @@ const PedidosApp = () => {
           </div>
         )}
       </div>
-      
+
       <div className="pedidos-summary">
         <div className="summary-item">
           <span className="summary-label">Total de Pedidos:</span>

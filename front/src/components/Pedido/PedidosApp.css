@@ -265,40 +265,70 @@
   
   .status-buttons {
     display: flex;
-    flex-wrap: wrap;
     gap: 10px;
+    flex-wrap: wrap;
     margin-top: 15px;
-  }
-  
-  .status-btn {
+}
+
+.status-btn {
     padding: 8px 15px;
     border: none;
     border-radius: 4px;
+    background-color: #e0e0e0;
+    color: #333;
     cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 100px;
     font-size: 14px;
     font-weight: 500;
-    transition: all 0.3s;
-    background-color: #e9ecef;
-    color: #495057;
-  }
-  
-  .status-btn:hover {
-    opacity: 0.9;
-  }
-  
-  .status-btn.selected {
-    background-color: #007bff;
+}
+
+.status-btn.selected {
     color: white;
-  }
-  
-  .status-btn.cancel-btn {
+}
+
+.status-btn:nth-child(1).selected { /* Pendiente */
+    background-color: #ffc107;
+}
+
+.status-btn:nth-child(2).selected { /* En Proceso */
+    background-color: #17a2b8;
+}
+
+.status-btn:nth-child(3).selected { /* Entregado */
+    background-color: #28a745;
+}
+
+.status-btn.cancel-btn.selected { /* Cancelado */
     background-color: #dc3545;
-    color: white;
-  }
-  
-  .status-btn.cancel-btn.selected {
-    background-color: #c82333;
-  }
+}
+
+.status-btn:hover:not(:disabled) {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.status-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: currentColor;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
   
   /* Summary section */
   .pedidos-summary {
