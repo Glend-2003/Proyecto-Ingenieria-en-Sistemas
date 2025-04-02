@@ -1,0 +1,24 @@
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spEliminarCarrito`(IN `p_idCarrito` INT)
+BEGIN
+    DECLARE done INT DEFAULT 0;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+    BEGIN
+        ROLLBACK;
+        SELECT 'Error al desactivar el carrito' AS mensaje;
+    END;
+
+    IF done = 0 AND NOT EXISTS (SELECT 1 FROM tbcarrito WHERE idCarrito = p_idCarrito) THEN
+        SET done = 1;
+        SELECT 'Carrito no encontrado' AS mensaje;
+    END IF;
+
+    IF done = 0 THEN
+        UPDATE tbcarrito
+        SET estadoCarrito = 0
+        WHERE idCarrito = p_idCarrito;
+
+        SELECT 'Carrito desactivado con éxito' AS mensaje;
+    END IF;
+
+END

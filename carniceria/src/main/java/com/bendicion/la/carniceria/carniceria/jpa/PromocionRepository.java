@@ -4,9 +4,7 @@
  */
 package com.bendicion.la.carniceria.carniceria.jpa;
 
-import com.bendicion.la.carniceria.carniceria.domain.Producto;
 import com.bendicion.la.carniceria.carniceria.domain.Promocion;
-import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;

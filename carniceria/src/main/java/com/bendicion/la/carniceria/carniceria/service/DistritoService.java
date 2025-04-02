@@ -1,4 +1,3 @@
-
 package com.bendicion.la.carniceria.carniceria.service;
 import com.bendicion.la.carniceria.carniceria.domain.Distrito;
 import com.bendicion.la.carniceria.carniceria.jpa.DistritoRepository;
@@ -22,5 +21,10 @@ public class DistritoService implements IDistritoService{
     @Override
     public List<Distrito> getDistrito() {
         return distritoRep.listProcedureDistrito();
+    }
+    
+    @Override
+    public List<Distrito> getDistritos(int idCanton) {
+        return distritoRep.listProcedureDistritoCanton(idCanton);
     }
 }

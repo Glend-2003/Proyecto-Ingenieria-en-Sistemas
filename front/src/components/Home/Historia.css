@@ -27,7 +27,7 @@
   .historia-hero {
     position: relative;
     height: 16rem;
-    background-color: var(--color-primary);
+    background-image: url('../../assets/images/backgroundTitulo.png'); /* Ruta de la imagen */
     overflow: hidden;
   }
   

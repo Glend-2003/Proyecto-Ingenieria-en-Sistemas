@@ -9,14 +9,16 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Registrar from './components/Usuarios/Registrar';
 import Categoria from './components/Categoria/CategoriaApp';
 import Usuarios from './components/Usuarios/GestionarUsuario';
-import ProductoApp from './components/Productos/ProductoApp'; // Asegúrate de que esta ruta sea correcta
+import ProductoApp from './components/Productos/ProductoApp'; 
 import ComentarioApp from './components/Comentario/ComentarioApp';
 import PromocionApp from './components/Promocion/PromocionApp';
 import TipoPagoApp from './components/TipoPago/TipoPagoApp';
+import PedidosApp from './components/Pedido/PedidosApp';
 import ListaProductosApp from './components/Catalogo/ListaProductosApp';
 import PerfilUsuario from './components/DetallesCliente/PerfilUsuario';
 import Dashboard from './components/DetallesCliente/Dashboard';
 import SideBarUsuario from './components/DetallesCliente/SideBarUsuario';
+import DireccionUsuario from './components/DetallesCliente/DireccionUsuario';
 import { CartProvider } from './contexto/ContextoCarrito';
 
 // Componente para proteger rutas
@@ -42,10 +44,12 @@ root.render(
           <Route path="/ProductoApp" element={<PrivateRoute><ProductoApp /></PrivateRoute>} />
           <Route path="/PromocionApp" element={<PrivateRoute><PromocionApp /></PrivateRoute>} />
           <Route path="/TipoPagoApp" element={<PrivateRoute><TipoPagoApp /></PrivateRoute>} />
+          <Route path="/PedidosApp" element={<PrivateRoute><PedidosApp /></PrivateRoute>} />
           <Route path="/ListaProductosApp" element={<PrivateRoute><ListaProductosApp /></PrivateRoute>} />
           <Route path="/PerfilUsuario" element={<PrivateRoute><PerfilUsuario /></PrivateRoute>} />
           <Route path="/Dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
           <Route path="/SideBarUsuario" element={<PrivateRoute><SideBarUsuario /></PrivateRoute>} />
+          <Route path="/DireccionUsuario" element={<PrivateRoute><DireccionUsuario /></PrivateRoute>} />
           <Route path="/verOrden" element={<LoginApp initialPage="verOrden" />} />
           <Route path="/cortes-de-res" element={<LoginApp initialPage="res" />} />
           <Route path="/cortes-de-cerdo" element={<LoginApp initialPage="cerdo" />} />

@@ -85,6 +85,18 @@ const SideBar = ({ usuario }) => {
                                 Tipo Pago
                             </NavLink>
                         </li>
+
+                        <li className="nav-item">
+                            <NavLink 
+                                className={({ isActive }) => isActive ? "nav-link active link-light" : "nav-link link-body-emphasis"} 
+                                to="/PedidosApp"
+                                style={({ isActive }) => ({
+                                    backgroundColor: isActive ? 'rgb(4, 36, 64)' : 'transparent',
+                                })} 
+                            >
+                                Pedidos
+                            </NavLink>
+                        </li>
                     </ul>
                 </div>
                 <div>
