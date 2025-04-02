@@ -97,7 +97,9 @@ public class PedidoController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("error", "Error al actualizar el pedido: " + e.getMessage()));
         }
     }
-
+    
+     // Este elimina del todo, por medio de una cascada, lo que hace a eliminarlo d etodas las tablas
+    
     @PostMapping("/eliminar/{id}")
     public ResponseEntity<Boolean> deletePedido(@RequestBody int id) {
         boolean eliminado = pedidoService.deletePedido(id);
@@ -110,14 +112,29 @@ public class PedidoController {
         }
 
     }
+    
+    // Este lo que hace es cambiar el estado del pedido, y ocultar los que tienen estado 1, pasan a 0 los ocultos
+    
+    @PostMapping("/ocultar/{id}")
+    public ResponseEntity<Boolean> updateStatePedido(@RequestBody int id) {
+        boolean oculto = pedidoService.updateStatePedido(id);
+        if (oculto) {
+            System.out.println("Pedido oculto: " + id);
+            return ResponseEntity.ok(true);
+        } else {
+            System.out.println("Error al ocultar el pedido: " + id + " no encontrado");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
+        }
+
+    }
 
     @PutMapping("/actualizarEstadoPedido/{idPedido}")
-    public ResponseEntity<?> updateStatePedido(
+    public ResponseEntity<?> updateStateEntregaPedido(
             @PathVariable int idPedido,
             @RequestParam String estado) {
 
         try {
-            pedidoService.updateStatePedido(idPedido, estado);
+            pedidoService.updateStateEntregaPedido(idPedido, estado);
             return ResponseEntity.ok().body(
                     Collections.singletonMap("mensaje", "Estado de entrega actualizado correctamente")
             );

@@ -2,13 +2,11 @@ package com.bendicion.la.carniceria.carniceria.jpa;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
 import com.bendicion.la.carniceria.carniceria.domain.Pedido;
 
 /**
@@ -47,6 +45,9 @@ public interface PedidoRepository extends JpaRepository<Pedido, Integer>{
 
     @Query(value = "{call spEliminarPedido(:idPedido)}", nativeQuery = true)
     void deleteProcedurePedido(@Param("idPedido") Integer idPedido);
+    
+    @Query(value = "{call spActualizarEstadoPedido(:idPedido)}", nativeQuery = true)
+    void deleteStateProcedurePedido(@Param("idPedido") Integer idPedido);
     
     @Modifying
     @Query(value = "{call spActualizarEstadoEntregaPedido(:idPedido, :nuevoEstado)}", nativeQuery = true)

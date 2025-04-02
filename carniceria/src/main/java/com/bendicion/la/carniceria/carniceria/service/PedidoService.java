@@ -74,18 +74,29 @@ import jakarta.transaction.Transactional;
         // Mapea cada fila a un mapa de claves y valores
          
     }
-
+    
+    // Este elimina del todo, por medio de una cascada, lo que hace a eliminarlo d etodas las tablas
+    
     @Transactional
     @Override
     public boolean deletePedido(int id) {
         pedidoRepo.deleteProcedurePedido(id);
         return true;
     }
+    
+    // Este lo que hace es cambiar el estado del pedido, y ocultar los que tienen estado 0
+    
+    @Transactional
+    @Override
+    public boolean updateStatePedido(int id) {
+        pedidoRepo.deleteStateProcedurePedido(id);
+        return true;
+    }
 
 
     @Override
     @Transactional
-    public void updateStatePedido(int idPedido, String nuevoEstado) {
+    public void updateStateEntregaPedido(int idPedido, String nuevoEstado) {
         try {
             pedidoRepo.updateStateEntrega(idPedido, nuevoEstado);
         } catch (Exception e) {

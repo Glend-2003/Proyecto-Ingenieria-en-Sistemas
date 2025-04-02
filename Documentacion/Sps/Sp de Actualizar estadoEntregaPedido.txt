@@ -1,4 +1,4 @@
-DELIMITER //
+
 CREATE PROCEDURE ActualizarEstadoEntregaPedido(
     IN p_idPedido INT,
     IN p_nuevoEstado VARCHAR(50)
@@ -17,5 +17,4 @@ BEGIN
     ELSE
         SELECT 'Error: Valores permitidos: Pendiente, En proceso, Cancelado, Entregado' AS Error;
     END IF;
-END//
-DELIMITER ;
+END

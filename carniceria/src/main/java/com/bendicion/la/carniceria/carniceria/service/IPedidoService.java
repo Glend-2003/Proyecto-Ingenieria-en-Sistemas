@@ -29,5 +29,8 @@ public interface IPedidoService {
     public boolean deletePedido(int id);
     
     @Transactional
-    public void updateStatePedido(int idPedido, String nuevoEstado);
+    public boolean updateStatePedido(int id);
+    
+    @Transactional
+    public void updateStateEntregaPedido(int idPedido, String nuevoEstado);
 }
