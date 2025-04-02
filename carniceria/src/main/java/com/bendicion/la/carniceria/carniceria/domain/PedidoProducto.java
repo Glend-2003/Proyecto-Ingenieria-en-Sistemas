@@ -1,11 +1,13 @@
 package com.bendicion.la.carniceria.carniceria.domain;
 import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
+@Entity(name = "tbpedidoproducto")
 public class PedidoProducto {
 
     @Id 
@@ -17,7 +19,8 @@ public class PedidoProducto {
     @JoinColumn(name = "idPedido", nullable= false)
     private Pedido pedido;
 
-    @Column(name = "idProducto")
+    @ManyToOne
+    @JoinColumn(name = "idProducto")
     private Producto idProducto;
 
     public PedidoProducto(int idPedidoProducto, Pedido pedido, Producto idProducto) {

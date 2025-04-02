@@ -2,6 +2,7 @@ package com.bendicion.la.carniceria.carniceria.jpa;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -19,7 +20,6 @@ import com.bendicion.la.carniceria.carniceria.domain.Pedido;
 @Repository
 public interface PedidoRepository extends JpaRepository<Pedido, Integer>{
 
-    @Modifying
     @Query(value = "{call sp_AgregarPedido(:montoTotalPedido, :fechaPedido, :estadoPedido, :estadoEntregaPedido, :idCarrito, :idTipoPago)}", nativeQuery = true)
     void saveProcedurePedido(
         @Param("montoTotalPedido") BigDecimal montoTotalPedido, 
@@ -30,8 +30,10 @@ public interface PedidoRepository extends JpaRepository<Pedido, Integer>{
         @Param("idTipoPago") Integer idTipoPago
     );
 
-    @Query(value = "{call spLeerPedido()}", nativeQuery = true)
-    List<Pedido> listaPedido();
+    @Query(value = "CALL spLeerPedidoDetallado()", nativeQuery = true)
+    List<Map<String, Object>> listaPedido();
+
+    
 
     @Modifying
     @Query(value = "{call spActualizarPedido(:idPedido, :montoTotalPedido, :fechaPedido, :estadoPedido, :estadoEntregaPedido, :idCarrito, :idTipoPago)}", nativeQuery = true)
