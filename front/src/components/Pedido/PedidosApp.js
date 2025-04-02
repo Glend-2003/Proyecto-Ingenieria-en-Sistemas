@@ -17,6 +17,7 @@ const PedidosApp = () => {
       try {
         setLoading(true);
         const response = await axios.get('http://localhost:8080/pedido/listar');
+        console.log('Fetched pedidos:', response.data); // Debugging line
         setPedidos(response.data);
         setFilteredPedidos(response.data);
         setLoading(false);
