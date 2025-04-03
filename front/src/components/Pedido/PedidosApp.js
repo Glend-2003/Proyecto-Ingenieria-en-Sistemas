@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './PedidosApp.css';
+import { Button, Modal } from "react-bootstrap";
 
 const PedidosApp = () => {
   const [pedidos, setPedidos] = useState([]);
@@ -10,6 +11,14 @@ const PedidosApp = () => {
   const [selectedPedido, setSelectedPedido] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('todos');
+  const [showModal, setShowModal] = useState(false);
+   const [montoTotalPedido, setMontoTotalPedido] = useState("");
+    const [fechaPedido, setFechaPedido] = useState("");
+    const [estadoPedido, setEstadoPedido] = useState("");
+    const [estadoEntregaPedido, setEstadoEntregaPedido] = useState("");
+    const [idCarrito, setIdCarrito] = useState("");
+    const [idTipoPago, setIdTipoPago] = useState("");
+
 
   // Fetch pedidos from API
   useEffect(() => {
@@ -97,6 +106,26 @@ const PedidosApp = () => {
     }
   };
 
+  const handleShowModal = () => { 
+    setMontoTotalPedido("");
+    setFechaPedido("");
+    setEstadoPedido("");
+    setEstadoEntregaPedido("");
+    setIdCarrito("");
+    setIdTipoPago("");
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setMontoTotalPedido("");
+    setFechaPedido("");
+    setEstadoPedido("");
+    setEstadoEntregaPedido("");
+    setIdCarrito("");
+    setIdTipoPago("");
+  };
+
   // Format date for display
   const formatDate = (dateString) => {
     if (!dateString) return '';
@@ -149,7 +178,52 @@ const PedidosApp = () => {
   return (
     <div className="pedidos-app">
       <h1>Gestión de Pedidos</h1>
-
+    <Button className="custom-button" onClick={() => handleShowModal()}>
+              Agregar promoción nueva
+            </Button>
+             <Modal show={showModal} onHide={handleCloseModal}>
+              <Modal.Header closeButton>
+                         <Modal.Title>
+                          Agregar promocion 
+                         </Modal.Title>
+                       </Modal.Header>
+                       <Modal.Body>
+                       </Modal.Body>
+                       <div className="mb-3">
+               
+               
+              </div>
+              <div className="mb-3">
+                <label>Monto total a pagar</label>
+             
+              </div>
+              <div className="mb-3">
+                <label>Fecha de pedido</label>
+                <input
+               
+                />
+              </div>
+              <div className="mb-3">
+                <label>Esta de entraga pedido</label>
+                <input
+               
+                />
+              </div>
+            
+              <div className="mb-3">
+                <label>Carrito</label>
+                <input
+               
+                />
+              </div>
+              <div className="mb-3">
+                <label>Carrito</label>
+                <input
+               
+                />
+              </div>
+             
+              </Modal>
       <div className="filters-container">
         <div className="search-container">
           <input
