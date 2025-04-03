@@ -253,6 +253,70 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `spActualizarCarrito` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spActualizarCarrito`(
+    IN `p_idCarrito` INT,
+    IN `p_idUsuario` INT, 
+    IN `p_montoTotalCarrito` DECIMAL(38,2), 
+    IN `p_estadoCarrito` TINYINT(1),
+    IN `p_cantidadCarrito` INT
+)
+BEGIN
+    -- Manejador de errores mejorado
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error al actualizar el carrito';
+    END;
+
+    -- Iniciar transacción
+    START TRANSACTION;
+
+    -- Validar existencia del carrito
+    IF NOT EXISTS (SELECT 1 FROM tbcarrito WHERE idCarrito = p_idCarrito) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Carrito no encontrado';
+    END IF;
+
+    -- Validar usuario si se proporciona
+    IF p_idUsuario IS NOT NULL AND NOT EXISTS (SELECT 1 FROM tbusuario WHERE idUsuario = p_idUsuario) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Usuario no existe';
+    END IF;
+
+    -- Validar monto total
+    IF p_montoTotalCarrito IS NOT NULL AND p_montoTotalCarrito <= 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El monto total debe ser mayor a cero';
+    END IF;
+
+    -- Validar cantidad
+    IF p_cantidadCarrito IS NOT NULL AND p_cantidadCarrito < 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La cantidad no puede ser negativa';
+    END IF;
+
+    -- Actualización condicional con IFNULL
+    UPDATE tbcarrito
+    SET 
+        idUsuario = IFNULL(p_idUsuario, idUsuario),
+        montoTotalCarrito = IFNULL(p_montoTotalCarrito, montoTotalCarrito),
+        cantidadCarrito = IFNULL(p_cantidadCarrito, cantidadCarrito),
+        estadoCarrito = IFNULL(p_estadoCarrito, estadoCarrito)
+    WHERE idCarrito = p_idCarrito;
+
+    COMMIT;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `spActualizarCategoria` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -338,6 +402,69 @@ BEGIN
     WHERE idUsuario = p_idUsuario;
 
     -- Confirmación de la transacción
+    COMMIT;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `spActualizarPedido` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb3 */ ;
+/*!50003 SET character_set_results = utf8mb3 */ ;
+/*!50003 SET collation_connection  = utf8mb3_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spActualizarPedido`(
+    IN p_idPedido INT,
+    IN p_montoTotalPedido DECIMAL(38,2),
+    IN p_fechaPedido DATETIME(6),
+    IN p_estadoPedido BIT(1),
+    IN p_estadoEntregaPedido VARCHAR(255),
+    IN p_idCarrito INT,
+    IN p_idTipoPago INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SELECT 'Error al actualizar el pedido' AS Mensaje;
+    END;
+    
+    START TRANSACTION;
+    
+    -- Validar que el pedido exista
+    IF NOT EXISTS (SELECT 1 FROM tbpedido WHERE idPedido = p_idPedido) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El pedido especificado no existe';
+    END IF;
+    
+    -- Validar relaciones
+    IF NOT EXISTS (SELECT 1 FROM tbcarrito WHERE idCarrito = p_idCarrito) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El carrito especificado no existe';
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM tbtipopago WHERE idTipoPago = p_idTipoPago) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El tipo de pago especificado no existe';
+    END IF;
+    
+    -- Actualizar el pedido
+    UPDATE tbpedido
+    SET 
+        montoTotalPedido = p_montoTotalPedido,
+        fechaPedido = p_fechaPedido,
+        estadoPedido = p_estadoPedido,
+        estadoEntregaPedido = p_estadoEntregaPedido,
+        idCarrito = p_idCarrito,
+        idTipoPago = p_idTipoPago
+    WHERE 
+        idPedido = p_idPedido;
+    
+    SELECT ROW_COUNT() AS filasAfectadas, 'Pedido actualizado exitosamente' AS Mensaje;
+    
     COMMIT;
 END ;;
 DELIMITER ;
@@ -516,9 +643,22 @@ DELIMITER ;
 /*!50003 SET character_set_results = utf8mb4 */ ;
 /*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'NO_AUTO_VALUE_ON_ZERO' */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `spActualizarUsuario`(IN `p_idUsuario` INT, IN `p_cedulaUsuario` VARCHAR(255), IN `p_nombreUsuario` VARCHAR(255), IN `p_primerApellido` VARCHAR(255), IN `p_segundoApellido` VARCHAR(255), IN `p_telefonoUsuario` VARCHAR(255), IN `p_correoUsuario` VARCHAR(255), IN `p_contraseniaUsuario` VARCHAR(255), IN `p_fechaNacimiento` DATE, IN `p_descripcionDireccion` VARCHAR(255), IN `p_codigoPostalDireccion` VARCHAR(255), IN `p_idDistrito` INT, IN `p_estadoUsuario` TINYINT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spActualizarUsuario`(IN `p_idUsuario` INT,
+ IN `p_cedulaUsuario` VARCHAR(255),
+ IN `p_nombreUsuario` VARCHAR(255),
+ IN `p_primerApellido` VARCHAR(255),
+ IN `p_segundoApellido` VARCHAR(255), 
+ IN `p_telefonoUsuario` VARCHAR(255),
+ IN `p_correoUsuario` VARCHAR(255), 
+ IN `p_contraseniaUsuario` VARCHAR(255), 
+ IN `p_fechaNacimiento` DATE, 
+ IN `p_descripcionDireccion` VARCHAR(255), 
+ IN `p_codigoPostalDireccion` VARCHAR(255), 
+ IN `p_idDistrito` INT, 
+ IN `p_idRol` INT, 
+ IN `p_estadoUsuario` TINYINT)
 BEGIN
     DECLARE existingCount INT;
 
@@ -568,6 +708,7 @@ BEGIN
         correoUsuario = IF(p_correoUsuario IS NOT NULL, p_correoUsuario, correoUsuario),
         contraseniaUsuario = IF(p_contraseniaUsuario IS NOT NULL, p_contraseniaUsuario, contraseniaUsuario),
         fechaNacimiento = IF(p_fechaNacimiento IS NOT NULL, p_fechaNacimiento, fechaNacimiento),
+        idRol = IF(p_idRol IS NOT NULL, p_idRol, idRol),
         estadoUsuario = IF(p_estadoUsuario IS NOT NULL, p_estadoUsuario, estadoUsuario) -- Actualiza el estado
     WHERE idUsuario = p_idUsuario;
 
@@ -581,6 +722,120 @@ BEGIN
         idDistrito = COALESCE(p_idDistrito, idDistrito)
     WHERE idDireccion = @idDireccion;
 
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `spAgregarCarrito` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spAgregarCarrito`(
+    IN `p_idUsuario` INT, 
+    IN `p_montoTotalCarrito` DECIMAL(38,2), 
+    IN `p_estadoCarrito` TINYINT(1),
+    IN `p_cantidadCarrito` INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error en la inserción del carrito';
+    END;
+
+    START TRANSACTION;
+
+    -- Validaciones mejoradas
+    IF p_idUsuario IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ID de usuario es requerido';
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM tbusuario WHERE idUsuario = p_idUsuario) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Usuario no existe';
+    END IF;
+
+    IF p_montoTotalCarrito IS NULL OR p_montoTotalCarrito <= 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Monto total debe ser mayor a cero';
+    END IF;
+
+    IF p_cantidadCarrito IS NULL OR p_cantidadCarrito <= 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Cantidad debe ser positiva';
+    END IF;
+
+    -- INSERT corregido (eliminé p_montoPrecioProducto que no es parámetro)
+    INSERT INTO tbcarrito (
+        idUsuario, 
+        montoTotalCarrito, 
+        cantidadCarrito, 
+        estadoCarrito
+    )
+    VALUES (
+        p_idUsuario, 
+        p_montoTotalCarrito, 
+        p_cantidadCarrito, 
+        p_estadoCarrito
+    );
+
+    COMMIT;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `spAgregarCarritoProducto` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spAgregarCarritoProducto`(
+    IN p_idCarrito INT,
+    IN p_idProducto INT,
+    IN p_cantidadProducto INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error al agregar producto al carrito';
+    END;
+    
+    START TRANSACTION;
+    
+    -- Validaciones
+    IF NOT EXISTS (SELECT 1 FROM tbcarrito WHERE idCarrito = p_idCarrito) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Carrito no existe';
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM tbproducto WHERE idProducto = p_idProducto) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Producto no existe';
+    END IF;
+    
+    IF p_cantidadProducto <= 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Cantidad debe ser mayor a cero';
+    END IF;
+    
+    -- Inserción
+    INSERT INTO tbcarritoproducto (idCarrito, idProducto, cantidadProducto)
+    VALUES (p_idCarrito, p_idProducto, p_cantidadProducto);
+    
+    COMMIT;
+    
+    -- Retornar el ID del nuevo registro
+    SELECT LAST_INSERT_ID() AS idCarritoProducto;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -649,6 +904,105 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `spAgregarPedido` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb3 */ ;
+/*!50003 SET character_set_results = utf8mb3 */ ;
+/*!50003 SET collation_connection  = utf8mb3_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spAgregarPedido`(
+    IN p_montoTotalPedido DECIMAL(38,2),
+    IN p_fechaPedido DATETIME(6),
+    IN p_estadoPedido BIT(1),
+    IN p_estadoEntregaPedido VARCHAR(255),
+    IN p_idCarrito INT,
+    IN p_idTipoPago INT,
+    IN p_productos JSON -- Nuevo parámetro para recibir los productos
+)
+BEGIN
+    DECLARE v_idPedido INT;
+    DECLARE v_idProducto INT;
+    DECLARE v_cantidad INT;
+    DECLARE v_precioUnitario DECIMAL(38,2);
+    DECLARE i INT DEFAULT 0;
+    DECLARE v_count INT;
+    
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SELECT 'Error al agregar el pedido' AS Mensaje;
+    END;
+    
+    START TRANSACTION;
+    
+    -- Validaciones básicas
+    IF p_montoTotalPedido IS NULL OR p_fechaPedido IS NULL OR 
+       p_idCarrito IS NULL OR p_idTipoPago IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Parámetros obligatorios no pueden ser nulos';
+    END IF;
+    
+    -- Validar relaciones
+    IF NOT EXISTS (SELECT 1 FROM tbcarrito WHERE idCarrito = p_idCarrito) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El carrito especificado no existe';
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM tbtipopago WHERE idTipoPago = p_idTipoPago) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El tipo de pago especificado no existe';
+    END IF;
+    
+    -- Insertar el pedido
+    INSERT INTO tbpedido (
+        montoTotalPedido,
+        fechaPedido,
+        estadoPedido,
+        estadoEntregaPedido,
+        idCarrito,
+        idTipoPago
+    ) VALUES (
+        p_montoTotalPedido,
+        p_fechaPedido,
+        p_estadoPedido,
+        p_estadoEntregaPedido,
+        p_idCarrito,
+        p_idTipoPago
+    );
+    
+    -- Obtener el ID del pedido recién insertado
+    SET v_idPedido = LAST_INSERT_ID();
+    
+    -- Procesar los productos si se proporcionaron
+    IF p_productos IS NOT NULL THEN
+        -- Obtener la cantidad de productos
+        SET v_count = JSON_LENGTH(p_productos);
+        
+        -- Recorrer cada producto y agregarlo a tbpedidoproducto
+        WHILE i < v_count DO
+            SET v_idProducto = JSON_EXTRACT(p_productos, CONCAT('$[', i, '].idProducto'));
+            SET v_cantidad = JSON_EXTRACT(p_productos, CONCAT('$[', i, '].cantidad'));
+            SET v_precioUnitario = JSON_EXTRACT(p_productos, CONCAT('$[', i, '].precioUnitario'));
+            
+            -- Insertar en la tabla relacional
+            INSERT INTO tbpedidoproducto (idPedido, idProducto, cantidad, precioUnitario)
+            VALUES (v_idPedido, v_idProducto, v_cantidad, v_precioUnitario);
+            
+            SET i = i + 1;
+        END WHILE;
+    END IF;
+    
+    -- Retornar el ID del pedido creado
+    SELECT v_idPedido AS idPedido, 'Pedido agregado exitosamente' AS Mensaje;
+    
+    COMMIT;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `spAgregarProducto` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -657,16 +1011,26 @@ DELIMITER ;
 /*!50003 SET character_set_results = utf8mb4 */ ;
 /*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'NO_AUTO_VALUE_ON_ZERO' */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `spAgregarProducto`(IN `p_nombreProducto` VARCHAR(255), IN `p_imgProducto` VARCHAR(255), IN `p_montoPrecioProducto` DECIMAL(10,3), IN `p_descripcionProducto` VARCHAR(500), IN `p_idCategoria` INT, IN `p_estadoProducto` BOOLEAN)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spAgregarProducto`(
+    IN `p_nombreProducto` VARCHAR(255), 
+    IN `p_imgProducto` VARCHAR(255), 
+    IN `p_montoPrecioProducto` DECIMAL(12,2), 
+    IN `p_descripcionProducto` VARCHAR(255), 
+    IN `p_cantidadProducto` DECIMAL(10,2), 
+    IN `p_tipoPesoProducto` VARCHAR(50), 
+    IN `p_codigoProducto` VARCHAR(50), 
+    IN `p_stockProducto` INT, 
+    IN `p_idCategoria` INT, 
+    IN `p_estadoProducto` TINYINT(1)
+)
 BEGIN
-    DECLARE done INT DEFAULT 0;
-
-    -- Manejador de errores genéricos
+    -- Manejador de errores
     DECLARE EXIT HANDLER FOR SQLEXCEPTION 
     BEGIN
         ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error en la inserción del producto';
     END;
 
     -- Iniciar transacción
@@ -681,12 +1045,20 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El precio debe ser mayor a cero';
     END IF;
 
-    IF p_descripcionProducto IS NOT NULL AND CHAR_LENGTH(p_descripcionProducto) > 500 THEN
+    IF p_descripcionProducto IS NOT NULL AND CHAR_LENGTH(p_descripcionProducto) > 255 THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Descripción demasiado larga';
     END IF;
 
     IF p_imgProducto IS NOT NULL AND CHAR_LENGTH(p_imgProducto) > 255 THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Nombre de imagen demasiado largo';
+    END IF;
+
+    IF p_codigoProducto IS NOT NULL AND CHAR_LENGTH(p_codigoProducto) > 50 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Código de producto demasiado largo';
+    END IF;
+
+    IF p_tipoPesoProducto IS NOT NULL AND CHAR_LENGTH(p_tipoPesoProducto) > 50 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Tipo de peso demasiado largo';
     END IF;
 
     -- Validar existencia de categoría
@@ -699,14 +1071,31 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Formato de imagen inválido';
     END IF;
 
+    -- Validar cantidad y stock
+    IF p_cantidadProducto IS NOT NULL AND p_cantidadProducto < 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Cantidad de producto no puede ser negativa';
+    END IF;
+
+    IF p_stockProducto IS NOT NULL AND p_stockProducto < 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Stock de producto no puede ser negativo';
+    END IF;
+
     -- Validación de unicidad del nombre dentro de la categoría
     IF EXISTS (SELECT 1 FROM tbproducto WHERE nombreProducto = p_nombreProducto AND idCategoria = p_idCategoria) THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Producto ya existe en esta categoría';
     END IF;
 
     -- Insertar el producto si todas las validaciones son exitosas
-    INSERT INTO tbproducto (nombreProducto, imgProducto, montoPrecioProducto, descripcionProducto, idCategoria, estadoProducto)
-    VALUES (p_nombreProducto, p_imgProducto, p_montoPrecioProducto, p_descripcionProducto, p_idCategoria, p_estadoProducto);
+    INSERT INTO tbproducto (
+        nombreProducto, imgProducto, montoPrecioProducto, descripcionProducto, 
+        cantidadProducto, tipoPesoProducto, codigoProducto, stockProducto, 
+        idCategoria, estadoProducto
+    )
+    VALUES (
+        p_nombreProducto, p_imgProducto, p_montoPrecioProducto, p_descripcionProducto, 
+        p_cantidadProducto, p_tipoPesoProducto, p_codigoProducto, p_stockProducto, 
+        p_idCategoria, p_estadoProducto
+    );
 
     COMMIT;
 END ;;
@@ -994,6 +1383,51 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `spCambiarContrasenaConCodigo` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spCambiarContrasenaConCodigo`(
+    IN p_numCodigo VARCHAR(6),
+    IN p_nuevaContrasenia VARCHAR(255),
+    IN p_nuevoCodigo VARCHAR(6))
+BEGIN
+    DECLARE v_idUsuario INT;
+
+    -- Obtener el ID del usuario asociado al código de verificación
+    SELECT idUsuario INTO v_idUsuario
+    FROM tbcodigoverificacion
+    WHERE numCodigo = p_numCodigo;
+
+    IF v_idUsuario IS NULL THEN
+        -- Si no se encuentra el usuario, devolver 0 (error)
+        SELECT 0 AS resultado;
+    ELSE
+        -- Actualizar la contraseña del usuario
+        UPDATE tbusuario
+        SET contraseniaUsuario = p_nuevaContrasenia
+        WHERE idUsuario = v_idUsuario;
+
+        -- Actualizar el código de verificación en tbcodigoverificacion
+        UPDATE tbcodigoverificacion
+        SET numCodigo = p_nuevoCodigo
+        WHERE idUsuario = v_idUsuario;
+
+        -- Devolver 1 (éxito)
+        SELECT 1 AS resultado;
+    END IF;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `spEliminarCategoria` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -1068,6 +1502,45 @@ BEGIN
         SELECT 'Error: comentario no encontrado' AS mensaje;
     END IF;
 
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `spEliminarPedido` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb3 */ ;
+/*!50003 SET character_set_results = utf8mb3 */ ;
+/*!50003 SET collation_connection  = utf8mb3_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spEliminarPedido`(
+    IN p_idPedido INT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SELECT 'Error al eliminar el pedido' AS Mensaje;
+    END;
+    
+    START TRANSACTION;
+    
+    -- Validar que el pedido exista
+    IF NOT EXISTS (SELECT 1 FROM tbpedido WHERE idPedido = p_idPedido) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El pedido especificado no existe';
+    END IF;
+    
+    -- Eliminar el pedido
+    DELETE FROM tbpedido WHERE idPedido = p_idPedido;
+    
+    SELECT ROW_COUNT() AS filasAfectadas, 'Pedido eliminado exitosamente' AS Mensaje;
+    
+    COMMIT;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -1415,6 +1888,123 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `spLeerPedido` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spLeerPedido`()
+BEGIN
+    SELECT 
+        idPedido,
+        montoTotalPedido,
+        fechaPedido,
+        estadoPedido,
+        estadoEntregaPedido,
+        idCarrito,
+        idTipoPago
+    FROM bdcarniceria.tbpedido
+    ORDER BY fechaPedido DESC;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `spLeerPedidoDetallado` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spLeerPedidoDetallado`()
+BEGIN
+    -- Listar todos los pedidos con su información relacionada
+    SELECT 
+        p.idPedido,
+        p.montoTotalPedido,
+        p.fechaPedido,
+        p.estadoPedido,
+        CASE 
+            WHEN p.estadoPedido = 1 THEN 'Activo'
+            ELSE 'Inactivo'
+        END AS estadoPedidoTexto,
+        p.estadoEntregaPedido,
+        p.idCarrito,
+        p.idTipoPago,
+        
+        -- Información del Tipo de Pago
+        tp.descripcionTipoPago,
+        tp.estadoTipoPago,
+        
+        -- Información del Carrito
+        c.idUsuario,
+        c.montoTotalCarrito,
+        c.estadoCarrito,
+        c.cantidadCarrito,
+        
+        -- Información del Usuario
+        u.nombreUsuario,
+        u.primerApellido,
+        u.segundoApellido,
+        CONCAT(u.nombreUsuario, ' ', u.primerApellido, ' ', u.segundoApellido) AS nombreCompletoUsuario,
+        u.cedulaUsuario,
+        u.correoUsuario,
+        u.telefonoUsuario,
+        u.fechaNacimiento,
+        
+        -- Conteo de productos en el carrito
+        (
+            SELECT COUNT(*) 
+            FROM tbcarritoproducto 
+            WHERE idCarrito = p.idCarrito
+        ) AS cantidadProductosDistintos,
+        
+        -- Total de items (sumando cantidades)
+        (
+            SELECT SUM(cantidadProducto) 
+            FROM tbcarritoproducto 
+            WHERE idCarrito = p.idCarrito
+        ) AS cantidadTotalItems,
+        
+        -- Información del carrito-producto
+        cp.idCarritoProducto,
+        cp.cantidadProducto,
+        
+        -- Información del producto
+        pr.idProducto,
+        pr.nombreProducto,
+        pr.imgProducto,
+        pr.montoPrecioProducto,
+        pr.descripcionProducto,
+        pr.cantidadProducto AS stockProducto,
+        pr.tipoPesoProducto,
+        pr.codigoProducto,
+        pr.idCategoria,
+        pr.estadoProducto
+        
+    FROM tbpedido p
+    INNER JOIN tbtipopago tp ON p.idTipoPago = tp.idTipoPago
+    INNER JOIN tbcarrito c ON p.idCarrito = c.idCarrito
+    INNER JOIN tbusuario u ON c.idUsuario = u.idUsuario
+    LEFT JOIN tbcarritoproducto cp ON c.idCarrito = cp.idCarrito
+    LEFT JOIN tbproducto pr ON cp.idProducto = pr.idProducto
+    ORDER BY p.fechaPedido DESC, pr.nombreProducto ASC;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `spLeerProducto` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -1657,6 +2247,46 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `spObtenerCodigoUsuario` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spObtenerCodigoUsuario`(
+    IN p_correoUsuario VARCHAR(255),
+    OUT p_numCodigo VARCHAR(6)
+)
+BEGIN
+    DECLARE v_idUsuario INT;
+    
+    -- Verificar si el correo existe
+    SELECT idUsuario INTO v_idUsuario
+    FROM tbusuario
+    WHERE correoUsuario = p_correoUsuario;
+    
+    IF v_idUsuario IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El correo no está registrado';
+    ELSE
+        -- Obtener el código de verificación asociado al usuario
+        SELECT numCodigo INTO p_numCodigo
+        FROM tbcodigoverificacion
+        WHERE idUsuario = v_idUsuario;
+        
+        IF p_numCodigo IS NULL THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'No se encontró un código de verificación para este usuario';
+        END IF;
+    END IF;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `spObtenerUsuarioById` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -1709,12 +2339,22 @@ DELIMITER ;
 /*!50003 SET character_set_results = utf8mb4 */ ;
 /*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'NO_AUTO_VALUE_ON_ZERO' */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `spRegistrarUsuario`(IN `p_correoUsuario` VARCHAR(255), IN `p_contraseniaUsuario` VARCHAR(255), IN `p_nombreUsuario` VARCHAR(255), IN `p_primerApellido` VARCHAR(255), IN `p_segundoApellido` VARCHAR(255), IN `p_estadoUsuario` TINYINT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spRegistrarUsuario`(
+    IN `p_correoUsuario` VARCHAR(255), 
+    IN `p_contraseniaUsuario` VARCHAR(255), 
+    IN `p_nombreUsuario` VARCHAR(255), 
+    IN `p_primerApellido` VARCHAR(255), 
+    IN `p_segundoApellido` VARCHAR(255), 
+    IN `p_idRol` INT,  -- Acepta NULL
+    IN `p_estadoUsuario` TINYINT,  -- Acepta NULL
+    IN `p_numCodigo` VARCHAR(6)  -- Acepta NULL
+)
 BEGIN
     -- Declarar la variable para almacenar el ID de la dirección insertada
     DECLARE idDireccion INT;
+    DECLARE idUsuario INT;
 
     -- Manejador de errores para capturar excepciones SQL genéricas
     DECLARE EXIT HANDLER FOR SQLEXCEPTION 
@@ -1757,19 +2397,44 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El correo ya está registrado';
     END IF;
 
-    -- Insertar la dirección
+    -- Insertar la dirección (puede ser NULL si no se proporciona)
     INSERT INTO tbdireccion () VALUES ();
 
     -- Obtener el ID de la dirección insertada
     SET idDireccion = LAST_INSERT_ID();
 
-    -- Insertar el usuario
-    INSERT INTO tbusuario (correoUsuario, contraseniaUsuario, nombreUsuario, primerApellido, segundoApellido, idDireccion, idRol, estadoUsuario)
-    VALUES (p_correoUsuario, p_contraseniaUsuario, p_nombreUsuario, p_primerApellido, p_segundoApellido, idDireccion, 3, p_estadoUsuario);
+    -- Insertar el usuario (manejar valores NULL)
+    INSERT INTO tbusuario (
+        correoUsuario, 
+        contraseniaUsuario, 
+        nombreUsuario, 
+        primerApellido, 
+        segundoApellido, 
+        idDireccion, 
+        idRol, 
+        estadoUsuario
+    ) VALUES (
+        p_correoUsuario, 
+        p_contraseniaUsuario, 
+        p_nombreUsuario, 
+        p_primerApellido, 
+        p_segundoApellido, 
+        idDireccion, 
+        IFNULL(p_idRol, 3),  -- Si p_idRol es NULL, usar 3 como valor predeterminado
+        IFNULL(p_estadoUsuario, 1)  -- Si p_estadoUsuario es NULL, usar 1 (activo) como valor predeterminado
+    );
+
+    -- Obtener el ID del usuario insertado
+    SET idUsuario = LAST_INSERT_ID();
+
+    -- Insertar el código de verificación (solo si no es NULL)
+    IF p_numCodigo IS NOT NULL THEN
+        INSERT INTO tbcodigoverificacion (numCodigo, idUsuario)
+        VALUES (p_numCodigo, idUsuario);
+    END IF;
 
     -- Hacer commit si todo está bien
     COMMIT;
-
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -1826,6 +2491,148 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `sp_AgregarPedido` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AgregarPedido`(
+    IN p_montoTotalPedido DECIMAL(10,2),
+    IN p_fechaPedido DATETIME,
+    IN p_estadoPedido BOOLEAN,
+    IN p_estadoEntregaPedido VARCHAR(50),
+    IN p_idCarrito INT,
+    IN p_idTipoPago INT
+)
+BEGIN
+    DECLARE v_idPedido INT;
+    
+    -- Intenta insertar el pedido directamente
+    INSERT INTO bdcarniceria.tbpedido (
+        montoTotalPedido,
+        fechaPedido,
+        estadoPedido,
+        estadoEntregaPedido,
+        idCarrito,
+        idTipoPago
+    ) VALUES (
+        p_montoTotalPedido,
+        p_fechaPedido,
+        p_estadoPedido,
+        p_estadoEntregaPedido,
+        p_idCarrito,
+        p_idTipoPago
+    );
+    
+    -- Obtener el ID del pedido recién insertado
+    SET v_idPedido = LAST_INSERT_ID();
+    
+    -- Insertar los productos asociados al carrito en la tabla tbpedidoproducto
+    INSERT INTO bdcarniceria.tbpedidoproducto (idPedido, idProducto)
+    SELECT v_idPedido, cp.idProducto 
+    FROM bdcarniceria.tbcarritoproducto cp
+    WHERE cp.idCarrito = p_idCarrito;
+    
+    -- Devolver el ID del pedido creado
+    SELECT v_idPedido AS idPedido;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `sp_ObtenerCarritoPorId` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_ObtenerCarritoPorId`(
+    IN p_idCarrito INT
+)
+BEGIN
+    SELECT 
+        c.idCarrito,
+        c.idUsuario,
+        c.montoTotalCarrito,
+        c.estadoCarrito,
+        c.cantidadCarrito
+    FROM 
+        bdcarniceria.tbcarrito c
+    WHERE 
+        c.idCarrito = p_idCarrito;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `sp_ObtenerCarritosUsuario` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_ObtenerCarritosUsuario`(IN usuario_id INT)
+BEGIN
+    -- Primera consulta: obtener carritos del usuario
+    SELECT 
+        c.idCarrito,
+        c.idUsuario,
+        c.montoTotalCarrito,
+        c.estadoCarrito,
+        c.cantidadCarrito
+    FROM 
+        tbcarrito c
+    WHERE 
+        c.idUsuario = usuario_id;
+    
+    -- Segunda consulta: obtener productos en los carritos con sus detalles
+    SELECT 
+        cp.idCarritoProducto,
+        cp.idCarrito,
+        cp.idProducto,
+        cp.cantidadProducto,
+        c.idUsuario,
+        c.montoTotalCarrito,
+        c.estadoCarrito,
+        c.cantidadCarrito,
+        p.nombreProducto,
+        p.imgProducto,
+        p.montoPrecioProducto,
+        p.descripcionProducto,
+        p.tipoPesoProducto,
+        p.codigoProducto,
+        p.stockProducto,
+        p.idCategoria,
+        p.estadoProducto
+    FROM 
+        tbcarritoproducto cp
+    INNER JOIN 
+        tbcarrito c ON cp.idCarrito = c.idCarrito
+    INNER JOIN 
+        tbproducto p ON cp.idProducto = p.idProducto
+    WHERE 
+        c.idUsuario = usuario_id;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -1836,4 +2643,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-02-24 10:51:43
+-- Dump completed on 2025-04-02 23:22:42
