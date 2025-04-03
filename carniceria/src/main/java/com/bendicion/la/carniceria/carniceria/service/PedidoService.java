@@ -4,8 +4,10 @@
  */
 package com.bendicion.la.carniceria.carniceria.service;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
@@ -67,12 +69,17 @@ import jakarta.transaction.Transactional;
     }
 
     @Override
-    @Transactional
-    public List<Pedido> getPedido() {
-        return pedidoRepo.listaPedido();
-
-        // Mapea cada fila a un mapa de claves y valores
-         
+    public List<Map<String, Object>> getPedido() {
+       try {
+        List<Map<String, Object>> resultado = pedidoRepo.listaPedido();
+        System.out.println("Resultado obtenido: " + resultado);
+        return resultado;
+    } catch (Exception e) {
+        System.err.println("Error al obtener pedidos: " + e.getMessage());
+        e.printStackTrace();
+        // Devuelve una lista vacía o maneja el error de otra manera
+        return new ArrayList<>();
+    }
     }
     
     // Este elimina del todo, por medio de una cascada, lo que hace a eliminarlo d etodas las tablas
