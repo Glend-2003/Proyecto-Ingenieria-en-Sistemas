@@ -1,0 +1,10 @@
+CREATE PROCEDURE spObtenerTotalVentas()
+BEGIN
+    SELECT 
+        SUM(montoTotalPedido) AS totalVentas,
+        COUNT(idPedido) AS cantidadPedidos,
+        CONCAT('$', FORMAT(SUM(montoTotalPedido), 2)) AS totalFormateado,
+        IFNULL(SUM(montoTotalPedido)/COUNT(idPedido), 0) AS promedio
+    FROM 
+        tbpedido;
+END 

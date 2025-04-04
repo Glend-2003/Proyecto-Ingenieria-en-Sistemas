@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import com.bendicion.la.carniceria.carniceria.domain.Pedido;
+import java.util.Map;
 
 /**
  *
@@ -55,5 +56,8 @@ public interface PedidoRepository extends JpaRepository<Pedido, Integer>{
         @Param("idPedido") Integer idPedido,
         @Param("nuevoEstado") String nuevoEstado
     );
+    
+    @Query(value = "{call spObtenerTotalVentas()}", nativeQuery = true)
+    Map<String, Object> getTotalVentas();
     
 }

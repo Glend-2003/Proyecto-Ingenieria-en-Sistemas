@@ -5,6 +5,7 @@ import java.util.List;
 import com.bendicion.la.carniceria.carniceria.domain.Pedido;
 
 import jakarta.transaction.Transactional;
+import java.util.Map;
 
 /**
  *
@@ -33,4 +34,7 @@ public interface IPedidoService {
     
     @Transactional
     public void updateStateEntregaPedido(int idPedido, String nuevoEstado);
+    
+     @Transactional
+    public Map<String, Object> getTotalVentas();
 }

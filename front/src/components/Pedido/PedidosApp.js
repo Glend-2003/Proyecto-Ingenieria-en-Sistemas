@@ -10,6 +10,29 @@ const PedidosApp = () => {
   const [selectedPedido, setSelectedPedido] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('todos');
+  const [showVentasModal, setShowVentasModal] = useState(false);
+  const [ventasData, setVentasData] = useState(null);
+  const [ventasLoading, setVentasLoading] = useState(false);
+
+  const fetchVentasData = async () => {
+    try {
+      setVentasLoading(true);
+      const response = await axios.get('http://localhost:8080/pedido/reporteVentas');
+      setVentasData(response.data);
+      setVentasLoading(false);
+    } catch (err) {
+      console.error('Error fetching ventas data:', err);
+      setVentasLoading(false);
+      alert('Error al cargar el reporte de ventas');
+    }
+  };
+
+  const handleShowVentas = async () => {
+    setShowVentasModal(true);
+    if (!ventasData) {
+      await fetchVentasData();
+    }
+  };
 
   // Fetch pedidos from API
   useEffect(() => {
@@ -148,6 +171,12 @@ const PedidosApp = () => {
   return (
     <div className="pedidos-app">
       <h1>Gestión de Pedidos</h1>
+      <button 
+          className="ventas-btn"
+          onClick={handleShowVentas}
+        >
+          Mostrar Ventas
+        </button>
 
       <div className="filters-container">
         <div className="search-container">
@@ -226,6 +255,50 @@ const PedidosApp = () => {
             </tbody>
           </table>
         )}
+
+        {/* Modal de Ventas */}
+      {showVentasModal && (
+        <div className="modal-overlay">
+          <div className="ventas-modal">
+            <button 
+              className="close-btn" 
+              onClick={() => setShowVentasModal(false)}
+            >
+              ×
+            </button>
+            
+            <h2>Reporte de Ventas</h2>
+            
+            {ventasLoading ? (
+              <div className="loading">Cargando reporte...</div>
+            ) : ventasData ? (
+              <div className="ventas-stats">
+                <div className="ventas-stat">
+                  <span className="stat-label">Total de Ventas:</span>
+                  <span className="stat-value">{ventasData.totalFormateado}</span>
+                </div>
+                
+                <div className="ventas-stat">
+                  <span className="stat-label">Cantidad de Pedidos:</span>
+                  <span className="stat-value">{ventasData.cantidadPedidos}</span>
+                </div>
+                
+                <div className="ventas-stat">
+                  <span className="stat-label">Promedio por Pedido:</span>
+                  <span className="stat-value">{ventasData.promedioFormateado}</span>
+                </div>
+                
+                <div className="ventas-chart-placeholder">
+                  {/* Aquí podrías integrar un gráfico con Chart.js u otra librería */}
+                  <p>Gráfico de ventas por período (opcional)</p>
+                </div>
+              </div>
+            ) : (
+              <div className="error">No se pudieron cargar los datos de ventas</div>
+            )}
+          </div>
+        </div>
+      )}
 
         {/* Pedido Details Modal */}
         {selectedPedido && (

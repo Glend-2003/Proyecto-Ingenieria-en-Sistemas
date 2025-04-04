@@ -16,6 +16,7 @@ import com.bendicion.la.carniceria.carniceria.domain.Pedido;
 import com.bendicion.la.carniceria.carniceria.jpa.PedidoRepository;
 
 import jakarta.transaction.Transactional;
+import java.util.Map;
 /**
  *
  * @author jsand
@@ -101,6 +102,16 @@ import jakarta.transaction.Transactional;
             pedidoRepo.updateStateEntrega(idPedido, nuevoEstado);
         } catch (Exception e) {
             throw new RuntimeException("Error al actualizar estado de entrega: " + e.getMessage());
+        }
+    }
+    
+    @Override
+    @Transactional
+    public Map<String, Object> getTotalVentas() {
+        try {
+            return pedidoRepo.getTotalVentas();
+        } catch (Exception e) {
+            throw new RuntimeException("Error al obtener el reporte de ventas: " + e.getMessage());
         }
     }
     
