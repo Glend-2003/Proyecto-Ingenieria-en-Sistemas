@@ -10,6 +10,9 @@ const PedidosApp = () => {
   const [selectedPedido, setSelectedPedido] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('todos');
+  const [editMode, setEditMode] = useState(false);
+  const [editFormData, setEditFormData] = useState(null);
+  const [tiposPago, setTiposPago] = useState([]);
 
   // Fetch pedidos from API
   useEffect(() => {
@@ -17,7 +20,7 @@ const PedidosApp = () => {
       try {
         setLoading(true);
         const response = await axios.get('http://localhost:8080/pedido/');
-        console.log('Fetched pedidos:', response.data); // Debugging line
+        console.log('Fetched pedidos:', response.data);
         setPedidos(response.data);
         setFilteredPedidos(response.data);
         setLoading(false);
@@ -28,7 +31,17 @@ const PedidosApp = () => {
       }
     };
 
+    const fetchTiposPago = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/tipopago/');
+        setTiposPago(response.data);
+      } catch (err) {
+        console.error('Error fetching tipos de pago:', err);
+      }
+    };
+
     fetchPedidos();
+    fetchTiposPago();
   }, []);
 
   // Filter pedidos based on search term and status
@@ -60,6 +73,99 @@ const PedidosApp = () => {
 
     setFilteredPedidos(result);
   }, [searchTerm, filterStatus, pedidos]);
+
+  // Handle change in edit form
+  const handleEditFormChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    
+    // Handle different input types
+    const newValue = type === 'checkbox' ? checked : 
+                   name === 'montoTotalPedido' ? parseFloat(value) : 
+                   name === 'idTipoPago' ? parseInt(value, 10) : 
+                   value;
+    
+    setEditFormData({
+      ...editFormData,
+      [name]: newValue
+    });
+  };
+
+  // Initialize edit mode
+  const handleEditPedido = () => {
+    if (!selectedPedido) return;
+    
+    setEditFormData({
+      idPedido: selectedPedido.idPedido,
+      montoTotalPedido: selectedPedido.montoTotalPedido,
+      fechaPedido: formatDateForInput(selectedPedido.fechaPedido),
+      estadoPedido: selectedPedido.estadoPedido,
+      estadoEntregaPedido: selectedPedido.estadoEntregaPedido,
+      idCarrito: selectedPedido.carrito.idCarrito,
+      idTipoPago: selectedPedido.tipoPago ? selectedPedido.tipoPago.idTipoPago : ''
+    });
+    
+    setEditMode(true);
+  };
+
+  // Cancel edit mode
+  const handleCancelEdit = () => {
+    setEditMode(false);
+    setEditFormData(null);
+  };
+
+  // Format date for datetime-local input
+  const formatDateForInput = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toISOString().slice(0, 16); // Format YYYY-MM-DDTHH:MM
+  };
+
+  // Submit updated pedido
+  const handleSubmitEdit = async (e) => {
+    e.preventDefault();
+    
+    try {
+      const response = await axios.put(
+        `http://localhost:8080/pedido/${editFormData.idPedido}`, 
+        editFormData
+      );
+      
+      console.log('Update response:', response.data);
+      
+      // Update local state
+      const updatedPedidos = pedidos.map(pedido => {
+        if (pedido.idPedido === editFormData.idPedido) {
+          // Create updated pedido, maintaining nested objects
+          const updatedPedido = { 
+            ...pedido,
+            montoTotalPedido: editFormData.montoTotalPedido,
+            fechaPedido: new Date(editFormData.fechaPedido).toISOString(),
+            estadoPedido: editFormData.estadoPedido,
+            estadoEntregaPedido: editFormData.estadoEntregaPedido
+          };
+          
+          // Update tipoPago if changed
+          if (pedido.tipoPago?.idTipoPago !== editFormData.idTipoPago) {
+            const newTipoPago = tiposPago.find(tp => tp.idTipoPago === parseInt(editFormData.idTipoPago));
+            updatedPedido.tipoPago = newTipoPago;
+          }
+          
+          return updatedPedido;
+        }
+        return pedido;
+      });
+      
+      setPedidos(updatedPedidos);
+      setSelectedPedido(updatedPedidos.find(p => p.idPedido === editFormData.idPedido));
+      setEditMode(false);
+      setEditFormData(null);
+      
+      alert('Pedido actualizado exitosamente');
+    } catch (err) {
+      console.error('Error updating pedido:', err);
+      alert('Error al actualizar el pedido');
+    }
+  };
 
   // Handle state changes for delivery status
   const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
@@ -130,11 +236,15 @@ const PedidosApp = () => {
   // Handle pedido selection for details view
   const handleSelectPedido = (pedido) => {
     setSelectedPedido(pedido);
+    setEditMode(false);
+    setEditFormData(null);
   };
 
   // Close details view
   const handleCloseDetails = () => {
     setSelectedPedido(null);
+    setEditMode(false);
+    setEditFormData(null);
   };
 
   if (loading) return <div className="loading">Cargando pedidos...</div>;
@@ -231,95 +341,185 @@ const PedidosApp = () => {
               
               <h2>Detalles del Pedido #{selectedPedido.idPedido}</h2>
               
-              <div className="pedido-info">
-                <div className="info-section">
-                  <h3>Información del Pedido</h3>
-                  <p><strong>Fecha:</strong> {formatDate(selectedPedido.fechaPedido)}</p>
-                  <p><strong>Monto Total:</strong> ₡{selectedPedido.montoTotalPedido ? selectedPedido.montoTotalPedido.toLocaleString() : '0'}</p>
-                  <p>
-                    <strong>Estado:</strong> 
-                    <span className={`active-status ${selectedPedido.estadoPedido ? 'active' : 'inactive'}`}>
-                      {selectedPedido.estadoPedido ? 'Activo' : 'Inactivo'}
-                    </span>
-                  </p>
-                  <p>
-                    <strong>Estado de Entrega:</strong> 
-                    {renderStatusBadge(selectedPedido.estadoEntregaPedido)}
-                  </p>
-                  <p>
-                    <strong>Método de Pago:</strong> 
-                    {selectedPedido.tipoPago ? selectedPedido.tipoPago.descripcionTipoPago : 'N/A'}
-                  </p>
-                </div>
-
-                {selectedPedido.carrito && selectedPedido.carrito.usuario && (
-                  <div className="info-section">
-                    <h3>Información del Cliente</h3>
-                    <p><strong>Nombre:</strong> {selectedPedido.carrito.usuario.nombreUsuario} {selectedPedido.carrito.usuario.primerApellido} {selectedPedido.carrito.usuario.segundoApellido}</p>
-                    <p><strong>Cédula:</strong> {selectedPedido.carrito.usuario.cedulaUsuario}</p>
-                    <p><strong>Correo:</strong> {selectedPedido.carrito.usuario.correoUsuario}</p>
-                    <p><strong>Teléfono:</strong> {selectedPedido.carrito.usuario.telefonoUsuario}</p>
-                    {selectedPedido.carrito.usuario.direccion && (
-                      <p><strong>Dirección:</strong> {selectedPedido.carrito.usuario.direccion.detalleExactoDireccion}</p>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {selectedPedido.carrito && selectedPedido.carrito.producto && (
-                <div className="info-section">
-                  <h3>Productos</h3>
-                  <div className="product-item">
-                    <div className="product-info">
-                      <p><strong>Nombre:</strong> {selectedPedido.carrito.producto.nombreProducto}</p>
-                      <p><strong>Cantidad:</strong> {selectedPedido.carrito.cantidadCarrito}</p>
-                      <p><strong>Precio Unitario:</strong> ₡{selectedPedido.carrito.producto.montoPrecioProducto ? selectedPedido.carrito.producto.montoPrecioProducto.toLocaleString() : '0'}</p>
-                      <p><strong>Peso/Cantidad:</strong> {selectedPedido.carrito.producto.cantidadProducto} {selectedPedido.carrito.producto.tipoPesoProducto}</p>
+              {!editMode ? (
+                // VIEW MODE
+                <>
+                  <div className="pedido-info">
+                    <div className="info-section">
+                      <h3>Información del Pedido</h3>
+                      <p><strong>Fecha:</strong> {formatDate(selectedPedido.fechaPedido)}</p>
+                      <p><strong>Monto Total:</strong> ₡{selectedPedido.montoTotalPedido ? selectedPedido.montoTotalPedido.toLocaleString() : '0'}</p>
+                      <p>
+                        <strong>Estado:</strong> 
+                        <span className={`active-status ${selectedPedido.estadoPedido ? 'active' : 'inactive'}`}>
+                          {selectedPedido.estadoPedido ? 'Activo' : 'Inactivo'}
+                        </span>
+                      </p>
+                      <p>
+                        <strong>Estado de Entrega:</strong> 
+                        {renderStatusBadge(selectedPedido.estadoEntregaPedido)}
+                      </p>
+                      <p>
+                        <strong>Método de Pago:</strong> 
+                        {selectedPedido.tipoPago ? selectedPedido.tipoPago.descripcionTipoPago : 'N/A'}
+                      </p>
                     </div>
-                    {selectedPedido.carrito.producto.imgProducto && (
-                      <div className="product-image">
-                        <img src={selectedPedido.carrito.producto.imgProducto} alt={selectedPedido.carrito.producto.nombreProducto} />
+
+                    {selectedPedido.carrito && selectedPedido.carrito.usuario && (
+                      <div className="info-section">
+                        <h3>Información del Cliente</h3>
+                        <p><strong>Nombre:</strong> {selectedPedido.carrito.usuario.nombreUsuario} {selectedPedido.carrito.usuario.primerApellido} {selectedPedido.carrito.usuario.segundoApellido}</p>
+                        <p><strong>Cédula:</strong> {selectedPedido.carrito.usuario.cedulaUsuario}</p>
+                        <p><strong>Correo:</strong> {selectedPedido.carrito.usuario.correoUsuario}</p>
+                        <p><strong>Teléfono:</strong> {selectedPedido.carrito.usuario.telefonoUsuario}</p>
+                        {selectedPedido.carrito.usuario.direccion && (
+                          <p><strong>Dirección:</strong> {selectedPedido.carrito.usuario.direccion.detalleExactoDireccion}</p>
+                        )}
                       </div>
                     )}
                   </div>
-                </div>
-              )}
 
-              <div className="actions-section">
-                <h3>Actualizar Estado de Entrega</h3>
-                <div className="status-buttons">
-                  <button 
-                    className={`status-btn ${selectedPedido.estadoEntregaPedido === 'Pendiente' ? 'selected' : ''}`}
-                    onClick={() => handleChangeEstadoEntrega(selectedPedido.idPedido, 'Pendiente')}
-                  >
-                    Pendiente
-                  </button>
-                  <button 
-                    className={`status-btn ${selectedPedido.estadoEntregaPedido === 'En Proceso' ? 'selected' : ''}`}
-                    onClick={() => handleChangeEstadoEntrega(selectedPedido.idPedido, 'En Proceso')}
-                  >
-                    En Proceso
-                  </button>
-                  <button 
-                    className={`status-btn ${selectedPedido.estadoEntregaPedido === 'Enviado' ? 'selected' : ''}`}
-                    onClick={() => handleChangeEstadoEntrega(selectedPedido.idPedido, 'Enviado')}
-                  >
-                    Enviado
-                  </button>
-                  <button 
-                    className={`status-btn ${selectedPedido.estadoEntregaPedido === 'Entregado' ? 'selected' : ''}`}
-                    onClick={() => handleChangeEstadoEntrega(selectedPedido.idPedido, 'Entregado')}
-                  >
-                    Entregado
-                  </button>
-                  <button 
-                    className={`status-btn cancel-btn ${selectedPedido.estadoEntregaPedido === 'Cancelado' ? 'selected' : ''}`}
-                    onClick={() => handleChangeEstadoEntrega(selectedPedido.idPedido, 'Cancelado')}
-                  >
-                    Cancelado
-                  </button>
-                </div>
-              </div>
+                  {selectedPedido.carrito && selectedPedido.carrito.producto && (
+                    <div className="info-section">
+                      <h3>Productos</h3>
+                      <div className="product-item">
+                        <div className="product-info">
+                          <p><strong>Nombre:</strong> {selectedPedido.carrito.producto.nombreProducto}</p>
+                          <p><strong>Cantidad:</strong> {selectedPedido.carrito.cantidadCarrito}</p>
+                          <p><strong>Precio Unitario:</strong> ₡{selectedPedido.carrito.producto.montoPrecioProducto ? selectedPedido.carrito.producto.montoPrecioProducto.toLocaleString() : '0'}</p>
+                          <p><strong>Peso/Cantidad:</strong> {selectedPedido.carrito.producto.cantidadProducto} {selectedPedido.carrito.producto.tipoPesoProducto}</p>
+                        </div>
+                        {selectedPedido.carrito.producto.imgProducto && (
+                          <div className="product-image">
+                            <img src={selectedPedido.carrito.producto.imgProducto} alt={selectedPedido.carrito.producto.nombreProducto} />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="actions-section">
+                    <h3>Actualizar Estado de Entrega</h3>
+                    <div className="status-buttons">
+                      <button 
+                        className={`status-btn ${selectedPedido.estadoEntregaPedido === 'Pendiente' ? 'selected' : ''}`}
+                        onClick={() => handleChangeEstadoEntrega(selectedPedido.idPedido, 'Pendiente')}
+                      >
+                        Pendiente
+                      </button>
+                      <button 
+                        className={`status-btn ${selectedPedido.estadoEntregaPedido === 'En Proceso' ? 'selected' : ''}`}
+                        onClick={() => handleChangeEstadoEntrega(selectedPedido.idPedido, 'En Proceso')}
+                      >
+                        En Proceso
+                      </button>
+                      <button 
+                        className={`status-btn ${selectedPedido.estadoEntregaPedido === 'Enviado' ? 'selected' : ''}`}
+                        onClick={() => handleChangeEstadoEntrega(selectedPedido.idPedido, 'Enviado')}
+                      >
+                        Enviado
+                      </button>
+                      <button 
+                        className={`status-btn ${selectedPedido.estadoEntregaPedido === 'Entregado' ? 'selected' : ''}`}
+                        onClick={() => handleChangeEstadoEntrega(selectedPedido.idPedido, 'Entregado')}
+                      >
+                        Entregado
+                      </button>
+                      <button 
+                        className={`status-btn cancel-btn ${selectedPedido.estadoEntregaPedido === 'Cancelado' ? 'selected' : ''}`}
+                        onClick={() => handleChangeEstadoEntrega(selectedPedido.idPedido, 'Cancelado')}
+                      >
+                        Cancelado
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="edit-button-container">
+                    <button 
+                      className="edit-pedido-btn"
+                      onClick={handleEditPedido}
+                    >
+                      Editar Pedido
+                    </button>
+                  </div>
+                </>
+              ) : (
+                // EDIT MODE
+                <form onSubmit={handleSubmitEdit} className="edit-form">
+                  <div className="form-group">
+                    <label>Monto Total</label>
+                    <input 
+                      type="number" 
+                      name="montoTotalPedido" 
+                      value={editFormData.montoTotalPedido} 
+                      onChange={handleEditFormChange}
+                      required
+                      step="0.01"
+                    />
+                  </div>
+                  
+                  <div className="form-group">
+                    <label>Fecha del Pedido</label>
+                    <input 
+                      type="datetime-local" 
+                      name="fechaPedido" 
+                      value={editFormData.fechaPedido} 
+                      onChange={handleEditFormChange}
+                      required
+                    />
+                  </div>
+                  
+                  <div className="form-group checkbox-group">
+                    <label>
+                      <input 
+                        type="checkbox" 
+                        name="estadoPedido" 
+                        checked={editFormData.estadoPedido} 
+                        onChange={handleEditFormChange}
+                      />
+                      Pedido Activo
+                    </label>
+                  </div>
+                  
+                  <div className="form-group">
+                    <label>Estado de Entrega</label>
+                    <select 
+                      name="estadoEntregaPedido" 
+                      value={editFormData.estadoEntregaPedido} 
+                      onChange={handleEditFormChange}
+                      required
+                    >
+                      <option value="Pendiente">Pendiente</option>
+                      <option value="En Proceso">En Proceso</option>
+                      <option value="Enviado">Enviado</option>
+                      <option value="Entregado">Entregado</option>
+                      <option value="Cancelado">Cancelado</option>
+                    </select>
+                  </div>
+                  
+                  <div className="form-group">
+                    <label>Método de Pago</label>
+                    <select 
+                      name="idTipoPago" 
+                      value={editFormData.idTipoPago} 
+                      onChange={handleEditFormChange}
+                      required
+                    >
+                      <option value="">Seleccione un método de pago</option>
+                      {tiposPago.map(tipo => (
+                        <option key={tipo.idTipoPago} value={tipo.idTipoPago}>
+                          {tipo.descripcionTipoPago}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div className="form-actions">
+                    <button type="submit" className="save-btn">Guardar Cambios</button>
+                    <button type="button" className="cancel-btn" onClick={handleCancelEdit}>Cancelar</button>
+                  </div>
+                </form>
+              )}
             </div>
           </div>
         )}
