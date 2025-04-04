@@ -6,6 +6,17 @@
     padding: 20px;
     color: #333;
   }
+
+  .content-container {
+    margin-left: 200px;
+    padding: 20px;
+  }
+
+  .custom-button {
+    background-color: #042440;
+    color: white;
+    border: none;
+  }
   
   h1 {
     text-align: center;

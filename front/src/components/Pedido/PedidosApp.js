@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './PedidosApp.css';
+import SideBar from "../SideBar/SideBar";
+import FooterApp from '../Footer/FooterApp';
+import PaginacionApp from "../Paginacion/PaginacionApp";
+import useAuth from "../../hooks/useAuth";
+import { Button, Modal } from "react-bootstrap";
 
 const PedidosApp = () => {
   const [pedidos, setPedidos] = useState([]);
@@ -10,7 +15,7 @@ const PedidosApp = () => {
   const [selectedPedido, setSelectedPedido] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('todos');
-
+  const { usuario, handleLogout } = useAuth();
   // Fetch pedidos from API
   useEffect(() => {
     const fetchPedidos = async () => {
@@ -137,216 +142,224 @@ const PedidosApp = () => {
     setSelectedPedido(null);
   };
 
+
+
   if (loading) return <div className="loading">Cargando pedidos...</div>;
   if (error) return <div className="error">{error}</div>;
 
   return (
-    <div className="pedidos-app">
-      <h1>Gestión de Pedidos</h1>
-      
-      <div className="filters-container">
-        <div className="search-container">
-          <input
-            type="text"
-            placeholder="Buscar por ID o nombre de cliente..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
-          />
-        </div>
+    <div className="content-container">
+      <SideBar usuario={usuario} /> 
+        <h1>Gestión de Pedidos</h1>
+
+        <label>Buscar pedido</label>
         
-        <div className="filter-select">
-          <label htmlFor="status-filter">Filtrar por estado:</label>
-          <select
-            id="status-filter"
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-          >
-            <option value="todos">Todos</option>
-            <option value="activo">Activo</option>
-            <option value="inactivo">Inactivo</option>
-            <option value="Pendiente">Pendiente</option>
-            <option value="En Proceso">En Proceso</option>
-            <option value="Enviado">Enviado</option>
-            <option value="Entregado">Entregado</option>
-            <option value="Cancelado">Cancelado</option>
-          </select>
+        <div className="filters-container">
+        
+          <div className="search-container">
+            <input
+              type="text"
+              placeholder="Buscar por ID o nombre de cliente..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+            />
+          </div>
+          
+          <div className="filter-select">
+            <label htmlFor="status-filter">Filtrar por estado:</label>
+            <select
+              id="status-filter"
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+            >
+              <option value="todos">Todos</option>
+              <option value="activo">Activo</option>
+              <option value="inactivo">Inactivo</option>
+              <option value="Pendiente">Pendiente</option>
+              <option value="En Proceso">En Proceso</option>
+              <option value="Enviado">Enviado</option>
+              <option value="Entregado">Entregado</option>
+              <option value="Cancelado">Cancelado</option>
+            </select>
+          </div>
         </div>
-      </div>
 
-      <div className="pedidos-container">
-        {filteredPedidos.length === 0 ? (
-          <div className="no-results">No se encontraron pedidos con los filtros aplicados</div>
-        ) : (
-          <table className="pedidos-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Cliente</th>
-                <th>Fecha</th>
-                <th>Monto</th>
-                <th>Estado Pedido</th>
-                <th>Estado Entrega</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredPedidos.map((pedido) => (
-                <tr key={pedido.idPedido} className={pedido.estadoPedido ? '' : 'inactive-row'}>
-                  <td>{pedido.idPedido}</td>
-                  <td>
-                    {pedido.carrito && pedido.carrito.usuario 
-                      ? `${pedido.carrito.usuario.nombreUsuario} ${pedido.carrito.usuario.primerApellido}`
-                      : 'N/A'}
-                  </td>
-                  <td>{formatDate(pedido.fechaPedido)}</td>
-                  <td>₡{pedido.montoTotalPedido ? pedido.montoTotalPedido.toLocaleString() : '0'}</td>
-                  <td>
-                    <span className={`active-status ${pedido.estadoPedido ? 'active' : 'inactive'}`}>
-                      {pedido.estadoPedido ? 'Activo' : 'Inactivo'}
-                    </span>
-                  </td>
-                  <td>
-                    {renderStatusBadge(pedido.estadoEntregaPedido)}
-                  </td>
-                  <td>
-                    <button 
-                      className="view-btn"
-                      onClick={() => handleSelectPedido(pedido)}
-                    >
-                      Ver detalles
-                    </button>
-                  </td>
+        <div className="pedidos-container">
+          {filteredPedidos.length === 0 ? (
+            <div className="no-results">No se encontraron pedidos con los filtros aplicados</div>
+          ) : (
+            <table className="pedidos-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Cliente</th>
+                  <th>Fecha</th>
+                  <th>Monto</th>
+                  <th>Estado Pedido</th>
+                  <th>Estado Entrega</th>
+                  <th>Acciones</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+              </thead>
+              <tbody>
+                {filteredPedidos.map((pedido) => (
+                  <tr key={pedido.idPedido} className={pedido.estadoPedido ? '' : 'inactive-row'}>
+                    <td>{pedido.idPedido}</td>
+                    <td>
+                      {pedido.carrito && pedido.carrito.usuario 
+                        ? `${pedido.carrito.usuario.nombreUsuario} ${pedido.carrito.usuario.primerApellido}`
+                        : 'N/A'}
+                    </td>
+                    <td>{formatDate(pedido.fechaPedido)}</td>
+                    <td>₡{pedido.montoTotalPedido ? pedido.montoTotalPedido.toLocaleString() : '0'}</td>
+                    <td>
+                      <span className={`active-status ${pedido.estadoPedido ? 'active' : 'inactive'}`}>
+                        {pedido.estadoPedido ? 'Activo' : 'Inactivo'}
+                      </span>
+                    </td>
+                    <td>
+                      {renderStatusBadge(pedido.estadoEntregaPedido)}
+                    </td>
+                    <td>
+                      <button 
+                        className="view-btn"
+                        onClick={() => handleSelectPedido(pedido)}
+                      >
+                        Ver detalles
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
 
-        {/* Pedido Details Modal */}
-        {selectedPedido && (
-          <div className="pedido-details-modal">
-            <div className="pedido-details-content">
-              <button className="close-btn" onClick={handleCloseDetails}>×</button>
-              
-              <h2>Detalles del Pedido #{selectedPedido.idPedido}</h2>
-              
-              <div className="pedido-info">
-                <div className="info-section">
-                  <h3>Información del Pedido</h3>
-                  <p><strong>Fecha:</strong> {formatDate(selectedPedido.fechaPedido)}</p>
-                  <p><strong>Monto Total:</strong> ₡{selectedPedido.montoTotalPedido ? selectedPedido.montoTotalPedido.toLocaleString() : '0'}</p>
-                  <p>
-                    <strong>Estado:</strong> 
-                    <span className={`active-status ${selectedPedido.estadoPedido ? 'active' : 'inactive'}`}>
-                      {selectedPedido.estadoPedido ? 'Activo' : 'Inactivo'}
-                    </span>
-                  </p>
-                  <p>
-                    <strong>Estado de Entrega:</strong> 
-                    {renderStatusBadge(selectedPedido.estadoEntregaPedido)}
-                  </p>
-                  <p>
-                    <strong>Método de Pago:</strong> 
-                    {selectedPedido.tipoPago ? selectedPedido.tipoPago.descripcionTipoPago : 'N/A'}
-                  </p>
+          {/* Pedido Details Modal */}
+          {selectedPedido && (
+            <div className="pedido-details-modal">
+              <div className="pedido-details-content">
+                <button className="close-btn" onClick={handleCloseDetails}>×</button>
+                
+                <h2>Detalles del Pedido #{selectedPedido.idPedido}</h2>
+                
+                <div className="pedido-info">
+                  <div className="info-section">
+                    <h3>Información del Pedido</h3>
+                    <p><strong>Fecha:</strong> {formatDate(selectedPedido.fechaPedido)}</p>
+                    <p><strong>Monto Total:</strong> ₡{selectedPedido.montoTotalPedido ? selectedPedido.montoTotalPedido.toLocaleString() : '0'}</p>
+                    <p>
+                      <strong>Estado:</strong> 
+                      <span className={`active-status ${selectedPedido.estadoPedido ? 'active' : 'inactive'}`}>
+                        {selectedPedido.estadoPedido ? 'Activo' : 'Inactivo'}
+                      </span>
+                    </p>
+                    <p>
+                      <strong>Estado de Entrega:</strong> 
+                      {renderStatusBadge(selectedPedido.estadoEntregaPedido)}
+                    </p>
+                    <p>
+                      <strong>Método de Pago:</strong> 
+                      {selectedPedido.tipoPago ? selectedPedido.tipoPago.descripcionTipoPago : 'N/A'}
+                    </p>
+                  </div>
+
+                  {selectedPedido.carrito && selectedPedido.carrito.usuario && (
+                    <div className="info-section">
+                      <h3>Información del Cliente</h3>
+                      <p><strong>Nombre:</strong> {selectedPedido.carrito.usuario.nombreUsuario} {selectedPedido.carrito.usuario.primerApellido} {selectedPedido.carrito.usuario.segundoApellido}</p>
+                      <p><strong>Cédula:</strong> {selectedPedido.carrito.usuario.cedulaUsuario}</p>
+                      <p><strong>Correo:</strong> {selectedPedido.carrito.usuario.correoUsuario}</p>
+                      <p><strong>Teléfono:</strong> {selectedPedido.carrito.usuario.telefonoUsuario}</p>
+                      {selectedPedido.carrito.usuario.direccion && (
+                        <p><strong>Dirección:</strong> {selectedPedido.carrito.usuario.direccion.detalleExactoDireccion}</p>
+                      )}
+                    </div>
+                  )}
                 </div>
 
-                {selectedPedido.carrito && selectedPedido.carrito.usuario && (
+                {selectedPedido.carrito && selectedPedido.carrito.producto && (
                   <div className="info-section">
-                    <h3>Información del Cliente</h3>
-                    <p><strong>Nombre:</strong> {selectedPedido.carrito.usuario.nombreUsuario} {selectedPedido.carrito.usuario.primerApellido} {selectedPedido.carrito.usuario.segundoApellido}</p>
-                    <p><strong>Cédula:</strong> {selectedPedido.carrito.usuario.cedulaUsuario}</p>
-                    <p><strong>Correo:</strong> {selectedPedido.carrito.usuario.correoUsuario}</p>
-                    <p><strong>Teléfono:</strong> {selectedPedido.carrito.usuario.telefonoUsuario}</p>
-                    {selectedPedido.carrito.usuario.direccion && (
-                      <p><strong>Dirección:</strong> {selectedPedido.carrito.usuario.direccion.detalleExactoDireccion}</p>
-                    )}
+                    <h3>Productos</h3>
+                    <div className="product-item">
+                      <div className="product-info">
+                        <p><strong>Nombre:</strong> {selectedPedido.carrito.producto.nombreProducto}</p>
+                        <p><strong>Cantidad:</strong> {selectedPedido.carrito.cantidadCarrito}</p>
+                        <p><strong>Precio Unitario:</strong> ₡{selectedPedido.carrito.producto.montoPrecioProducto ? selectedPedido.carrito.producto.montoPrecioProducto.toLocaleString() : '0'}</p>
+                        <p><strong>Peso/Cantidad:</strong> {selectedPedido.carrito.producto.cantidadProducto} {selectedPedido.carrito.producto.tipoPesoProducto}</p>
+                      </div>
+                      {selectedPedido.carrito.producto.imgProducto && (
+                        <div className="product-image">
+                          <img src={selectedPedido.carrito.producto.imgProducto} alt={selectedPedido.carrito.producto.nombreProducto} />
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
-              </div>
 
-              {selectedPedido.carrito && selectedPedido.carrito.producto && (
-                <div className="info-section">
-                  <h3>Productos</h3>
-                  <div className="product-item">
-                    <div className="product-info">
-                      <p><strong>Nombre:</strong> {selectedPedido.carrito.producto.nombreProducto}</p>
-                      <p><strong>Cantidad:</strong> {selectedPedido.carrito.cantidadCarrito}</p>
-                      <p><strong>Precio Unitario:</strong> ₡{selectedPedido.carrito.producto.montoPrecioProducto ? selectedPedido.carrito.producto.montoPrecioProducto.toLocaleString() : '0'}</p>
-                      <p><strong>Peso/Cantidad:</strong> {selectedPedido.carrito.producto.cantidadProducto} {selectedPedido.carrito.producto.tipoPesoProducto}</p>
-                    </div>
-                    {selectedPedido.carrito.producto.imgProducto && (
-                      <div className="product-image">
-                        <img src={selectedPedido.carrito.producto.imgProducto} alt={selectedPedido.carrito.producto.nombreProducto} />
-                      </div>
-                    )}
+                <div className="actions-section">
+                  <h3>Actualizar Estado de Entrega</h3>
+                  <div className="status-buttons">
+                    <button 
+                      className={`status-btn ${selectedPedido.estadoEntregaPedido === 'Pendiente' ? 'selected' : ''}`}
+                      onClick={() => handleChangeEstadoEntrega(selectedPedido.idPedido, 'Pendiente')}
+                    >
+                      Pendiente
+                    </button>
+                    <button 
+                      className={`status-btn ${selectedPedido.estadoEntregaPedido === 'En Proceso' ? 'selected' : ''}`}
+                      onClick={() => handleChangeEstadoEntrega(selectedPedido.idPedido, 'En Proceso')}
+                    >
+                      En Proceso
+                    </button>
+                    <button 
+                      className={`status-btn ${selectedPedido.estadoEntregaPedido === 'Enviado' ? 'selected' : ''}`}
+                      onClick={() => handleChangeEstadoEntrega(selectedPedido.idPedido, 'Enviado')}
+                    >
+                      Enviado
+                    </button>
+                    <button 
+                      className={`status-btn ${selectedPedido.estadoEntregaPedido === 'Entregado' ? 'selected' : ''}`}
+                      onClick={() => handleChangeEstadoEntrega(selectedPedido.idPedido, 'Entregado')}
+                    >
+                      Entregado
+                    </button>
+                    <button 
+                      className={`status-btn cancel-btn ${selectedPedido.estadoEntregaPedido === 'Cancelado' ? 'selected' : ''}`}
+                      onClick={() => handleChangeEstadoEntrega(selectedPedido.idPedido, 'Cancelado')}
+                    >
+                      Cancelado
+                    </button>
                   </div>
-                </div>
-              )}
-
-              <div className="actions-section">
-                <h3>Actualizar Estado de Entrega</h3>
-                <div className="status-buttons">
-                  <button 
-                    className={`status-btn ${selectedPedido.estadoEntregaPedido === 'Pendiente' ? 'selected' : ''}`}
-                    onClick={() => handleChangeEstadoEntrega(selectedPedido.idPedido, 'Pendiente')}
-                  >
-                    Pendiente
-                  </button>
-                  <button 
-                    className={`status-btn ${selectedPedido.estadoEntregaPedido === 'En Proceso' ? 'selected' : ''}`}
-                    onClick={() => handleChangeEstadoEntrega(selectedPedido.idPedido, 'En Proceso')}
-                  >
-                    En Proceso
-                  </button>
-                  <button 
-                    className={`status-btn ${selectedPedido.estadoEntregaPedido === 'Enviado' ? 'selected' : ''}`}
-                    onClick={() => handleChangeEstadoEntrega(selectedPedido.idPedido, 'Enviado')}
-                  >
-                    Enviado
-                  </button>
-                  <button 
-                    className={`status-btn ${selectedPedido.estadoEntregaPedido === 'Entregado' ? 'selected' : ''}`}
-                    onClick={() => handleChangeEstadoEntrega(selectedPedido.idPedido, 'Entregado')}
-                  >
-                    Entregado
-                  </button>
-                  <button 
-                    className={`status-btn cancel-btn ${selectedPedido.estadoEntregaPedido === 'Cancelado' ? 'selected' : ''}`}
-                    onClick={() => handleChangeEstadoEntrega(selectedPedido.idPedido, 'Cancelado')}
-                  >
-                    Cancelado
-                  </button>
                 </div>
               </div>
             </div>
+          )}
+        </div>
+        
+        <div className="pedidos-summary">
+          <div className="summary-item">
+            <span className="summary-label">Total de Pedidos:</span>
+            <span className="summary-value">{pedidos.length}</span>
           </div>
-        )}
-      </div>
-      
-      <div className="pedidos-summary">
-        <div className="summary-item">
-          <span className="summary-label">Total de Pedidos:</span>
-          <span className="summary-value">{pedidos.length}</span>
+          <div className="summary-item">
+            <span className="summary-label">Pedidos Activos:</span>
+            <span className="summary-value">{pedidos.filter(p => p.estadoPedido).length}</span>
+          </div>
+          <div className="summary-item">
+            <span className="summary-label">Pendientes:</span>
+            <span className="summary-value">{pedidos.filter(p => p.estadoEntregaPedido === 'Pendiente').length}</span>
+          </div>
+          <div className="summary-item">
+            <span className="summary-label">En Proceso:</span>
+            <span className="summary-value">{pedidos.filter(p => p.estadoEntregaPedido === 'En Proceso').length}</span>
+          </div>
+          <div className="summary-item">
+            <span className="summary-label">Entregados:</span>
+            <span className="summary-value">{pedidos.filter(p => p.estadoEntregaPedido === 'Entregado').length}</span>
+          </div>
         </div>
-        <div className="summary-item">
-          <span className="summary-label">Pedidos Activos:</span>
-          <span className="summary-value">{pedidos.filter(p => p.estadoPedido).length}</span>
-        </div>
-        <div className="summary-item">
-          <span className="summary-label">Pendientes:</span>
-          <span className="summary-value">{pedidos.filter(p => p.estadoEntregaPedido === 'Pendiente').length}</span>
-        </div>
-        <div className="summary-item">
-          <span className="summary-label">En Proceso:</span>
-          <span className="summary-value">{pedidos.filter(p => p.estadoEntregaPedido === 'En Proceso').length}</span>
-        </div>
-        <div className="summary-item">
-          <span className="summary-label">Entregados:</span>
-          <span className="summary-value">{pedidos.filter(p => p.estadoEntregaPedido === 'Entregado').length}</span>
-        </div>
-      </div>
+
+        <FooterApp />
     </div>
   );
 };
