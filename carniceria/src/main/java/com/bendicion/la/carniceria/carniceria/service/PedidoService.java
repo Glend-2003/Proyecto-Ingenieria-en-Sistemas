@@ -1,8 +1,5 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.bendicion.la.carniceria.carniceria.service;
+
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
@@ -18,34 +15,28 @@ import com.bendicion.la.carniceria.carniceria.domain.Pedido;
 import com.bendicion.la.carniceria.carniceria.jpa.PedidoRepository;
 
 import jakarta.transaction.Transactional;
-/**
- *
- * @author jsand
- */
+
 @Service
 @Primary
- public class PedidoService implements IPedidoService {
+public class PedidoService implements IPedidoService {
 
     @Autowired
     private PedidoRepository pedidoRepo;
+    
     @Autowired
     private CarritoService carritoRepo;
-
 
     @Transactional
     @Override
     public Pedido addPedido(Pedido pedido) {
-        // Obtener el ID del carrito del objeto pedido
         Integer idCarrito = pedido.getCarrito().getIdCarrito();
         Integer idTipoPago = pedido.getTipoPago().getIdTipoPago();
         
-        // Verificar que el carrito exista antes de usarlo
         Carrito carritos = carritoRepo.obtenerCarritoPorId(idCarrito);
-        if (carritos == null ) {
+        if (carritos == null) {
             throw new RuntimeException("El carrito con ID " + idCarrito + " no existe");
         }
         
-        // Una vez verificado que el carrito existe, proceder con el pedido
         Date fechaPedido = Date.from(pedido.getFechaPedido().atZone(ZoneId.systemDefault()).toInstant());
         pedidoRepo.saveProcedurePedido(
             pedido.getMontoTotalPedido(),
@@ -63,23 +54,9 @@ import jakarta.transaction.Transactional;
     @Override
     public Pedido updatePedido(Pedido pedido) {
         try {
-            // Convertir LocalDateTime a Date 
             Date fecha = java.sql.Timestamp.valueOf(pedido.getFechaPedido());
-            
-            // Convertir boolean a int
             Integer estadoInt = pedido.isEstadoPedido() ? 1 : 0;
             
-            // LOGS DE DEPURACIÓN
-            System.out.println("Valores a pasar al SP:");
-System.out.println("idPedido: " + pedido.getIdPedido());
-System.out.println("montoTotalPedido: " + pedido.getMontoTotalPedido());
-System.out.println("fechaPedido: " + fecha);
-System.out.println("estadoPedido: " + estadoInt);
-System.out.println("estadoEntregaPedido: " + pedido.getEstadoEntregaPedido());
-System.out.println("idCarrito: " + pedido.getCarrito().getIdCarrito());
-System.out.println("idTipoPago: " + pedido.getTipoPago().getIdTipoPago());
-            
-            // Llamar al SP
             pedidoRepo.updateProcedurePedido(
                 pedido.getIdPedido(),
                 pedido.getMontoTotalPedido(), 
@@ -90,27 +67,20 @@ System.out.println("idTipoPago: " + pedido.getTipoPago().getIdTipoPago());
                 pedido.getTipoPago().getIdTipoPago()
             );
             
-            System.out.println("Pedido actualizado exitosamente: {}"+ pedido.getIdPedido());
-            
             return pedido;
         } catch (Exception e) {
-            System.out.println("Error al actualizar pedido: {}" + e.getMessage() + e);
             throw new RuntimeException("Error al actualizar pedido: " + e.getMessage(), e);
         }
     }
 
     @Override
     public List<Map<String, Object>> getPedido() {
-       try {
-        List<Map<String, Object>> resultado = pedidoRepo.listaPedido();
-        System.out.println("Resultado obtenido: " + resultado);
-        return resultado;
-    } catch (Exception e) {
-        System.err.println("Error al obtener pedidos: " + e.getMessage());
-        e.printStackTrace();
-        // Devuelve una lista vacía o maneja el error de otra manera
-        return new ArrayList<>();
-    }
+        try {
+            return pedidoRepo.listaPedido();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
     }
 
     @Transactional
@@ -119,9 +89,4 @@ System.out.println("idTipoPago: " + pedido.getTipoPago().getIdTipoPago());
         pedidoRepo.deleteProcedurePedido(id);
         return true;
     }
-
-
-    
-
-    
 }

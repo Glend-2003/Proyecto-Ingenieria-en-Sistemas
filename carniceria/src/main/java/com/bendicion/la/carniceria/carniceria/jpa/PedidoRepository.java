@@ -1,4 +1,5 @@
 package com.bendicion.la.carniceria.carniceria.jpa;
+
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
@@ -12,13 +13,8 @@ import org.springframework.stereotype.Repository;
 
 import com.bendicion.la.carniceria.carniceria.domain.Pedido;
 
-/**
- *
- * @author Jamel Sandí
- */
-
 @Repository
-public interface PedidoRepository extends JpaRepository<Pedido, Integer>{
+public interface PedidoRepository extends JpaRepository<Pedido, Integer> {
 
     @Query(value = "{call sp_AgregarPedido(:montoTotalPedido, :fechaPedido, :estadoPedido, :estadoEntregaPedido, :idCarrito, :idTipoPago)}", nativeQuery = true)
     void saveProcedurePedido(
@@ -33,24 +29,18 @@ public interface PedidoRepository extends JpaRepository<Pedido, Integer>{
     @Query(value = "CALL spLeerPedidoDetallado()", nativeQuery = true)
     List<Map<String, Object>> listaPedido();
 
-    
-
     @Modifying
-    
-@Query(value = "{call spActualizarPedido(:idPedido, :montoTotalPedido, :fechaPedido, :estadoPedido, :estadoEntregaPedido, :idCarrito, :idTipoPago)}", nativeQuery = true)
-
-void updateProcedurePedido(
-    
-    @Param("idPedido") Integer idPedido,
-    @Param("montoTotalPedido") BigDecimal montoTotalPedido, 
-    @Param("fechaPedido") Date fechaPedido,
-    @Param("estadoPedido") Integer estadoPedido,  // Cambiado de boolean a Integer
-    @Param("estadoEntregaPedido") String estadoEntregaPedido,
-    @Param("idCarrito") Integer idCarrito,
-    @Param("idTipoPago") Integer idTipoPago
-);
+    @Query(value = "{call spActualizarPedido(:idPedido, :montoTotalPedido, :fechaPedido, :estadoPedido, :estadoEntregaPedido, :idCarrito, :idTipoPago)}", nativeQuery = true)
+    void updateProcedurePedido(
+        @Param("idPedido") Integer idPedido,
+        @Param("montoTotalPedido") BigDecimal montoTotalPedido, 
+        @Param("fechaPedido") Date fechaPedido,
+        @Param("estadoPedido") Integer estadoPedido,
+        @Param("estadoEntregaPedido") String estadoEntregaPedido,
+        @Param("idCarrito") Integer idCarrito,
+        @Param("idTipoPago") Integer idTipoPago
+    );
 
     @Query(value = "{call spEliminarPedido(:idPedido)}", nativeQuery = true)
     void deleteProcedurePedido(@Param("idPedido") Integer idPedido);
-    
 }

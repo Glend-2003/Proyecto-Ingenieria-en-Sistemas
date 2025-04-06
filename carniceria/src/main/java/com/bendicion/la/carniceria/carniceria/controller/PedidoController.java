@@ -19,13 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bendicion.la.carniceria.carniceria.domain.Pedido;
 import com.bendicion.la.carniceria.carniceria.service.IPedidoService;
 
-
-
-/**
- *
- * @author Jamel Sandí
- */
-
 @RestController
 @CrossOrigin(origins = "*")
 @RequestMapping("/pedido")
@@ -42,7 +35,6 @@ public class PedidoController {
         for (Map<String, Object> fila : pedidosPlanos) {
             Integer idPedido = ((Number) fila.get("idPedido")).intValue();
             
-            // Si este pedido no ha sido procesado todavía, crea una nueva estructura para él
             if (!pedidosPorId.containsKey(idPedido)) {
                 Map<String, Object> pedido = new HashMap<>();
                 Map<String, Object> carrito = new HashMap<>();
@@ -50,7 +42,6 @@ public class PedidoController {
                 Map<String, Object> tipoPago = new HashMap<>();
                 List<Map<String, Object>> productos = new ArrayList<>();
                 
-                // Datos básicos del pedido
                 pedido.put("idPedido", idPedido);
                 pedido.put("montoTotalPedido", fila.get("montoTotalPedido"));
                 pedido.put("fechaPedido", fila.get("fechaPedido"));
@@ -58,13 +49,11 @@ public class PedidoController {
                 pedido.put("estadoPedidoTexto", fila.get("estadoPedidoTexto"));
                 pedido.put("estadoEntregaPedido", fila.get("estadoEntregaPedido"));
                 
-                // Datos del tipo de pago
                 tipoPago.put("idTipoPago", fila.get("idTipoPago"));
                 tipoPago.put("descripcionTipoPago", fila.get("descripcionTipoPago"));
                 tipoPago.put("estadoTipoPago", fila.get("estadoTipoPago"));
                 pedido.put("tipoPago", tipoPago);
                 
-                // Datos del usuario
                 usuario.put("idUsuario", fila.get("idUsuario"));
                 usuario.put("nombreUsuario", fila.get("nombreUsuario"));
                 usuario.put("primerApellido", fila.get("primerApellido"));
@@ -75,7 +64,6 @@ public class PedidoController {
                 usuario.put("telefonoUsuario", fila.get("telefonoUsuario"));
                 usuario.put("fechaNacimiento", fila.get("fechaNacimiento"));
                 
-                // Datos del carrito
                 carrito.put("idCarrito", fila.get("idCarrito"));
                 carrito.put("cantidadCarrito", fila.get("cantidadCarrito"));
                 carrito.put("montoTotalCarrito", fila.get("montoTotalCarrito"));
@@ -86,11 +74,9 @@ public class PedidoController {
                 carrito.put("productos", productos);
                 
                 pedido.put("carrito", carrito);
-                
                 pedidosPorId.put(idPedido, pedido);
             }
             
-            // Si hay datos de producto en esta fila, añadirlos a la lista de productos
             if (fila.get("idProducto") != null) {
                 Map<String, Object> producto = new HashMap<>();
                 producto.put("idCarritoProducto", fila.get("idCarritoProducto"));
@@ -114,89 +100,28 @@ public class PedidoController {
         
         return new ArrayList<>(pedidosPorId.values());
     }
+
     @PostMapping("/agregar")
     public ResponseEntity<?> addPedido(@RequestBody Pedido pedido) {
         try {
-            // Imprimir detalles del pedido recibido para depuración
-            System.out.println("Pedido recibido:");
-            System.out.println("MontoTotal: " + pedido.getMontoTotalPedido());
-            System.out.println("FechaPedido: " + pedido.getFechaPedido());
-            System.out.println("Estado: " + pedido.isEstadoPedido());
-            System.out.println("EstadoEntrega: " + pedido.getEstadoEntregaPedido());
-            
-            // Imprimir detalles del carrito
-            if (pedido.getCarrito() != null) {
-                System.out.println("Carrito ID: " + pedido.getCarrito().getIdCarrito());
-                // Si el carrito tiene un usuario asociado, imprimirlo también
-                if (pedido.getCarrito().getUsuario() != null) {
-                    System.out.println("Usuario ID en carrito: " + pedido.getCarrito().getUsuario().getIdUsuario());
-                } else {
-                    System.out.println("El carrito no tiene usuario asociado");
-                }
-            } else {
-                System.out.println("¡ATENCIÓN! El carrito es NULL");
-            }
-            
-            // Imprimir detalles del tipo de pago
-            if (pedido.getTipoPago() != null) {
-                System.out.println("TipoPago ID: " + pedido.getTipoPago().getIdTipoPago());
-            } else {
-                System.out.println("¡ATENCIÓN! El tipo de pago es NULL");
-            }
-            
             Pedido pedidoNuevo = pedidoService.addPedido(pedido);
-            System.out.println("Pedido agregado: " + pedidoNuevo.getIdPedido());
-    
+            
             Map<String, Object> response = new HashMap<>();
             response.put("mensaje", "Pedido agregado con éxito");
             response.put("pedido", pedidoNuevo.getIdPedido());
     
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            e.printStackTrace(); // Imprimir stack trace para ver el error completo
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("error","Error al agregar el pedido: "+ e.getMessage()));
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Collections.singletonMap("error", "Error al agregar el pedido: " + e.getMessage()));
         }
     }
 
     @PostMapping("/actualizar")
     public ResponseEntity<?> updatePedido(@RequestBody Pedido pedido) {
         try {
-            System.out.println("Recibiendo pedido para actualizar: " + pedido.getIdPedido() +
-                              ", montoTotal: " + pedido.getMontoTotalPedido() +
-                              ", estado: " + pedido.isEstadoPedido() +
-                              ", entrega: " + pedido.getEstadoEntregaPedido() +
-                              ", fechaPedido: " + pedido.getFechaPedido());
-            
-            // Verificar si carrito y tipoPago están presentes
-            if (pedido.getCarrito() != null) {
-                System.out.println("Carrito ID: " + pedido.getCarrito().getIdCarrito());
-            } else {
-                // Si el carrito no viene como objeto, intentamos recuperarlo del ID
-                Integer idCarrito = pedido.getCarrito().getIdCarrito();
-                if (idCarrito != null) {
-                    // Aquí necesitarías una referencia al carritoRepository
-                    // Carrito carrito = carritoRepository.findById(idCarrito).orElse(null);
-                    // pedido.setCarrito(carrito);
-                    System.out.println("Usando ID de carrito: " + idCarrito);
-                }
-            }
-            
-            if (pedido.getTipoPago() != null) {
-                System.out.println("TipoPago ID: " + pedido.getTipoPago().getIdTipoPago());
-            } else {
-                // Si el tipoPago no viene como objeto, intentamos recuperarlo del ID
-                Integer idTipoPago = pedido.getTipoPago().getIdTipoPago();
-                if (idTipoPago != null) {
-                    // Aquí necesitarías una referencia al tipoPagoRepository
-                    // TipoPago tipoPago = tipoPagoRepository.findById(idTipoPago).orElse(null);
-                    // pedido.setTipoPago(tipoPago);
-                    System.out.println("Usando ID de tipoPago: " + idTipoPago);
-                }
-            }
-            
-            // Ahora llamamos al servicio para actualizar el pedido
             Pedido pedidoActualizado = pedidoService.updatePedido(pedido);
-            System.out.println("Pedido actualizado: " + pedidoActualizado.getIdPedido());
     
             Map<String, Object> response = new HashMap<>();
             response.put("mensaje", "Pedido actualizado con éxito");
@@ -206,7 +131,7 @@ public class PedidoController {
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                               .body(Collections.singletonMap("error", "Error al actualizar el pedido: " + e.getMessage()));
+                .body(Collections.singletonMap("error", "Error al actualizar el pedido: " + e.getMessage()));
         }
     }
 
@@ -214,23 +139,9 @@ public class PedidoController {
     public ResponseEntity<Boolean> deletePedido(@RequestBody int id) {
         boolean eliminado = pedidoService.deletePedido(id);
         if (eliminado) {
-            System.out.println("Pedido eliminado: " + id);
             return ResponseEntity.ok(true);
         } else {
-            System.out.println("Error al eliminar el pedido: " + id + " no encontrado");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
         }
-    
-    
     }
-
-
-
-
-    
-
-    
-
-
-    
 }
