@@ -161,16 +161,52 @@ public class PedidoController {
     @PostMapping("/actualizar")
     public ResponseEntity<?> updatePedido(@RequestBody Pedido pedido) {
         try {
+            System.out.println("Recibiendo pedido para actualizar: " + pedido.getIdPedido() +
+                              ", montoTotal: " + pedido.getMontoTotalPedido() +
+                              ", estado: " + pedido.isEstadoPedido() +
+                              ", entrega: " + pedido.getEstadoEntregaPedido() +
+                              ", fechaPedido: " + pedido.getFechaPedido());
+            
+            // Verificar si carrito y tipoPago están presentes
+            if (pedido.getCarrito() != null) {
+                System.out.println("Carrito ID: " + pedido.getCarrito().getIdCarrito());
+            } else {
+                // Si el carrito no viene como objeto, intentamos recuperarlo del ID
+                Integer idCarrito = pedido.getCarrito().getIdCarrito();
+                if (idCarrito != null) {
+                    // Aquí necesitarías una referencia al carritoRepository
+                    // Carrito carrito = carritoRepository.findById(idCarrito).orElse(null);
+                    // pedido.setCarrito(carrito);
+                    System.out.println("Usando ID de carrito: " + idCarrito);
+                }
+            }
+            
+            if (pedido.getTipoPago() != null) {
+                System.out.println("TipoPago ID: " + pedido.getTipoPago().getIdTipoPago());
+            } else {
+                // Si el tipoPago no viene como objeto, intentamos recuperarlo del ID
+                Integer idTipoPago = pedido.getTipoPago().getIdTipoPago();
+                if (idTipoPago != null) {
+                    // Aquí necesitarías una referencia al tipoPagoRepository
+                    // TipoPago tipoPago = tipoPagoRepository.findById(idTipoPago).orElse(null);
+                    // pedido.setTipoPago(tipoPago);
+                    System.out.println("Usando ID de tipoPago: " + idTipoPago);
+                }
+            }
+            
+            // Ahora llamamos al servicio para actualizar el pedido
             Pedido pedidoActualizado = pedidoService.updatePedido(pedido);
             System.out.println("Pedido actualizado: " + pedidoActualizado.getIdPedido());
-
+    
             Map<String, Object> response = new HashMap<>();
             response.put("mensaje", "Pedido actualizado con éxito");
             response.put("pedido", pedidoActualizado.getIdPedido());
-
+    
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("error","Error al actualizar el pedido: "+ e.getMessage()));
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                               .body(Collections.singletonMap("error", "Error al actualizar el pedido: " + e.getMessage()));
         }
     }
 

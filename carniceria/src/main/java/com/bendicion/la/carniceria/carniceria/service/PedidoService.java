@@ -62,10 +62,41 @@ import jakarta.transaction.Transactional;
     @Transactional
     @Override
     public Pedido updatePedido(Pedido pedido) {
-
-        Date fechaPedido = Date.from(pedido.getFechaPedido().atZone(ZoneId.systemDefault()).toInstant());
-        pedidoRepo.updateProcedurePedido(pedido.getIdPedido(),pedido.getMontoTotalPedido(), fechaPedido, pedido.isEstadoPedido(), pedido.getEstadoEntregaPedido(), 1, 1);
-        return pedido;
+        try {
+            // Convertir LocalDateTime a Date 
+            Date fecha = java.sql.Timestamp.valueOf(pedido.getFechaPedido());
+            
+            // Convertir boolean a int
+            Integer estadoInt = pedido.isEstadoPedido() ? 1 : 0;
+            
+            // LOGS DE DEPURACIÓN
+            System.out.println("Valores a pasar al SP:");
+System.out.println("idPedido: " + pedido.getIdPedido());
+System.out.println("montoTotalPedido: " + pedido.getMontoTotalPedido());
+System.out.println("fechaPedido: " + fecha);
+System.out.println("estadoPedido: " + estadoInt);
+System.out.println("estadoEntregaPedido: " + pedido.getEstadoEntregaPedido());
+System.out.println("idCarrito: " + pedido.getCarrito().getIdCarrito());
+System.out.println("idTipoPago: " + pedido.getTipoPago().getIdTipoPago());
+            
+            // Llamar al SP
+            pedidoRepo.updateProcedurePedido(
+                pedido.getIdPedido(),
+                pedido.getMontoTotalPedido(), 
+                fecha, 
+                estadoInt, 
+                pedido.getEstadoEntregaPedido(), 
+                pedido.getCarrito().getIdCarrito(),
+                pedido.getTipoPago().getIdTipoPago()
+            );
+            
+            System.out.println("Pedido actualizado exitosamente: {}"+ pedido.getIdPedido());
+            
+            return pedido;
+        } catch (Exception e) {
+            System.out.println("Error al actualizar pedido: {}" + e.getMessage() + e);
+            throw new RuntimeException("Error al actualizar pedido: " + e.getMessage(), e);
+        }
     }
 
     @Override

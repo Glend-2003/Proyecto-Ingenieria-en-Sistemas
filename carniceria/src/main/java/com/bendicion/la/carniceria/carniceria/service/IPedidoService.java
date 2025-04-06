@@ -17,15 +17,12 @@ public interface IPedidoService {
     @Transactional
     public Pedido addPedido(Pedido pedido);
     
-    @Transactional // Asegúrate de que esté anotado
+    @Transactional 
     public Pedido updatePedido(Pedido pedido);
     
     @Transactional
     public List<Map<String, Object>> getPedido();
-    /* 
-    @Transactional
-    public Pedido getPedidoById(int id);
-    */
+
     @Transactional
     public boolean deletePedido(int id);
 }

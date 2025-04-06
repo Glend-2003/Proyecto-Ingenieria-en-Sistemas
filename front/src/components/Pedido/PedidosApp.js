@@ -78,16 +78,25 @@ const PedidosApp = () => {
   const handleEditFormChange = (e) => {
     const { name, value, type, checked } = e.target;
     
-    // Handle different input types
-    const newValue = type === 'checkbox' ? checked : 
-                   name === 'montoTotalPedido' ? parseFloat(value) : 
-                   name === 'idTipoPago' ? parseInt(value, 10) : 
-                   value;
-    
-    setEditFormData({
-      ...editFormData,
-      [name]: newValue
-    });
+    if (name === 'idTipoPago') {
+      // Buscar el objeto tipoPago completo basado en el ID seleccionado
+      const tipoPagoSeleccionado = tiposPago.find(tp => tp.idTipoPago === parseInt(value, 10));
+      
+      setEditFormData({
+        ...editFormData,
+        idTipoPago: parseInt(value, 10),
+        tipoPago: tipoPagoSeleccionado
+      });
+    } else {
+      // Handle different input types
+      const newValue = type === 'checkbox' ? checked : 
+                     name === 'montoTotalPedido' ? parseFloat(value) : value;
+      
+      setEditFormData({
+        ...editFormData,
+        [name]: newValue
+      });
+    }
   };
 
   // Initialize edit mode
@@ -100,8 +109,8 @@ const PedidosApp = () => {
       fechaPedido: formatDateForInput(selectedPedido.fechaPedido),
       estadoPedido: selectedPedido.estadoPedido,
       estadoEntregaPedido: selectedPedido.estadoEntregaPedido,
-      idCarrito: selectedPedido.carrito.idCarrito,
-      idTipoPago: selectedPedido.tipoPago ? selectedPedido.tipoPago.idTipoPago : ''
+      carrito: selectedPedido.carrito,
+      tipoPago: selectedPedido.tipoPago
     });
     
     setEditMode(true);
@@ -125,8 +134,8 @@ const PedidosApp = () => {
     e.preventDefault();
     
     try {
-      const response = await axios.put(
-        `http://localhost:8080/pedido/${editFormData.idPedido}`, 
+      const response = await axios.post(
+        `http://localhost:8080/pedido/actualizar`,
         editFormData
       );
       

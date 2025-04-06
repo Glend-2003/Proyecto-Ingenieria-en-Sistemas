@@ -36,16 +36,19 @@ public interface PedidoRepository extends JpaRepository<Pedido, Integer>{
     
 
     @Modifying
-    @Query(value = "{call spActualizarPedido(:idPedido, :montoTotalPedido, :fechaPedido, :estadoPedido, :estadoEntregaPedido, :idCarrito, :idTipoPago)}", nativeQuery = true)
-    void updateProcedurePedido(
-        @Param("idPedido") Integer idPedido,
-        @Param("montoTotalPedido") BigDecimal montoTotalPedido, 
-        @Param("fechaPedido") Date fechaPedido,
-        @Param("estadoPedido") boolean estadoPedido,
-        @Param("estadoEntregaPedido") String estadoEntregaPedido,
-        @Param("idCarrito") Integer idCarrito,
-        @Param("idTipoPago") Integer idTipoPago
-    );
+    
+@Query(value = "{call spActualizarPedido(:idPedido, :montoTotalPedido, :fechaPedido, :estadoPedido, :estadoEntregaPedido, :idCarrito, :idTipoPago)}", nativeQuery = true)
+
+void updateProcedurePedido(
+    
+    @Param("idPedido") Integer idPedido,
+    @Param("montoTotalPedido") BigDecimal montoTotalPedido, 
+    @Param("fechaPedido") Date fechaPedido,
+    @Param("estadoPedido") Integer estadoPedido,  // Cambiado de boolean a Integer
+    @Param("estadoEntregaPedido") String estadoEntregaPedido,
+    @Param("idCarrito") Integer idCarrito,
+    @Param("idTipoPago") Integer idTipoPago
+);
 
     @Query(value = "{call spEliminarPedido(:idPedido)}", nativeQuery = true)
     void deleteProcedurePedido(@Param("idPedido") Integer idPedido);
