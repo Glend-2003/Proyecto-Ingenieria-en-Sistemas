@@ -2644,3 +2644,103 @@ DELIMITER ;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2025-04-02 23:22:42
+
+DELIMITER //
+CREATE PROCEDURE spActualizarCarritoProducto(
+    IN p_idCarritoProducto INT,
+    IN p_idCarrito INT,
+    IN p_idProducto INT,
+    IN p_cantidadProducto INT
+)
+BEGIN
+    UPDATE tbcarritoproducto
+    SET 
+        idCarrito = p_idCarrito,
+        idProducto = p_idProducto,
+        cantidadProducto = p_cantidadProducto
+    WHERE idCarritoProducto = p_idCarritoProducto;
+END //
+DELIMITER ;
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spEliminarCarrito`(IN `p_idCarrito` INT)
+BEGIN
+    DECLARE done INT DEFAULT 0;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+    BEGIN
+        ROLLBACK;
+        SELECT 'Error al desactivar el carrito' AS mensaje;
+    END;
+
+    IF done = 0 AND NOT EXISTS (SELECT 1 FROM tbcarrito WHERE idCarrito = p_idCarrito) THEN
+        SET done = 1;
+        SELECT 'Carrito no encontrado' AS mensaje;
+    END IF;
+
+    IF done = 0 THEN
+        UPDATE tbcarrito
+        SET estadoCarrito = 0
+        WHERE idCarrito = p_idCarrito;
+
+        SELECT 'Carrito desactivado con éxito' AS mensaje;
+    END IF;
+
+END
+
+DELIMITER //
+CREATE PROCEDURE spEliminarCarritoProducto(
+    IN p_idCarritoProducto INT
+)
+BEGIN
+    DELETE FROM tbcarritoproducto 
+    WHERE idCarritoProducto = p_idCarritoProducto;
+END //
+DELIMITER ;
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spLeerCarrito`(IN p_filtrarInactivos BOOLEAN)
+BEGIN
+    IF p_filtrarInactivos THEN
+        -- Mostrar solo carritos activos (estadoCarrito = 1)
+        SELECT 
+            idCarrito,
+            idUsuario,
+            montoTotalCarrito,
+            cantidadCarrito,
+            estadoCarrito
+        FROM 
+            tbcarrito
+        WHERE 
+            estadoCarrito = 1
+        ORDER BY 
+            idCarrito DESC;
+    ELSE
+        -- Mostrar todos los carritos, ordenados por estado (activos primero)
+        SELECT 
+            idCarrito,
+            idUsuario,
+            montoTotalCarrito,
+            cantidadCarrito,
+            estadoCarrito
+        FROM 
+            tbcarrito
+        ORDER BY 
+            estadoCarrito DESC, 
+            idCarrito DESC;
+    END IF;
+END
+
+
+DELIMITER //
+CREATE PROCEDURE spLeerCarritoProductoPorCarrito(
+    IN p_idCarrito INT
+)
+BEGIN
+    SELECT 
+        idCarritoProducto,
+        idCarrito,
+        idProducto,
+        cantidadProducto
+    FROM tbcarritoproducto
+    WHERE idCarrito = p_idCarrito;
+END //
+DELIMITER ;
