@@ -42,7 +42,7 @@ BEGIN
         idUsuario = IFNULL(p_idUsuario, idUsuario),
         montoTotalCarrito = IFNULL(p_montoTotalCarrito, montoTotalCarrito),
         cantidadCarrito = IFNULL(p_cantidadCarrito, cantidadCarrito),
-        estadoCarrito = IFNULL(p_estadoCarrito, estadoCarrito),
+        estadoCarrito = IFNULL(p_estadoCarrito, estadoCarrito)
     WHERE idCarrito = p_idCarrito;
 
     COMMIT;

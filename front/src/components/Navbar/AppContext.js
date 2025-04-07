@@ -20,17 +20,20 @@ export const AppProvider = ({ children }) => {
   // Actualizar el carrito cuando cambia el usuario
   useEffect(() => {
     const savedCart = JSON.parse(localStorage.getItem("carrito") || "[]")
+    
     if (idUsuario) {
-      // Asociar el idUsuario a los productos que no lo tienen
+      // Usuario logueado: asignar ID a todos los productos
       const updatedCart = savedCart.map((item) => ({
         ...item,
-        usuarioId: item.usuarioId || idUsuario, // Asignar idUsuario si no existe
+        usuarioId: idUsuario,
       }))
       setCart(updatedCart)
       localStorage.setItem("carrito", JSON.stringify(updatedCart))
     } else {
-      // Si no hay idUsuario, mantener el carrito sin cambios
-      setCart(savedCart)
+      // No hay usuario logueado: eliminar usuarioId de todos los productos
+      const updatedCart = savedCart.map(({ usuarioId, ...rest }) => rest)
+      setCart(updatedCart)
+      localStorage.setItem("carrito", JSON.stringify(updatedCart))
     }
   }, [idUsuario])
 
@@ -71,6 +74,7 @@ export const AppProvider = ({ children }) => {
       return newCart
     })
   }
+  
 
   // Función para eliminar productos del carrito
   const removeFromCart = (indexToRemove) => {

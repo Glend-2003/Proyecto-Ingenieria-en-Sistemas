@@ -1,679 +1,584 @@
-import React, { useState, useEffect } from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
-import '../styles.min.css';
-import axios from "axios";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
-import { FaSpinner, FaArrowLeft, FaCheck, FaTimes } from 'react-icons/fa'; // Añadidos FaCheck y FaTimes
+import './PedidosApp.css';
 
-function PedidoCrud() {
-  // Estados para los campos del formulario
-  const [formData, setFormData] = useState({
-    nombreUsuario: '',
-    primerApellido: '',
-    segundoApellido: '',
-    telefonoUsuario: '',
-    correoUsuario: '',
-    tipoPersona: 'Física',
-    cedulaUsuario: '',
-    tipoCedula: 'Cédula Física',
-    sucursal: 'Cairo de Cariari',
-    provincia: 'Limón',
-    localidad: 'El cairo Cariari en',
-    horaRetiro: '',
-    tipoPago: '' // Nuevo campo para tipo de pago
-  });
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
-  // Estado para almacenar los tipos de pago
+const PedidosApp = () => {
+  const [pedidos, setPedidos] = useState([]);
+  const [filteredPedidos, setFilteredPedidos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedPedido, setSelectedPedido] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState('todos');
+  const [editMode, setEditMode] = useState(false);
+  const [editFormData, setEditFormData] = useState(null);
   const [tiposPago, setTiposPago] = useState([]);
-
-  // Estado para manejar errores y loading
-  const [status, setStatus] = useState({
-    loading: false,
-    error: null,
-    success: false
-  });
   
-  // Estado para el Snackbar
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: '',
-    severity: 'success'
-  });
-  
-  // Estado para la validación de cédula
-  const [cedulaValidation, setCedulaValidation] = useState({
-    isValid: false,
-    isChecking: false,
-    wasChecked: false,
-    message: ''
-  });
+  // Snackbar states
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
 
-  // Función para cerrar el Snackbar
-  const handleCloseSnackbar = () => {
-    setSnackbar({...snackbar, open: false});
+  // Snackbar handlers
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbarOpen(false);
   };
 
-  // Recuperar carrito del localStorage
-  const [cart, setCart] = useState([]);
+  const showSnackbar = (message, severity = 'success') => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setSnackbarOpen(true);
+  };
 
-  // Debounce para la validación de cédula
   useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      if (formData.cedulaUsuario && formData.cedulaUsuario.trim() !== '') {
-        validateCedula(formData.cedulaUsuario);
+    const fetchPedidos = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get('http://localhost:8080/pedido/');
+        setPedidos(response.data);
+        setFilteredPedidos(response.data);
+        setLoading(false);
+      } catch (err) {
+        setError('Error al cargar los pedidos. Por favor, intente de nuevo más tarde.');
+        setLoading(false);
+        console.error('Error fetching pedidos:', err);
       }
-    }, 1000);
-    return () => clearTimeout(delayDebounceFn);
-  }, [formData.cedulaUsuario]);
-  
-  useEffect(() => {
-    const savedCart = JSON.parse(localStorage.getItem("carrito")) || [];
-    setCart(savedCart);
-    
-    // Llamada a la API para obtener los tipos de pago
+    };
+
     const fetchTiposPago = async () => {
       try {
         const response = await axios.get('http://localhost:8080/tipopago/');
         setTiposPago(response.data);
-        
-        // Si hay tipos de pago disponibles, establecer el primero como valor por defecto
-        if (response.data && response.data.length > 0) {
-          setFormData(prevData => ({
-            ...prevData,
-            tipoPago: response.data[0].idTipoPago // Usando el campo correcto idTipoPago
-          }));
-        }
-        console.log('Tipos de pago cargados:', response.data); // Para depuración
-      } catch (error) {
-        console.error('Error al obtener tipos de pago:', error);
-        setSnackbar({
-          open: true,
-          message: 'Error al cargar los tipos de pago',
-          severity: 'error'
-        });
+      } catch (err) {
+        console.error('Error fetching tipos de pago:', err);
       }
     };
-    
+
+    fetchPedidos();
     fetchTiposPago();
   }, []);
 
-  // Calcular totales
-  const subtotal = cart.reduce((total, item) => total + (item.montoPrecioProducto * item.cantidad), 0);
-  const montoTotalPedido = cart.reduce((total, item) => total + (item.montoPrecioProducto * item.cantidad), 0) * 1.15;
+  useEffect(() => {
+    let result = pedidos;
 
-  // Función para validar la cédula con la API de Hacienda
-  const validateCedula = async (cedula) => {
-    // Verificamos que la cédula tenga al menos un carácter antes de consultar la API
-    if (!cedula || cedula.trim().length === 0) {
-      setCedulaValidation({
-        isValid: false,
-        isChecking: false,
-        wasChecked: true,
-        message: 'Ingrese un número de cédula válido'
-      });
-      return;
-    }
-    setCedulaValidation({
-      ...cedulaValidation,
-      isChecking: true,
-      message: 'Verificando cédula...'
-    });
-
-    try {
-      const response = await axios.get(`https://api.hacienda.go.cr/fe/ae?identificacion=${cedula}`);
-      
-      if (response.data && response.status === 200) {
-        setCedulaValidation({
-          isValid: true,
-          isChecking: false,
-          wasChecked: true,
-          message: 'Cédula verificada correctamente'
-        });
-      } else {
-        setCedulaValidation({
-          isValid: false,
-          isChecking: false,
-          wasChecked: true,
-          message: 'La cédula no está registrada en Hacienda'
-        });
-      }
-    } catch (error) {
-      console.error('Error al validar cédula:', error);
-      
-      setCedulaValidation({
-        isValid: false,
-        isChecking: false,
-        wasChecked: true,
-        message: 'La cédula no está registrada o hubo un error de verificación'
-      });
-    }
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
-    
-    // Si se cambia la cédula, resetear la validación
-    if (name === 'cedulaUsuario') {
-      setCedulaValidation({
-        isValid: false,
-        isChecking: false,
-        wasChecked: false,
-        message: ''
-      });
-    }
-  };
-
-  // Alert personalizado para Snackbar
-  const Alert = React.forwardRef(function Alert(props, ref) {
-    return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
-  });
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-  
-    // Verificar que la cédula sea válida antes de enviar
-    if (!cedulaValidation.isValid) {
-      setSnackbar({
-        open: true,
-        message: 'La cédula no es válida. No se puede procesar el pedido.',
-        severity: 'error'
-      });
-      return;
-    }
-  
-    setStatus({ loading: true, error: null, success: false });
-  
-    try {
-      // Obtener el ID de usuario del localStorage o usar uno por defecto
-      const idUsuario = localStorage.getItem("idUsuario") || 56;
-      
-      // PASO 1: Crear un nuevo carrito en la base de datos
-      const carritoData = {
-        usuario: {
-          idUsuario: parseInt(idUsuario, 10)
-        },
-        montoTotalCarrito: subtotal,
-        estadoCarrito: true,
-        cantidadCarrito: cart.length
-      };
-      
-      const carritoResponse = await axios.post('http://localhost:8080/carrito', carritoData);
-      console.log('Carrito creado:', carritoResponse.data);
-      
-      // Obtener el ID del carrito recién creado
-      const idCarrito = carritoResponse.data.idCarrito;
-
-      console.log('ID del carrito creado:', idCarrito);
-      
-      // PASO 2: Agregar los productos al carrito (en serie, no en paralelo)
-      for (const item of cart) {
-        const productoCarrito = {
-          carrito: {
-            idCarrito: idCarrito
-          },
-          idProducto: item.idProducto,
-          cantidadProducto: item.cantidad
-        };
-        
-        await axios.post(`http://localhost:8080/carrito/${idCarrito}/productos`, productoCarrito);
-        console.log(`Producto ${item.idProducto} agregado al carrito ${idCarrito}`);
-      }
-    
-      // PASO 3: Añadir un retraso para asegurar que la base de datos ha procesado todas las transacciones
-      console.log(`Esperando para asegurar que el carrito ${idCarrito} se guarde completamente...`);
-      await new Promise(resolve => setTimeout(resolve, 3000));
-  
-      // Verificación opcional del carrito
-      try {
-        const checkCarritoResponse = await axios.get(`http://localhost:8080/carrito/usuario/${idUsuario}`);
-        console.log(`Verificación de carrito exitosa:`, checkCarritoResponse.data);
-      } catch (verifyError) {
-        console.error(`Error al verificar carrito para usuario ${idUsuario}:`, verifyError);
-        // No interrumpir el flujo, solo registrar el error
-      }
-  
-      // PASO 4: Crear el pedido con el carrito recién creado
-      const pedidoData = {
-        // Datos del usuario
-        
-        nombreUsuario: formData.nombreUsuario,
-        primerApellido: formData.primerApellido,
-        segundoApellido: formData.segundoApellido,
-        telefonoUsuario: formData.telefonoUsuario,
-        correoUsuario: formData.correoUsuario,
-        tipoPersona: formData.tipoPersona,
-        cedulaUsuario: formData.cedulaUsuario,
-        tipoCedula: formData.tipoCedula,
-        
-        // Datos de la sucursal y retiro
-        sucursal: formData.sucursal,
-        provincia: formData.provincia,
-        localidad: formData.localidad,
-        horaRetiro: formData.horaRetiro,
-        
-        // Asociar con el carrito recién creado (usando objeto anidado)
-        carrito: {
-          idCarrito: idCarrito,
-          usuario: {
-            idUsuario: parseInt(idUsuario, 10)
-          }
-        },
-
-        
-        
-        // Tipo de pago (usando objeto anidado)
-        tipoPago: {
-          idTipoPago: parseInt(formData.tipoPago, 10)
-        },
-        
-        // Datos del pedido
-        subtotal: subtotal,
-        montoTotalPedido: montoTotalPedido,
-        fechaPedido: new Date().toISOString(),
-        estadoPedido: true,
-        estadoEntregaPedido: "Pendiente"
-      };
-      
-      console.log('Enviando datos del pedido:', JSON.stringify(pedidoData, null, 2));
-      
-      const pedidoResponse = await axios.post('http://localhost:8080/pedido/agregar', pedidoData);
-      console.log('Pedido registrado de manera exitosa:', pedidoResponse.data);
-      
-      // PASO 5: Actualizar el estado del carrito a inactivo
-      await axios.put(`http://localhost:8080/carrito/${idCarrito}`, {
-        usuario: {
-          idUsuario: parseInt(idUsuario, 10)
-        },
-        montoTotalCarrito: subtotal,
-        estadoCarrito: false,  // Marcar como inactivo
-        cantidadCarrito: cart.length
-      });
-  
-      setStatus({ loading: false, error: null, success: true });
-  
-      setSnackbar({
-        open: true,
-        message: 'Pedido registrado de manera exitosa',
-        severity: 'success'
-      });
-  
-      localStorage.removeItem("carrito");
-      setCart([]);
-  
-      setTimeout(() => {
-        window.location.href = "/";
-      }, 2000);
-  
-    } catch(error) {
-      console.error('Error al registrar el pedido:', error);
-  
-      // Log detallado para diagnóstico
-      console.log('Detalles del error:', {
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        message: error.message,
-        stack: error.stack
-      });
-      
-      setStatus({ 
-        loading: false, 
-        error: error.response?.data?.message || "Error al procesar el pedido", 
-        success: false 
-      });
-      
-      setSnackbar({
-        open: true,
-        message: error.response?.data?.message || "Error al procesar el pedido",
-        severity: 'error'
-      });
-    }
-  };
-
-  // Renderizar productos del carrito
-  const renderCartItems = () => {
-    if (cart.length > 0) {
-      return cart.map((item, index) => (
-        <div className="row mb-2 pb-2 border-bottom" key={index}>
-          <div className="col-8">{item.nombreProducto || "Producto"} × {item.cantidad}</div>
-          <div className="col-4 text-end">₡{((item.montoPrecioProducto || 0) * item.cantidad).toLocaleString()}</div>
-        </div>
-      ));
-    } else {
-      return (
-        <div className="row mb-2 pb-2 border-bottom">
-          <div className="col-12 text-center">No hay productos en el carrito</div>
-        </div>
+    if (searchTerm) {
+      result = result.filter(
+        pedido => 
+          pedido.idPedido.toString().includes(searchTerm) ||
+          (pedido.carrito.usuario.nombreUsuario && 
+            pedido.carrito.usuario.nombreUsuario.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (pedido.carrito.usuario.primerApellido && 
+            pedido.carrito.usuario.primerApellido.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
+
+    if (filterStatus !== 'todos') {
+      if (filterStatus === 'activo') {
+        result = result.filter(pedido => pedido.estadoPedido);
+      } else if (filterStatus === 'inactivo') {
+        result = result.filter(pedido => !pedido.estadoPedido);
+      } else {
+        result = result.filter(pedido => pedido.estadoEntregaPedido === filterStatus);
+      }
+    }
+
+    setFilteredPedidos(result);
+  }, [searchTerm, filterStatus, pedidos]);
+
+  const handleEditFormChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    
+    if (name === 'idTipoPago') {
+      const tipoPagoSeleccionado = tiposPago.find(tp => tp.idTipoPago === parseInt(value, 10));
+      
+      setEditFormData({
+        ...editFormData,
+        idTipoPago: parseInt(value, 10),
+        tipoPago: tipoPagoSeleccionado
+      });
+    } else {
+      const newValue = type === 'checkbox' ? checked : 
+                     name === 'montoTotalPedido' ? parseFloat(value) : value;
+      
+      setEditFormData({
+        ...editFormData,
+        [name]: newValue
+      });
+    }
   };
 
-  // Determinar si el botón de finalizar debe estar deshabilitado
-  const isSubmitDisabled = status.loading || 
-                           tiposPago.length === 0 || 
-                           !cedulaValidation.isValid || 
-                           cedulaValidation.isChecking || 
-                           cart.length === 0;
+  const handleEditPedido = () => {
+    if (!selectedPedido) return;
+    
+    setEditFormData({
+      idPedido: selectedPedido.idPedido,
+      montoTotalPedido: selectedPedido.montoTotalPedido,
+      fechaPedido: formatDateForInput(selectedPedido.fechaPedido),
+      estadoPedido: selectedPedido.estadoPedido,
+      estadoEntregaPedido: selectedPedido.estadoEntregaPedido,
+      carrito: selectedPedido.carrito,
+      tipoPago: selectedPedido.tipoPago,
+      idTipoPago: selectedPedido.tipoPago?.idTipoPago
+    });
+    
+    setEditMode(true);
+  };
+
+  const handleCancelEdit = () => {
+    setEditMode(false);
+    setEditFormData(null);
+  };
+
+  const formatDateForInput = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toISOString().slice(0, 16);
+  };
+
+  const handleSubmitEdit = async (e) => {
+    e.preventDefault();
+    
+    try {
+      const response = await axios.post(
+        `http://localhost:8080/pedido/actualizar`,
+        editFormData
+      );
+      
+      const updatedPedidos = pedidos.map(pedido => {
+        if (pedido.idPedido === editFormData.idPedido) {
+          const updatedPedido = { 
+            ...pedido,
+            montoTotalPedido: editFormData.montoTotalPedido,
+            fechaPedido: new Date(editFormData.fechaPedido).toISOString(),
+            estadoPedido: editFormData.estadoPedido,
+            estadoEntregaPedido: editFormData.estadoEntregaPedido,
+            tipoPago: editFormData.tipoPago
+          };
+          
+          return updatedPedido;
+        }
+        return pedido;
+      });
+      
+      setPedidos(updatedPedidos);
+      setSelectedPedido(updatedPedidos.find(p => p.idPedido === editFormData.idPedido));
+      setEditMode(false);
+      setEditFormData(null);
+      
+      // Show success message with Snackbar
+      showSnackbar('Pedido actualizado exitosamente', 'success');
+    } catch (err) {
+      console.error('Error updating pedido:', err);
+      // Show error message with Snackbar
+      showSnackbar('Error al actualizar el pedido', 'error');
+    }
+  };
+
+  const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
+    try {
+      await axios.put(`http://localhost:8080/pedido/actualizarEstadoEntrega/${pedidoId}`, {
+        estadoEntregaPedido: nuevoEstado
+      });
+      
+      const updatedPedidos = pedidos.map(pedido => {
+        if (pedido.idPedido === pedidoId) {
+          return { ...pedido, estadoEntregaPedido: nuevoEstado };
+        }
+        return pedido;
+      });
+      
+      setPedidos(updatedPedidos);
+      
+      if (selectedPedido && selectedPedido.idPedido === pedidoId) {
+        setSelectedPedido({ ...selectedPedido, estadoEntregaPedido: nuevoEstado });
+      }
+
+      // Show success message with Snackbar
+      showSnackbar(`Estado cambiado a ${nuevoEstado}`, 'info');
+    } catch (err) {
+      console.error('Error updating pedido status:', err);
+      // Show error message with Snackbar
+      showSnackbar('Error al actualizar el estado del pedido', 'error');
+    }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const getStatusBadgeColor = (status) => {
+    switch (status) {
+      case 'Pendiente': return 'status-badge-yellow';
+      case 'En Proceso': return 'status-badge-blue';
+      case 'Enviado': return 'status-badge-purple';
+      case 'Entregado': return 'status-badge-green';
+      case 'Cancelado': return 'status-badge-red';
+      default: return 'status-badge-gray';
+    }
+  };
+
+  const renderStatusBadge = (status) => (
+    <span className={`status-badge ${getStatusBadgeColor(status)}`}>
+      {status}
+    </span>
+  );
+
+  const handleSelectPedido = (pedido) => {
+    setSelectedPedido(pedido);
+    setEditMode(false);
+    setEditFormData(null);
+  };
+
+  const handleCloseDetails = () => {
+    setSelectedPedido(null);
+    setEditMode(false);
+    setEditFormData(null);
+  };
+
+  if (loading) return <div className="loading">Cargando pedidos...</div>;
+  if (error) return <div className="error">{error}</div>;
 
   return (
-    <div className="container py-4 my-3">
-      <h1 className="text-center">Finalizar pedido</h1>
-
-      {/* Botón para regresar */}
-      <div className="mb-3">
-        <button 
-          className="btn btn-outline-secondary" 
-          onClick={() => window.history.back()}
-        >
-          <FaArrowLeft className="me-2" /> Volver
-        </button>
+    <div className="pedidos-app">
+      <h1>Gestión de Pedidos</h1>
+      
+      <div className="filters-container">
+        <div className="search-container">
+          <input
+            type="text"
+            placeholder="Buscar por ID o nombre de cliente..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
+        </div>
+        
+        <div className="filter-select">
+          <label htmlFor="status-filter">Filtrar por estado:</label>
+          <select
+            id="status-filter"
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+          >
+            <option value="todos">Todos</option>
+            <option value="activo">Activo</option>
+            <option value="inactivo">Inactivo</option>
+            <option value="Pendiente">Pendiente</option>
+            <option value="En Proceso">En Proceso</option>
+            <option value="Enviado">Enviado</option>
+            <option value="Entregado">Entregado</option>
+            <option value="Cancelado">Cancelado</option>
+          </select>
+        </div>
       </div>
 
-      <div className="row">
-        <div className="col-md-6">
-          <div className="mb-10">
-            <h2 style={{ marginBottom: "25px", fontSize: "25px" }}>
-              Detalles finales de la compra
-            </h2>
-            <div className="row">
-              <div className="col-md-6">
-                <label htmlFor="nombreUsuario" className="form-label">
-                  Nombre
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="nombreUsuario"
-                  name="nombreUsuario"
-                  value={formData.nombreUsuario}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="col-md-6">
-                <label htmlFor="primerApellido" className="form-label">
-                  Primer apellido
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="primerApellido"
-                  name="primerApellido"
-                  value={formData.primerApellido}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-            <div className="row">
-              <div className="col-md-6">
-                <label htmlFor="segundoApellido" className="form-label">
-                  Segundo apellido
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="segundoApellido"
-                  name="segundoApellido"
-                  value={formData.segundoApellido}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="col-md-6">
-                <label htmlFor="telefonoUsuario" className="form-label">
-                  Teléfono
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="telefonoUsuario"
-                  name="telefonoUsuario"
-                  value={formData.telefonoUsuario}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-            <div className="row">
-              <div className="col-md-6">
-                <label htmlFor="correoUsuario" className="form-label">
-                  Correo electrónico
-                </label>
-                <input
-                  type="email"
-                  className="form-control"
-                  id="correoUsuario"
-                  name="correoUsuario"
-                  value={formData.correoUsuario}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="col-md-6">
-                <label htmlFor="tipoPersona" className="form-label">
-                  Tipo de persona
-                </label>
-                <select
-                  className="form-control"
-                  id="tipoPersona"
-                  name="tipoPersona"
-                  value={formData.tipoPersona}
-                  onChange={handleChange}
-                >
-                  <option value="Física">Física</option>
-                  <option value="Jurídica">Jurídica</option>
-                </select>
-              </div>
-            </div>
-            <div className="row">
-              <div className="col-md-6">
-                <label htmlFor="cedulaUsuario" className="form-label">
-                  Cédula
-                </label>
-                <div className="input-group">
-                  <input
-                    type="text"
-                    className={`form-control ${cedulaValidation.wasChecked ? (cedulaValidation.isValid ? 'is-valid' : 'is-invalid') : ''}`}
-                    id="cedulaUsuario"
-                    name="cedulaUsuario"
-                    value={formData.cedulaUsuario}
-                    onChange={handleChange}
-                  />
-                  <div className="input-group-append">
-                    <span className="input-group-text">
-                      {cedulaValidation.isChecking ? (
-                        <FaSpinner className="spinner" />
-                      ) : cedulaValidation.wasChecked ? (
-                        cedulaValidation.isValid ? (
-                          <FaCheck className="text-success" />
-                        ) : (
-                          <FaTimes className="text-danger" />
-                        )
-                      ) : null}
+      <div className="pedidos-container">
+        {filteredPedidos.length === 0 ? (
+          <div className="no-results">No se encontraron pedidos con los filtros aplicados</div>
+        ) : (
+          <table className="pedidos-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Fecha</th>
+                <th>Monto</th>
+                <th>Estado Pedido</th>
+                <th>Estado Entrega</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredPedidos.map((pedido) => (
+                <tr key={pedido.idPedido} className={pedido.estadoPedido ? '' : 'inactive-row'}>
+                  <td>{pedido.idPedido}</td>
+                  <td>
+                    {pedido.carrito && pedido.carrito.usuario 
+                      ? `${pedido.carrito.usuario.nombreUsuario} ${pedido.carrito.usuario.primerApellido}`
+                      : 'N/A'}
+                  </td>
+                  <td>{formatDate(pedido.fechaPedido)}</td>
+                  <td>₡{pedido.montoTotalPedido ? pedido.montoTotalPedido.toLocaleString() : '0'}</td>
+                  <td>
+                    <span className={`active-status ${pedido.estadoPedido ? 'active' : 'inactive'}`}>
+                      {pedido.estadoPedido ? 'Activo' : 'Inactivo'}
                     </span>
+                  </td>
+                  <td>
+                    {renderStatusBadge(pedido.estadoEntregaPedido)}
+                  </td>
+                  <td>
+                    <button 
+                      className="view-btn"
+                      onClick={() => handleSelectPedido(pedido)}
+                    >
+                      Ver detalles
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+
+        {selectedPedido && (
+          <div className="pedido-details-modal">
+            <div className="pedido-details-content">
+              <button className="close-btn" onClick={handleCloseDetails}>×</button>
+              
+              <h2>Detalles del Pedido #{selectedPedido.idPedido}</h2>
+              
+              {!editMode ? (
+                <>
+                  <div className="pedido-info">
+                    <div className="info-section">
+                      <h3>Información del Pedido</h3>
+                      <p><strong>Fecha:</strong> {formatDate(selectedPedido.fechaPedido)}</p>
+                      <p><strong>Monto Total:</strong> ₡{selectedPedido.montoTotalPedido ? selectedPedido.montoTotalPedido.toLocaleString() : '0'}</p>
+                      <p>
+                        <strong>Estado:</strong> 
+                        <span className={`active-status ${selectedPedido.estadoPedido ? 'active' : 'inactive'}`}>
+                          {selectedPedido.estadoPedido ? 'Activo' : 'Inactivo'}
+                        </span>
+                      </p>
+                      <p>
+                        <strong>Estado de Entrega:</strong> 
+                        {renderStatusBadge(selectedPedido.estadoEntregaPedido)}
+                      </p>
+                      <p>
+                        <strong>Método de Pago:</strong> 
+                        {selectedPedido.tipoPago ? selectedPedido.tipoPago.descripcionTipoPago : 'N/A'}
+                      </p>
+                    </div>
+
+                    {selectedPedido.carrito && selectedPedido.carrito.usuario && (
+                      <div className="info-section">
+                        <h3>Información del Cliente</h3>
+                        <p><strong>Nombre:</strong> {selectedPedido.carrito.usuario.nombreUsuario} {selectedPedido.carrito.usuario.primerApellido} {selectedPedido.carrito.usuario.segundoApellido}</p>
+                        <p><strong>Cédula:</strong> {selectedPedido.carrito.usuario.cedulaUsuario}</p>
+                        <p><strong>Correo:</strong> {selectedPedido.carrito.usuario.correoUsuario}</p>
+                        <p><strong>Teléfono:</strong> {selectedPedido.carrito.usuario.telefonoUsuario}</p>
+                        {selectedPedido.carrito.usuario.direccion && (
+                          <p><strong>Dirección:</strong> {selectedPedido.carrito.usuario.direccion.detalleExactoDireccion}</p>
+                        )}
+                      </div>
+                    )}
                   </div>
-                </div>
-                {cedulaValidation.wasChecked && (
-                  <div className={cedulaValidation.isValid ? "valid-feedback d-block" : "invalid-feedback d-block"}>
-                    {cedulaValidation.message}
-                  </div>
-                )}
-              </div>
-              <div className="col-md-6">
-                <label htmlFor="tipoCedula" className="form-label">
-                  Tipo de cédula
-                </label>
-                <select
-                  className="form-control"
-                  id="tipoCedula"
-                  name="tipoCedula"
-                  value={formData.tipoCedula}
-                  onChange={handleChange}
-                >
-                  <option value="Cédula Física">Cédula Física</option>
-                  <option value="Cédula Jurídica">Cédula Jurídica</option>
-                  <option value="DIMEX">DIMEX</option>
-                </select>
-              </div>
-            </div>
-            <div className="row">
-              <div className="col-md-6">
-                <label htmlFor="sucursal" className="form-label">
-                  Sucursal
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="sucursal"
-                  name="sucursal"
-                  value={formData.sucursal}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="col-md-6">
-                <label htmlFor="provincia" className="form-label">
-                  Provincia
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="provincia"
-                  name="provincia"
-                  value={formData.provincia}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-            <div className="row">
-              <div className="col-md-6">
-                <label htmlFor="localidad" className="form-label">
-                  Localidad
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="localidad"
-                  name="localidad"
-                  value={formData.localidad}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="col-md-6">
-                <label htmlFor="horaRetiro" className="form-label">
-                  Hora de retiro
-                </label>
-                <input
-                  type="time"
-                  className="form-control"
-                  id="horaRetiro"
-                  name="horaRetiro"
-                  value={formData.horaRetiro}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-            
-            {/* Nuevo campo para Tipo de Pago */}
-            <div className="row mt-3">
-              <div className="col-md-6">
-                <label htmlFor="tipoPago" className="form-label">
-                  Tipo de Pago
-                </label>
-                <select
-                  className="form-control"
-                  id="tipoPago"
-                  name="tipoPago"
-                  value={formData.tipoPago}
-                  onChange={handleChange}
-                  disabled={tiposPago.length === 0} // Deshabilitar si no hay opciones
-                >
-                  {tiposPago.length > 0 ? (
-                    tiposPago.map(tipo => (
-                      <option key={tipo.idTipoPago} value={tipo.idTipoPago}>
-                        {tipo.descripcionTipoPago}
-                      </option>
-                    ))
-                  ) : (
-                    <option value="">Cargando tipos de pago...</option>
+
+                  {selectedPedido.carrito && selectedPedido.carrito.producto && (
+                    <div className="info-section">
+                      <h3>Productos</h3>
+                      <div className="product-item">
+                        <div className="product-info">
+                          <p><strong>Nombre:</strong> {selectedPedido.carrito.producto.nombreProducto}</p>
+                          <p><strong>Cantidad:</strong> {selectedPedido.carrito.cantidadCarrito}</p>
+                          <p><strong>Precio Unitario:</strong> ₡{selectedPedido.carrito.producto.montoPrecioProducto ? selectedPedido.carrito.producto.montoPrecioProducto.toLocaleString() : '0'}</p>
+                          <p><strong>Peso/Cantidad:</strong> {selectedPedido.carrito.producto.cantidadProducto} {selectedPedido.carrito.producto.tipoPesoProducto}</p>
+                        </div>
+                        {selectedPedido.carrito.producto.imgProducto && (
+                          <div className="product-image">
+                            <img src={selectedPedido.carrito.producto.imgProducto} alt={selectedPedido.carrito.producto.nombreProducto} />
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   )}
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-6">
-          <h2 style={{ marginBottom: "25px", fontSize: "25px" }}>
-            Productos en el carrito
-          </h2>
-          {renderCartItems()}
-          <div className="row mt-3">
-            <div className="col-8">
-              <strong>Subtotal (sin I.V.A):</strong>
-            </div>
-            <div className="col-4 text-end">
-              ₡{subtotal.toLocaleString()}
-            </div>
-          </div>
-          <div className="row mt-3">
-            <div className="col-8">
-              <strong>Total (Con I.V.A):</strong>
-            </div>
-            <div className="col-4 text-end">
-              ₡{montoTotalPedido.toLocaleString()}
-            </div>
-          </div>
-          <div className="row mt-3">
-            <div className="col-12 text-end">
-              <button 
-                className="btn btn-primary" 
-                onClick={handleSubmit}
-                disabled={isSubmitDisabled}
-              >
-                {status.loading ? (
-                  <>
-                    <FaSpinner className="spinner me-2" /> Procesando...
-                  </>
-                ) : (
-                  'Finalizar Pedido'
-                )}
-              </button>
-              {!cedulaValidation.isValid && cedulaValidation.wasChecked && (
-                <p className="text-danger mt-2">
-                  <small><FaTimes className="me-1" /> Debe ingresar una cédula válida para finalizar el pedido</small>
-                </p>
+
+                  <div className="actions-section">
+                    <h3>Actualizar Estado de Entrega</h3>
+                    <div className="status-buttons">
+                      <button 
+                        className={`status-btn ${selectedPedido.estadoEntregaPedido === 'Pendiente' ? 'selected' : ''}`}
+                        onClick={() => handleChangeEstadoEntrega(selectedPedido.idPedido, 'Pendiente')}
+                      >
+                        Pendiente
+                      </button>
+                      <button 
+                        className={`status-btn ${selectedPedido.estadoEntregaPedido === 'En Proceso' ? 'selected' : ''}`}
+                        onClick={() => handleChangeEstadoEntrega(selectedPedido.idPedido, 'En Proceso')}
+                      >
+                        En Proceso
+                      </button>
+                      <button 
+                        className={`status-btn ${selectedPedido.estadoEntregaPedido === 'Enviado' ? 'selected' : ''}`}
+                        onClick={() => handleChangeEstadoEntrega(selectedPedido.idPedido, 'Enviado')}
+                      >
+                        Enviado
+                      </button>
+                      <button 
+                        className={`status-btn ${selectedPedido.estadoEntregaPedido === 'Entregado' ? 'selected' : ''}`}
+                        onClick={() => handleChangeEstadoEntrega(selectedPedido.idPedido, 'Entregado')}
+                      >
+                        Entregado
+                      </button>
+                      <button 
+                        className={`status-btn cancel-btn ${selectedPedido.estadoEntregaPedido === 'Cancelado' ? 'selected' : ''}`}
+                        onClick={() => handleChangeEstadoEntrega(selectedPedido.idPedido, 'Cancelado')}
+                      >
+                        Cancelado
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="edit-button-container">
+                    <button 
+                      className="edit-pedido-btn"
+                      onClick={handleEditPedido}
+                    >
+                      Editar Pedido
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <form onSubmit={handleSubmitEdit} className="edit-form">
+                  <div className="form-section">
+                    <h3>Información Básica</h3>
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label>Monto Total</label>
+                        <input 
+                          type="number" 
+                          name="montoTotalPedido" 
+                          value={editFormData.montoTotalPedido} 
+                          onChange={handleEditFormChange}
+                          required
+                          step="0.01"
+                          className="form-control"
+                        />
+                      </div>
+                      
+                      <div className="form-group">
+                        <label>Fecha del Pedido</label>
+                        <input 
+                          type="datetime-local" 
+                          name="fechaPedido" 
+                          value={editFormData.fechaPedido} 
+                          onChange={handleEditFormChange}
+                          required
+                          className="form-control"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="form-row">
+                      <div className="form-group checkbox-group">
+                        <label className="checkbox-container">
+                          <input 
+                            type="checkbox" 
+                            name="estadoPedido" 
+                            checked={editFormData.estadoPedido} 
+                            onChange={handleEditFormChange}
+                          />
+                          <span className="checkbox-text">Pedido Activo</span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="form-section">
+                    <h3>Estado y Método de Pago</h3>
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label>Estado de Entrega</label>
+                        <select 
+                          name="estadoEntregaPedido" 
+                          value={editFormData.estadoEntregaPedido} 
+                          onChange={handleEditFormChange}
+                          required
+                          className="form-control"
+                        >
+                          <option value="Pendiente">Pendiente</option>
+                          <option value="En Proceso">En Proceso</option>
+                          <option value="Enviado">Enviado</option>
+                          <option value="Entregado">Entregado</option>
+                          <option value="Cancelado">Cancelado</option>
+                        </select>
+                      </div>
+                      
+                      <div className="form-group">
+                        <label>Método de Pago</label>
+                        <select 
+                          name="idTipoPago" 
+                          value={editFormData.idTipoPago || ''} 
+                          onChange={handleEditFormChange}
+                          required
+                          className="form-control"
+                        >
+                          <option value="">Seleccione un método de pago</option>
+                          {tiposPago.map(tipo => (
+                            <option key={tipo.idTipoPago} value={tipo.idTipoPago}>
+                              {tipo.descripcionTipoPago}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="form-actions">
+                    <button type="submit" className="save-btn">Guardar Cambios</button>
+                    <button type="button" className="cancel-btn" onClick={handleCancelEdit}>Cancelar</button>
+                  </div>
+                </form>
               )}
             </div>
           </div>
+        )}
+      </div>
+      
+      <div className="pedidos-summary">
+        <div className="summary-item">
+          <span className="summary-label">Total de Pedidos:</span>
+          <span className="summary-value">{pedidos.length}</span>
+        </div>
+        <div className="summary-item">
+          <span className="summary-label">Pedidos Activos:</span>
+          <span className="summary-value">{pedidos.filter(p => p.estadoPedido).length}</span>
+        </div>
+        <div className="summary-item">
+          <span className="summary-label">Pendientes:</span>
+          <span className="summary-value">{pedidos.filter(p => p.estadoEntregaPedido === 'Pendiente').length}</span>
+        </div>
+        <div className="summary-item">
+          <span className="summary-label">En Proceso:</span>
+          <span className="summary-value">{pedidos.filter(p => p.estadoEntregaPedido === 'En Proceso').length}</span>
+        </div>
+        <div className="summary-item">
+          <span className="summary-label">Entregados:</span>
+          <span className="summary-value">{pedidos.filter(p => p.estadoEntregaPedido === 'Entregado').length}</span>
         </div>
       </div>
 
-      {/* Snackbar para mensajes de éxito/error */}
+      {/* Snackbar para notificaciones */}
       <Snackbar 
-        open={snackbar.open} 
-        autoHideDuration={6000} 
-        onClose={handleCloseSnackbar}
+        open={snackbarOpen} 
+        autoHideDuration={4000} 
+        onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
-          {snackbar.message}
-        </Alert>
+        
+          {snackbarMessage}
+        
       </Snackbar>
-
-      {/* Para animar el spinner, añadimos estilos globales */}
-      <style>
-        {`
-          .spinner {
-            animation: spin 1s linear infinite;
-          }
-          @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-          }
-        `}
-      </style>
     </div>
   );
-}
+};
 
-export default PedidoCrud;
+export default PedidosApp;

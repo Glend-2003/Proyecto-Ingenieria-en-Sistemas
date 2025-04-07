@@ -1,9 +1,0 @@
-DELIMITER //
-CREATE PROCEDURE spEliminarCarritoProducto(
-    IN p_idCarritoProducto INT
-)
-BEGIN
-    DELETE FROM tbcarritoproducto 
-    WHERE idCarritoProducto = p_idCarritoProducto;
-END //
-DELIMITER ;

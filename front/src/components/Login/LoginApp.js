@@ -44,26 +44,26 @@ function LoginApp({ initialPage = "home" }) {
 
   // Detectar cambios en la URL para actualizar currentPage
   useEffect(() => {
-    if (location.pathname === "/pedido") {
-      setCurrentPage("pedido")
-    } else if (location.pathname === "/Historia"){
-      setCurrentPage("historia")
-    }else if (location.pathname === "/verOrden"){
-      setCurrentPage("verOrden")
-    }else if (location.pathname === "/cortes-de-res"){
-      setCurrentPage("res")
-    }else if (location.pathname === "/cortes-de-cerdo"){
-      setCurrentPage("cerdo")
-    }else if (location.pathname === "/cortes-de-pollo"){
-      setCurrentPage("pollo")
-    }else if (location.pathname === "/productos-varios"){
-      setCurrentPage("varios")
-    }else if (location.pathname === "/productos-destacados"){
-      setCurrentPage("destacados")
-    }else{
-      setCurrentPage("home")
+    console.log("Ruta actual:", location.pathname);
+    
+    // Mapeo directo entre rutas y páginas
+    const pathToPage = {
+      "/pedido": "pedido",
+      "/Historia": "historia", 
+      "/verOrden": "verOrden",
+      "/cortes-de-res": "res",
+      "/cortes-de-cerdo": "cerdo",
+      "/cortes-de-pollo": "pollo",
+      "/productos-varios": "varios",
+      "/productos-destacados": "destacados",
+      "/": "home"
+    };
+    
+    if (pathToPage[location.pathname]) {
+      setCurrentPage(pathToPage[location.pathname]);
+      console.log("Página establecida a:", pathToPage[location.pathname]);
     }
-  }, [location.pathname])
+  }, [location.pathname]);
 
   // Función para cambiar la página actual
   const renderMainContent = () => {
