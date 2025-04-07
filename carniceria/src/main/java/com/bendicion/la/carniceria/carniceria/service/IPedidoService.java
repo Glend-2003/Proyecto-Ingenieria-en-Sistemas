@@ -37,4 +37,7 @@ public interface IPedidoService {
     
      @Transactional
     public Map<String, Object> getTotalVentas();
+    
+    @Transactional
+    public Map<String, Map<String, Object>> getReporteVentasCompleto();
 }

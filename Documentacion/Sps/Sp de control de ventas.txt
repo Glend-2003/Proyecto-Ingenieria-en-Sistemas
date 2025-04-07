@@ -1,10 +1,74 @@
-CREATE PROCEDURE spObtenerTotalVentas()
+DELIMITER //
+
+CREATE PROCEDURE `spObtenerTotalVentas`(
+    IN p_periodo VARCHAR(10) -- 'dia', 'semana', 'mes', 'anio', 'total'
+)
 BEGIN
-    SELECT 
-        SUM(montoTotalPedido) AS totalVentas,
-        COUNT(idPedido) AS cantidadPedidos,
-        CONCAT('$', FORMAT(SUM(montoTotalPedido), 2)) AS totalFormateado,
-        IFNULL(SUM(montoTotalPedido)/COUNT(idPedido), 0) AS promedio
-    FROM 
-        tbpedido;
-END 
+    -- Ventas del día actual
+    IF p_periodo = 'dia' THEN
+        SELECT 
+            IFNULL(SUM(montoTotalPedido), 0) AS totalVentas,
+            COUNT(idPedido) AS cantidadPedidos,
+            CONCAT('₡', FORMAT(IFNULL(SUM(montoTotalPedido), 0), 2)) AS totalFormateado,
+            IFNULL(SUM(montoTotalPedido)/NULLIF(COUNT(idPedido), 0), 0) AS promedio,
+            CONCAT('₡', FORMAT(IFNULL(SUM(montoTotalPedido)/NULLIF(COUNT(idPedido), 0), 0), 2)) AS promedioFormateado,
+            'dia' AS periodo
+        FROM tbpedido
+        WHERE DATE(fechaPedido) = CURDATE()
+        AND estadoPedido = 1;
+    
+    -- Ventas de la semana actual
+    ELSEIF p_periodo = 'semana' THEN
+        SELECT 
+            IFNULL(SUM(montoTotalPedido), 0) AS totalVentas,
+            COUNT(idPedido) AS cantidadPedidos,
+            CONCAT('₡', FORMAT(IFNULL(SUM(montoTotalPedido), 0), 2)) AS totalFormateado,
+            IFNULL(SUM(montoTotalPedido)/NULLIF(COUNT(idPedido), 0), 0) AS promedio,
+            CONCAT('₡', FORMAT(IFNULL(SUM(montoTotalPedido)/NULLIF(COUNT(idPedido), 0), 0), 2)) AS promedioFormateado,
+            'semana' AS periodo
+        FROM tbpedido
+        WHERE YEARWEEK(fechaPedido, 1) = YEARWEEK(CURDATE(), 1)
+        AND estadoPedido = 1;
+    
+    -- Ventas del mes actual
+    ELSEIF p_periodo = 'mes' THEN
+        SELECT 
+            IFNULL(SUM(montoTotalPedido), 0) AS totalVentas,
+            COUNT(idPedido) AS cantidadPedidos,
+            CONCAT('₡', FORMAT(IFNULL(SUM(montoTotalPedido), 0), 2)) AS totalFormateado,
+            IFNULL(SUM(montoTotalPedido)/NULLIF(COUNT(idPedido), 0), 0) AS promedio,
+            CONCAT('₡', FORMAT(IFNULL(SUM(montoTotalPedido)/NULLIF(COUNT(idPedido), 0), 0), 2)) AS promedioFormateado,
+            'mes' AS periodo
+        FROM tbpedido
+        WHERE YEAR(fechaPedido) = YEAR(CURDATE())
+        AND MONTH(fechaPedido) = MONTH(CURDATE())
+        AND estadoPedido = 1;
+    
+    -- Ventas del año actual
+    ELSEIF p_periodo = 'anio' THEN
+        SELECT 
+            IFNULL(SUM(montoTotalPedido), 0) AS totalVentas,
+            COUNT(idPedido) AS cantidadPedidos,
+            CONCAT('₡', FORMAT(IFNULL(SUM(montoTotalPedido), 0), 2)) AS totalFormateado,
+            IFNULL(SUM(montoTotalPedido)/NULLIF(COUNT(idPedido), 0), 0) AS promedio,
+            CONCAT('₡', FORMAT(IFNULL(SUM(montoTotalPedido)/NULLIF(COUNT(idPedido), 0), 0), 2)) AS promedioFormateado,
+            'anio' AS periodo
+        FROM tbpedido
+        WHERE YEAR(fechaPedido) = YEAR(CURDATE())
+        AND estadoPedido = 1;
+    
+    -- Ventas totales (sin filtro de fecha)
+    ELSE
+        SELECT 
+            IFNULL(SUM(montoTotalPedido), 0) AS totalVentas,
+            COUNT(idPedido) AS cantidadPedidos,
+            CONCAT('₡', FORMAT(IFNULL(SUM(montoTotalPedido), 0), 2)) AS totalFormateado,
+            IFNULL(SUM(montoTotalPedido)/NULLIF(COUNT(idPedido), 0), 0) AS promedio,
+            CONCAT('₡', FORMAT(IFNULL(SUM(montoTotalPedido)/NULLIF(COUNT(idPedido), 0), 0), 2)) AS promedioFormateado,
+            'total' AS periodo
+        FROM tbpedido
+        WHERE estadoPedido = 1;
+    END IF;
+END //
+
+DELIMITER ;

@@ -146,11 +146,10 @@ public class PedidoController {
     }
     
     // Lleva el control de ventas
-    
     @GetMapping("/reporteVentas")
     public ResponseEntity<?> getReporteVentas() {
         try {
-            Map<String, Object> reporte = pedidoService.getTotalVentas();
+            Map<String, Map<String, Object>> reporte = pedidoService.getReporteVentasCompleto();
             System.out.println("Reporte de ventas generado: " + reporte);
             return ResponseEntity.ok(reporte);
         } catch (Exception e) {

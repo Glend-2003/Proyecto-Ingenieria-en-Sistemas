@@ -57,7 +57,7 @@ public interface PedidoRepository extends JpaRepository<Pedido, Integer>{
         @Param("nuevoEstado") String nuevoEstado
     );
     
-    @Query(value = "{call spObtenerTotalVentas()}", nativeQuery = true)
-    Map<String, Object> getTotalVentas();
+    @Query(value = "{call spObtenerTotalVentas(:periodo)}", nativeQuery = true)
+    Map<String, Object> getTotalVentasConPeriodo(@Param("periodo") String periodo);
     
 }

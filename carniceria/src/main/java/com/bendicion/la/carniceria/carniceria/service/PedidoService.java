@@ -16,6 +16,7 @@ import com.bendicion.la.carniceria.carniceria.domain.Pedido;
 import com.bendicion.la.carniceria.carniceria.jpa.PedidoRepository;
 
 import jakarta.transaction.Transactional;
+import java.util.HashMap;
 import java.util.Map;
 /**
  *
@@ -109,10 +110,30 @@ import java.util.Map;
     @Transactional
     public Map<String, Object> getTotalVentas() {
         try {
-            return pedidoRepo.getTotalVentas();
+            // Mantenemos esto para compatibilidad
+            return pedidoRepo.getTotalVentasConPeriodo("total");
         } catch (Exception e) {
             throw new RuntimeException("Error al obtener el reporte de ventas: " + e.getMessage());
         }
     }
+    
+    @Override
+    @Transactional
+    public Map<String, Map<String, Object>> getReporteVentasCompleto() {
+        try {
+            Map<String, Map<String, Object>> reporte = new HashMap<>();
+            
+            reporte.put("diario", pedidoRepo.getTotalVentasConPeriodo("dia"));
+            reporte.put("semanal", pedidoRepo.getTotalVentasConPeriodo("semana"));
+            reporte.put("mensual", pedidoRepo.getTotalVentasConPeriodo("mes"));
+            reporte.put("anual", pedidoRepo.getTotalVentasConPeriodo("anio"));
+            reporte.put("total", pedidoRepo.getTotalVentasConPeriodo("total"));
+            
+            return reporte;
+        } catch (Exception e) {
+            throw new RuntimeException("Error al obtener el reporte completo de ventas: " + e.getMessage());
+        }
+    }
+
     
 }

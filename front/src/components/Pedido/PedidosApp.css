@@ -381,4 +381,40 @@
     .summary-item {
       min-width: 100px;
     }
+
+    /* Estilos para el reporte de ventas */
+.ventas-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.periodo-ventas {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.periodo-ventas h3 {
+  margin-top: 0;
+  color: #2c3e50;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+}
+
+.periodo-ventas p {
+  margin: 8px 0;
+  font-size: 14px;
+}
+
+.periodo-ventas.total {
+  background: #e8f4fd;
+  grid-column: 1 / -1;
+}
+
+.periodo-ventas.total h3 {
+  color: #1a5276;
+}
   }
