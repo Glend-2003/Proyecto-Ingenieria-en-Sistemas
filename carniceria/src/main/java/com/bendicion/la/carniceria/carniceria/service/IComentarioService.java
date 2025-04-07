@@ -1,9 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Interface.java to edit this template
- */
 package com.bendicion.la.carniceria.carniceria.service;
-
 import com.bendicion.la.carniceria.carniceria.domain.Comentario;
 import jakarta.transaction.Transactional;
 import java.util.List;
@@ -13,6 +8,7 @@ import java.util.Map;
  *
  * @author Dilan Gutierrez
  */
+
 public interface IComentarioService {
 
     // Agregar Comentario 

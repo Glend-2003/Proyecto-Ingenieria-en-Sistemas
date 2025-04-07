@@ -109,7 +109,7 @@ public class PedidoController {
             Map<String, Object> response = new HashMap<>();
             response.put("mensaje", "Pedido agregado con éxito");
             response.put("pedido", pedidoNuevo.getIdPedido());
-    
+
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             e.printStackTrace();
@@ -134,7 +134,9 @@ public class PedidoController {
                 .body(Collections.singletonMap("error", "Error al actualizar el pedido: " + e.getMessage()));
         }
     }
-
+    
+     // Este elimina del todo, por medio de una cascada, lo que hace a eliminarlo d etodas las tablas
+    
     @PostMapping("/eliminar/{id}")
     public ResponseEntity<Boolean> deletePedido(@RequestBody int id) {
         boolean eliminado = pedidoService.deletePedido(id);

@@ -202,6 +202,12 @@ const PedidosApp = () => {
   };
 
   const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
+    if (nuevoEstado === 'Cancelado' &&
+      !window.confirm('¿Está seguro que desea cancelar este pedido?')) {
+      return;
+    }
+
+    setUpdatingStatus(pedidoId);
     try {
       await axios.put(
         `http://localhost:8080/pedido/actualizarEstadoEntrega/${pedidoId}`,

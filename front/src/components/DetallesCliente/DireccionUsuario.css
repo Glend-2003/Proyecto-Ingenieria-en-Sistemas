@@ -1,35 +1,42 @@
-.perfil-usuario-container {
-    display: flex;
-    height: 100vh; /* Ocupa toda la pantalla */
-}
+/* Hereda los estilos base de PerfilUsuario.css y añade/modifica los siguientes */
 
-.sidebar-container {
+.profile-page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  
+  .perfil-usuario-container {
+    display: flex;
+    flex: 1;
+  }
+  
+  .sidebar-container {
     width: 250px;
-    background-color: #ffffff; /* Color igual al contenido */
+    background-color: #ffffff;
     color: #333;
     padding: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-}
-
-.sidebar-title {
+  }
+  
+  .sidebar-title {
     font-size: 1.2rem;
     font-weight: bold;
     margin-bottom: 20px;
     text-align: center;
     color: #2c3e50;
-}
-
-/* Navegación */
-.sidebar-nav {
+  }
+  
+  .sidebar-nav {
     display: flex;
     flex-direction: column;
     width: 100%;
-}
-
-.sidebar-link {
+  }
+  
+  .sidebar-link {
     display: flex;
     align-items: center;
     text-decoration: none;
@@ -39,31 +46,29 @@
     font-size: 1rem;
     border-radius: 5px;
     transition: background 0.3s, color 0.3s;
-}
-
-.sidebar-link:hover {
+  }
+  
+  .sidebar-link:hover, .sidebar-link.active {
     background-color: #e2e6ea;
     color: #1a252f;
-}
-
-.sidebar-link .icon {
+  }
+  
+  .sidebar-link .icon {
     margin-right: 10px;
     font-size: 1.2rem;
-}
-
-/* Estilo para la opción de cerrar sesión */
-.sidebar-link.logout {
+  }
+  
+  .sidebar-link.logout {
     margin-top: auto;
     color: #e74c3c;
-}
-
-.sidebar-link.logout:hover {
+  }
+  
+  .sidebar-link.logout:hover {
     background-color: #f8d7da;
     color: #c0392b;
-}
-
-/* Contenido principal */
-.profile-content {
+  }
+  
+  .profile-content {
     flex: 1;
     padding: 30px;
     max-width: 1200px;
@@ -87,7 +92,6 @@
     font-size: 16px;
   }
   
-  /* Tarjeta de perfil */
   .profile-card {
     background: white;
     border-radius: 10px;
@@ -151,7 +155,6 @@
     background-color: #27ae60;
   }
   
-  /* Formulario */
   .profile-form {
     padding: 30px;
   }
@@ -164,6 +167,10 @@
   
   .form-group {
     margin-bottom: 15px;
+  }
+  
+  .form-group.full-width {
+    grid-column: 1 / -1;
   }
   
   .form-group label {
@@ -202,6 +209,10 @@
     background-color: white;
   }
   
+  .form-input[type="textarea"] {
+    min-height: 100px;
+  }
+  
   .form-actions {
     margin-top: 30px;
     text-align: right;
@@ -237,4 +248,62 @@
       align-items: flex-start;
       gap: 15px;
     }
+
+    /* Añade estos estilos al final */
+.profile-card {
+    min-height: 580px; /* Altura fija para evitar saltos */
+    position: relative;
+    transition: min-height 0.2s ease;
+  }
+  
+  .card-header {
+    height: 80px; /* Altura fija para el encabezado */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 30px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .profile-form {
+    padding: 20px 30px;
+    height: calc(100% - 80px); /* Resta la altura del header */
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .form-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+    min-height: 0; /* Importante para flexbox */
+  }
+  
+  .form-actions {
+    margin-top: auto;
+    padding: 20px 0;
+    text-align: right;
+  }
+  
+  .form-input {
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+  }
+  
+  /* Asegura que los textareas no cambien de tamaño */
+  textarea.form-input {
+    resize: vertical;
+    min-height: 100px;
+  }
+  
+  /* Estilos para dispositivos móviles */
+  @media (max-width: 768px) {
+    .profile-card {
+      min-height: 650px;
+    }
+    
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+  }
   }

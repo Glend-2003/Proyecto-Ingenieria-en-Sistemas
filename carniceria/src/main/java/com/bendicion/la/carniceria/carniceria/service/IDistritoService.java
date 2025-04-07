@@ -10,4 +10,6 @@ import java.util.List;
 public interface IDistritoService {
     
     public List<Distrito> getDistrito();
+    
+    public List<Distrito> getDistritos(int idCanton);
 }
