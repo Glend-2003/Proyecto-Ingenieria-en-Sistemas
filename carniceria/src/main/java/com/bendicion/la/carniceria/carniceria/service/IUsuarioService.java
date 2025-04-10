@@ -49,8 +49,5 @@ public interface IUsuarioService {
     
     @Transactional
     public String cambiarContrasenaConCodigo(String numCodigo, String nuevaContrasenia);
-    
-     @Transactional // Asegúrate de que esté anotado
-    public Usuario actualizarCredenciales(Usuario usuario);
      
 }

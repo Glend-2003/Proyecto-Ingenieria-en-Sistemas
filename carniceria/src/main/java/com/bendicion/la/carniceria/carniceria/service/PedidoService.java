@@ -1,10 +1,11 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package com.bendicion.la.carniceria.carniceria.service;
-
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
@@ -21,28 +22,30 @@ import java.util.Map;
  *
  * @author jsand
  */
-
 @Service
 @Primary
-public class PedidoService implements IPedidoService {
+ public class PedidoService implements IPedidoService {
 
     @Autowired
     private PedidoRepository pedidoRepo;
-    
     @Autowired
     private CarritoService carritoRepo;
+
 
     @Transactional
     @Override
     public Pedido addPedido(Pedido pedido) {
+        // Obtener el ID del carrito del objeto pedido
         Integer idCarrito = pedido.getCarrito().getIdCarrito();
         Integer idTipoPago = pedido.getTipoPago().getIdTipoPago();
         
+        // Verificar que el carrito exista antes de usarlo
         Carrito carritos = carritoRepo.obtenerCarritoPorId(idCarrito);
-        if (carritos == null) {
+        if (carritos == null ) {
             throw new RuntimeException("El carrito con ID " + idCarrito + " no existe");
         }
         
+        // Una vez verificado que el carrito existe, proceder con el pedido
         Date fechaPedido = Date.from(pedido.getFechaPedido().atZone(ZoneId.systemDefault()).toInstant());
         pedidoRepo.saveProcedurePedido(
             pedido.getMontoTotalPedido(),
@@ -59,34 +62,19 @@ public class PedidoService implements IPedidoService {
     @Transactional
     @Override
     public Pedido updatePedido(Pedido pedido) {
-        try {
-            Date fecha = java.sql.Timestamp.valueOf(pedido.getFechaPedido());
-            Integer estadoInt = pedido.isEstadoPedido() ? 1 : 0;
-            
-            pedidoRepo.updateProcedurePedido(
-                pedido.getIdPedido(),
-                pedido.getMontoTotalPedido(), 
-                fecha, 
-                estadoInt, 
-                pedido.getEstadoEntregaPedido(), 
-                pedido.getCarrito().getIdCarrito(),
-                pedido.getTipoPago().getIdTipoPago()
-            );
-            
-            return pedido;
-        } catch (Exception e) {
-            throw new RuntimeException("Error al actualizar pedido: " + e.getMessage(), e);
-        }
+
+        Date fechaPedido = Date.from(pedido.getFechaPedido().atZone(ZoneId.systemDefault()).toInstant());
+        pedidoRepo.updateProcedurePedido(pedido.getIdPedido(),pedido.getMontoTotalPedido(), fechaPedido, pedido.isEstadoPedido(), pedido.getEstadoEntregaPedido(), 1, 1);
+        return pedido;
     }
 
     @Override
-    public List<Map<String, Object>> getPedido() {
-        try {
-            return pedidoRepo.listaPedido();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ArrayList<>();
-        }
+    @Transactional
+    public List<Pedido> getPedido() {
+        return pedidoRepo.listaPedido();
+
+        // Mapea cada fila a un mapa de claves y valores
+         
     }
     
     // Este elimina del todo, por medio de una cascada, lo que hace a eliminarlo d etodas las tablas
@@ -97,7 +85,6 @@ public class PedidoService implements IPedidoService {
         pedidoRepo.deleteProcedurePedido(id);
         return true;
     }
-
     
     // Este lo que hace es cambiar el estado del pedido, y ocultar los que tienen estado 0
     
@@ -150,4 +137,3 @@ public class PedidoService implements IPedidoService {
 
     
 }
-

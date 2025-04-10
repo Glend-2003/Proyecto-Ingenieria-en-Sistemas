@@ -26,7 +26,7 @@ function MostrarOrdenApp() {
     setCart(newCart)
     localStorage.setItem("carrito", JSON.stringify(newCart))
   }
-  
+
   const removeItem = (index) => {
     const newCart = cart.filter((_, i) => i !== index)
     setCart(newCart)

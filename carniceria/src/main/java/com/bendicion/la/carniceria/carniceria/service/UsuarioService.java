@@ -438,25 +438,4 @@ public Usuario registerUsuario(Usuario usuario) {
         }
     }
    
-    
-    @Override
-@Transactional
-public Usuario actualizarCredenciales(Usuario usuario) {
-    try {
-        usuario.setEstadoUsuario(true);
-        usuarioRepo.actualizarCredenciales(
-                usuario.getIdUsuario(),
-                usuario.getCedulaUsuario(),
-                usuario.getNombreUsuario(),
-                usuario.getPrimerApellido(),
-                usuario.getSegundoApellido(),
-                usuario.getTelefonoUsuario(),
-                usuario.getFechaNacimiento()
-        );
-        return usuario;
-    } catch (Exception e) {
-        throw new RuntimeException("Error al actualizar credenciales: " + e.getMessage());
-    }
-}
-
 }

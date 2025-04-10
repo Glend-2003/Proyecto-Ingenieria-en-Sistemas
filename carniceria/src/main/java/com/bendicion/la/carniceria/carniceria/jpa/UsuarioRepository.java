@@ -1,6 +1,5 @@
 package com.bendicion.la.carniceria.carniceria.jpa;
-import java.sql.Date;
-
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,8 +9,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.bendicion.la.carniceria.carniceria.domain.Usuario;
-import jakarta.transaction.Transactional;
-import java.time.LocalDate;
 
 /**
  *
@@ -128,22 +125,4 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
             @Param("numCodigo") String numCodigo,
             @Param("nuevaContrasenia") String nuevaContrasenia,
             @Param("nuevoCodigo") String nuevoCodigo);
-    
-    
-@Modifying
-@Transactional
-@Query(value = "{call spActualizarCredenciales(:idUsuario, :cedulaUsuario, :nombreUsuario, :primerApellido, :segundoApellido, :telefonoUsuario, :fechaNacimiento)}", nativeQuery = true)
-void actualizarCredenciales(
-    @Param("idUsuario") Integer idUsuario, 
-    @Param("cedulaUsuario") String cedulaUsuario, 
-    @Param("nombreUsuario") String nombreUsuario,
-    @Param("primerApellido") String primerApellido, 
-    @Param("segundoApellido") String segundoApellido, 
-    @Param("telefonoUsuario") String telefonoUsuario, 
-    @Param("fechaNacimiento") LocalDate fechaNacimiento
-);
-
-   
 }
-
-

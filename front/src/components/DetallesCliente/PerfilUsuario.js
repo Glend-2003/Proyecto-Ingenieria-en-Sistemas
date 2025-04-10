@@ -16,18 +16,20 @@ import Carrito from "../Carrito/CarritoApp";
 const PerfilUsuario = () => {
   const { usuario } = useAuth();
   const navigate = useNavigate();
-  const [userEdit, setUserEdit] = useState(null);
-  
 
   const [formData, setFormData] = useState({
-
     cedulaUsuario: "",
     nombreUsuario: "",
     primerApellido: "",
     segundoApellido: "",
     telefonoUsuario: "",
+    correoUsuario: "",
+    contraseniaUsuario: "",
     fechaNacimiento: "",
-   
+    descripcionDireccion: "",
+    codigoPostalDireccion: "",
+    idDistrito: "",
+    estadoUsuario: ""
   });
 
   const [isEditing, setIsEditing] = useState(false);
@@ -48,26 +50,16 @@ const PerfilUsuario = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  
-  const userData = { 
-    ...formData, 
-    idUsuario: usuario.idUsuario 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post("/api/actualizarUsuario", formData);
+      toast.success("Tus datos se han actualizado correctamente");
+      setIsEditing(false);
+    } catch (error) {
+      toast.error("Error al actualizar tus datos. Por favor intenta nuevamente.");
+    }
   };
-
-  console.log("Datos enviados al backend:", userData);
-
-  try {
-    await axios.put("http://localhost:8080/usuario/actualizarCredenciales", userData);
-    toast.success("Tus datos se han actualizado correctamente");
-    setIsEditing(false);
-  } catch (error) {
-    toast.error("Error al actualizar tus datos. Por favor intenta nuevamente.");
-  }
-};
-
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -78,8 +70,6 @@ const PerfilUsuario = () => {
     localStorage.removeItem('idUsuario');
     navigate('/');
   };
-
-  
 
   return (
     <div className="profile-page">

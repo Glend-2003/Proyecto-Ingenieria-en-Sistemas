@@ -1,7 +1,6 @@
 package com.bendicion.la.carniceria.carniceria.service;
 
 import java.util.List;
-import java.util.Map;
 
 import com.bendicion.la.carniceria.carniceria.domain.Pedido;
 
@@ -18,12 +17,15 @@ public interface IPedidoService {
     @Transactional
     public Pedido addPedido(Pedido pedido);
     
-    @Transactional 
+    @Transactional // Asegúrate de que esté anotado
     public Pedido updatePedido(Pedido pedido);
     
     @Transactional
-    public List<Map<String, Object>> getPedido();
-
+    public List<Pedido> getPedido();
+    /* 
+    @Transactional
+    public Pedido getPedidoById(int id);
+    */
     @Transactional
     public boolean deletePedido(int id);
     

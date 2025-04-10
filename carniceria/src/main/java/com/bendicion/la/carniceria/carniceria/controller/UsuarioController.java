@@ -252,22 +252,5 @@ System.out.println("Datos del usuario recibidos: " + usuario);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
-    
-    
-    @PutMapping("/actualizarCredenciales")
-    public ResponseEntity<?> actualizarCredenciales(@RequestBody Usuario usuario) {
-        try {
-            Usuario nuevosCredenciales = iUsuarioService.actualizarCredenciales(usuario);
-            
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "Credenciales actualizados con exito: " + nuevosCredenciales.getIdUsuario());
-            response.put("id", nuevosCredenciales.getIdUsuario());
-
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Collections.singletonMap("error", "Error al actualizar los credenciales: " + e.getMessage()));
-        }
-    }
 
 }
