@@ -134,18 +134,39 @@ public class PedidoService implements IPedidoService {
     @Transactional
     public Map<String, Map<String, Object>> getReporteVentasCompleto() {
         try {
+            Map<String, Map<String, Object>> result = pedidoRepo.getReporteVentasCompleto();
+            
+            // Convertir TupleBackedMap a Map regular
             Map<String, Map<String, Object>> reporte = new HashMap<>();
             
-            reporte.put("diario", pedidoRepo.getTotalVentasConPeriodo("dia"));
-            reporte.put("semanal", pedidoRepo.getTotalVentasConPeriodo("semana"));
-            reporte.put("mensual", pedidoRepo.getTotalVentasConPeriodo("mes"));
-            reporte.put("anual", pedidoRepo.getTotalVentasConPeriodo("anio"));
-            reporte.put("total", pedidoRepo.getTotalVentasConPeriodo("total"));
+            reporte.put("diario", convertTupleToMap(result.get("diario")));
+            reporte.put("semanal", convertTupleToMap(result.get("semanal")));
+            reporte.put("mensual", convertTupleToMap(result.get("mensual")));
+            reporte.put("anual", convertTupleToMap(result.get("anual")));
+            reporte.put("total", convertTupleToMap(result.get("total")));
             
             return reporte;
         } catch (Exception e) {
             throw new RuntimeException("Error al obtener el reporte completo de ventas: " + e.getMessage());
         }
+    }
+    
+    private Map<String, Object> convertTupleToMap(Object tuple) {
+        if (tuple instanceof Map) {
+            return (Map<String, Object>) tuple;
+        }
+        // Si es TupleBackedMap, convertirlo a Map regular
+        Map<String, Object> map = new HashMap<>();
+        if (tuple != null) {
+            try {
+                for (Map.Entry<String, Object> entry : ((Map<String, Object>) tuple).entrySet()) {
+                    map.put(entry.getKey(), entry.getValue());
+                }
+            } catch (Exception e) {
+                // Manejar error de conversión
+            }
+        }
+        return map;
     }
 
     
