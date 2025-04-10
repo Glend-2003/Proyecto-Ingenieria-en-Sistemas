@@ -190,7 +190,8 @@ function PedidoCrud() {
   
     try {
       // Obtener el ID de usuario del localStorage o usar uno por defecto
-      const idUsuario = localStorage.getItem("idUsuario") || 56;
+
+      const idUsuario = localStorage.getItem("idUsuario");
       
       // PASO 1: Crear un nuevo carrito en la base de datos
       const carritoData = {
