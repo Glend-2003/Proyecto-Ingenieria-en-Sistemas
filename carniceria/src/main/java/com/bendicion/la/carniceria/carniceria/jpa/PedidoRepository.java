@@ -12,7 +12,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.bendicion.la.carniceria.carniceria.domain.Pedido;
-import java.util.Map;
 
 @Repository
 public interface PedidoRepository extends JpaRepository<Pedido, Integer> {
@@ -29,6 +28,9 @@ public interface PedidoRepository extends JpaRepository<Pedido, Integer> {
 
     @Query(value = "CALL spLeerPedidoDetallado()", nativeQuery = true)
     List<Map<String, Object>> listaPedido();
+
+    @Query(value = "CALL spLeerPedidosPorId(:id)", nativeQuery = true)
+    List<Map<String, Object>> getPedidoByUsuario(@Param("id") int id);
 
     @Modifying
     @Query(value = "{call spActualizarPedido(:idPedido, :montoTotalPedido, :fechaPedido, :estadoPedido, :estadoEntregaPedido, :idCarrito, :idTipoPago)}", nativeQuery = true)

@@ -6,7 +6,6 @@ import java.util.Map;
 import com.bendicion.la.carniceria.carniceria.domain.Pedido;
 
 import jakarta.transaction.Transactional;
-import java.util.Map;
 
 /**
  *
@@ -23,6 +22,9 @@ public interface IPedidoService {
     
     @Transactional
     public List<Map<String, Object>> getPedido();
+    
+    @Transactional
+    public List<Map<String, Object>>  getPedidoByUsuario(int id); 
 
     @Transactional
     public boolean deletePedido(int id);
