@@ -17,6 +17,7 @@ import PedidosApp from './components/Pedido/PedidosApp';
 import ListaProductosApp from './components/Catalogo/ListaProductosApp';
 import PerfilUsuario from './components/DetallesCliente/PerfilUsuario';
 import Dashboard from './components/DetallesCliente/Dashboard';
+import Orders from './components/DetallesCliente/Orders';
 import SideBarUsuario from './components/DetallesCliente/SideBarUsuario';
 import DireccionUsuario from './components/DetallesCliente/DireccionUsuario';
 import { CartProvider } from './contexto/ContextoCarrito';
@@ -50,6 +51,7 @@ root.render(
           <Route path="/Dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
           <Route path="/SideBarUsuario" element={<PrivateRoute><SideBarUsuario /></PrivateRoute>} />
           <Route path="/DireccionUsuario" element={<PrivateRoute><DireccionUsuario /></PrivateRoute>} />
+          <Route path= "/Orders" element={<PrivateRoute><Orders /></PrivateRoute>} />
           <Route path="/verOrden" element={<LoginApp initialPage="verOrden" />} />
           <Route path="/cortes-de-res" element={<LoginApp initialPage="res" />} />
           <Route path="/cortes-de-cerdo" element={<LoginApp initialPage="cerdo" />} />
