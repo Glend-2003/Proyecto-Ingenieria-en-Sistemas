@@ -3,6 +3,7 @@ package com.bendicion.la.carniceria.carniceria.service;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,8 +16,6 @@ import com.bendicion.la.carniceria.carniceria.domain.Pedido;
 import com.bendicion.la.carniceria.carniceria.jpa.PedidoRepository;
 
 import jakarta.transaction.Transactional;
-import java.util.HashMap;
-import java.util.Map;
 /**
  *
  * @author jsand
@@ -88,6 +87,16 @@ public class PedidoService implements IPedidoService {
             return new ArrayList<>();
         }
     }
+
+    @Override
+public List<Map<String, Object>> getPedidoByUsuario(int id) {
+    try {
+        return pedidoRepo.getPedidoByUsuario(id);
+    } catch (Exception e) {
+        e.printStackTrace();
+        return new ArrayList<>();
+    }
+}
     
     // Este elimina del todo, por medio de una cascada, lo que hace a eliminarlo d etodas las tablas
     

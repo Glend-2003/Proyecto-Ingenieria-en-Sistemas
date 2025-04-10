@@ -104,6 +104,16 @@ public class PedidoController {
         return new ArrayList<>(pedidosPorId.values());
     }
 
+    @GetMapping("/usuario/{id}")
+    public ResponseEntity<List<Map<String, Object>>> getPedidosByUsuario(@PathVariable int id) {
+        List<Map<String, Object>> pedidos = pedidoService.getPedidoByUsuario(id);
+        if (pedidos.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
+        } else {
+            return ResponseEntity.ok(pedidos);
+        }
+    }
+
     @PostMapping("/agregar")
     public ResponseEntity<?> addPedido(@RequestBody Pedido pedido) {
         try {

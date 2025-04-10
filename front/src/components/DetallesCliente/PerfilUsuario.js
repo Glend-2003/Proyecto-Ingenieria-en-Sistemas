@@ -93,7 +93,7 @@ const PerfilUsuario = () => {
             <NavLink to="/dashboard" className="sidebar-link">
               <FaHome className="icon" /> Inicio
             </NavLink>
-            <NavLink to="/orders" className="sidebar-link">
+            <NavLink to="/Orders" className="sidebar-link">
               <FaFileAlt className="icon" /> Pedidos
             </NavLink>
             <NavLink to="/downloads" className="sidebar-link">
