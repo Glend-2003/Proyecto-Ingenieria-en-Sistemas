@@ -1,21 +1,19 @@
 package com.bendicion.la.carniceria.carniceria.service;
-
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
-
 import com.bendicion.la.carniceria.carniceria.domain.Carrito;
 import com.bendicion.la.carniceria.carniceria.domain.Pedido;
+import com.bendicion.la.carniceria.carniceria.jpa.GraficosPedidoRepository;
 import com.bendicion.la.carniceria.carniceria.jpa.PedidoRepository;
-
 import jakarta.transaction.Transactional;
+import java.util.HashMap;
+
 /**
  *
  * @author jsand
@@ -30,6 +28,9 @@ public class PedidoService implements IPedidoService {
     
     @Autowired
     private CarritoService carritoRepo;
+    
+    @Autowired
+    private GraficosPedidoRepository graficosRepo;
 
     @Transactional
     @Override
@@ -128,56 +129,31 @@ public List<Map<String, Object>> getPedidoByUsuario(int id) {
         }
     }
     
-    @Override
     @Transactional
     public Map<String, Object> getTotalVentas() {
         try {
-            // Mantenemos esto para compatibilidad
-            return pedidoRepo.getTotalVentasConPeriodo("total");
+            return graficosRepo.obtenerVentasPorPeriodo("total");
         } catch (Exception e) {
             throw new RuntimeException("Error al obtener el reporte de ventas: " + e.getMessage());
         }
     }
     
-    @Override
     @Transactional
     public Map<String, Map<String, Object>> getReporteVentasCompleto() {
         try {
-            Map<String, Map<String, Object>> result = pedidoRepo.getReporteVentasCompleto();
-            
-            // Convertir TupleBackedMap a Map regular
             Map<String, Map<String, Object>> reporte = new HashMap<>();
             
-            reporte.put("diario", convertTupleToMap(result.get("diario")));
-            reporte.put("semanal", convertTupleToMap(result.get("semanal")));
-            reporte.put("mensual", convertTupleToMap(result.get("mensual")));
-            reporte.put("anual", convertTupleToMap(result.get("anual")));
-            reporte.put("total", convertTupleToMap(result.get("total")));
+            reporte.put("diario", graficosRepo.obtenerVentasPorPeriodo("dia"));
+            reporte.put("semanal", graficosRepo.obtenerVentasPorPeriodo("semana"));
+            reporte.put("mensual", graficosRepo.obtenerVentasPorPeriodo("mes"));
+            reporte.put("anual", graficosRepo.obtenerVentasPorPeriodo("anio"));
+            reporte.put("total", graficosRepo.obtenerVentasPorPeriodo("total"));
             
             return reporte;
         } catch (Exception e) {
             throw new RuntimeException("Error al obtener el reporte completo de ventas: " + e.getMessage());
         }
     }
-    
-    private Map<String, Object> convertTupleToMap(Object tuple) {
-        if (tuple instanceof Map) {
-            return (Map<String, Object>) tuple;
-        }
-        // Si es TupleBackedMap, convertirlo a Map regular
-        Map<String, Object> map = new HashMap<>();
-        if (tuple != null) {
-            try {
-                for (Map.Entry<String, Object> entry : ((Map<String, Object>) tuple).entrySet()) {
-                    map.put(entry.getKey(), entry.getValue());
-                }
-            } catch (Exception e) {
-                // Manejar error de conversión
-            }
-        }
-        return map;
-    }
-
     
 }
 
