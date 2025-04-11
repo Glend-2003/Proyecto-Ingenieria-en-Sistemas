@@ -25,6 +25,9 @@ public interface IPedidoService {
     
     @Transactional
     public List<Map<String, Object>>  getPedidoByUsuario(int id); 
+    
+    @Transactional
+    public List<Map<String, Object>> filtrarPedidos(Integer idUsuario, Integer estadoEntrega, java.util.Date fechaInicio, java.util.Date fechaFin, Integer estadoPedido);
 
     @Transactional
     public boolean deletePedido(int id);

@@ -1,5 +1,6 @@
 package com.bendicion.la.carniceria.carniceria.controller;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -7,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -113,6 +115,25 @@ public class PedidoController {
             return ResponseEntity.ok(pedidos);
         }
     }
+
+    @GetMapping("/filtrar")
+public ResponseEntity<List<Map<String, Object>>> filtrarPedidos(
+    @RequestParam int idUsuario,
+    @RequestParam(required = false) Integer estadoEntrega,
+    @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date fechaInicio,
+    @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date fechaFin,
+    @RequestParam(required = false) Integer estadoPedido
+) {
+    List<Map<String, Object>> pedidos = pedidoService.filtrarPedidos(
+        idUsuario, estadoEntrega, fechaInicio, fechaFin, estadoPedido
+    );
+    
+    if (pedidos.isEmpty()) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
+    } else {
+        return ResponseEntity.ok(pedidos);
+    }
+}
 
     @PostMapping("/agregar")
     public ResponseEntity<?> addPedido(@RequestBody Pedido pedido) {
