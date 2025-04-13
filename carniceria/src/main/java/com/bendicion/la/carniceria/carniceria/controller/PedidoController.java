@@ -1,6 +1,5 @@
 package com.bendicion.la.carniceria.carniceria.controller;
 
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -119,19 +118,32 @@ public class PedidoController {
     @GetMapping("/filtrar")
 public ResponseEntity<List<Map<String, Object>>> filtrarPedidos(
     @RequestParam int idUsuario,
-    @RequestParam(required = false) Integer estadoEntrega,
-    @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date fechaInicio,
-    @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date fechaFin,
+    @RequestParam(required = false) String estadoEntrega,
+    @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") java.util.Date fechaInicio,
+    @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") java.util.Date fechaFin,
     @RequestParam(required = false) Integer estadoPedido
 ) {
-    List<Map<String, Object>> pedidos = pedidoService.filtrarPedidos(
-        idUsuario, estadoEntrega, fechaInicio, fechaFin, estadoPedido
-    );
+    System.out.println("Filtro - idUsuario: " + idUsuario);
+    System.out.println("Filtro - estadoEntrega: " + estadoEntrega);
+    System.out.println("Filtro - fechaInicio: " + fechaInicio);
+    System.out.println("Filtro - fechaFin: " + fechaFin);
+    System.out.println("Filtro - estadoPedido: " + estadoPedido);
     
-    if (pedidos.isEmpty()) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
-    } else {
-        return ResponseEntity.ok(pedidos);
+    try {
+        List<Map<String, Object>> pedidos = pedidoService.filtrarPedidos(
+            idUsuario, estadoEntrega, fechaInicio, fechaFin, estadoPedido
+        );
+        
+        if (pedidos.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
+        } else {
+            return ResponseEntity.ok(pedidos);
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+        System.err.println("Error al filtrar pedidos: " + e.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(Collections.emptyList());
     }
 }
 

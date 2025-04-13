@@ -1,5 +1,6 @@
 package com.bendicion.la.carniceria.carniceria.service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -27,7 +28,13 @@ public interface IPedidoService {
     public List<Map<String, Object>>  getPedidoByUsuario(int id); 
     
     @Transactional
-    public List<Map<String, Object>> filtrarPedidos(Integer idUsuario, Integer estadoEntrega, java.util.Date fechaInicio, java.util.Date fechaFin, Integer estadoPedido);
+    List<Map<String, Object>> filtrarPedidos(
+        int idUsuario, 
+        String estadoEntrega,  // Cambiado de Integer a String
+        Date fechaInicio, 
+        Date fechaFin, 
+        Integer estadoPedido
+    );
 
     @Transactional
     public boolean deletePedido(int id);

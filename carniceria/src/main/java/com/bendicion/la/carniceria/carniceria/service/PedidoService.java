@@ -100,13 +100,14 @@ public class PedidoService implements IPedidoService {
     }
 
     @Override
-    public List<Map<String, Object>> filtrarPedidos(Integer idUsuario, Integer estadoEntrega, Date fechaInicio, Date fechaFin, Integer estadoPedido) {
-        try {
-            return pedidoRepo.filtrarPedidos(idUsuario, estadoEntrega, fechaInicio, fechaFin, estadoPedido);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ArrayList<>();
-        }
+    public List<Map<String, Object>> filtrarPedidos(
+        int idUsuario, 
+        String estadoEntrega,  // Cambiado de Integer a String
+        Date fechaInicio, 
+        Date fechaFin, 
+        Integer estadoPedido
+    ) {
+        return pedidoRepo.filtrarPedidos(idUsuario, estadoEntrega, fechaInicio, fechaFin, estadoPedido);
     }
 
     // Este elimina del todo, por medio de una cascada, lo que hace a eliminarlo d etodas las tablas

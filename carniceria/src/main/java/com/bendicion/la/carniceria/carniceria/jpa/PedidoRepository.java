@@ -32,10 +32,10 @@ public interface PedidoRepository extends JpaRepository<Pedido, Integer> {
     @Query(value = "CALL spLeerPedidosPorId(:id)", nativeQuery = true)
     List<Map<String, Object>> getPedidoByUsuario(@Param("id") int id);
 
-    @Query(value = "CALL spFiltrarPedidos(:idUsuario, :estadoEntrega, :fechaInicio, :fechaFin, :estadoPedido)", nativeQuery = true)
-    List<Map<String, Object>> filtrarPedidos(
-    @Param("idUsuario") Integer idUsuario, 
-    @Param("estadoEntrega") Integer estadoEntrega,
+    @Query(value = "{call spFiltrarPedidos(:idUsuario, :estadoEntrega, :fechaInicio, :fechaFin, :estadoPedido)}", nativeQuery = true)
+List<Map<String, Object>> filtrarPedidos(
+    @Param("idUsuario") int idUsuario,
+    @Param("estadoEntrega") String estadoEntrega,
     @Param("fechaInicio") Date fechaInicio,
     @Param("fechaFin") Date fechaFin,
     @Param("estadoPedido") Integer estadoPedido

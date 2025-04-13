@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-import { FaHome, FaFileAlt, FaDownload, FaMapMarkerAlt, FaUser, FaSignOutAlt, FaSpinner, FaCheck, FaClock, FaEdit } from 'react-icons/fa';
+import { FaHome, FaFileAlt, FaDownload, FaMapMarkerAlt, FaUser, FaSignOutAlt, FaSpinner, FaCheck, FaClock, FaEdit, FaFilter, FaSearch, FaTimes, FaCog, FaExclamationTriangle } from 'react-icons/fa';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import DatePicker from 'react-datepicker';
+import "react-datepicker/dist/react-datepicker.css";
 import NavbarApp from "../Navbar/NavbarApp";
 import Carrito from "../Carrito/CarritoApp";
 import FooterApp from '../Footer/FooterApp';
@@ -13,6 +15,13 @@ const Orders = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [usuario, setUsuario] = useState(null);
+  const [showFilters, setShowFilters] = useState(false);
+  
+  // Estados para los filtros
+  const [estadoEntrega, setEstadoEntrega] = useState('');
+  const [fechaInicio, setFechaInicio] = useState(null);
+  const [fechaFin, setFechaFin] = useState(null);
+  const [estadoPedido, setEstadoPedido] = useState('');
   
   useEffect(() => {
     const loadUserAndOrders = async () => {
@@ -35,49 +44,8 @@ const Orders = () => {
         
         setUsuario(usuarioObj);
         
-        const response = await axios.get(`http://localhost:8080/pedido/usuario/${idUsuario}`);
-        
-        if (!response.data || response.data.length === 0) {
-          setPedidos([]);
-          setLoading(false);
-          return;
-        }
-        
-        const pedidosMap = new Map();
-        
-        response.data.forEach(item => {
-          if (!item.idPedido) {
-            return;
-          }
-          
-          if (!pedidosMap.has(item.idPedido)) {
-            pedidosMap.set(item.idPedido, {
-              idPedido: item.idPedido,
-              montoTotalPedido: item.montoTotalPedido || 0,
-              fechaPedido: item.fechaPedido ? new Date(item.fechaPedido).toLocaleDateString() : 'Fecha no disponible',
-              estadoPedido: item.estadoPedido,
-              estadoPedidoTexto: item.estadoPedidoTexto || 'Estado desconocido',
-              estadoEntregaPedido: item.estadoEntregaPedido || "0",
-              descripcionTipoPago: item.descripcionTipoPago || 'Pago no especificado',
-              productos: []
-            });
-          }
-          
-          if (item.idProducto) {
-            pedidosMap.get(item.idPedido).productos.push({
-              idProducto: item.idProducto,
-              nombreProducto: item.nombreProducto || 'Producto sin nombre',
-              imgProducto: item.imgProducto || '',
-              montoPrecioProducto: item.montoPrecioProducto || 0,
-              cantidadProducto: item.cantidadProducto || 1,
-              tipoPesoProducto: item.tipoPesoProducto || 'unidad'
-            });
-          }
-        });
-        
-        const pedidosArray = Array.from(pedidosMap.values());
-        setPedidos(pedidosArray);
-        setLoading(false);
+        // Carga inicial sin filtros
+        await fetchPedidos(idUsuario);
         
       } catch (error) {
         setError("Error al cargar los datos. Por favor, inténtelo nuevamente.");
@@ -88,11 +56,40 @@ const Orders = () => {
     loadUserAndOrders();
   }, []);
   
-  const fetchPedidos = async (idUsuario) => {
+  const fetchPedidos = async (idUsuario, filters = {}) => {
     try {
       setLoading(true);
       
-      const response = await axios.get(`http://localhost:8080/pedido/usuario/${idUsuario}`);
+      // Construir los parámetros de la consulta
+      let url = `http://localhost:8080/pedido/usuario/${idUsuario}`;
+      
+      // Si hay filtros, usar el endpoint de filtrado
+      if (Object.keys(filters).length > 0) {
+        url = `http://localhost:8080/pedido/filtrar?idUsuario=${idUsuario}`;
+        
+        if (filters.estadoEntrega) {
+          // Ahora enviamos el estado directamente como texto sin convertir
+          url += `&estadoEntrega=${encodeURIComponent(filters.estadoEntrega)}`;
+        }
+        
+        if (filters.fechaInicio) {
+          const formattedDate = formatDateToString(filters.fechaInicio);
+          url += `&fechaInicio=${encodeURIComponent(formattedDate)}`;
+        }
+        
+        if (filters.fechaFin) {
+          const formattedDate = formatDateToString(filters.fechaFin);
+          url += `&fechaFin=${encodeURIComponent(formattedDate)}`;
+        }
+        
+        if (filters.estadoPedido) {
+          url += `&estadoPedido=${filters.estadoPedido}`;
+        }
+      }
+      
+      console.log("URL de búsqueda: ", url); // Depuración
+      
+      const response = await axios.get(url);
       
       if (!response.data || response.data.length === 0) {
         setPedidos([]);
@@ -114,7 +111,7 @@ const Orders = () => {
             fechaPedido: item.fechaPedido ? new Date(item.fechaPedido).toLocaleDateString() : 'Fecha no disponible',
             estadoPedido: item.estadoPedido,
             estadoPedidoTexto: item.estadoPedidoTexto || 'Estado desconocido',
-            estadoEntregaPedido: item.estadoEntregaPedido || "0",
+            estadoEntregaPedido: item.estadoEntregaPedido || "Pendiente",
             descripcionTipoPago: item.descripcionTipoPago || 'Pago no especificado',
             productos: []
           });
@@ -136,9 +133,61 @@ const Orders = () => {
       setPedidos(pedidosArray);
       setLoading(false);
     } catch (error) {
+      console.error("Error en fetchPedidos:", error);
       setError("No se pudieron cargar los pedidos. Intente nuevamente más tarde.");
       setLoading(false);
     }
+  };
+
+  // Función auxiliar mejorada para formatear fechas
+  const formatDateToString = (date) => {
+    if (!date) return null;
+    
+    try {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+      
+      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    } catch (error) {
+      console.error("Error formateando fecha:", error);
+      return null;
+    }
+  };
+
+  const handleApplyFilters = () => {
+    const filters = {};
+    
+    if (estadoEntrega) {
+      filters.estadoEntrega = estadoEntrega;
+    }
+    
+    if (fechaInicio) {
+      filters.fechaInicio = fechaInicio;
+    }
+    
+    if (fechaFin) {
+      filters.fechaFin = fechaFin;
+    }
+    
+    if (estadoPedido) {
+      filters.estadoPedido = estadoPedido;
+    }
+    
+    fetchPedidos(usuario.idUsuario, filters);
+    setShowFilters(false); // Opcional: cerrar el panel de filtros al aplicar
+  };
+
+  const handleClearFilters = () => {
+    setEstadoEntrega('');
+    setFechaInicio(null);
+    setFechaFin(null);
+    setEstadoPedido('');
+    
+    fetchPedidos(usuario.idUsuario);
   };
 
   const handleLogout = () => {
@@ -164,8 +213,10 @@ const Orders = () => {
       });
       
       if (result.isConfirmed) {
-        // Aquí iría la llamada al endpoint para cancelar el pedido
-        // await axios.put(`http://localhost:8080/pedido/cancelar/${idPedido}`);
+        // Actualiza el estado del pedido a "Cancelado" usando el endpoint correcto
+        await axios.put(
+          `http://localhost:8080/pedido/actualizarEstadoPedido/${idPedido}?estado=Cancelado`
+        );
         
         Swal.fire(
           'Cancelado',
@@ -173,9 +224,11 @@ const Orders = () => {
           'success'
         );
         
+        // Recargar pedidos después de cancelar
         fetchPedidos(usuario.idUsuario);
       }
     } catch (error) {
+      console.error("Error cancelando pedido:", error);
       Swal.fire(
         'Error',
         'No se pudo cancelar el pedido. Intente nuevamente.',
@@ -199,10 +252,6 @@ const Orders = () => {
       
       if (result.isConfirmed) {
         // Aquí iría la navegación o lógica para editar el pedido
-        // Por ejemplo, redirigir a una página de edición:
-        // window.location.href = `/editar-pedido/${idPedido}`;
-        
-        // Como no tenemos implementada esa página, solo mostramos un mensaje
         Swal.fire(
           'Función en desarrollo',
           'La función para editar pedidos estará disponible próximamente.',
@@ -218,31 +267,46 @@ const Orders = () => {
     }
   };
   
+  // Actualizada para manejar los estados como strings que vienen del backend
   const getEstadoEntregaTexto = (estado) => {
-    // Asegúrate de que estado sea tratado como string
-    switch(String(estado)) {
-      case "Pendiente": return "Pendiente";
-      case "1": return "En preparación";
-      case "2": return "En camino";
-      case "3": return "Entregado";
-      default: return "Desconocido";
+    // Como ahora el estado viene como string directamente del backend, lo devolvemos tal cual si existe
+    if (estado && typeof estado === 'string') {
+      return estado;
     }
+    
+    return "Desconocido";
   };
   
+  // Actualizada para manejar los estados como strings
   const getEstadoEntregaIcon = (estado) => {
-    // Asegúrate de que estado sea tratado como string
-    switch(String(estado)) {
-      case "0": return <FaClock className="estado-icon pending" />;
-      case "1": return <FaSpinner className="estado-icon processing" />;
-      case "2": return <FaSpinner className="estado-icon shipping" />;
-      case "3": return <FaCheck className="estado-icon delivered" />;
-      default: return null;
+    switch(estado) {
+      case "Pendiente":
+        return <FaClock className="estado-icon pending" />;
+      case "En Proceso":
+        return <FaCog className="estado-icon processing" />;
+      case "Entregado":
+        return <FaCheck className="estado-icon delivered" />;
+      case "Cancelado":
+        return <FaTimes className="estado-icon cancelled" />;
+      default:
+        return <FaExclamationTriangle className="estado-icon unknown" />;
     }
   };
 
-  // Función para verificar si un pedido está en estado pendiente
+  // Verifica si un pedido está pendiente para permitir ediciones o cancelaciones
   const isPendiente = (estado) => {
-    return String(estado) === "0";
+    return estado === "Pendiente";
+  };
+
+  // Función para obtener la clase CSS según el estado
+  const getEstadoClass = (estado) => {
+    switch(estado) {
+      case "Pendiente": return "status-pending";
+      case "En Proceso": return "status-processing";
+      case "Entregado": return "status-delivered";
+      case "Cancelado": return "status-cancelled";
+      default: return "status-unknown";
+    }
   };
 
   return (
@@ -277,7 +341,95 @@ const Orders = () => {
 
         {/* Contenido principal */}
         <div className="orders-content">
-          <h2 className="orders-title">Mis Pedidos</h2>
+          <div className="orders-header">
+            <h2 className="orders-title">Mis Pedidos</h2>
+            <button 
+              className={`filter-button ${showFilters ? 'active' : ''}`}
+              onClick={() => setShowFilters(!showFilters)}
+            >
+              <FaFilter /> {showFilters ? 'Ocultar filtros' : 'Mostrar filtros'}
+            </button>
+          </div>
+          
+          {/* Panel de filtros mejorado */}
+          {showFilters && (
+            <div className="filters-panel">
+              <div className="filters-header">
+                <h3>Filtrar pedidos</h3>
+                <button 
+                  className="close-filters"
+                  onClick={() => setShowFilters(false)}
+                >
+                  <FaTimes />
+                </button>
+              </div>
+              
+              <div className="filters-grid">
+                <div className="filter-group">
+                  <label>Estado de entrega:</label>
+                  <select 
+                    value={estadoEntrega} 
+                    onChange={(e) => setEstadoEntrega(e.target.value)}
+                    className="filter-select"
+                  >
+                    <option value="">Todos</option>
+                    <option value="Pendiente">Pendiente</option>
+                    <option value="En Proceso">En Proceso</option>
+                    <option value="Entregado">Entregado</option>
+                    <option value="Cancelado">Cancelado</option>
+                  </select>
+                </div>
+                
+                <div className="filter-group">
+                  <label>Estado del pedido:</label>
+                  <select 
+                    value={estadoPedido} 
+                    onChange={(e) => setEstadoPedido(e.target.value)}
+                    className="filter-select"
+                  >
+                    <option value="">Todos</option>
+                    <option value="1">Activo</option>
+                    <option value="0">Inactivo</option>
+                  </select>
+                </div>
+                
+                <div className="filter-group">
+                  <label>Fecha desde:</label>
+                  <DatePicker
+                    selected={fechaInicio}
+                    onChange={date => setFechaInicio(date)}
+                    showTimeSelect
+                    dateFormat="yyyy-MM-dd HH:mm"
+                    placeholderText="Seleccione fecha inicial"
+                    isClearable
+                    className="date-picker"
+                  />
+                </div>
+                
+                <div className="filter-group">
+                  <label>Fecha hasta:</label>
+                  <DatePicker
+                    selected={fechaFin}
+                    onChange={date => setFechaFin(date)}
+                    showTimeSelect
+                    dateFormat="yyyy-MM-dd HH:mm"
+                    placeholderText="Seleccione fecha final"
+                    isClearable
+                    className="date-picker"
+                  />
+                </div>
+              </div>
+              
+              <div className="filter-actions">
+                <button className="apply-filters" onClick={handleApplyFilters}>
+                  <FaSearch /> Aplicar filtros
+                </button>
+                <button className="clear-filters" onClick={handleClearFilters}>
+                  Limpiar filtros
+                </button>
+              </div>
+            </div>
+          )}
           
           {loading ? (
             <div className="loading-spinner">
@@ -300,10 +452,16 @@ const Orders = () => {
             </div>
           ) : pedidos.length === 0 ? (
             <div className="no-orders">
-              <p>No tienes pedidos realizados</p>
-              <NavLink to="/productos" className="shop-now-button">
-                Comprar ahora
-              </NavLink>
+              <p>No se encontraron pedidos con los criterios seleccionados</p>
+              {showFilters ? (
+                <button onClick={handleClearFilters} className="shop-now-button">
+                  Quitar filtros
+                </button>
+              ) : (
+                <NavLink to="/productos" className="shop-now-button">
+                  Comprar ahora
+                </NavLink>
+              )}
             </div>
           ) : (
             <div className="orders-list">
@@ -321,7 +479,7 @@ const Orders = () => {
                   <div className="order-status">
                     <div className="status-indicator">
                       {getEstadoEntregaIcon(pedido.estadoEntregaPedido)}
-                      <span className={`status-text status-${pedido.estadoEntregaPedido}`}>
+                      <span className={`status-text ${getEstadoClass(pedido.estadoEntregaPedido)}`}>
                         {getEstadoEntregaTexto(pedido.estadoEntregaPedido)}
                       </span>
                     </div>
@@ -331,9 +489,9 @@ const Orders = () => {
                   </div>
                   
                   <div className="order-products">
-                    {pedido.productos.map(producto => (
+                    {pedido.productos && pedido.productos.map(producto => (
                       <div key={`${pedido.idPedido}-${producto.idProducto}`} className="product-item">
-                        <div className="product-image">
+                       <div className="product-image">
                           <img src={producto.imgProducto || 'https://via.placeholder.com/50'} alt={producto.nombreProducto} />
                         </div>
                         <div className="product-details">
