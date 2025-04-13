@@ -88,16 +88,26 @@ public class PedidoService implements IPedidoService {
             return new ArrayList<>();
         }
     }
-
+    
     @Override
-public List<Map<String, Object>> getPedidoByUsuario(int id) {
-    try {
-        return pedidoRepo.getPedidoByUsuario(id);
-    } catch (Exception e) {
-        e.printStackTrace();
-        return new ArrayList<>();
+    public List<Map<String, Object>> getPedidoCancelado() {
+        try {
+            return pedidoRepo.listaPedidoCancelado();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
     }
-}
+
+        @Override
+    public List<Map<String, Object>> getPedidoByUsuario(int id) {
+        try {
+            return pedidoRepo.getPedidoByUsuario(id);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
     
     // Este elimina del todo, por medio de una cascada, lo que hace a eliminarlo d etodas las tablas
     
@@ -108,7 +118,6 @@ public List<Map<String, Object>> getPedidoByUsuario(int id) {
         return true;
     }
 
-    
     // Este lo que hace es cambiar el estado del pedido, y ocultar los que tienen estado 0
     
     @Transactional
@@ -117,7 +126,6 @@ public List<Map<String, Object>> getPedidoByUsuario(int id) {
         pedidoRepo.deleteStateProcedurePedido(id);
         return true;
     }
-
 
     @Override
     @Transactional
@@ -129,6 +137,7 @@ public List<Map<String, Object>> getPedidoByUsuario(int id) {
         }
     }
     
+    @Override
     @Transactional
     public Map<String, Object> getTotalVentas() {
         try {
@@ -138,6 +147,7 @@ public List<Map<String, Object>> getPedidoByUsuario(int id) {
         }
     }
     
+    @Override
     @Transactional
     public Map<String, Map<String, Object>> getReporteVentasCompleto() {
         try {
