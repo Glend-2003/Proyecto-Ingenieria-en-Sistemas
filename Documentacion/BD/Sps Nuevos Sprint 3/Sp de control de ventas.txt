@@ -1,10 +1,8 @@
-DELIMITER //
-
-CREATE PROCEDURE `spObtenerTotalVentas`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spObtenerTotalVentas`(
     IN p_periodo VARCHAR(10) -- 'dia', 'semana', 'mes', 'anio', 'total'
 )
 BEGIN
-    -- Ventas del día actual
+    -- Ventas del día actual (canceladas)
     IF p_periodo = 'dia' THEN
         SELECT 
             IFNULL(SUM(montoTotalPedido), 0) AS totalVentas,
@@ -15,9 +13,9 @@ BEGIN
             'dia' AS periodo
         FROM tbpedido
         WHERE DATE(fechaPedido) = CURDATE()
-        AND estadoPedido = 1;
+        AND estadoEntregaPedido = 'Cancelado';
     
-    -- Ventas de la semana actual
+    -- Ventas de la semana actual (canceladas)
     ELSEIF p_periodo = 'semana' THEN
         SELECT 
             IFNULL(SUM(montoTotalPedido), 0) AS totalVentas,
@@ -28,9 +26,9 @@ BEGIN
             'semana' AS periodo
         FROM tbpedido
         WHERE YEARWEEK(fechaPedido, 1) = YEARWEEK(CURDATE(), 1)
-        AND estadoPedido = 1;
+        AND estadoEntregaPedido = 'Cancelado';
     
-    -- Ventas del mes actual
+    -- Ventas del mes actual (canceladas)
     ELSEIF p_periodo = 'mes' THEN
         SELECT 
             IFNULL(SUM(montoTotalPedido), 0) AS totalVentas,
@@ -42,9 +40,9 @@ BEGIN
         FROM tbpedido
         WHERE YEAR(fechaPedido) = YEAR(CURDATE())
         AND MONTH(fechaPedido) = MONTH(CURDATE())
-        AND estadoPedido = 1;
+        AND estadoEntregaPedido = 'Cancelado';
     
-    -- Ventas del año actual
+    -- Ventas del año actual (canceladas)
     ELSEIF p_periodo = 'anio' THEN
         SELECT 
             IFNULL(SUM(montoTotalPedido), 0) AS totalVentas,
@@ -55,9 +53,9 @@ BEGIN
             'anio' AS periodo
         FROM tbpedido
         WHERE YEAR(fechaPedido) = YEAR(CURDATE())
-        AND estadoPedido = 1;
+        AND estadoEntregaPedido = 'Cancelado';
     
-    -- Ventas totales (sin filtro de fecha)
+    -- Ventas totales (canceladas, sin filtro de fecha)
     ELSE
         SELECT 
             IFNULL(SUM(montoTotalPedido), 0) AS totalVentas,
@@ -67,8 +65,7 @@ BEGIN
             CONCAT('₡', FORMAT(IFNULL(SUM(montoTotalPedido)/NULLIF(COUNT(idPedido), 0), 0), 2)) AS promedioFormateado,
             'total' AS periodo
         FROM tbpedido
-        WHERE estadoPedido = 1;
+        WHERE estadoEntregaPedido = 'Cancelado';
     END IF;
-END //
-
+END
 DELIMITER ;

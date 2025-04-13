@@ -1,21 +1,19 @@
 package com.bendicion.la.carniceria.carniceria.service;
-
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
-
 import com.bendicion.la.carniceria.carniceria.domain.Carrito;
 import com.bendicion.la.carniceria.carniceria.domain.Pedido;
+import com.bendicion.la.carniceria.carniceria.jpa.GraficosPedidoRepository;
 import com.bendicion.la.carniceria.carniceria.jpa.PedidoRepository;
-
 import jakarta.transaction.Transactional;
+import java.util.HashMap;
+
 /**
  *
  * @author jsand
@@ -30,6 +28,9 @@ public class PedidoService implements IPedidoService {
     
     @Autowired
     private CarritoService carritoRepo;
+    
+    @Autowired
+    private GraficosPedidoRepository graficosRepo;
 
     @Transactional
     @Override
@@ -87,16 +88,26 @@ public class PedidoService implements IPedidoService {
             return new ArrayList<>();
         }
     }
-
+    
     @Override
-public List<Map<String, Object>> getPedidoByUsuario(int id) {
-    try {
-        return pedidoRepo.getPedidoByUsuario(id);
-    } catch (Exception e) {
-        e.printStackTrace();
-        return new ArrayList<>();
+    public List<Map<String, Object>> getPedidoCancelado() {
+        try {
+            return pedidoRepo.listaPedidoCancelado();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
     }
-}
+
+        @Override
+    public List<Map<String, Object>> getPedidoByUsuario(int id) {
+        try {
+            return pedidoRepo.getPedidoByUsuario(id);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
     
     // Este elimina del todo, por medio de una cascada, lo que hace a eliminarlo d etodas las tablas
     
@@ -107,7 +118,6 @@ public List<Map<String, Object>> getPedidoByUsuario(int id) {
         return true;
     }
 
-    
     // Este lo que hace es cambiar el estado del pedido, y ocultar los que tienen estado 0
     
     @Transactional
@@ -116,7 +126,6 @@ public List<Map<String, Object>> getPedidoByUsuario(int id) {
         pedidoRepo.deleteStateProcedurePedido(id);
         return true;
     }
-
 
     @Override
     @Transactional
@@ -132,8 +141,7 @@ public List<Map<String, Object>> getPedidoByUsuario(int id) {
     @Transactional
     public Map<String, Object> getTotalVentas() {
         try {
-            // Mantenemos esto para compatibilidad
-            return pedidoRepo.getTotalVentasConPeriodo("total");
+            return graficosRepo.obtenerVentasPorPeriodo("total");
         } catch (Exception e) {
             throw new RuntimeException("Error al obtener el reporte de ventas: " + e.getMessage());
         }
@@ -145,18 +153,17 @@ public List<Map<String, Object>> getPedidoByUsuario(int id) {
         try {
             Map<String, Map<String, Object>> reporte = new HashMap<>();
             
-            reporte.put("diario", pedidoRepo.getTotalVentasConPeriodo("dia"));
-            reporte.put("semanal", pedidoRepo.getTotalVentasConPeriodo("semana"));
-            reporte.put("mensual", pedidoRepo.getTotalVentasConPeriodo("mes"));
-            reporte.put("anual", pedidoRepo.getTotalVentasConPeriodo("anio"));
-            reporte.put("total", pedidoRepo.getTotalVentasConPeriodo("total"));
+            reporte.put("diario", graficosRepo.obtenerVentasPorPeriodo("dia"));
+            reporte.put("semanal", graficosRepo.obtenerVentasPorPeriodo("semana"));
+            reporte.put("mensual", graficosRepo.obtenerVentasPorPeriodo("mes"));
+            reporte.put("anual", graficosRepo.obtenerVentasPorPeriodo("anio"));
+            reporte.put("total", graficosRepo.obtenerVentasPorPeriodo("total"));
             
             return reporte;
         } catch (Exception e) {
             throw new RuntimeException("Error al obtener el reporte completo de ventas: " + e.getMessage());
         }
     }
-
     
 }
 

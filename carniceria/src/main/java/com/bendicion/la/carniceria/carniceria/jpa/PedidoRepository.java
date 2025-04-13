@@ -1,16 +1,13 @@
 package com.bendicion.la.carniceria.carniceria.jpa;
-
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
 import com.bendicion.la.carniceria.carniceria.domain.Pedido;
 
 @Repository
@@ -28,6 +25,9 @@ public interface PedidoRepository extends JpaRepository<Pedido, Integer> {
 
     @Query(value = "CALL spLeerPedidoDetallado()", nativeQuery = true)
     List<Map<String, Object>> listaPedido();
+    
+    @Query(value = "CALL spLeerPedidoDetalladoCancelado()", nativeQuery = true)
+    List<Map<String, Object>> listaPedidoCancelado();
 
     @Query(value = "CALL spLeerPedidosPorId(:id)", nativeQuery = true)
     List<Map<String, Object>> getPedidoByUsuario(@Param("id") int id);
@@ -46,7 +46,6 @@ public interface PedidoRepository extends JpaRepository<Pedido, Integer> {
 
     @Query(value = "{call spEliminarPedido(:idPedido)}", nativeQuery = true)
     void deleteProcedurePedido(@Param("idPedido") Integer idPedido);
-
     
     @Query(value = "{call spActualizarEstadoPedido(:idPedido)}", nativeQuery = true)
     void deleteStateProcedurePedido(@Param("idPedido") Integer idPedido);
@@ -58,7 +57,16 @@ public interface PedidoRepository extends JpaRepository<Pedido, Integer> {
         @Param("nuevoEstado") String nuevoEstado
     );
     
-    @Query(value = "{call spObtenerTotalVentas(:periodo)}", nativeQuery = true)
+        @Query(value = "CALL spObtenerTotalVentas(:periodo)", nativeQuery = true)
     Map<String, Object> getTotalVentasConPeriodo(@Param("periodo") String periodo);
     
+    @Query(value = "SELECT " +
+                   "(SELECT CALL spObtenerTotalVentas('dia')) as diario, " +
+                   "(SELECT CALL spObtenerTotalVentas('semana')) as semanal, " +
+                   "(SELECT CALL spObtenerTotalVentas('mes')) as mensual, " +
+                   "(SELECT CALL spObtenerTotalVentas('anio')) as anual, " +
+                   "(SELECT CALL spObtenerTotalVentas('total')) as total", 
+           nativeQuery = true)
+    Map<String, Map<String, Object>> getReporteVentasCompleto();
 }
+    
