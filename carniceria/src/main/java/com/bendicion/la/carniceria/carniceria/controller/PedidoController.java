@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.bendicion.la.carniceria.carniceria.domain.Pedido;
 import com.bendicion.la.carniceria.carniceria.service.IPedidoService;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -221,8 +222,8 @@ public class PedidoController {
     
      // Este elimina del todo, por medio de una cascada, lo que hace a eliminarlo d etodas las tablas
     
-    @PostMapping("/eliminar/{id}")
-    public ResponseEntity<Boolean> deletePedido(@RequestBody int id) {
+    @DeleteMapping("/eliminar/{id}")
+    public ResponseEntity<Boolean> deletePedido(@PathVariable  int id) {
         boolean eliminado = pedidoService.deletePedido(id);
         if (eliminado) {
             return ResponseEntity.ok(true);
