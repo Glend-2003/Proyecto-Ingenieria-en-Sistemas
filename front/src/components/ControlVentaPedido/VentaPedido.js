@@ -33,6 +33,10 @@ const PedidosCanceladosApp = () => {
   const [ventasLoading, setVentasLoading] = useState(false);
   const [chartType, setChartType] = useState("bar");
   const { usuario } = useAuth();
+  
+  // Estado para paginación
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
 
   // Fetch pedidos cancelados y datos de ventas
   useEffect(() => {
@@ -40,11 +44,9 @@ const PedidosCanceladosApp = () => {
       try {
         setLoading(true);
         
-        // Obtener pedidos cancelados
         const pedidosResponse = await axios.get("http://localhost:8080/pedido/cancelado");
         setPedidos(pedidosResponse.data);
         
-        // Obtener datos de ventas
         setVentasLoading(true);
         const ventasResponse = await axios.get("http://localhost:8080/pedido/reporteVentas");
         setVentasData(ventasResponse.data);
@@ -61,6 +63,14 @@ const PedidosCanceladosApp = () => {
 
     fetchData();
   }, []);
+
+  // Lógica de paginación
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = pedidos.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(pedidos.length / itemsPerPage);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   const formatDate = (dateString) => {
     if (!dateString) return "";
@@ -173,6 +183,7 @@ const PedidosCanceladosApp = () => {
   // Opciones para gráfico de barras
   const barOptions = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: "top",
@@ -208,6 +219,7 @@ const PedidosCanceladosApp = () => {
   // Opciones para gráfico circular
   const pieOptions = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: "top",
@@ -250,43 +262,74 @@ const PedidosCanceladosApp = () => {
             {pedidos.length === 0 ? (
               <div className="no-results">No se encontraron pedidos cancelados</div>
             ) : (
-              <table className="pedidos-table">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Cliente</th>
-                    <th>Fecha</th>
-                    <th>Monto</th>
-                    <th>Estado Entrega</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {pedidos.map((pedido) => (
-                    <tr key={pedido.idPedido}>
-                      <td>{pedido.idPedido}</td>
-                      <td>
-                        {pedido.carrito && pedido.carrito.usuario 
-                          ? `${pedido.carrito.usuario.nombreUsuario} ${pedido.carrito.usuario.primerApellido}`
-                          : 'N/A'}
-                      </td>
-                      <td>{formatDate(pedido.fechaPedido)}</td>
-                      <td>₡{pedido.montoTotalPedido ? pedido.montoTotalPedido.toLocaleString() : '0'}</td>
-                      <td>
-                        {renderStatusBadge(pedido.estadoEntregaPedido)}
-                      </td>
-                      <td>
-                        <button 
-                          className="view-btn"
-                          onClick={() => handleSelectPedido(pedido)}
-                        >
-                          Ver detalles
-                        </button>
-                      </td>
+              <>
+                <table className="pedidos-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Cliente</th>
+                      <th>Fecha</th>
+                      <th>Monto</th>
+                      <th>Estado Entrega</th>
+                      <th>Acciones</th>
                     </tr>
+                  </thead>
+                  <tbody>
+                    {currentItems.map((pedido) => (
+                      <tr key={pedido.idPedido}>
+                        <td>{pedido.idPedido}</td>
+                        <td>
+                          {pedido.carrito && pedido.carrito.usuario 
+                            ? `${pedido.carrito.usuario.nombreUsuario} ${pedido.carrito.usuario.primerApellido}`
+                            : 'N/A'}
+                        </td>
+                        <td>{formatDate(pedido.fechaPedido)}</td>
+                        <td>₡{pedido.montoTotalPedido ? pedido.montoTotalPedido.toLocaleString() : '0'}</td>
+                        <td>
+                          {renderStatusBadge(pedido.estadoEntregaPedido)}
+                        </td>
+                        <td>
+                          <button 
+                            className="view-btn"
+                            onClick={() => handleSelectPedido(pedido)}
+                          >
+                            Ver detalles
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                
+                {/* Paginación */}
+                <div className="pagination">
+                  <button 
+                    onClick={() => paginate(currentPage - 1)} 
+                    disabled={currentPage === 1}
+                    className="page-btn"
+                  >
+                    Anterior
+                  </button>
+                  
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(number => (
+                    <button
+                      key={number}
+                      onClick={() => paginate(number)}
+                      className={`page-btn ${currentPage === number ? 'active' : ''}`}
+                    >
+                      {number}
+                    </button>
                   ))}
-                </tbody>
-              </table>
+                  
+                  <button 
+                    onClick={() => paginate(currentPage + 1)} 
+                    disabled={currentPage === totalPages}
+                    className="page-btn"
+                  >
+                    Siguiente
+                  </button>
+                </div>
+              </>
             )}
 
             {/* Detalles del Pedido Modal */}
