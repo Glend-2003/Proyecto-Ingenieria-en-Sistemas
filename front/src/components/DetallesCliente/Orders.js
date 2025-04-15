@@ -16,6 +16,7 @@ const Orders = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [usuario, setUsuario] = useState(null);
+ 
 
   useEffect(() => {
     const loadUserAndOrders = async () => {
@@ -90,6 +91,9 @@ const Orders = () => {
 
     loadUserAndOrders();
   }, []);
+
+
+
 
   const fetchPedidos = async (idUsuario) => {
     try {
@@ -179,39 +183,6 @@ const Orders = () => {
     fetchPedidos(usuario.idUsuario);
   };
 
-  const handleEditarPedido = async (idPedido) => {
-    try {
-      const result = await Swal.fire({
-        title: 'Editar pedido',
-        text: "¿Desea modificar este pedido?",
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, editar',
-        cancelButtonText: 'Cancelar'
-      });
-
-      if (result.isConfirmed) {
-        // Aquí iría la navegación o lógica para editar el pedido
-        // Por ejemplo, redirigir a una página de edición:
-        // window.location.href = `/editar-pedido/${idPedido}`;
-
-        // Como no tenemos implementada esa página, solo mostramos un mensaje
-        Swal.fire(
-          'Función en desarrollo',
-          'La función para editar pedidos estará disponible próximamente.',
-          'info'
-        );
-      }
-    } catch (error) {
-      Swal.fire(
-        'Error',
-        'No se pudo procesar la solicitud. Intente nuevamente.',
-        'error'
-      );
-    }
-  };
 
   const getEstadoEntregaTexto = (estado) => {
     // Asegúrate de que estado sea tratado como string
@@ -349,12 +320,7 @@ const Orders = () => {
                       <span>Total: ₡{pedido.montoTotalPedido.toLocaleString()}</span>
 
                       <div className="order-buttons">
-                        <button
-                          className="btn btn-warning btn-sm me-2"
-                          onClick={() => handleEditarPedido(pedido.idPedido)}
-                        >
-                          <FaEdit /> Editar
-                        </button>
+                    
                         <button
                           className="btn btn-danger btn-sm me-2"
                           onClick={() => handleCancelarPedido(pedido.idPedido)}
