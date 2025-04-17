@@ -8,6 +8,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import NavbarApp from "../Navbar/NavbarApp";
 import Carrito from "../Carrito/CarritoApp";
 import FooterApp from '../Footer/FooterApp';
+import PaginacionApp from '../Paginacion/PaginacionApp';
 import './Orders.css';
 
 const Orders = () => {
@@ -16,12 +17,15 @@ const Orders = () => {
   const [error, setError] = useState(null);
   const [usuario, setUsuario] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
-  
-  // Estados para los filtros
   const [estadoEntrega, setEstadoEntrega] = useState('');
   const [fechaInicio, setFechaInicio] = useState(null);
   const [fechaFin, setFechaFin] = useState(null);
   const [estadoPedido, setEstadoPedido] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pedidosPaginados, setPedidosPaginados] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [filtrosAplicados, setFiltrosAplicados] = useState(false);
+  const itemsPerPage = 5;
   
   useEffect(() => {
     const loadUserAndOrders = async () => {
@@ -43,8 +47,6 @@ const Orders = () => {
         };
         
         setUsuario(usuarioObj);
-        
-        // Carga inicial sin filtros
         await fetchPedidos(idUsuario);
         
       } catch (error) {
@@ -56,19 +58,67 @@ const Orders = () => {
     loadUserAndOrders();
   }, []);
   
+  useEffect(() => {
+    if (pedidos.length > 0) {
+      setTotalPages(Math.ceil(pedidos.length / itemsPerPage));
+      paginarPedidos(currentPage);
+    } else {
+      setPedidosPaginados([]);
+      setTotalPages(1);
+    }
+  }, [pedidos, currentPage]);
+  
+  const paginarPedidos = (page) => {
+    const startIndex = (page - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const pedidosSlice = pedidos.slice(startIndex, endIndex);
+    setPedidosPaginados(pedidosSlice);
+  };
+  
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+  
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+  
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+  
+  const formatDateToString = (date) => {
+    if (!date) return null;
+    
+    try {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+      
+      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    } catch (error) {
+      console.error("Error formateando fecha:", error);
+      return null;
+    }
+  };
+  
   const fetchPedidos = async (idUsuario, filters = {}) => {
     try {
       setLoading(true);
       
-      // Construir los parámetros de la consulta
       let url = `http://localhost:8080/pedido/usuario/${idUsuario}`;
       
-      // Si hay filtros, usar el endpoint de filtrado
       if (Object.keys(filters).length > 0) {
         url = `http://localhost:8080/pedido/filtrar?idUsuario=${idUsuario}`;
         
         if (filters.estadoEntrega) {
-          // Ahora enviamos el estado directamente como texto sin convertir
           url += `&estadoEntrega=${encodeURIComponent(filters.estadoEntrega)}`;
         }
         
@@ -85,9 +135,13 @@ const Orders = () => {
         if (filters.estadoPedido) {
           url += `&estadoPedido=${filters.estadoPedido}`;
         }
+        
+        setFiltrosAplicados(true);
+      } else {
+        setFiltrosAplicados(false);
       }
       
-      console.log("URL de búsqueda: ", url); // Depuración
+      console.log("URL de búsqueda: ", url);
       
       const response = await axios.get(url);
       
@@ -131,30 +185,21 @@ const Orders = () => {
       
       const pedidosArray = Array.from(pedidosMap.values());
       setPedidos(pedidosArray);
+      setCurrentPage(1);
+      setError(null); // Limpiar cualquier error previo
       setLoading(false);
     } catch (error) {
       console.error("Error en fetchPedidos:", error);
-      setError("No se pudieron cargar los pedidos. Intente nuevamente más tarde.");
-      setLoading(false);
-    }
-  };
-
-  // Función auxiliar mejorada para formatear fechas
-  const formatDateToString = (date) => {
-    if (!date) return null;
-    
-    try {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      const hours = String(date.getHours()).padStart(2, '0');
-      const minutes = String(date.getMinutes()).padStart(2, '0');
-      const seconds = String(date.getSeconds()).padStart(2, '0');
       
-      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-    } catch (error) {
-      console.error("Error formateando fecha:", error);
-      return null;
+      // Si hay filtros aplicados, mostrar un mensaje más específico
+      if (Object.keys(filters).length > 0) {
+        setPedidos([]);
+        setError(null); // No establecer mensaje de error para que se muestre el mensaje de no resultados
+      } else {
+        setError("No se pudieron cargar los pedidos. Intente nuevamente más tarde.");
+      }
+      
+      setLoading(false);
     }
   };
 
@@ -178,7 +223,7 @@ const Orders = () => {
     }
     
     fetchPedidos(usuario.idUsuario, filters);
-    setShowFilters(false); // Opcional: cerrar el panel de filtros al aplicar
+    setShowFilters(false);
   };
 
   const handleClearFilters = () => {
@@ -186,6 +231,7 @@ const Orders = () => {
     setFechaInicio(null);
     setFechaFin(null);
     setEstadoPedido('');
+    setFiltrosAplicados(false);
     
     fetchPedidos(usuario.idUsuario);
   };
@@ -213,7 +259,6 @@ const Orders = () => {
       });
       
       if (result.isConfirmed) {
-        // Actualiza el estado del pedido a "Cancelado" usando el endpoint correcto
         await axios.put(
           `http://localhost:8080/pedido/actualizarEstadoPedido/${idPedido}?estado=Cancelado`
         );
@@ -224,7 +269,6 @@ const Orders = () => {
           'success'
         );
         
-        // Recargar pedidos después de cancelar
         fetchPedidos(usuario.idUsuario);
       }
     } catch (error) {
@@ -251,7 +295,6 @@ const Orders = () => {
       });
       
       if (result.isConfirmed) {
-        // Aquí iría la navegación o lógica para editar el pedido
         Swal.fire(
           'Función en desarrollo',
           'La función para editar pedidos estará disponible próximamente.',
@@ -267,9 +310,7 @@ const Orders = () => {
     }
   };
   
-  // Actualizada para manejar los estados como strings que vienen del backend
   const getEstadoEntregaTexto = (estado) => {
-    // Como ahora el estado viene como string directamente del backend, lo devolvemos tal cual si existe
     if (estado && typeof estado === 'string') {
       return estado;
     }
@@ -277,7 +318,6 @@ const Orders = () => {
     return "Desconocido";
   };
   
-  // Actualizada para manejar los estados como strings
   const getEstadoEntregaIcon = (estado) => {
     switch(estado) {
       case "Pendiente":
@@ -293,12 +333,10 @@ const Orders = () => {
     }
   };
 
-  // Verifica si un pedido está pendiente para permitir ediciones o cancelaciones
   const isPendiente = (estado) => {
     return estado === "Pendiente";
   };
 
-  // Función para obtener la clase CSS según el estado
   const getEstadoClass = (estado) => {
     switch(estado) {
       case "Pendiente": return "status-pending";
@@ -309,12 +347,34 @@ const Orders = () => {
     }
   };
 
+  const getMensajeNoResultados = () => {
+    if (filtrosAplicados) {
+      let mensaje = "No se encontraron pedidos";
+      
+      if (estadoEntrega) {
+        mensaje += ` con estado "${estadoEntrega}"`;
+      }
+      
+      if (fechaInicio || fechaFin) {
+        mensaje += " en el rango de fechas seleccionado";
+      }
+      
+      if (estadoPedido) {
+        const estadoTexto = estadoPedido === "1" ? "activos" : "inactivos";
+        mensaje += ` que estén ${estadoTexto}`;
+      }
+      
+      return mensaje;
+    }
+    
+    return "No se encontraron pedidos con los criterios seleccionados";
+  };
+
   return (
     <div className="orders-page">
       <NavbarApp />
       <Carrito />
       <div className="perfil-usuario-container">
-        {/* Sidebar */}
         <div className="sidebar-container">
           <h3 className="sidebar-title">Bienvenido {localStorage.getItem('nombreUsuario') || "Usuario"}</h3>
           <nav className="sidebar-nav">
@@ -339,7 +399,6 @@ const Orders = () => {
           </nav>
         </div>
 
-        {/* Contenido principal */}
         <div className="orders-content">
           <div className="orders-header">
             <h2 className="orders-title">Mis Pedidos</h2>
@@ -351,7 +410,6 @@ const Orders = () => {
             </button>
           </div>
           
-          {/* Panel de filtros mejorado */}
           {showFilters && (
             <div className="filters-panel">
               <div className="filters-header">
@@ -452,8 +510,8 @@ const Orders = () => {
             </div>
           ) : pedidos.length === 0 ? (
             <div className="no-orders">
-              <p>No se encontraron pedidos con los criterios seleccionados</p>
-              {showFilters ? (
+              <p>{getMensajeNoResultados()}</p>
+              {filtrosAplicados ? (
                 <button onClick={handleClearFilters} className="shop-now-button">
                   Quitar filtros
                 </button>
@@ -464,76 +522,88 @@ const Orders = () => {
               )}
             </div>
           ) : (
-            <div className="orders-list">
-              {pedidos.map(pedido => (
-                <div key={pedido.idPedido} className="order-card">
-                  <div className="order-header">
-                    <div className="order-id">
-                      Pedido #{pedido.idPedido}
-                    </div>
-                    <div className="order-date">
-                      {pedido.fechaPedido}
-                    </div>
-                  </div>
-                  
-                  <div className="order-status">
-                    <div className="status-indicator">
-                      {getEstadoEntregaIcon(pedido.estadoEntregaPedido)}
-                      <span className={`status-text ${getEstadoClass(pedido.estadoEntregaPedido)}`}>
-                        {getEstadoEntregaTexto(pedido.estadoEntregaPedido)}
-                      </span>
-                    </div>
-                    <div className="payment-method">
-                      Método de pago: {pedido.descripcionTipoPago}
-                    </div>
-                  </div>
-                  
-                  <div className="order-products">
-                    {pedido.productos && pedido.productos.map(producto => (
-                      <div key={`${pedido.idPedido}-${producto.idProducto}`} className="product-item">
-                       <div className="product-image">
-                          <img src={producto.imgProducto || 'https://via.placeholder.com/50'} alt={producto.nombreProducto} />
-                        </div>
-                        <div className="product-details">
-                          <div className="product-name">{producto.nombreProducto}</div>
-                          <div className="product-quantity">
-                            {producto.cantidadProducto} {producto.tipoPesoProducto === 'unidad' ? 'unidad(es)' : `${producto.tipoPesoProducto}(s)`}
-                          </div>
-                          <div className="product-price">
-                            ₡{(producto.montoPrecioProducto * producto.cantidadProducto).toLocaleString()}
-                          </div>
-                        </div>
+            <>
+              <div className="orders-list">
+                {pedidosPaginados.map(pedido => (
+                  <div key={pedido.idPedido} className="order-card">
+                    <div className="order-header">
+                      <div className="order-id">
+                        Pedido #{pedido.idPedido}
                       </div>
-                    ))}
-                  </div>
-                  
-                  <div className="order-footer">
-                    <div className="order-total">
-                      Total: ₡{pedido.montoTotalPedido.toLocaleString()}
+                      <div className="order-date">
+                        {pedido.fechaPedido}
+                      </div>
                     </div>
                     
-                    <div className="order-actions">
-                      {isPendiente(pedido.estadoEntregaPedido) && (
-                        <>
-                          <button 
-                            className="edit-button" 
-                            onClick={() => handleEditarPedido(pedido.idPedido)}
-                          >
-                            <FaEdit /> Editar
-                          </button>
-                          <button 
-                            className="cancel-button" 
-                            onClick={() => handleCancelarPedido(pedido.idPedido)}
-                          >
-                            Cancelar
-                          </button>
-                        </>
-                      )}
+                    <div className="order-status">
+                      <div className="status-indicator">
+                        {getEstadoEntregaIcon(pedido.estadoEntregaPedido)}
+                        <span className={`status-text ${getEstadoClass(pedido.estadoEntregaPedido)}`}>
+                          {getEstadoEntregaTexto(pedido.estadoEntregaPedido)}
+                        </span>
+                      </div>
+                      <div className="payment-method">
+                        Método de pago: {pedido.descripcionTipoPago}
+                      </div>
+                    </div>
+                    
+                    <div className="order-products">
+                      {pedido.productos && pedido.productos.map(producto => (
+                        <div key={`${pedido.idPedido}-${producto.idProducto}`} className="product-item">
+                          <div className="product-image">
+                            <img src={producto.imgProducto || 'https://via.placeholder.com/50'} alt={producto.nombreProducto} />
+                          </div>
+                          <div className="product-details">
+                            <div className="product-name">{producto.nombreProducto}</div>
+                            <div className="product-quantity">
+                              {producto.cantidadProducto} {producto.tipoPesoProducto === 'unidad' ? 'unidad(es)' : `${producto.tipoPesoProducto}(s)`}
+                            </div>
+                            <div className="product-price">
+                              ₡{(producto.montoPrecioProducto * producto.cantidadProducto).toLocaleString()}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <div className="order-footer">
+                      <div className="order-total">
+                        Total: ₡{pedido.montoTotalPedido.toLocaleString()}
+                      </div>
+                      
+                      <div className="order-actions">
+                        {isPendiente(pedido.estadoEntregaPedido) && (
+                          <>
+                            <button 
+                              className="edit-button" 
+                              onClick={() => handleEditarPedido(pedido.idPedido)}
+                            >
+                              <FaEdit /> Editar
+                            </button>
+                            <button 
+                              className="cancel-button" 
+                              onClick={() => handleCancelarPedido(pedido.idPedido)}
+                            >
+                              Cancelar
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+              
+              {pedidos.length > 0 && (
+                <PaginacionApp 
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                  onNextPage={handleNextPage}
+                  onPreviousPage={handlePreviousPage}
+                />
+              )}
+            </>
           )}
         </div>
       </div>

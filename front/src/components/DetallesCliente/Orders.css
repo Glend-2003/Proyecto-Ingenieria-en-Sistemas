@@ -54,7 +54,7 @@
 }
 
 .sidebar-link.active {
-  background-color: #d2092d;
+  background-color: #1c5a96;
   color: white;
 }
 
@@ -67,11 +67,11 @@
   margin-top: 2rem;
   border-top: 1px solid #ddd;
   padding-top: 1rem;
-  color: #d2092d;
+  color: #1c5a96;
 }
 
 .sidebar-link.logout:hover {
-  background-color: #f8d7da;
+  background-color: #d7e5f5;
 }
 
 /* Orders Content Styles */
@@ -117,9 +117,9 @@
 }
 
 .filter-button.active {
-  background-color: #d2092d;
+  background-color: #1c5a96;
   color: white;
-  border-color: #b1081e;
+  border-color: #164b7e;
 }
 
 .filter-button svg {
@@ -165,7 +165,7 @@
 }
 
 .close-filters:hover {
-  color: #d2092d;
+  color: #1c5a96;
 }
 
 .filters-grid {
@@ -199,9 +199,9 @@
 }
 
 .filter-select:focus, .date-picker:focus {
-  border-color: #d2092d;
+  border-color: #1c5a96;
   outline: none;
-  box-shadow: 0 0 0 2px rgba(210, 9, 45, 0.1);
+  box-shadow: 0 0 0 2px rgba(28, 90, 150, 0.1);
 }
 
 .filter-actions {
@@ -215,7 +215,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background-color: #d2092d;
+  background-color: #1c5a96;
   color: white;
   border: none;
   border-radius: 4px;
@@ -230,7 +230,7 @@
 }
 
 .apply-filters:hover {
-  background-color: #b1081e;
+  background-color: #164b7e;
 }
 
 .clear-filters {
@@ -401,7 +401,7 @@
 }
 
 .product-price {
-  color: #d2092d;
+  color: #1c5a96;
   font-weight: 500;
 }
 
@@ -442,7 +442,7 @@
 }
 
 .cancel-button {
-  background-color: #d2092d;
+  background-color: #1c5a96;
   color: white;
   border: none;
   padding: 0.5rem 1.2rem;
@@ -452,7 +452,7 @@
 }
 
 .cancel-button:hover {
-  background-color: #b1081e;
+  background-color: #164b7e;
 }
 
 /* Estados específicos y otros elementos */
@@ -466,7 +466,7 @@
 
 .spinner {
   font-size: 2.5rem;
-  color: #d2092d;
+  color: #1c5a96;
   animation: spin 1s linear infinite;
 }
 
@@ -477,8 +477,8 @@
 
 .error-message {
   text-align: center;
-  background-color: #f8d7da;
-  color: #721c24;
+  background-color: #d7e5f5;
+  color: #0e3963;
   padding: 1.5rem;
   border-radius: 6px;
   margin: 2rem 0;
@@ -497,7 +497,7 @@
 
 .shop-now-button {
   display: inline-block;
-  background-color: #d2092d;
+  background-color: #1c5a96;
   color: white;
   text-decoration: none;
   padding: 0.8rem 2rem;
@@ -507,7 +507,7 @@
 }
 
 .shop-now-button:hover {
-  background-color: #b1081e;
+  background-color: #164b7e;
 }
 
 /* Responsive */
