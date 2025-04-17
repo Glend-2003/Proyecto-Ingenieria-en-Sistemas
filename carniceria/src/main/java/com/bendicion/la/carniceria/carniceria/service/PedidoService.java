@@ -89,15 +89,68 @@ public class PedidoService implements IPedidoService {
         }
     }
     
-    @Override
-    public List<Map<String, Object>> getPedidoCancelado() {
-        try {
-            return pedidoRepo.listaPedidoCancelado();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ArrayList<>();
-        }
-    }
+   @Override
+public List<Map<String, Object>> getPedidoCancelado() {
+    // Ejecutar el procedimiento almacenado y obtener los resultados
+    List<Object[]> resultados = pedidoRepo.listaPedidoCancelado();
+    
+    // Mapear cada fila a un mapa de claves y valores
+    return resultados.stream().map(fila -> {
+        Map<String, Object> pedidoMap = new HashMap<>();
+        
+        // Información básica del pedido
+        pedidoMap.put("idPedido", fila[0]);
+        pedidoMap.put("montoTotalPedido", fila[1]);
+        pedidoMap.put("fechaPedido", fila[2]);
+        pedidoMap.put("estadoPedido", fila[3]);
+        pedidoMap.put("estadoPedidoTexto", fila[4]);
+        pedidoMap.put("estadoEntregaPedido", fila[5]);
+        pedidoMap.put("idCarrito", fila[6]);
+        pedidoMap.put("idTipoPago", fila[7]);
+        
+        // Información del tipo de pago
+        pedidoMap.put("descripcionTipoPago", fila[8]);
+        pedidoMap.put("estadoTipoPago", fila[9]);
+        
+        // Información del carrito
+        pedidoMap.put("idUsuario", fila[10]);
+        pedidoMap.put("montoTotalCarrito", fila[11]);
+        pedidoMap.put("estadoCarrito", fila[12]);
+        pedidoMap.put("cantidadCarrito", fila[13]);
+        
+        // Información del usuario
+        pedidoMap.put("nombreUsuario", fila[14]);
+        pedidoMap.put("primerApellido", fila[15]);
+        pedidoMap.put("segundoApellido", fila[16]);
+        pedidoMap.put("nombreCompletoUsuario", fila[17]);
+        pedidoMap.put("cedulaUsuario", fila[18]);
+        pedidoMap.put("correoUsuario", fila[19]);
+        pedidoMap.put("telefonoUsuario", fila[20]);
+        pedidoMap.put("fechaNacimiento", fila[21]);
+        
+        // Conteo de productos
+        pedidoMap.put("cantidadProductosDistintos", fila[22]);
+        pedidoMap.put("cantidadTotalItems", fila[23]);
+        
+        // Información del carrito-producto (puede ser null)
+        pedidoMap.put("idCarritoProducto", fila[24]);
+        pedidoMap.put("cantidadProducto", fila[25]);
+        
+        // Información del producto (puede ser null)
+        pedidoMap.put("idProducto", fila[26]);
+        pedidoMap.put("nombreProducto", fila[27]);
+        pedidoMap.put("imgProducto", fila[28]);
+        pedidoMap.put("montoPrecioProducto", fila[29]);
+        pedidoMap.put("descripcionProducto", fila[30]);
+        pedidoMap.put("stockProducto", fila[31]);
+        pedidoMap.put("tipoPesoProducto", fila[32]);
+        pedidoMap.put("codigoProducto", fila[33]);
+        pedidoMap.put("idCategoria", fila[34]);
+        pedidoMap.put("estadoProducto", fila[35]);
+        
+        return pedidoMap;
+    }).toList();
+}
 
         @Override
     public List<Map<String, Object>> getPedidoByUsuario(int id) {
