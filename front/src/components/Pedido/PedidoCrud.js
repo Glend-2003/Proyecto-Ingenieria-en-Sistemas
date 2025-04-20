@@ -100,7 +100,8 @@ function PedidoCrud() {
 
   // Calcular totales
   const subtotal = cart.reduce((total, item) => total + (item.montoPrecioProducto * item.cantidad), 0);
-  const montoTotalPedido = cart.reduce((total, item) => total + (item.montoPrecioProducto * item.cantidad), 0) * 1.15;
+  const iva = cart.reduce((total, item) => total + (item.montoPrecioProducto * item.cantidad), 0) * 0.13;
+  const montoTotalPedido = subtotal+iva;
 
   // Función para validar la cédula con la API de Hacienda
   const validateCedula = async (cedula) => {
@@ -613,6 +614,14 @@ function PedidoCrud() {
             </div>
             <div className="col-4 text-end">
               ₡{subtotal.toLocaleString()}
+            </div>
+          </div>
+          <div className="row mt-3">
+            <div className="col-8">
+              <strong> I.V.A:</strong>
+            </div>
+            <div className="col-4 text-end">
+              ₡{iva.toLocaleString()}
             </div>
           </div>
           <div className="row mt-3">

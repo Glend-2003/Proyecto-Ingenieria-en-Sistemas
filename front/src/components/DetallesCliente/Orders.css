@@ -330,19 +330,8 @@
     color: #333;
   }
   
-  .cancel-button {
-    background-color: #d2092d;
-    color: white;
-    border: none;
-    padding: 0.5rem 1.2rem;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-  
-  .cancel-button:hover {
-    background-color: #b1081e;
-  }
+
+
   
   /* Responsive */
   @media (max-width: 768px) {
@@ -365,11 +354,8 @@
       gap: 0.5rem;
     }
     
-    .cancel-button {
-      width: 100%;
-      text-align: center;
-      margin-top: 0.5rem;
-    }
+
+  
     /* Añade esto a tu archivo Orders.css */
 
 .order-actions {
@@ -377,22 +363,7 @@
     gap: 10px;
   }
   
-  .edit-button {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    background-color: #3498db;
-    color: white;
-    border: none;
-    padding: 0.5rem 1.2rem;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-  
-  .edit-button:hover {
-    background-color: #2980b9;
-  }
+ 
   
   /* Ajustar el responsive */
   @media (max-width: 768px) {
@@ -408,4 +379,17 @@
     }
   }
   }
+  
+  .order-total {
+    display: flex;
+    justify-content: space-between; /* Esto separa el total a la izquierda y botones a la derecha */
+    align-items: center;
+    width: 100%;
+  }
+  
+  .order-buttons {
+    display: flex;
+    gap: 0.5rem; /* Espacio entre botones */
+  }
+  
   

@@ -2,10 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { FaHome, FaFileAlt, FaDownload, FaMapMarkerAlt, FaUser, FaSignOutAlt, FaSpinner, FaCheck, FaClock, FaEdit } from 'react-icons/fa';
 import axios from 'axios';
-import Swal from 'sweetalert2';
+
 import NavbarApp from "../Navbar/NavbarApp";
 import Carrito from "../Carrito/CarritoApp";
 import FooterApp from '../Footer/FooterApp';
+import Swal from 'sweetalert2';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import './Orders.css';
 
 const Orders = () => {
@@ -13,43 +16,44 @@ const Orders = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [usuario, setUsuario] = useState(null);
-  
+ 
+
   useEffect(() => {
     const loadUserAndOrders = async () => {
       try {
         setLoading(true);
-        
+
         const idUsuario = localStorage.getItem('idUsuario');
         const nombreUsuario = localStorage.getItem('nombreUsuario');
-        
+
         if (!idUsuario) {
           setError("No hay sesión de usuario activa. Por favor, inicie sesión nuevamente.");
           setLoading(false);
           return;
         }
-        
+
         const usuarioObj = {
           idUsuario: idUsuario,
           nombreUsuario: nombreUsuario || "Usuario"
         };
-        
+
         setUsuario(usuarioObj);
-        
+
         const response = await axios.get(`http://localhost:8080/pedido/usuario/${idUsuario}`);
-        
+
         if (!response.data || response.data.length === 0) {
           setPedidos([]);
           setLoading(false);
           return;
         }
-        
+
         const pedidosMap = new Map();
-        
+
         response.data.forEach(item => {
           if (!item.idPedido) {
             return;
           }
-          
+
           if (!pedidosMap.has(item.idPedido)) {
             pedidosMap.set(item.idPedido, {
               idPedido: item.idPedido,
@@ -62,7 +66,7 @@ const Orders = () => {
               productos: []
             });
           }
-          
+
           if (item.idProducto) {
             pedidosMap.get(item.idPedido).productos.push({
               idProducto: item.idProducto,
@@ -74,39 +78,42 @@ const Orders = () => {
             });
           }
         });
-        
+
         const pedidosArray = Array.from(pedidosMap.values());
         setPedidos(pedidosArray);
         setLoading(false);
-        
+
       } catch (error) {
         setError("Error al cargar los datos. Por favor, inténtelo nuevamente.");
         setLoading(false);
       }
     };
-    
+
     loadUserAndOrders();
   }, []);
-  
+
+
+
+
   const fetchPedidos = async (idUsuario) => {
     try {
       setLoading(true);
-      
+
       const response = await axios.get(`http://localhost:8080/pedido/usuario/${idUsuario}`);
-      
+
       if (!response.data || response.data.length === 0) {
         setPedidos([]);
         setLoading(false);
         return;
       }
-      
+
       const pedidosMap = new Map();
-      
+
       response.data.forEach(item => {
         if (!item.idPedido) {
           return;
         }
-        
+
         if (!pedidosMap.has(item.idPedido)) {
           pedidosMap.set(item.idPedido, {
             idPedido: item.idPedido,
@@ -119,7 +126,7 @@ const Orders = () => {
             productos: []
           });
         }
-        
+
         if (item.idProducto) {
           pedidosMap.get(item.idPedido).productos.push({
             idProducto: item.idProducto,
@@ -131,7 +138,7 @@ const Orders = () => {
           });
         }
       });
-      
+
       const pedidosArray = Array.from(pedidosMap.values());
       setPedidos(pedidosArray);
       setLoading(false);
@@ -149,78 +156,37 @@ const Orders = () => {
     localStorage.removeItem('token');
     window.location.href = '/';
   };
-  
+
   const handleCancelarPedido = async (idPedido) => {
+    const { isConfirmed } = await Swal.fire({
+      title: "¿Estás seguro que quieres cancelar el pedido?",
+      text: "No podrás revertir esto.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      cancelButtonText: "No, cancelar",
+      confirmButtonText: "Sí, eliminar",
+
+    });
+
+    if (!isConfirmed) return;
+
     try {
-      const result = await Swal.fire({
-        title: '¿Está seguro?',
-        text: "¿Desea cancelar este pedido?",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Sí, cancelar',
-        cancelButtonText: 'No, mantener'
-      });
-      
-      if (result.isConfirmed) {
-        // Aquí iría la llamada al endpoint para cancelar el pedido
-        // await axios.put(`http://localhost:8080/pedido/cancelar/${idPedido}`);
-        
-        Swal.fire(
-          'Cancelado',
-          'Tu pedido ha sido cancelado correctamente.',
-          'success'
-        );
-        
-        fetchPedidos(usuario.idUsuario);
-      }
+      await axios.delete(`http://localhost:8080/pedido/eliminar/${idPedido}`);
+      toast.success("Pedido cancelado con éxito \n Se le enviara una notificacion a la carniceria para cancelar un pedido");
+     
     } catch (error) {
-      Swal.fire(
-        'Error',
-        'No se pudo cancelar el pedido. Intente nuevamente.',
-        'error'
-      );
+      console.error("Error al cancelar el pedido:", error);
+      toast.error("Ocurrió un error al cancelar el pedido");
     }
+    fetchPedidos(usuario.idUsuario);
   };
-  
-  const handleEditarPedido = async (idPedido) => {
-    try {
-      const result = await Swal.fire({
-        title: 'Editar pedido',
-        text: "¿Desea modificar este pedido?",
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, editar',
-        cancelButtonText: 'Cancelar'
-      });
-      
-      if (result.isConfirmed) {
-        // Aquí iría la navegación o lógica para editar el pedido
-        // Por ejemplo, redirigir a una página de edición:
-        // window.location.href = `/editar-pedido/${idPedido}`;
-        
-        // Como no tenemos implementada esa página, solo mostramos un mensaje
-        Swal.fire(
-          'Función en desarrollo',
-          'La función para editar pedidos estará disponible próximamente.',
-          'info'
-        );
-      }
-    } catch (error) {
-      Swal.fire(
-        'Error',
-        'No se pudo procesar la solicitud. Intente nuevamente.',
-        'error'
-      );
-    }
-  };
-  
+
+
   const getEstadoEntregaTexto = (estado) => {
     // Asegúrate de que estado sea tratado como string
-    switch(String(estado)) {
+    switch (String(estado)) {
       case "Pendiente": return "Pendiente";
       case "1": return "En preparación";
       case "2": return "En camino";
@@ -228,10 +194,10 @@ const Orders = () => {
       default: return "Desconocido";
     }
   };
-  
+
   const getEstadoEntregaIcon = (estado) => {
     // Asegúrate de que estado sea tratado como string
-    switch(String(estado)) {
+    switch (String(estado)) {
       case "0": return <FaClock className="estado-icon pending" />;
       case "1": return <FaSpinner className="estado-icon processing" />;
       case "2": return <FaSpinner className="estado-icon shipping" />;
@@ -278,7 +244,7 @@ const Orders = () => {
         {/* Contenido principal */}
         <div className="orders-content">
           <h2 className="orders-title">Mis Pedidos</h2>
-          
+
           {loading ? (
             <div className="loading-spinner">
               <FaSpinner className="spinner" />
@@ -317,7 +283,7 @@ const Orders = () => {
                       {pedido.fechaPedido}
                     </div>
                   </div>
-                  
+
                   <div className="order-status">
                     <div className="status-indicator">
                       {getEstadoEntregaIcon(pedido.estadoEntregaPedido)}
@@ -329,7 +295,7 @@ const Orders = () => {
                       Método de pago: {pedido.descripcionTipoPago}
                     </div>
                   </div>
-                  
+
                   <div className="order-products">
                     {pedido.productos.map(producto => (
                       <div key={`${pedido.idPedido}-${producto.idProducto}`} className="product-item">
@@ -348,31 +314,24 @@ const Orders = () => {
                       </div>
                     ))}
                   </div>
-                  
+
                   <div className="order-footer">
                     <div className="order-total">
-                      Total: ₡{pedido.montoTotalPedido.toLocaleString()}
-                    </div>
+                      <span>Total: ₡{pedido.montoTotalPedido.toLocaleString()}</span>
+
+                      <div className="order-buttons">
                     
-                    <div className="order-actions">
-                      {isPendiente(pedido.estadoEntregaPedido) && (
-                        <>
-                          <button 
-                            className="edit-button" 
-                            onClick={() => handleEditarPedido(pedido.idPedido)}
-                          >
-                            <FaEdit /> Editar
-                          </button>
-                          <button 
-                            className="cancel-button" 
-                            onClick={() => handleCancelarPedido(pedido.idPedido)}
-                          >
-                            Cancelar
-                          </button>
-                        </>
-                      )}
+                        <button
+                          className="btn btn-danger btn-sm me-2"
+                          onClick={() => handleCancelarPedido(pedido.idPedido)}
+                        >
+                          Cancelar
+                        </button>
+
+                      </div>
                     </div>
                   </div>
+
                 </div>
               ))}
             </div>
@@ -380,6 +339,7 @@ const Orders = () => {
         </div>
       </div>
       <FooterApp />
+      <ToastContainer />
     </div>
   );
 };
