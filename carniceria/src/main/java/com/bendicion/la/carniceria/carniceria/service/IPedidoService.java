@@ -24,7 +24,7 @@ public interface IPedidoService {
     public List<Map<String, Object>> getPedido();
     
     @Transactional
-    public List<Map<String, Object>> getPedidoCancelado();
+    public List<Map<String, Object>> getPedidoEntregado();
     
     @Transactional
     public List<Map<String, Object>>  getPedidoByUsuario(int id); 

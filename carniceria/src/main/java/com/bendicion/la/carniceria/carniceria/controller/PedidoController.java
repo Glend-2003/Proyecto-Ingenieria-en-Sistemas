@@ -103,9 +103,9 @@ public class PedidoController {
     
     // Para obtener todos los pedidos cancelados
     
-    @GetMapping("/cancelado")
-    public List<Map<String, Object>> getAllPedidosCancelados() {
-        List<Map<String, Object>> pedidosPlanos = pedidoService.getPedidoCancelado();
+    @GetMapping("/Entregado")
+    public List<Map<String, Object>> getAllPedidosEntregados() {
+        List<Map<String, Object>> pedidosPlanos = pedidoService.getPedidoEntregado();
         Map<Integer, Map<String, Object>> pedidosPorId = new HashMap<>();
         
         for (Map<String, Object> fila : pedidosPlanos) {

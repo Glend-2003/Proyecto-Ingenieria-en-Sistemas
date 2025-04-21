@@ -44,7 +44,7 @@ const PedidosCanceladosApp = () => {
       try {
         setLoading(true);
 
-        const pedidosResponse = await axios.get("http://localhost:8080/pedido/cancelado");
+        const pedidosResponse = await axios.get("http://localhost:8080/pedido/Entregado");
         setPedidos(pedidosResponse.data);
 
         setVentasLoading(true);

@@ -27,7 +27,7 @@ public interface PedidoRepository extends JpaRepository<Pedido, Integer> {
     List<Map<String, Object>> listaPedido();
     
     @Query(value = "CALL spLeerPedidoDetalladoEntregado()", nativeQuery = true)
-    List<Object[]> listaPedidoCancelado();
+    List<Object[]> listaPedidoEntregado();
 
     @Query(value = "CALL spLeerPedidosPorId(:id)", nativeQuery = true)
     List<Map<String, Object>> getPedidoByUsuario(@Param("id") int id);
