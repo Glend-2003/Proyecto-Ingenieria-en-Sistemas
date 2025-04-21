@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.bendicion.la.carniceria.carniceria.domain.Carrito;
 import com.bendicion.la.carniceria.carniceria.domain.Pedido;
+import com.bendicion.la.carniceria.carniceria.jpa.GraficosPedidoRepository;
 import com.bendicion.la.carniceria.carniceria.jpa.PedidoRepository;
 
 import jakarta.transaction.Transactional;
@@ -21,7 +22,6 @@ import jakarta.transaction.Transactional;
  *
  * @author jsand
  */
-
 @Service
 @Primary
 public class PedidoService implements IPedidoService {
@@ -31,6 +31,9 @@ public class PedidoService implements IPedidoService {
 
     @Autowired
     private CarritoService carritoRepo;
+
+    @Autowired
+    private GraficosPedidoRepository graficosRepo;
 
     @Transactional
     @Override
@@ -100,6 +103,69 @@ public class PedidoService implements IPedidoService {
     }
 
     @Override
+    public List<Map<String, Object>> getPedidoEntregado() {
+
+        List<Object[]> resultados = pedidoRepo.listaPedidoEntregado();
+
+        // Mapear cada fila a un mapa de claves y valores
+        return resultados.stream().map(fila -> {
+            Map<String, Object> pedidoMap = new HashMap<>();
+
+            // Información básica del pedido
+            pedidoMap.put("idPedido", fila[0]);
+            pedidoMap.put("montoTotalPedido", fila[1]);
+            pedidoMap.put("fechaPedido", fila[2]);
+            pedidoMap.put("estadoPedido", fila[3]);
+            pedidoMap.put("estadoPedidoTexto", fila[4]);
+            pedidoMap.put("estadoEntregaPedido", fila[5]);
+            pedidoMap.put("idCarrito", fila[6]);
+            pedidoMap.put("idTipoPago", fila[7]);
+
+            // Información del tipo de pago
+            pedidoMap.put("descripcionTipoPago", fila[8]);
+            pedidoMap.put("estadoTipoPago", fila[9]);
+
+            // Información del carrito
+            pedidoMap.put("idUsuario", fila[10]);
+            pedidoMap.put("montoTotalCarrito", fila[11]);
+            pedidoMap.put("estadoCarrito", fila[12]);
+            pedidoMap.put("cantidadCarrito", fila[13]);
+
+            // Información del usuario
+            pedidoMap.put("nombreUsuario", fila[14]);
+            pedidoMap.put("primerApellido", fila[15]);
+            pedidoMap.put("segundoApellido", fila[16]);
+            pedidoMap.put("nombreCompletoUsuario", fila[17]);
+            pedidoMap.put("cedulaUsuario", fila[18]);
+            pedidoMap.put("correoUsuario", fila[19]);
+            pedidoMap.put("telefonoUsuario", fila[20]);
+            pedidoMap.put("fechaNacimiento", fila[21]);
+
+            // Conteo de productos
+            pedidoMap.put("cantidadProductosDistintos", fila[22]);
+            pedidoMap.put("cantidadTotalItems", fila[23]);
+
+            // Información del carrito-producto (puede ser null)
+            pedidoMap.put("idCarritoProducto", fila[24]);
+            pedidoMap.put("cantidadProducto", fila[25]);
+
+            // Información del producto (puede ser null)
+            pedidoMap.put("idProducto", fila[26]);
+            pedidoMap.put("nombreProducto", fila[27]);
+            pedidoMap.put("imgProducto", fila[28]);
+            pedidoMap.put("montoPrecioProducto", fila[29]);
+            pedidoMap.put("descripcionProducto", fila[30]);
+            pedidoMap.put("stockProducto", fila[31]);
+            pedidoMap.put("tipoPesoProducto", fila[32]);
+            pedidoMap.put("codigoProducto", fila[33]);
+            pedidoMap.put("idCategoria", fila[34]);
+            pedidoMap.put("estadoProducto", fila[35]);
+
+            return pedidoMap;
+        }).toList();
+    }
+
+    @Override
     public List<Map<String, Object>> filtrarPedidos(
         int idUsuario, 
         String estadoEntrega,  // Cambiado de Integer a String
@@ -140,8 +206,7 @@ public class PedidoService implements IPedidoService {
     @Transactional
     public Map<String, Object> getTotalVentas() {
         try {
-            // Mantenemos esto para compatibilidad
-            return pedidoRepo.getTotalVentasConPeriodo("total");
+            return graficosRepo.obtenerVentasPorPeriodo("total");
         } catch (Exception e) {
             throw new RuntimeException("Error al obtener el reporte de ventas: " + e.getMessage());
         }
@@ -153,11 +218,11 @@ public class PedidoService implements IPedidoService {
         try {
             Map<String, Map<String, Object>> reporte = new HashMap<>();
 
-            reporte.put("diario", pedidoRepo.getTotalVentasConPeriodo("dia"));
-            reporte.put("semanal", pedidoRepo.getTotalVentasConPeriodo("semana"));
-            reporte.put("mensual", pedidoRepo.getTotalVentasConPeriodo("mes"));
-            reporte.put("anual", pedidoRepo.getTotalVentasConPeriodo("anio"));
-            reporte.put("total", pedidoRepo.getTotalVentasConPeriodo("total"));
+            reporte.put("diario", graficosRepo.obtenerVentasPorPeriodo("dia"));
+            reporte.put("semanal", graficosRepo.obtenerVentasPorPeriodo("semana"));
+            reporte.put("mensual", graficosRepo.obtenerVentasPorPeriodo("mes"));
+            reporte.put("anual", graficosRepo.obtenerVentasPorPeriodo("anio"));
+            reporte.put("total", graficosRepo.obtenerVentasPorPeriodo("total"));
 
             return reporte;
         } catch (Exception e) {

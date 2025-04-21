@@ -9,6 +9,7 @@ import NavbarApp from "../Navbar/NavbarApp";
 import Carrito from "../Carrito/CarritoApp";
 import FooterApp from '../Footer/FooterApp';
 import PaginacionApp from '../Paginacion/PaginacionApp';
+import { ToastContainer } from 'react-toastify';
 import './Orders.css';
 
 const Orders = () => {
@@ -31,21 +32,21 @@ const Orders = () => {
     const loadUserAndOrders = async () => {
       try {
         setLoading(true);
-        
+
         const idUsuario = localStorage.getItem('idUsuario');
         const nombreUsuario = localStorage.getItem('nombreUsuario');
-        
+
         if (!idUsuario) {
           setError("No hay sesión de usuario activa. Por favor, inicie sesión nuevamente.");
           setLoading(false);
           return;
         }
-        
+
         const usuarioObj = {
           idUsuario: idUsuario,
           nombreUsuario: nombreUsuario || "Usuario"
         };
-        
+
         setUsuario(usuarioObj);
         await fetchPedidos(idUsuario);
         
@@ -54,7 +55,7 @@ const Orders = () => {
         setLoading(false);
       }
     };
-    
+
     loadUserAndOrders();
   }, []);
   
@@ -150,14 +151,14 @@ const Orders = () => {
         setLoading(false);
         return;
       }
-      
+
       const pedidosMap = new Map();
-      
+
       response.data.forEach(item => {
         if (!item.idPedido) {
           return;
         }
-        
+
         if (!pedidosMap.has(item.idPedido)) {
           pedidosMap.set(item.idPedido, {
             idPedido: item.idPedido,
@@ -170,7 +171,7 @@ const Orders = () => {
             productos: []
           });
         }
-        
+
         if (item.idProducto) {
           pedidosMap.get(item.idPedido).productos.push({
             idProducto: item.idProducto,
@@ -182,7 +183,7 @@ const Orders = () => {
           });
         }
       });
-      
+
       const pedidosArray = Array.from(pedidosMap.values());
       setPedidos(pedidosArray);
       setCurrentPage(1);
@@ -244,8 +245,22 @@ const Orders = () => {
     localStorage.removeItem('token');
     window.location.href = '/';
   };
-  
+
   const handleCancelarPedido = async (idPedido) => {
+    const { isConfirmed } = await Swal.fire({
+      title: "¿Estás seguro que quieres cancelar el pedido?",
+      text: "No podrás revertir esto.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      cancelButtonText: "No, cancelar",
+      confirmButtonText: "Sí, eliminar",
+
+    });
+
+    if (!isConfirmed) return;
+
     try {
       const result = await Swal.fire({
         title: '¿Está seguro?',
@@ -279,6 +294,7 @@ const Orders = () => {
         'error'
       );
     }
+    fetchPedidos(usuario.idUsuario);
   };
   
   const handleEditarPedido = async (idPedido) => {
@@ -317,7 +333,7 @@ const Orders = () => {
     
     return "Desconocido";
   };
-  
+
   const getEstadoEntregaIcon = (estado) => {
     switch(estado) {
       case "Pendiente":
@@ -608,6 +624,7 @@ const Orders = () => {
         </div>
       </div>
       <FooterApp />
+      <ToastContainer />
     </div>
   );
 };
