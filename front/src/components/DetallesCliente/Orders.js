@@ -16,7 +16,7 @@ const Orders = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [usuario, setUsuario] = useState(null);
- 
+
 
   useEffect(() => {
     const loadUserAndOrders = async () => {
@@ -175,12 +175,66 @@ const Orders = () => {
     try {
       await axios.delete(`http://localhost:8080/pedido/eliminar/${idPedido}`);
       toast.success("Pedido cancelado con éxito \n Se le enviara una notificacion a la carniceria para cancelar un pedido");
-     
+
     } catch (error) {
       console.error("Error al cancelar el pedido:", error);
       toast.error("Ocurrió un error al cancelar el pedido");
     }
     fetchPedidos(usuario.idUsuario);
+  };
+
+  const crearNotificacion = async (idUsuario) => {
+    try {
+      const response = await axios.post("http://localhost:8080/notificacion/agregar", {
+        idUsuario: {
+          idUsuario: idUsuario // Envía como objeto si así lo recibe el backend
+        }
+      }, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      toast.success("Notificación creada exitosamente.");
+      console.log("Notificación creada:", response.data);
+      return response.data;
+
+    } catch (error) {
+      const errorMsg = error.response?.data?.error || error.message;
+      console.error("Error al crear notificación:", errorMsg);
+      toast.error(errorMsg);
+      throw new Error(errorMsg);
+    }
+  };
+
+  const cancelarPedidoYNotificar = async (idPedido, idUsuario) => {
+    const { isConfirmed } = await Swal.fire({
+      title: "¿Estás seguro que quieres cancelar el pedido?",
+      text: "No podrás revertir esto.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      cancelButtonText: "No, cancelar",
+      confirmButtonText: "Sí, eliminar",
+    });
+
+    if (!isConfirmed) return;
+
+    try {
+      await axios.delete(`http://localhost:8080/pedido/eliminar/${idPedido}`);
+      toast.success("Pedido cancelado con éxito.\nSe notificará a la carnicería.");
+
+      // Aquí se llama a la función que crea la notificación
+      await crearNotificacion(usuario.idUsuario);
+
+      // Refresca pedidos
+      fetchPedidos(usuario.idUsuario);
+
+    } catch (error) {
+      console.error("Error al cancelar el pedido:", error);
+      toast.error("Ocurrió un error al cancelar el pedido.");
+    }
   };
 
 
@@ -320,10 +374,10 @@ const Orders = () => {
                       <span>Total: ₡{pedido.montoTotalPedido.toLocaleString()}</span>
 
                       <div className="order-buttons">
-                    
+
                         <button
                           className="btn btn-danger btn-sm me-2"
-                          onClick={() => handleCancelarPedido(pedido.idPedido)}
+                          onClick={() => cancelarPedidoYNotificar(pedido.idPedido, usuario.idUsuario)}
                         >
                           Cancelar
                         </button>

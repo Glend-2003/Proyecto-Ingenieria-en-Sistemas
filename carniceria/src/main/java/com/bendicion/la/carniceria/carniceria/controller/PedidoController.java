@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.bendicion.la.carniceria.carniceria.domain.Pedido;
 import com.bendicion.la.carniceria.carniceria.service.IPedidoService;
+import com.bendicion.la.carniceria.carniceria.service.NotificacionService;
 import org.springframework.web.bind.annotation.DeleteMapping;
 
 @RestController
@@ -27,6 +28,9 @@ public class PedidoController {
 
     @Autowired
     private IPedidoService pedidoService;
+    
+    @Autowired
+private NotificacionService notificacionService;
 
     @GetMapping("/")
     public List<Map<String, Object>> getAllPedidos() {
