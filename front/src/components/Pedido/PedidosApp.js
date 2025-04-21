@@ -7,6 +7,7 @@ import FooterApp from "../Footer/FooterApp";
 import PaginacionApp from "../Paginacion/PaginacionApp";
 import useAuth from "../../hooks/useAuth";
 import { Button, Modal } from "react-bootstrap";
+import NotificacionPedido from "../Notificacion/NotificacionPedido";
 
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -323,7 +324,10 @@ const PedidosApp = () => {
         <SideBar usuario={usuario} /> 
         
         <div className="main-content">
-          <h1>Gestión de Pedidos</h1>
+  <div className="header-with-notifications">
+    <h1>Gestión de Pedidos</h1>
+    <NotificacionPedido />
+  </div>
           
           <button 
             className="ventas-btn"

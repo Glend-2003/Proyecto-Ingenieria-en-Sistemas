@@ -9,7 +9,7 @@ import NavbarApp from "../Navbar/NavbarApp";
 import Carrito from "../Carrito/CarritoApp";
 import FooterApp from '../Footer/FooterApp';
 import PaginacionApp from '../Paginacion/PaginacionApp';
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import './Orders.css';
 
 const Orders = () => {
@@ -187,15 +187,14 @@ const Orders = () => {
       const pedidosArray = Array.from(pedidosMap.values());
       setPedidos(pedidosArray);
       setCurrentPage(1);
-      setError(null); // Limpiar cualquier error previo
+      setError(null);
       setLoading(false);
     } catch (error) {
       console.error("Error en fetchPedidos:", error);
       
-      // Si hay filtros aplicados, mostrar un mensaje más específico
       if (Object.keys(filters).length > 0) {
         setPedidos([]);
-        setError(null); // No establecer mensaje de error para que se muestre el mensaje de no resultados
+        setError(null);
       } else {
         setError("No se pudieron cargar los pedidos. Intente nuevamente más tarde.");
       }
@@ -256,7 +255,6 @@ const Orders = () => {
       cancelButtonColor: '#3085d6',
       cancelButtonText: "No, cancelar",
       confirmButtonText: "Sí, eliminar",
-
     });
 
     if (!isConfirmed) return;
@@ -294,7 +292,6 @@ const Orders = () => {
         'error'
       );
     }
-    fetchPedidos(usuario.idUsuario);
   };
   
   const handleEditarPedido = async (idPedido) => {
@@ -325,7 +322,58 @@ const Orders = () => {
       );
     }
   };
-  
+
+  const crearNotificacion = async (idUsuario) => {
+    try {
+      const response = await axios.post("http://localhost:8080/notificacion/agregar", {
+        idUsuario: {
+          idUsuario: idUsuario
+        }
+      }, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      toast.success("Notificación creada exitosamente.");
+      console.log("Notificación creada:", response.data);
+      return response.data;
+
+    } catch (error) {
+      const errorMsg = error.response?.data?.error || error.message;
+      console.error("Error al crear notificación:", errorMsg);
+      toast.error(errorMsg);
+      throw new Error(errorMsg);
+    }
+  };
+
+  const cancelarPedidoYNotificar = async (idPedido, idUsuario) => {
+    const { isConfirmed } = await Swal.fire({
+      title: "¿Estás seguro que quieres cancelar el pedido?",
+      text: "No podrás revertir esto.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      cancelButtonText: "No, cancelar",
+      confirmButtonText: "Sí, eliminar",
+    });
+
+    if (!isConfirmed) return;
+
+    try {
+      await axios.delete(`http://localhost:8080/pedido/eliminar/${idPedido}`);
+      toast.success("Pedido cancelado con éxito.\nSe notificará a la carnicería.");
+
+      await crearNotificacion(usuario.idUsuario);
+      fetchPedidos(usuario.idUsuario);
+
+    } catch (error) {
+      console.error("Error al cancelar el pedido:", error);
+      toast.error("Ocurrió un error al cancelar el pedido.");
+    }
+  };
+
   const getEstadoEntregaTexto = (estado) => {
     if (estado && typeof estado === 'string') {
       return estado;
@@ -598,7 +646,7 @@ const Orders = () => {
                             </button>
                             <button 
                               className="cancel-button" 
-                              onClick={() => handleCancelarPedido(pedido.idPedido)}
+                              onClick={() => cancelarPedidoYNotificar(pedido.idPedido, usuario.idUsuario)}
                             >
                               Cancelar
                             </button>

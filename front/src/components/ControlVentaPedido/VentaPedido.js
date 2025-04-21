@@ -37,6 +37,9 @@ const PedidosCanceladosApp = () => {
   // Estado para paginación
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
+  const [filterDate, setFilterDate] = useState("");
+  const [filterRange, setFilterRange] = useState("dia");
+  const [filteredPedidos, setFilteredPedidos] = useState([]);
 
   // Fetch pedidos cancelados y datos de ventas
   useEffect(() => {
@@ -108,6 +111,41 @@ const PedidosCanceladosApp = () => {
     setSelectedPedido(null);
   };
 
+  useEffect(() => {
+    if (!filterDate) {
+      setFilteredPedidos(pedidos);
+      return;
+    }
+  
+    const baseDate = new Date(filterDate);
+  
+    const filtered = pedidos.filter((pedido) => {
+      const pedidoDate = new Date(pedido.fechaPedido);
+  
+      if (filterRange === "dia") {
+        return pedidoDate.toDateString() === baseDate.toDateString();
+      }
+  
+      if (filterRange === "semana") {
+        const endOfWeek = new Date(baseDate);
+        endOfWeek.setDate(baseDate.getDate() + 6);
+  
+        return pedidoDate >= baseDate && pedidoDate <= endOfWeek;
+      }
+  
+      if (filterRange === "mes") {
+        const endOfMonth = new Date(baseDate);
+        endOfMonth.setMonth(baseDate.getMonth() + 1);
+  
+        return pedidoDate >= baseDate && pedidoDate < endOfMonth;
+      }
+  
+      return true;
+    });
+  
+    setFilteredPedidos(filtered);
+  }, [filterDate, filterRange, pedidos]);
+  
 
   const formatCurrency = (value) => {
     return new Intl.NumberFormat("es-CR", {
@@ -260,6 +298,24 @@ const PedidosCanceladosApp = () => {
         <div className="main-content">
           <h1>Pedidos completados</h1>
 
+          <div className="filters">
+            <label>Filtrar por fecha: </label>
+            <input
+              type="date"
+              value={filterDate}
+              onChange={(e) => setFilterDate(e.target.value)}
+            />
+
+            <select
+              value={filterRange}
+              onChange={(e) => setFilterRange(e.target.value)}
+            >
+              <option value="dia">Día</option>
+              <option value="semana">Semana</option>
+              <option value="mes">Mes</option>
+            </select>
+          </div>
+
           <div className="pedidos-container">
             {pedidos.length === 0 ? (
               <div className="no-results">No se encontraron pedidos completados</div>
@@ -277,31 +333,32 @@ const PedidosCanceladosApp = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {currentItems.map((pedido) => (
-                      <tr key={pedido.idPedido}>
-
-                        <td>
-                          {pedido.carrito && pedido.carrito.usuario
-                            ? `${pedido.carrito.usuario.nombreUsuario} ${pedido.carrito.usuario.primerApellido}`
-                            : 'N/A'}
-                        </td>
-                        <td>{formatDate(pedido.fechaPedido)}</td>
-                        <td>₡{pedido.montoTotalPedido ? pedido.montoTotalPedido.toLocaleString() : '0'}</td>
-
-                        <td>
-                          {renderStatusBadge(pedido.estadoEntregaPedido)}
-                        </td>
-                        <td>
-                          <button
-                            className="view-btn"
-                            onClick={() => handleSelectPedido(pedido)}
-                          >
-                            Ver detalles
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
+                  {filteredPedidos.map((pedido) => (
+                    <tr key={pedido.idPedido}>
+                      <td>
+                        {pedido.carrito && pedido.carrito.usuario
+                          ? `${pedido.carrito.usuario.nombreUsuario} ${pedido.carrito.usuario.primerApellido}`
+                          : "N/A"}
+                      </td>
+                      <td>{formatDate(pedido.fechaPedido)}</td>
+                      <td>
+                        ₡
+                        {pedido.montoTotalPedido
+                          ? pedido.montoTotalPedido.toLocaleString()
+                          : "0"}
+                      </td>
+                      <td>{renderStatusBadge(pedido.estadoEntregaPedido)}</td>
+                      <td>
+                        <button
+                          className="view-btn"
+                          onClick={() => handleSelectPedido(pedido)}
+                        >
+                          Ver detalles
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
                 </table>
 
                 {/* Paginación */}
