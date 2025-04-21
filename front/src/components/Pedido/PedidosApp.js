@@ -21,15 +21,6 @@ const PedidosApp = () => {
   const [selectedPedido, setSelectedPedido] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('todos');
-  const [showVentasModal, setShowVentasModal] = useState(false);
-  const [ventasData, setVentasData] = useState({
-    diario: null,
-    semanal: null,
-    mensual: null,
-    anual: null,
-    total: null
-  });
-  const [ventasLoading, setVentasLoading] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [editFormData, setEditFormData] = useState(null);
   const [tiposPago, setTiposPago] = useState([]);
@@ -37,26 +28,6 @@ const PedidosApp = () => {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [updatingStatus, setUpdatingStatus] = useState(null);
-
-  const fetchVentasData = async () => {
-    try {
-      setVentasLoading(true);
-      const response = await axios.get('http://localhost:8080/pedido/reporteVentas');
-      setVentasData(response.data); 
-      setVentasLoading(false);
-    } catch (err) {
-      console.error('Error fetching ventas data:', err);
-      setVentasLoading(false);
-      alert('Error al cargar el reporte de ventas');
-    }
-  };
-
-  const handleShowVentas = async () => {
-    setShowVentasModal(true);
-    if (!ventasData) {
-      await fetchVentasData();
-    }
-  };
 
   const handleSnackbarClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -324,17 +295,10 @@ const PedidosApp = () => {
         <SideBar usuario={usuario} /> 
         
         <div className="main-content">
-  <div className="header-with-notifications">
-    <h1>Gestión de Pedidos</h1>
-    <NotificacionPedido />
-  </div>
-          
-          <button 
-            className="ventas-btn"
-            onClick={handleShowVentas}
-          >
-            Mostrar Ventas
-          </button>
+          <div className="header-with-notifications">
+            <h1>Gestión de Pedidos</h1>
+            <NotificacionPedido />
+          </div>
 
           <div className="filters-container">
             <div className="search-container">
@@ -413,64 +377,6 @@ const PedidosApp = () => {
                   ))}
                 </tbody>
               </table>
-            )}
-
-            {showVentasModal && (
-              <div className="modal-overlay">
-                <div className="ventas-modal">
-                  <button className="close-btn" onClick={() => setShowVentasModal(false)}>
-                    ×
-                  </button>
-                  
-                  <h2>Reporte de Ventas</h2>
-                  
-                  {ventasLoading ? (
-                    <div className="loading">Cargando reporte...</div>
-                  ) : (
-                    <div className="ventas-container">
-                      {/* Reporte Diario */}
-                      <div className="periodo-ventas">
-                        <h3>Ventas Hoy</h3>
-                        <p>Total: {ventasData.diario?.totalFormateado || '₡0.00'}</p>
-                        <p>Pedidos: {ventasData.diario?.cantidadPedidos || 0}</p>
-                        <p>Promedio: {ventasData.diario?.promedioFormateado || '₡0.00'}</p>
-                      </div>
-                      
-                      {/* Reporte Semanal */}
-                      <div className="periodo-ventas">
-                        <h3>Ventas Semana</h3>
-                        <p>Total: {ventasData.semanal?.totalFormateado || '₡0.00'}</p>
-                        <p>Pedidos: {ventasData.semanal?.cantidadPedidos || 0}</p>
-                        <p>Promedio: {ventasData.semanal?.promedioFormateado || '₡0.00'}</p>
-                      </div>
-                      
-                      {/* Reporte Mensual */}
-                      <div className="periodo-ventas">
-                        <h3>Ventas Mes</h3>
-                        <p>Total: {ventasData.mensual?.totalFormateado || '₡0.00'}</p>
-                        <p>Pedidos: {ventasData.mensual?.cantidadPedidos || 0}</p>
-                        <p>Promedio: {ventasData.mensual?.promedioFormateado || '₡0.00'}</p>
-                      </div>
-                      
-                      {/* Reporte Anual */}
-                      <div className="periodo-ventas">
-                        <h3>Ventas Año</h3>
-                        <p>Total: {ventasData.anual?.totalFormateado || '₡0.00'}</p>
-                        <p>Pedidos: {ventasData.anual?.cantidadPedidos || 0}</p>
-                        <p>Promedio: {ventasData.anual?.promedioFormateado || '₡0.00'}</p>
-                      </div>
-                      
-                      {/* Reporte Total */}
-                      <div className="periodo-ventas total">
-                        <h3>Total General</h3>
-                        <p>Total: {ventasData.total?.totalFormateado || '₡0.00'}</p>
-                        <p>Pedidos: {ventasData.total?.cantidadPedidos || 0}</p>
-                        <p>Promedio: {ventasData.total?.promedioFormateado || '₡0.00'}</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
             )}
 
             {/* Pedido Details Modal */}

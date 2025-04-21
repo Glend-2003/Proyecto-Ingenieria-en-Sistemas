@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
-import { FaBell, FaTimes, FaCalendarAlt, FaClock, FaCheck, FaTrash } from 'react-icons/fa';
+import { FaBell, FaTimes, FaCheck, FaTrash } from 'react-icons/fa';
 import './NotificacionPedido.css';
 import { Toaster, toast } from 'react-hot-toast';
 
@@ -9,30 +9,103 @@ const NotificacionPedido = () => {
     const [leidas, setLeidas] = useState([]);
     const [mostrar, setMostrar] = useState(false);
     const [cargando, setCargando] = useState(true);
+    const [ultimaActualizacion, setUltimaActualizacion] = useState(new Date());
+    const intervalRef = useRef(null);
+    const notificacionesAnteriorRef = useRef({ noLeidas: 0 });
 
-    useEffect(() => {
-        cargarNotificaciones();
-        const intervalo = setInterval(cargarNotificaciones, 30000);
-        return () => clearInterval(intervalo);
-    }, []);
-
-    const cargarNotificaciones = async () => {
+    // Usando useCallback para memorizar la función y evitar renderizados innecesarios
+    const cargarNotificaciones = useCallback(async (mostrarToast = false) => {
         setCargando(true);
         try {
             const [respNoLeidas, respLeidas] = await Promise.all([
-                axios.get("http://localhost:8080/notificacion/", { params: { leidos: 1 } }),
-                axios.get("http://localhost:8080/notificacion/", { params: { leidos: 0 } }),
+                axios.get("http://localhost:8080/notificacion/", { 
+                    params: { leidos: 1 },
+                    // Añadimos un timestamp para evitar caché
+                    headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
+                }),
+                axios.get("http://localhost:8080/notificacion/", { 
+                    params: { leidos: 0 },
+                    headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
+                }),
             ]);
             
             // Ordenar por fecha descendente
             const ordenarPorFecha = (a, b) => new Date(b.fechaNotificacion) - new Date(a.fechaNotificacion);
-            setNoLeidas([...respNoLeidas.data].sort(ordenarPorFecha));
-            setLeidas([...respLeidas.data].sort(ordenarPorFecha));
+            const nuevasNoLeidas = [...respNoLeidas.data].sort(ordenarPorFecha);
+            const nuevasLeidas = [...respLeidas.data].sort(ordenarPorFecha);
+            
+            // Verificar si hay nuevas notificaciones
+            if (mostrarToast && nuevasNoLeidas.length > notificacionesAnteriorRef.current.noLeidas) {
+                const nuevasNotificaciones = nuevasNoLeidas.length - notificacionesAnteriorRef.current.noLeidas;
+                toast.success(`${nuevasNotificaciones} ${nuevasNotificaciones === 1 ? 'nueva notificación' : 'nuevas notificaciones'}`, {
+                    icon: '🔔',
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    },
+                });
+                
+                // Si hay nuevas notificaciones, reproducimos un sonido (opcional)
+                playNotificationSound();
+            }
+            
+            // Actualizamos el estado con las nuevas notificaciones
+            setNoLeidas(nuevasNoLeidas);
+            setLeidas(nuevasLeidas);
+            
+            // Actualizamos la referencia para futuras comparaciones
+            notificacionesAnteriorRef.current = { noLeidas: nuevasNoLeidas.length };
+            setUltimaActualizacion(new Date());
         } catch (error) {
             console.error("Error al cargar notificaciones:", error);
         }
         setCargando(false);
+    }, []);
+
+    // Función para reproducir un sonido de notificación
+    const playNotificationSound = () => {
+        try {
+            const audio = new Audio('/notification-sound.mp3');  // Asegúrate de tener este archivo
+            audio.play().catch(e => console.log('Error reproduciendo sonido:', e));
+        } catch (e) {
+            console.log('Error con el sonido:', e);
+        }
     };
+
+    // Efecto para cargar notificaciones al inicio y configurar polling
+    useEffect(() => {
+        // Carga inicial
+        cargarNotificaciones();
+        
+        // Configuramos el intervalo para actualizaciones regulares
+        intervalRef.current = setInterval(() => cargarNotificaciones(true), 10000); // Cada 10 segundos
+        
+        // Agregamos un evento para cuando la ventana recupera el foco
+        const handleFocus = () => cargarNotificaciones(true);
+        window.addEventListener('focus', handleFocus);
+        
+        // Limpieza al desmontar
+        return () => {
+            clearInterval(intervalRef.current);
+            window.removeEventListener('focus', handleFocus);
+        };
+    }, [cargarNotificaciones]);
+
+    // Efecto adicional para manejar la visibilidad de la página
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                cargarNotificaciones(true);
+            }
+        };
+        
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
+    }, [cargarNotificaciones]);
 
     const marcarComoLeida = async (id) => {
         try {
@@ -96,7 +169,6 @@ const NotificacionPedido = () => {
     };
 
     return (
-        
         <>
         <Toaster 
             position="top-right"
@@ -126,13 +198,27 @@ const NotificacionPedido = () => {
                 <div className="panel-notificaciones">
                     <div className="cabecera-panel">
                         <h3>Notificaciones</h3>
-                        <button 
-                            className="cerrar-panel" 
-                            onClick={() => setMostrar(false)}
-                            aria-label="Cerrar notificaciones"
-                        >
-                            <FaTimes />
-                        </button>
+                        <div className="cabecera-acciones">
+                            <small className="ultima-actualizacion">
+                                Actualizado: {ultimaActualizacion.toLocaleTimeString()}
+                            </small>
+                            <button 
+                                className="actualizar-notificaciones"
+                                onClick={() => cargarNotificaciones(true)}
+                                disabled={cargando}
+                                aria-label="Actualizar notificaciones"
+                                title="Actualizar notificaciones"
+                            >
+                                ↻
+                            </button>
+                            <button 
+                                className="cerrar-panel" 
+                                onClick={() => setMostrar(false)}
+                                aria-label="Cerrar notificaciones"
+                            >
+                                <FaTimes />
+                            </button>
+                        </div>
                     </div>
 
                     <div className="lista-notificaciones">
