@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -103,6 +104,48 @@ public class PedidoController {
         
         return new ArrayList<>(pedidosPorId.values());
     }
+
+    @GetMapping("/usuario/{id}")
+    public ResponseEntity<List<Map<String, Object>>> getPedidosByUsuario(@PathVariable int id) {
+        List<Map<String, Object>> pedidos = pedidoService.getPedidoByUsuario(id);
+        if (pedidos.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
+        } else {
+            return ResponseEntity.ok(pedidos);
+        }
+    }
+
+    @GetMapping("/filtrar")
+public ResponseEntity<List<Map<String, Object>>> filtrarPedidos(
+    @RequestParam int idUsuario,
+    @RequestParam(required = false) String estadoEntrega,
+    @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") java.util.Date fechaInicio,
+    @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") java.util.Date fechaFin,
+    @RequestParam(required = false) Integer estadoPedido
+) {
+    System.out.println("Filtro - idUsuario: " + idUsuario);
+    System.out.println("Filtro - estadoEntrega: " + estadoEntrega);
+    System.out.println("Filtro - fechaInicio: " + fechaInicio);
+    System.out.println("Filtro - fechaFin: " + fechaFin);
+    System.out.println("Filtro - estadoPedido: " + estadoPedido);
+    
+    try {
+        List<Map<String, Object>> pedidos = pedidoService.filtrarPedidos(
+            idUsuario, estadoEntrega, fechaInicio, fechaFin, estadoPedido
+        );
+        
+        if (pedidos.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
+        } else {
+            return ResponseEntity.ok(pedidos);
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+        System.err.println("Error al filtrar pedidos: " + e.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(Collections.emptyList());
+    }
+}
 
     @PostMapping("/agregar")
     public ResponseEntity<?> addPedido(@RequestBody Pedido pedido) {

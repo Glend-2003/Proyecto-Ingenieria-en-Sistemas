@@ -175,7 +175,7 @@ function PedidoCrud() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     // Verificar que la cédula sea válida antes de enviar
     if (!cedulaValidation.isValid) {
       setSnackbar({
@@ -185,12 +185,62 @@ function PedidoCrud() {
       });
       return;
     }
-
+  
     setStatus({ loading: true, error: null, success: false });
-
+  
     try {
-      const userData = {
+      // Obtener el ID de usuario del localStorage o usar uno por defecto
+      const idUsuario = localStorage.getItem("idUsuario");
+      
+      // PASO 1: Crear un nuevo carrito en la base de datos
+      const carritoData = {
+        usuario: {
+          idUsuario: parseInt(idUsuario, 10)
+        },
+        montoTotalCarrito: subtotal,
+        estadoCarrito: true,
+        cantidadCarrito: cart.length
+      };
+      
+      const carritoResponse = await axios.post('http://localhost:8080/carrito', carritoData);
+      console.log('Carrito creado:', carritoResponse.data);
+      
+      // Obtener el ID del carrito recién creado
+      const idCarrito = carritoResponse.data.idCarrito;
+
+      console.log('ID del carrito creado:', idCarrito);
+      
+      // PASO 2: Agregar los productos al carrito (en serie, no en paralelo)
+      for (const item of cart) {
+        const productoCarrito = {
+          carrito: {
+            idCarrito: idCarrito
+          },
+          idProducto: item.idProducto,
+          cantidadProducto: item.cantidad
+        };
+        
+        await axios.post(`http://localhost:8080/carrito/${idCarrito}/productos`, productoCarrito);
+        console.log(`Producto ${item.idProducto} agregado al carrito ${idCarrito}`);
+      }
+    
+      // PASO 3: Añadir un retraso para asegurar que la base de datos ha procesado todas las transacciones
+      console.log(`Esperando para asegurar que el carrito ${idCarrito} se guarde completamente...`);
+      await new Promise(resolve => setTimeout(resolve, 3000));
+  
+      // Verificación opcional del carrito
+      try {
+        const checkCarritoResponse = await axios.get(`http://localhost:8080/carrito/usuario/${idUsuario}`);
+        console.log(`Verificación de carrito exitosa:`, checkCarritoResponse.data);
+      } catch (verifyError) {
+        console.error(`Error al verificar carrito para usuario ${idUsuario}:`, verifyError);
+        // No interrumpir el flujo, solo registrar el error
+      }
+  
+      // PASO 4: Crear el pedido con el carrito recién creado
+      const pedidoData = {
         // Datos del usuario
+        
         nombreUsuario: formData.nombreUsuario,
         primerApellido: formData.primerApellido,
         segundoApellido: formData.segundoApellido,
@@ -206,55 +256,63 @@ function PedidoCrud() {
         localidad: formData.localidad,
         horaRetiro: formData.horaRetiro,
         
-        // Tipo de pago
+        // Asociar con el carrito recién creado (usando objeto anidado)
+        carrito: {
+          idCarrito: idCarrito,
+          usuario: {
+            idUsuario: parseInt(idUsuario, 10)
+          }
+        },
+
+        
+        
+        // Tipo de pago (usando objeto anidado)
         tipoPago: {
-          idTipoPago: formData.tipoPago
+          idTipoPago: parseInt(formData.tipoPago, 10)
         },
         
         // Datos del pedido
         subtotal: subtotal,
         montoTotalPedido: montoTotalPedido,
         fechaPedido: new Date().toISOString(),
-
-        // Estado del pedido (por defecto activo)
         estadoPedido: true,
-        
-        // Estado de entrega (por defecto "Pendiente")
-        estadoEntregaPedido: "Pendiente",
-
-        // Productos del carrito
-        productos: cart.map(item => ({
-          idProducto: item.idProducto,
-          cantidad: item.cantidad,
-          precioUnitario: item.montoPrecioProducto
-        }))
+        estadoEntregaPedido: "Pendiente"
       };
-
-      console.log('Enviando datos:', JSON.stringify(userData, null, 2));
-
-      const response = await axios.post('http://localhost:8080/pedido/agregar', userData);
-
-      console.log('Pedido registrado de manera exitosa: '+response.data);
-
+      
+      console.log('Enviando datos del pedido:', JSON.stringify(pedidoData, null, 2));
+      
+      const pedidoResponse = await axios.post('http://localhost:8080/pedido/agregar', pedidoData);
+      console.log('Pedido registrado de manera exitosa:', pedidoResponse.data);
+      
+      // PASO 5: Actualizar el estado del carrito a inactivo
+      await axios.put(`http://localhost:8080/carrito/${idCarrito}`, {
+        usuario: {
+          idUsuario: parseInt(idUsuario, 10)
+        },
+        montoTotalCarrito: subtotal,
+        estadoCarrito: false,  // Marcar como inactivo
+        cantidadCarrito: cart.length
+      });
+  
       setStatus({ loading: false, error: null, success: true });
-
+  
       setSnackbar({
         open: true,
         message: 'Pedido registrado de manera exitosa',
         severity: 'success'
       });
-
+  
       localStorage.removeItem("carrito");
       setCart([]);
-
+  
       setTimeout(() => {
         window.location.href = "/";
       }, 2000);
-
+  
     } catch(error) {
       console.error('Error al registrar el pedido:', error);
-
-      // Log más detallado para diagnosticar
+  
+      // Log detallado para diagnóstico
       console.log('Detalles del error:', {
         status: error.response?.status,
         statusText: error.response?.statusText,
@@ -263,14 +321,12 @@ function PedidoCrud() {
         stack: error.stack
       });
       
-      // Actualizar el estado para mostrar el error
       setStatus({ 
         loading: false, 
         error: error.response?.data?.message || "Error al procesar el pedido", 
         success: false 
       });
       
-      // Mostrar mensaje de error con Snackbar
       setSnackbar({
         open: true,
         message: error.response?.data?.message || "Error al procesar el pedido",

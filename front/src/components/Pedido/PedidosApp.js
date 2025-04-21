@@ -239,11 +239,9 @@ const PedidosApp = () => {
 
     setUpdatingStatus(pedidoId);
     try {
+      // Corregir la petición para enviar el estado como parámetro query, no como JSON
       await axios.put(
-        `http://localhost:8080/pedido/actualizarEstadoEntrega/${pedidoId}`,
-        {
-          estadoEntregaPedido: nuevoEstado,
-        }
+        `http://localhost:8080/pedido/actualizarEstadoPedido/${pedidoId}?estado=${nuevoEstado}`
       );
 
       const updatedPedidos = pedidos.map((pedido) => {
@@ -289,8 +287,6 @@ const PedidosApp = () => {
         return "status-badge-yellow";
       case "En Proceso":
         return "status-badge-blue";
-      case "Enviado":
-        return "status-badge-purple";
       case "Entregado":
         return "status-badge-green";
       case "Cancelado":
@@ -360,7 +356,6 @@ const PedidosApp = () => {
                 <option value="inactivo">Inactivo</option>
                 <option value="Pendiente">Pendiente</option>
                 <option value="En Proceso">En Proceso</option>
-                <option value="Enviado">Enviado</option>
                 <option value="Entregado">Entregado</option>
                 <option value="Cancelado">Cancelado</option>
               </select>
@@ -560,15 +555,6 @@ const PedidosApp = () => {
                             ) : 'En Proceso'}
                           </button>
                           <button 
-                            className={`status-btn ${selectedPedido.estadoEntregaPedido === 'Enviado' ? 'selected' : ''}`}
-                            onClick={() => handleChangeEstadoEntrega(selectedPedido.idPedido, 'Enviado')}
-                            disabled={updatingStatus === selectedPedido.idPedido}
-                          >
-                            {updatingStatus === selectedPedido.idPedido ? (
-                              <span className="loading-spinner"></span>
-                            ) : 'Enviado'}
-                          </button>
-                          <button 
                             className={`status-btn ${selectedPedido.estadoEntregaPedido === 'Entregado' ? 'selected' : ''}`}
                             onClick={() => handleChangeEstadoEntrega(selectedPedido.idPedido, 'Entregado')}
                             disabled={updatingStatus === selectedPedido.idPedido}
@@ -658,7 +644,6 @@ const PedidosApp = () => {
                             >
                               <option value="Pendiente">Pendiente</option>
                               <option value="En Proceso">En Proceso</option>
-                              <option value="Enviado">Enviado</option>
                               <option value="Entregado">Entregado</option>
                               <option value="Cancelado">Cancelado</option>
                             </select>
