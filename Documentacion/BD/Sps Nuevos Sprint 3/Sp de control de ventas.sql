@@ -13,7 +13,7 @@ BEGIN
             'dia' AS periodo
         FROM tbpedido
         WHERE DATE(fechaPedido) = CURDATE()
-        AND estadoEntregaPedido = 'Cancelado';
+        AND estadoEntregaPedido = 'Entregado';
     
     -- Ventas de la semana actual (canceladas)
     ELSEIF p_periodo = 'semana' THEN
@@ -26,7 +26,7 @@ BEGIN
             'semana' AS periodo
         FROM tbpedido
         WHERE YEARWEEK(fechaPedido, 1) = YEARWEEK(CURDATE(), 1)
-        AND estadoEntregaPedido = 'Cancelado';
+        AND estadoEntregaPedido = 'Entregado';
     
     -- Ventas del mes actual (canceladas)
     ELSEIF p_periodo = 'mes' THEN
@@ -40,7 +40,7 @@ BEGIN
         FROM tbpedido
         WHERE YEAR(fechaPedido) = YEAR(CURDATE())
         AND MONTH(fechaPedido) = MONTH(CURDATE())
-        AND estadoEntregaPedido = 'Cancelado';
+        AND estadoEntregaPedido = 'Entregado';
     
     -- Ventas del año actual (canceladas)
     ELSEIF p_periodo = 'anio' THEN
@@ -53,7 +53,7 @@ BEGIN
             'anio' AS periodo
         FROM tbpedido
         WHERE YEAR(fechaPedido) = YEAR(CURDATE())
-        AND estadoEntregaPedido = 'Cancelado';
+        AND estadoEntregaPedido = 'Entregado';
     
     -- Ventas totales (canceladas, sin filtro de fecha)
     ELSE
@@ -65,7 +65,7 @@ BEGIN
             CONCAT('₡', FORMAT(IFNULL(SUM(montoTotalPedido)/NULLIF(COUNT(idPedido), 0), 0), 2)) AS promedioFormateado,
             'total' AS periodo
         FROM tbpedido
-        WHERE estadoEntregaPedido = 'Cancelado';
+        WHERE estadoEntregaPedido = 'Entregado';
     END IF;
 END
 DELIMITER ;
