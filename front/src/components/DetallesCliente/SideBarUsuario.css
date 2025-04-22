@@ -1,13 +1,84 @@
 /* Sidebar */
 .sidebar-container {
-    width: 200px; /* Ancho del sidebar */
-    position: relative; /* Permite que se mueva con el scroll */
-    top: 0;
-    left: 0;
-    height: auto; /* Altura automática según el contenido */
-    max-height: 90vh; /* No ocupa más del 90% de la pantalla */
-    background-color: #ffffff; /* Color de fondo */
-    z-index: 1000;
-    overflow-y: auto; /* Permite desplazamiento si el contenido es muy grande */
-    padding-bottom: 20px; /* Espaciado en la parte inferior */
+    width: 250px;
+    background-color: #ffffff;
+    color: #333;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Sombra más pronunciada */
+    height: 100%;
+    border-right: 1px solid #e0e0e0; /* Borde sutil adicional para mejorar la separación visual */
+}
+
+.sidebar-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #2c3e50;
+}
+
+/* Navegación */
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #2c3e50;
+    padding: 10px 15px;
+    margin: 5px 0;
+    font-size: 1rem;
+    border-radius: 5px;
+    transition: background 0.3s, color 0.3s;
+}
+
+.sidebar-link:hover {
+    background-color: #e2e6ea;
+    color: #1a252f;
+}
+
+.sidebar-link .icon {
+    margin-right: 10px;
+    font-size: 1.2rem;
+}
+
+/* Estilo para la opción de cerrar sesión */
+.sidebar-link.logout {
+    margin-top: auto;
+    color: #e74c3c;
+}
+
+.sidebar-link.logout:hover {
+    background-color: #f8d7da;
+    color: #c0392b;
+}
+
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  color: #555;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+
+.sidebar-link .icon {
+  margin-right: 10px;
+  font-size: 1.1rem;
 }
