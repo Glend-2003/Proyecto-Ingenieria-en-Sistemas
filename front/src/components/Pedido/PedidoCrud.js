@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import '../styles.min.css';
+import './PedidoCrud.css';
 import axios from "axios";
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
-import { FaSpinner, FaArrowLeft, FaCheck, FaTimes } from 'react-icons/fa'; // Añadidos FaCheck y FaTimes
+import { FaSpinner, FaArrowLeft, FaCheck, FaTimes, FaShoppingCart } from 'react-icons/fa';
 
 function PedidoCrud() {
   // Estados para los campos del formulario
@@ -14,14 +15,13 @@ function PedidoCrud() {
     segundoApellido: '',
     telefonoUsuario: '',
     correoUsuario: '',
-    tipoPersona: 'Física',
     cedulaUsuario: '',
-    tipoCedula: 'Cédula Física',
+    // Valores fijos que no se editan
     sucursal: 'Cairo de Cariari',
     provincia: 'Limón',
-    localidad: 'El cairo Cariari en',
+    localidad: 'SuperMercado en el Cairo de Cariari',
     horaRetiro: '',
-    tipoPago: '' // Nuevo campo para tipo de pago
+    tipoPago: ''
   });
 
   // Estado para almacenar los tipos de pago
@@ -81,10 +81,9 @@ function PedidoCrud() {
         if (response.data && response.data.length > 0) {
           setFormData(prevData => ({
             ...prevData,
-            tipoPago: response.data[0].idTipoPago // Usando el campo correcto idTipoPago
+            tipoPago: response.data[0].idTipoPago
           }));
         }
-        console.log('Tipos de pago cargados:', response.data); // Para depuración
       } catch (error) {
         console.error('Error al obtener tipos de pago:', error);
         setSnackbar({
@@ -100,8 +99,8 @@ function PedidoCrud() {
 
   // Calcular totales
   const subtotal = cart.reduce((total, item) => total + (item.montoPrecioProducto * item.cantidad), 0);
-  const iva = cart.reduce((total, item) => total + (item.montoPrecioProducto * item.cantidad), 0) * 0.13;
-  const montoTotalPedido = subtotal+iva;
+  const iva = subtotal * 0.13;
+  const montoTotalPedido = subtotal + iva;
 
   // Función para validar la cédula con la API de Hacienda
   const validateCedula = async (cedula) => {
@@ -241,15 +240,14 @@ function PedidoCrud() {
       // PASO 4: Crear el pedido con el carrito recién creado
       const pedidoData = {
         // Datos del usuario
-        
         nombreUsuario: formData.nombreUsuario,
         primerApellido: formData.primerApellido,
         segundoApellido: formData.segundoApellido,
         telefonoUsuario: formData.telefonoUsuario,
         correoUsuario: formData.correoUsuario,
-        tipoPersona: formData.tipoPersona,
+        tipoPersona: "Física", // Valor por defecto ya que se eliminó el campo
         cedulaUsuario: formData.cedulaUsuario,
-        tipoCedula: formData.tipoCedula,
+        tipoCedula: "Cédula Física", // Valor por defecto ya que se eliminó el campo
         
         // Datos de la sucursal y retiro
         sucursal: formData.sucursal,
@@ -264,8 +262,6 @@ function PedidoCrud() {
             idUsuario: parseInt(idUsuario, 10)
           }
         },
-
-        
         
         // Tipo de pago (usando objeto anidado)
         tipoPago: {
@@ -312,15 +308,6 @@ function PedidoCrud() {
   
     } catch(error) {
       console.error('Error al registrar el pedido:', error);
-  
-      // Log detallado para diagnóstico
-      console.log('Detalles del error:', {
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        message: error.message,
-        stack: error.stack
-      });
       
       setStatus({ 
         loading: false, 
@@ -340,15 +327,15 @@ function PedidoCrud() {
   const renderCartItems = () => {
     if (cart.length > 0) {
       return cart.map((item, index) => (
-        <div className="row mb-2 pb-2 border-bottom" key={index}>
-          <div className="col-8">{item.nombreProducto || "Producto"} × {item.cantidad}</div>
-          <div className="col-4 text-end">₡{((item.montoPrecioProducto || 0) * item.cantidad).toLocaleString()}</div>
+        <div className="cart-item" key={index}>
+          <div className="cart-item-name">{item.nombreProducto || "Producto"} × {item.cantidad}</div>
+          <div className="cart-item-price">₡{((item.montoPrecioProducto || 0) * item.cantidad).toLocaleString()}</div>
         </div>
       ));
     } else {
       return (
-        <div className="row mb-2 pb-2 border-bottom">
-          <div className="col-12 text-center">No hay productos en el carrito</div>
+        <div className="empty-cart">
+          <p>No hay productos en el carrito</p>
         </div>
       );
     }
@@ -362,232 +349,136 @@ function PedidoCrud() {
                            cart.length === 0;
 
   return (
-    <div className="container py-4 my-3">
-      <h1 className="text-center">Finalizar pedido</h1>
-
-      {/* Botón para regresar */}
-      <div className="mb-3">
+    <div className="pedido-container">
+      <div className="pedido-header">
+        <h1>Finalizar pedido</h1>
         <button 
-          className="btn btn-outline-secondary" 
+          className="btn-back" 
           onClick={() => window.history.back()}
         >
-          <FaArrowLeft className="me-2" /> Volver
+          <FaArrowLeft className="icon-back" /> Volver
         </button>
       </div>
 
-      <div className="row">
-        <div className="col-md-6">
-          <div className="mb-10">
-            <h2 style={{ marginBottom: "25px", fontSize: "25px" }}>
-              Detalles finales de la compra
-            </h2>
-            <div className="row">
-              <div className="col-md-6">
-                <label htmlFor="nombreUsuario" className="form-label">
-                  Nombre
-                </label>
+      <div className="pedido-content">
+        <div className="client-info-card">
+          <div className="card-header">
+            <h2>Información del cliente</h2>
+          </div>
+          <div className="card-body">
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="nombreUsuario">Nombre</label>
                 <input
                   type="text"
-                  className="form-control"
                   id="nombreUsuario"
                   name="nombreUsuario"
                   value={formData.nombreUsuario}
                   onChange={handleChange}
+                  placeholder="Ingrese su nombre"
                 />
               </div>
-              <div className="col-md-6">
-                <label htmlFor="primerApellido" className="form-label">
-                  Primer apellido
-                </label>
+              <div className="form-group">
+                <label htmlFor="primerApellido">Primer apellido</label>
                 <input
                   type="text"
-                  className="form-control"
                   id="primerApellido"
                   name="primerApellido"
                   value={formData.primerApellido}
                   onChange={handleChange}
+                  placeholder="Ingrese su primer apellido"
                 />
               </div>
             </div>
-            <div className="row">
-              <div className="col-md-6">
-                <label htmlFor="segundoApellido" className="form-label">
-                  Segundo apellido
-                </label>
+            
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="segundoApellido">Segundo apellido</label>
                 <input
                   type="text"
-                  className="form-control"
                   id="segundoApellido"
                   name="segundoApellido"
                   value={formData.segundoApellido}
                   onChange={handleChange}
+                  placeholder="Ingrese su segundo apellido"
                 />
               </div>
-              <div className="col-md-6">
-                <label htmlFor="telefonoUsuario" className="form-label">
-                  Teléfono
-                </label>
+              <div className="form-group">
+                <label htmlFor="telefonoUsuario">Teléfono</label>
                 <input
                   type="text"
-                  className="form-control"
                   id="telefonoUsuario"
                   name="telefonoUsuario"
                   value={formData.telefonoUsuario}
                   onChange={handleChange}
+                  placeholder="Ej: 8888-8888"
                 />
               </div>
             </div>
-            <div className="row">
-              <div className="col-md-6">
-                <label htmlFor="correoUsuario" className="form-label">
-                  Correo electrónico
-                </label>
+            
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="correoUsuario">Correo electrónico</label>
                 <input
                   type="email"
-                  className="form-control"
                   id="correoUsuario"
                   name="correoUsuario"
                   value={formData.correoUsuario}
                   onChange={handleChange}
+                  placeholder="ejemplo@correo.com"
                 />
               </div>
-              <div className="col-md-6">
-                <label htmlFor="tipoPersona" className="form-label">
-                  Tipo de persona
-                </label>
-                <select
-                  className="form-control"
-                  id="tipoPersona"
-                  name="tipoPersona"
-                  value={formData.tipoPersona}
-                  onChange={handleChange}
-                >
-                  <option value="Física">Física</option>
-                  <option value="Jurídica">Jurídica</option>
-                </select>
-              </div>
-            </div>
-            <div className="row">
-              <div className="col-md-6">
-                <label htmlFor="cedulaUsuario" className="form-label">
-                  Cédula
-                </label>
-                <div className="input-group">
+              <div className="form-group">
+                <label htmlFor="cedulaUsuario">Cédula</label>
+                <div className="cedula-input-group">
                   <input
                     type="text"
-                    className={`form-control ${cedulaValidation.wasChecked ? (cedulaValidation.isValid ? 'is-valid' : 'is-invalid') : ''}`}
                     id="cedulaUsuario"
                     name="cedulaUsuario"
+                    className={cedulaValidation.wasChecked ? (cedulaValidation.isValid ? 'valid' : 'invalid') : ''}
                     value={formData.cedulaUsuario}
                     onChange={handleChange}
+                    placeholder="Ej: 101110111"
                   />
-                  <div className="input-group-append">
-                    <span className="input-group-text">
-                      {cedulaValidation.isChecking ? (
-                        <FaSpinner className="spinner" />
-                      ) : cedulaValidation.wasChecked ? (
-                        cedulaValidation.isValid ? (
-                          <FaCheck className="text-success" />
-                        ) : (
-                          <FaTimes className="text-danger" />
-                        )
-                      ) : null}
-                    </span>
+                  <div className="cedula-status">
+                    {cedulaValidation.isChecking ? (
+                      <FaSpinner className="spinner" />
+                    ) : cedulaValidation.wasChecked ? (
+                      cedulaValidation.isValid ? (
+                        <FaCheck className="valid-icon" />
+                      ) : (
+                        <FaTimes className="invalid-icon" />
+                      )
+                    ) : null}
                   </div>
                 </div>
                 {cedulaValidation.wasChecked && (
-                  <div className={cedulaValidation.isValid ? "valid-feedback d-block" : "invalid-feedback d-block"}>
+                  <div className={`cedula-message ${cedulaValidation.isValid ? "valid-message" : "invalid-message"}`}>
                     {cedulaValidation.message}
                   </div>
                 )}
               </div>
-              <div className="col-md-6">
-                <label htmlFor="tipoCedula" className="form-label">
-                  Tipo de cédula
-                </label>
-                <select
-                  className="form-control"
-                  id="tipoCedula"
-                  name="tipoCedula"
-                  value={formData.tipoCedula}
-                  onChange={handleChange}
-                >
-                  <option value="Cédula Física">Cédula Física</option>
-                  <option value="Cédula Jurídica">Cédula Jurídica</option>
-                  <option value="DIMEX">DIMEX</option>
-                </select>
-              </div>
             </div>
-            <div className="row">
-              <div className="col-md-6">
-                <label htmlFor="sucursal" className="form-label">
-                  Sucursal
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="sucursal"
-                  name="sucursal"
-                  value={formData.sucursal}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="col-md-6">
-                <label htmlFor="provincia" className="form-label">
-                  Provincia
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="provincia"
-                  name="provincia"
-                  value={formData.provincia}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-            <div className="row">
-              <div className="col-md-6">
-                <label htmlFor="localidad" className="form-label">
-                  Localidad
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="localidad"
-                  name="localidad"
-                  value={formData.localidad}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="col-md-6">
-                <label htmlFor="horaRetiro" className="form-label">
-                  Hora de retiro
-                </label>
+            
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="horaRetiro">Hora de retiro</label>
                 <input
                   type="time"
-                  className="form-control"
                   id="horaRetiro"
                   name="horaRetiro"
                   value={formData.horaRetiro}
                   onChange={handleChange}
                 />
               </div>
-            </div>
-            
-            {/* Nuevo campo para Tipo de Pago */}
-            <div className="row mt-3">
-              <div className="col-md-6">
-                <label htmlFor="tipoPago" className="form-label">
-                  Tipo de Pago
-                </label>
+              <div className="form-group">
+                <label htmlFor="tipoPago">Tipo de Pago</label>
                 <select
-                  className="form-control"
                   id="tipoPago"
                   name="tipoPago"
                   value={formData.tipoPago}
                   onChange={handleChange}
-                  disabled={tiposPago.length === 0} // Deshabilitar si no hay opciones
+                  disabled={tiposPago.length === 0}
                 >
                   {tiposPago.length > 0 ? (
                     tiposPago.map(tipo => (
@@ -603,53 +494,68 @@ function PedidoCrud() {
             </div>
           </div>
         </div>
-        <div className="col-md-6">
-          <h2 style={{ marginBottom: "25px", fontSize: "25px" }}>
-            Productos en el carrito
-          </h2>
-          {renderCartItems()}
-          <div className="row mt-3">
-            <div className="col-8">
-              <strong>Subtotal (sin I.V.A):</strong>
+
+        <div className="location-info-card">
+          <div className="card-header">
+            <h2>Información de la sucursal</h2>
+          </div>
+          <div className="card-body">
+            <div className="location-item">
+              <span className="location-label">Sucursal:</span>
+              <span className="location-value">{formData.sucursal}</span>
             </div>
-            <div className="col-4 text-end">
-              ₡{subtotal.toLocaleString()}
+            <div className="location-item">
+              <span className="location-label">Provincia:</span>
+              <span className="location-value">{formData.provincia}</span>
+            </div>
+            <div className="location-item">
+              <span className="location-label">Localidad:</span>
+              <span className="location-value">{formData.localidad}</span>
             </div>
           </div>
-          <div className="row mt-3">
-            <div className="col-8">
-              <strong> I.V.A:</strong>
-            </div>
-            <div className="col-4 text-end">
-              ₡{iva.toLocaleString()}
-            </div>
+        </div>
+
+        <div className="cart-summary-card">
+          <div className="card-header">
+            <h2><FaShoppingCart className="cart-icon" /> Resumen del pedido</h2>
           </div>
-          <div className="row mt-3">
-            <div className="col-8">
-              <strong>Total (Con I.V.A):</strong>
+          <div className="card-body">
+            <div className="cart-items">
+              {renderCartItems()}
             </div>
-            <div className="col-4 text-end">
-              ₡{montoTotalPedido.toLocaleString()}
+            
+            <div className="cart-summary">
+              <div className="summary-item">
+                <span>Subtotal (sin I.V.A):</span>
+                <span>₡{subtotal.toLocaleString()}</span>
+              </div>
+              <div className="summary-item">
+                <span>I.V.A (13%):</span>
+                <span>₡{iva.toLocaleString()}</span>
+              </div>
+              <div className="summary-item total">
+                <span>Total a pagar:</span>
+                <span>₡{montoTotalPedido.toLocaleString()}</span>
+              </div>
             </div>
-          </div>
-          <div className="row mt-3">
-            <div className="col-12 text-end">
+            
+            <div className="submit-section">
               <button 
-                className="btn btn-primary" 
+                className="btn-submit" 
                 onClick={handleSubmit}
                 disabled={isSubmitDisabled}
               >
                 {status.loading ? (
                   <>
-                    <FaSpinner className="spinner me-2" /> Procesando...
+                    <FaSpinner className="spinner" /> Procesando...
                   </>
                 ) : (
                   'Finalizar Pedido'
                 )}
               </button>
               {!cedulaValidation.isValid && cedulaValidation.wasChecked && (
-                <p className="text-danger mt-2">
-                  <small><FaTimes className="me-1" /> Debe ingresar una cédula válida para finalizar el pedido</small>
+                <p className="validation-warning">
+                  <FaTimes className="warning-icon" /> Debe ingresar una cédula válida para finalizar el pedido
                 </p>
               )}
             </div>
@@ -669,7 +575,7 @@ function PedidoCrud() {
         </Alert>
       </Snackbar>
 
-      {/* Para animar el spinner, añadimos estilos globales */}
+      {/* Estilos para animación del spinner */}
       <style>
         {`
           .spinner {
