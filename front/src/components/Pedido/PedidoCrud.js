@@ -5,7 +5,7 @@ import './PedidoCrud.css';
 import axios from "axios";
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
-import { FaSpinner, FaArrowLeft, FaCheck, FaTimes, FaShoppingCart } from 'react-icons/fa';
+import { FaSpinner, FaArrowLeft, FaCheck, FaTimes, FaShoppingCart, FaClock } from 'react-icons/fa';
 
 function PedidoCrud() {
   // Estados para los campos del formulario
@@ -19,7 +19,7 @@ function PedidoCrud() {
     // Valores fijos que no se editan
     sucursal: 'Cairo de Cariari',
     provincia: 'Limón',
-    localidad: 'SuperMercado en el Cairo de Cariari',
+    localidad: 'SuperMercado en el Centro Comercial',
     horaRetiro: '',
     tipoPago: ''
   });
@@ -45,6 +45,13 @@ function PedidoCrud() {
   const [cedulaValidation, setCedulaValidation] = useState({
     isValid: false,
     isChecking: false,
+    wasChecked: false,
+    message: ''
+  });
+
+  // Estado para la validación de hora de retiro
+  const [horaRetiroValidation, setHoraRetiroValidation] = useState({
+    isValid: true,
     wasChecked: false,
     message: ''
   });
@@ -150,6 +157,46 @@ function PedidoCrud() {
     }
   };
 
+  // Función para validar la hora de retiro (entre 8:00 AM y 9:00 PM)
+  const validateHoraRetiro = (hora) => {
+    if (!hora) {
+      setHoraRetiroValidation({
+        isValid: false,
+        wasChecked: true,
+        message: 'Debe seleccionar una hora de retiro'
+      });
+      return false;
+    }
+    
+    // Convertir la hora a minutos para facilitar la comparación
+    const [horas, minutos] = hora.split(':').map(Number);
+    const totalMinutos = horas * 60 + minutos;
+    
+    // 8:00 AM = 8 * 60 = 480 minutos
+    // 9:00 PM = 21 * 60 = 1260 minutos
+    const horaMinima = 8 * 60; // 8:00 AM
+    const horaMaxima = 21 * 60; // 9:00 PM
+    
+    const isValid = totalMinutos >= horaMinima && totalMinutos <= horaMaxima;
+    
+    setHoraRetiroValidation({
+      isValid: isValid,
+      wasChecked: true,
+      message: isValid ? '' : 'El horario de retiro debe ser entre 8:00 AM y 9:00 PM'
+    });
+    
+    // Si no es válido, mostrar también un snackbar
+    if (!isValid) {
+      setSnackbar({
+        open: true,
+        message: 'El horario de retiro debe ser entre 8:00 AM y 9:00 PM',
+        severity: 'warning'
+      });
+    }
+    
+    return isValid;
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -165,6 +212,11 @@ function PedidoCrud() {
         wasChecked: false,
         message: ''
       });
+    }
+    
+    // Si se cambia la hora de retiro, validar inmediatamente
+    if (name === 'horaRetiro') {
+      validateHoraRetiro(value);
     }
   };
 
@@ -183,6 +235,11 @@ function PedidoCrud() {
         message: 'La cédula no es válida. No se puede procesar el pedido.',
         severity: 'error'
       });
+      return;
+    }
+    
+    // Verificar que la hora de retiro sea válida
+    if (!validateHoraRetiro(formData.horaRetiro)) {
       return;
     }
   
@@ -346,6 +403,7 @@ function PedidoCrud() {
                            tiposPago.length === 0 || 
                            !cedulaValidation.isValid || 
                            cedulaValidation.isChecking || 
+                           !horaRetiroValidation.isValid ||
                            cart.length === 0;
 
   return (
@@ -462,14 +520,32 @@ function PedidoCrud() {
             
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="horaRetiro">Hora de retiro</label>
-                <input
-                  type="time"
-                  id="horaRetiro"
-                  name="horaRetiro"
-                  value={formData.horaRetiro}
-                  onChange={handleChange}
-                />
+                <label htmlFor="horaRetiro">
+                  Hora de retiro
+                  <span className="horario-info"> (8:00 AM - 9:00 PM)</span>
+                </label>
+                <div className="hora-input-group">
+                  <input
+                    type="time"
+                    id="horaRetiro"
+                    name="horaRetiro"
+                    className={horaRetiroValidation.wasChecked ? (horaRetiroValidation.isValid ? 'valid' : 'invalid') : ''}
+                    value={formData.horaRetiro}
+                    onChange={handleChange}
+                    min="08:00"
+                    max="21:00"
+                  />
+                  <div className="hora-status">
+                    {horaRetiroValidation.wasChecked && !horaRetiroValidation.isValid && (
+                      <FaClock className="invalid-icon" />
+                    )}
+                  </div>
+                </div>
+                {horaRetiroValidation.wasChecked && !horaRetiroValidation.isValid && (
+                  <div className="hora-message invalid-message">
+                    {horaRetiroValidation.message}
+                  </div>
+                )}
               </div>
               <div className="form-group">
                 <label htmlFor="tipoPago">Tipo de Pago</label>
@@ -558,6 +634,11 @@ function PedidoCrud() {
                   <FaTimes className="warning-icon" /> Debe ingresar una cédula válida para finalizar el pedido
                 </p>
               )}
+              {!horaRetiroValidation.isValid && horaRetiroValidation.wasChecked && (
+                <p className="validation-warning">
+                  <FaClock className="warning-icon" /> El horario de retiro debe ser entre 8:00 AM y 9:00 PM
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -575,7 +656,7 @@ function PedidoCrud() {
         </Alert>
       </Snackbar>
 
-      {/* Estilos para animación del spinner */}
+      {/* Estilos para animación del spinner y elementos nuevos */}
       <style>
         {`
           .spinner {
@@ -584,6 +665,47 @@ function PedidoCrud() {
           @keyframes spin {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
+          }
+          
+          /* Estilos para la validación de la hora */
+          .horario-info {
+            font-size: 0.8em;
+            color: #666;
+            font-weight: normal;
+          }
+          
+          .hora-input-group {
+            position: relative;
+            display: flex;
+            align-items: center;
+          }
+          
+          .hora-status {
+            position: absolute;
+            right: 10px;
+            display: flex;
+            align-items: center;
+          }
+          
+          .hora-message {
+            margin-top: 5px;
+            font-size: 0.85em;
+          }
+          
+          input[type="time"].valid {
+            border-color: #4caf50;
+          }
+          
+          input[type="time"].invalid {
+            border-color: #f44336;
+          }
+          
+          .invalid-message {
+            color: #f44336;
+          }
+          
+          .valid-message {
+            color: #4caf50;
           }
         `}
       </style>
