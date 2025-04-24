@@ -485,4 +485,3 @@ function LoginApp({ initialPage = "home" }) {
 }
 
 export default LoginApp
-

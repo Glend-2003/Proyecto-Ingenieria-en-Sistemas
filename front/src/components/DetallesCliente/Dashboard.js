@@ -24,8 +24,8 @@ const Dashboard = () => {
     };
     return (
         <AppProvider>
+        <NavbarApp/>
         <div>
-             <NavbarApp />
             <div className="dashboard-container">
                 {/* Sidebar */}
                 <div className="sidebar-container">
