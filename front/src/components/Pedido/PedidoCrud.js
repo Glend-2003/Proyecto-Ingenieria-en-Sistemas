@@ -5,7 +5,7 @@ import './PedidoCrud.css';
 import axios from "axios";
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
-import { FaSpinner, FaArrowLeft, FaCheck, FaTimes, FaShoppingCart, FaClock } from 'react-icons/fa';
+import { FaSpinner, FaArrowLeft, FaCheck, FaTimes, FaShoppingCart, FaClock, FaCalendarAlt } from 'react-icons/fa';
 
 function PedidoCrud() {
   // Estados para los campos del formulario
@@ -20,7 +20,7 @@ function PedidoCrud() {
     sucursal: 'Cairo de Cariari',
     provincia: 'Limón',
     localidad: 'SuperMercado en el Centro Comercial',
-    horaRetiro: '',
+    fechaHoraRetiro: '', // Cambiado de horaRetiro a fechaHoraRetiro
     tipoPago: ''
   });
 
@@ -49,11 +49,26 @@ function PedidoCrud() {
     message: ''
   });
 
-  // Estado para la validación de hora de retiro
-  const [horaRetiroValidation, setHoraRetiroValidation] = useState({
+  // Estado para la validación de fecha y hora de retiro
+  const [fechaHoraRetiroValidation, setFechaHoraRetiroValidation] = useState({
     isValid: true,
     wasChecked: false,
     message: ''
+  });
+
+  // Estado para validaciones de campos de texto
+  const [fieldValidations, setFieldValidations] = useState({
+    nombreUsuario: { isValid: true, message: '' },
+    primerApellido: { isValid: true, message: '' },
+    segundoApellido: { isValid: true, message: '' },
+    correoUsuario: { isValid: true, message: '' },
+    telefonoUsuario: { isValid: true, message: '' }
+  });
+
+  // Estado para almacenar información del usuario logueado
+  const [loggedUser, setLoggedUser] = useState({
+    nombreUsuario: '',
+    correoUsuario: ''
   });
 
   // Función para cerrar el Snackbar
@@ -63,6 +78,27 @@ function PedidoCrud() {
 
   // Recuperar carrito del localStorage
   const [cart, setCart] = useState([]);
+
+  // Obtener información del usuario logueado
+  useEffect(() => {
+    // Intentar recuperar información del usuario del localStorage
+    const userName = localStorage.getItem("nombreUsuario");
+    const userEmail = localStorage.getItem("correoUsuario");
+    
+    if (userName && userEmail) {
+      setLoggedUser({
+        nombreUsuario: userName,
+        correoUsuario: userEmail
+      });
+      
+      // Pre-llenar los campos con la información del usuario logueado
+      setFormData(prevData => ({
+        ...prevData,
+        nombreUsuario: userName,
+        correoUsuario: userEmail
+      }));
+    }
+  }, []);
 
   // Debounce para la validación de cédula
   useEffect(() => {
@@ -109,8 +145,91 @@ function PedidoCrud() {
   const iva = subtotal * 0.13;
   const montoTotalPedido = subtotal + iva;
 
+  // Validar que solo se ingresen letras (para nombres y apellidos)
+  const validateLettersOnly = (value, fieldName) => {
+    // Expresión regular que permite solo letras, espacios y acentos (caracteres latinos)
+    const lettersOnlyRegex = /^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$/;
+    
+    const isValid = value.trim() === '' || lettersOnlyRegex.test(value);
+    
+    setFieldValidations(prev => ({
+      ...prev,
+      [fieldName]: {
+        isValid: isValid,
+        message: isValid ? '' : 'Este campo solo permite letras'
+      }
+    }));
+    
+    return isValid;
+  };
+
+  // Validar formato de correo electrónico
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const isValid = email.trim() === '' || emailRegex.test(email);
+    
+    setFieldValidations(prev => ({
+      ...prev,
+      correoUsuario: {
+        isValid: isValid,
+        message: isValid ? '' : 'Formato de correo electrónico inválido'
+      }
+    }));
+    
+    return isValid;
+  };
+
+  // Validar que coincida con el usuario logueado
+  const validateMatchWithLoggedUser = (value, fieldName) => {
+    // Si no hay usuario logueado, no realizamos esta validación
+    if (!loggedUser[fieldName]) return true;
+    
+    const isValid = value === loggedUser[fieldName];
+    
+    if (!isValid) {
+      setFieldValidations(prev => ({
+        ...prev,
+        [fieldName]: {
+          isValid: false,
+          message: `Este valor debe coincidir con su ${fieldName === 'nombreUsuario' ? 'nombre de usuario' : 'correo'} registrado`
+        }
+      }));
+    }
+    
+    return isValid;
+  };
+
+  // Validar teléfono
+  const validatePhone = (phone) => {
+    // Permitir un formato flexible para teléfonos, pero debe tener números
+    const phoneRegex = /^\d{4}-?\d{4}$/;
+    const isValid = phone.trim() === '' || phoneRegex.test(phone);
+    
+    setFieldValidations(prev => ({
+      ...prev,
+      telefonoUsuario: {
+        isValid: isValid,
+        message: isValid ? '' : 'Formato inválido. Use 8 dígitos (ej: 8888-8888)'
+      }
+    }));
+    
+    return isValid;
+  };
+
   // Función para validar la cédula con la API de Hacienda
   const validateCedula = async (cedula) => {
+    // Primero validamos que sean 9 dígitos numéricos
+    const cedulaRegex = /^\d{9}$/;
+    if (!cedulaRegex.test(cedula)) {
+      setCedulaValidation({
+        isValid: false,
+        isChecking: false,
+        wasChecked: true,
+        message: 'La cédula debe contener exactamente 9 dígitos numéricos'
+      });
+      return;
+    }
+    
     // Verificamos que la cédula tenga al menos un carácter antes de consultar la API
     if (!cedula || cedula.trim().length === 0) {
       setCedulaValidation({
@@ -121,6 +240,7 @@ function PedidoCrud() {
       });
       return;
     }
+    
     setCedulaValidation({
       ...cedulaValidation,
       isChecking: true,
@@ -157,20 +277,39 @@ function PedidoCrud() {
     }
   };
 
-  // Función para validar la hora de retiro (entre 8:00 AM y 9:00 PM)
-  const validateHoraRetiro = (hora) => {
-    if (!hora) {
-      setHoraRetiroValidation({
+  // Función para validar la fecha y hora de retiro (entre 8:00 AM y 9:00 PM)
+  const validateFechaHoraRetiro = (fechaHora) => {
+    if (!fechaHora) {
+      setFechaHoraRetiroValidation({
         isValid: false,
         wasChecked: true,
-        message: 'Debe seleccionar una hora de retiro'
+        message: 'Debe seleccionar una fecha y hora de retiro'
       });
       return false;
     }
     
+    // Crear objeto Date a partir del string de fechaHora
+    const dateTime = new Date(fechaHora);
+    
+    // Verificar que la fecha no sea anterior a hoy
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    if (dateTime < today) {
+      setFechaHoraRetiroValidation({
+        isValid: false,
+        wasChecked: true,
+        message: 'La fecha no puede ser anterior a hoy'
+      });
+      return false;
+    }
+    
+    // Extraer la hora
+    const hours = dateTime.getHours();
+    const minutes = dateTime.getMinutes();
+    
     // Convertir la hora a minutos para facilitar la comparación
-    const [horas, minutos] = hora.split(':').map(Number);
-    const totalMinutos = horas * 60 + minutos;
+    const totalMinutos = hours * 60 + minutes;
     
     // 8:00 AM = 8 * 60 = 480 minutos
     // 9:00 PM = 21 * 60 = 1260 minutos
@@ -179,7 +318,7 @@ function PedidoCrud() {
     
     const isValid = totalMinutos >= horaMinima && totalMinutos <= horaMaxima;
     
-    setHoraRetiroValidation({
+    setFechaHoraRetiroValidation({
       isValid: isValid,
       wasChecked: true,
       message: isValid ? '' : 'El horario de retiro debe ser entre 8:00 AM y 9:00 PM'
@@ -199,25 +338,36 @@ function PedidoCrud() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
     
-    // Si se cambia la cédula, resetear la validación
-    if (name === 'cedulaUsuario') {
+    // Aplicar las validaciones según el campo
+    if (name === 'nombreUsuario' || name === 'primerApellido' || name === 'segundoApellido') {
+      validateLettersOnly(value, name);
+      
+      // Para el nombre de usuario, validar también que coincida con el usuario logueado
+      if (name === 'nombreUsuario') {
+        validateMatchWithLoggedUser(value, name);
+      }
+    } else if (name === 'correoUsuario') {
+      validateEmail(value);
+      validateMatchWithLoggedUser(value, name);
+    } else if (name === 'telefonoUsuario') {
+      validatePhone(value);
+    } else if (name === 'cedulaUsuario') {
+      // La validación de cédula se maneja con el efecto
       setCedulaValidation({
         isValid: false,
         isChecking: false,
         wasChecked: false,
         message: ''
       });
+    } else if (name === 'fechaHoraRetiro') {
+      validateFechaHoraRetiro(value);
     }
     
-    // Si se cambia la hora de retiro, validar inmediatamente
-    if (name === 'horaRetiro') {
-      validateHoraRetiro(value);
-    }
+    setFormData({
+      ...formData,
+      [name]: value
+    });
   };
 
   // Alert personalizado para Snackbar
@@ -225,8 +375,49 @@ function PedidoCrud() {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
   });
 
+  // Función para verificar si hay errores de validación
+  const hasValidationErrors = () => {
+    // Verificar campos de texto
+    for (const field in fieldValidations) {
+      if (!fieldValidations[field].isValid) {
+        return true;
+      }
+    }
+    
+    // Verificar cédula
+    if (!cedulaValidation.isValid) {
+      return true;
+    }
+    
+    // Verificar fecha y hora
+    if (!fechaHoraRetiroValidation.isValid) {
+      return true;
+    }
+    
+    return false;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Verificar todas las validaciones antes de enviar
+    const nombreValid = validateLettersOnly(formData.nombreUsuario, 'nombreUsuario') && 
+                         validateMatchWithLoggedUser(formData.nombreUsuario, 'nombreUsuario');
+    const primerApellidoValid = validateLettersOnly(formData.primerApellido, 'primerApellido');
+    const segundoApellidoValid = validateLettersOnly(formData.segundoApellido, 'segundoApellido');
+    const correoValid = validateEmail(formData.correoUsuario) && 
+                         validateMatchWithLoggedUser(formData.correoUsuario, 'correoUsuario');
+    const telefonoValid = validatePhone(formData.telefonoUsuario);
+    
+    // Si alguna validación falla, mostrar mensaje y abortar
+    if (!nombreValid || !primerApellidoValid || !segundoApellidoValid || !correoValid || !telefonoValid) {
+      setSnackbar({
+        open: true,
+        message: 'Por favor, corrija los campos con errores antes de continuar',
+        severity: 'error'
+      });
+      return;
+    }
   
     // Verificar que la cédula sea válida antes de enviar
     if (!cedulaValidation.isValid) {
@@ -238,8 +429,8 @@ function PedidoCrud() {
       return;
     }
     
-    // Verificar que la hora de retiro sea válida
-    if (!validateHoraRetiro(formData.horaRetiro)) {
+    // Verificar que la fecha y hora de retiro sea válida
+    if (!validateFechaHoraRetiro(formData.fechaHoraRetiro)) {
       return;
     }
   
@@ -293,6 +484,10 @@ function PedidoCrud() {
         console.error(`Error al verificar carrito para usuario ${idUsuario}:`, verifyError);
         // No interrumpir el flujo, solo registrar el error
       }
+      
+      // Extraer la hora de la fecha y hora seleccionada
+      const fechaHoraObj = new Date(formData.fechaHoraRetiro);
+      const horaRetiro = `${fechaHoraObj.getHours().toString().padStart(2, '0')}:${fechaHoraObj.getMinutes().toString().padStart(2, '0')}`;
   
       // PASO 4: Crear el pedido con el carrito recién creado
       const pedidoData = {
@@ -310,7 +505,8 @@ function PedidoCrud() {
         sucursal: formData.sucursal,
         provincia: formData.provincia,
         localidad: formData.localidad,
-        horaRetiro: formData.horaRetiro,
+        horaRetiro: horaRetiro, // Solo la hora extraída de fechaHoraRetiro
+        fechaRetiro: formData.fechaHoraRetiro.split('T')[0], // Solo la fecha extraída de fechaHoraRetiro
         
         // Asociar con el carrito recién creado (usando objeto anidado)
         carrito: {
@@ -403,8 +599,24 @@ function PedidoCrud() {
                            tiposPago.length === 0 || 
                            !cedulaValidation.isValid || 
                            cedulaValidation.isChecking || 
-                           !horaRetiroValidation.isValid ||
-                           cart.length === 0;
+                           !fechaHoraRetiroValidation.isValid ||
+                           cart.length === 0 ||
+                           hasValidationErrors();
+
+  // Función auxiliar para renderizar mensajes de error
+  const renderErrorMessage = (fieldName) => {
+    const field = fieldValidations[fieldName];
+    if (!field.isValid && field.message) {
+      return <div className="field-error-message">{field.message}</div>;
+    }
+    return null;
+  };
+
+  // Obtener la fecha mínima (hoy)
+  const getMinDate = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  };
 
   return (
     <div className="pedido-container">
@@ -431,10 +643,17 @@ function PedidoCrud() {
                   type="text"
                   id="nombreUsuario"
                   name="nombreUsuario"
+                  className={fieldValidations.nombreUsuario.isValid ? '' : 'invalid'}
                   value={formData.nombreUsuario}
                   onChange={handleChange}
                   placeholder="Ingrese su nombre"
                 />
+                {renderErrorMessage('nombreUsuario')}
+                {loggedUser.nombreUsuario && (
+                  <div className="field-info-message">
+                    
+                  </div>
+                )}
               </div>
               <div className="form-group">
                 <label htmlFor="primerApellido">Primer apellido</label>
@@ -442,10 +661,12 @@ function PedidoCrud() {
                   type="text"
                   id="primerApellido"
                   name="primerApellido"
+                  className={fieldValidations.primerApellido.isValid ? '' : 'invalid'}
                   value={formData.primerApellido}
                   onChange={handleChange}
                   placeholder="Ingrese su primer apellido"
                 />
+                {renderErrorMessage('primerApellido')}
               </div>
             </div>
             
@@ -456,10 +677,12 @@ function PedidoCrud() {
                   type="text"
                   id="segundoApellido"
                   name="segundoApellido"
+                  className={fieldValidations.segundoApellido.isValid ? '' : 'invalid'}
                   value={formData.segundoApellido}
                   onChange={handleChange}
                   placeholder="Ingrese su segundo apellido"
                 />
+                {renderErrorMessage('segundoApellido')}
               </div>
               <div className="form-group">
                 <label htmlFor="telefonoUsuario">Teléfono</label>
@@ -467,10 +690,12 @@ function PedidoCrud() {
                   type="text"
                   id="telefonoUsuario"
                   name="telefonoUsuario"
+                  className={fieldValidations.telefonoUsuario.isValid ? '' : 'invalid'}
                   value={formData.telefonoUsuario}
                   onChange={handleChange}
                   placeholder="Ej: 8888-8888"
                 />
+                {renderErrorMessage('telefonoUsuario')}
               </div>
             </div>
             
@@ -481,10 +706,17 @@ function PedidoCrud() {
                   type="email"
                   id="correoUsuario"
                   name="correoUsuario"
+                  className={fieldValidations.correoUsuario.isValid ? '' : 'invalid'}
                   value={formData.correoUsuario}
                   onChange={handleChange}
                   placeholder="ejemplo@correo.com"
                 />
+                {renderErrorMessage('correoUsuario')}
+                {loggedUser.correoUsuario && (
+                  <div className="field-info-message">
+                   
+                  </div>
+                )}
               </div>
               <div className="form-group">
                 <label htmlFor="cedulaUsuario">Cédula</label>
@@ -497,6 +729,7 @@ function PedidoCrud() {
                     value={formData.cedulaUsuario}
                     onChange={handleChange}
                     placeholder="Ej: 101110111"
+                    maxLength={9}
                   />
                   <div className="cedula-status">
                     {cedulaValidation.isChecking ? (
@@ -520,30 +753,29 @@ function PedidoCrud() {
             
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="horaRetiro">
-                  Hora de retiro
+                <label htmlFor="fechaHoraRetiro">
+                  Fecha y hora de retiro
                   <span className="horario-info"> (8:00 AM - 9:00 PM)</span>
                 </label>
-                <div className="hora-input-group">
+                <div className="fecha-hora-input-group">
                   <input
-                    type="time"
-                    id="horaRetiro"
-                    name="horaRetiro"
-                    className={horaRetiroValidation.wasChecked ? (horaRetiroValidation.isValid ? 'valid' : 'invalid') : ''}
-                    value={formData.horaRetiro}
+                    type="datetime-local"
+                    id="fechaHoraRetiro"
+                    name="fechaHoraRetiro"
+                    className={fechaHoraRetiroValidation.wasChecked ? (fechaHoraRetiroValidation.isValid ? 'valid' : 'invalid') : ''}
+                    value={formData.fechaHoraRetiro}
                     onChange={handleChange}
-                    min="08:00"
-                    max="21:00"
+                    min={`${getMinDate()}T08:00`}
                   />
-                  <div className="hora-status">
-                    {horaRetiroValidation.wasChecked && !horaRetiroValidation.isValid && (
-                      <FaClock className="invalid-icon" />
+                  <div className="fecha-hora-status">
+                    {fechaHoraRetiroValidation.wasChecked && !fechaHoraRetiroValidation.isValid && (
+                      <FaCalendarAlt className="invalid-icon" />
                     )}
                   </div>
                 </div>
-                {horaRetiroValidation.wasChecked && !horaRetiroValidation.isValid && (
-                  <div className="hora-message invalid-message">
-                    {horaRetiroValidation.message}
+                {fechaHoraRetiroValidation.wasChecked && !fechaHoraRetiroValidation.isValid && (
+                  <div className="fecha-hora-message invalid-message">
+                    {fechaHoraRetiroValidation.message}
                   </div>
                 )}
               </div>
@@ -634,9 +866,14 @@ function PedidoCrud() {
                   <FaTimes className="warning-icon" /> Debe ingresar una cédula válida para finalizar el pedido
                 </p>
               )}
-              {!horaRetiroValidation.isValid && horaRetiroValidation.wasChecked && (
+              {!fechaHoraRetiroValidation.isValid && fechaHoraRetiroValidation.wasChecked && (
                 <p className="validation-warning">
-                  <FaClock className="warning-icon" /> El horario de retiro debe ser entre 8:00 AM y 9:00 PM
+                  <FaCalendarAlt className="warning-icon" /> Debe seleccionar una fecha y hora de retiro dentro del horario permitido
+                </p>
+              )}
+              {Object.keys(fieldValidations).some(key => !fieldValidations[key].isValid) && (
+                <p className="validation-warning">
+                  <FaTimes className="warning-icon" /> Por favor, corrija los campos con errores antes de continuar
                 </p>
               )}
             </div>
@@ -674,6 +911,53 @@ function PedidoCrud() {
             font-weight: normal;
           }
           
+          /* Estilos para los mensajes de error en campos */
+          .field-error-message {
+            color: #f44336;
+            font-size: 0.85em;
+            margin-top: 5px;
+          }
+          
+          .field-info-message {
+            color: #2196F3;
+            font-size: 0.85em;
+            margin-top: 5px;
+          }
+          
+          /* Estilos para inputs inválidos */
+          input.invalid, select.invalid {
+            border-color: #f44336;
+            background-color: rgba(244, 67, 54, 0.05);
+          }
+          
+          /* Estilos para la validación de fecha/hora */
+          .fecha-hora-input-group {
+            position: relative;
+            display: flex;
+            align-items: center;
+          }
+          
+          .fecha-hora-status {
+            position: absolute;
+            right: 10px;
+            display: flex;
+            align-items: center;
+          }
+          
+          .fecha-hora-message {
+            margin-top: 5px;
+            font-size: 0.85em;
+          }
+          
+          input[type="datetime-local"].valid {
+            border-color: #4caf50;
+          }
+          
+          input[type="datetime-local"].invalid {
+            border-color: #f44336;
+          }
+          
+          /* Hora de retiro */
           .hora-input-group {
             position: relative;
             display: flex;
@@ -692,20 +976,26 @@ function PedidoCrud() {
             font-size: 0.85em;
           }
           
-          input[type="time"].valid {
-            border-color: #4caf50;
-          }
-          
-          input[type="time"].invalid {
-            border-color: #f44336;
-          }
-          
+          /* Mensajes de validación */
           .invalid-message {
             color: #f44336;
           }
           
           .valid-message {
             color: #4caf50;
+          }
+          
+          /* Iconos de validación */
+          .valid-icon {
+            color: #4caf50;
+          }
+          
+          .invalid-icon {
+            color: #f44336;
+          }
+          
+          .warning-icon {
+            margin-right: 5px;
           }
         `}
       </style>
