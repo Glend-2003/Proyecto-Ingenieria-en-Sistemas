@@ -53,15 +53,14 @@ const NavbarApp = () => {
       <Container>
         <div className="navbar-brand-container">
           <img 
-            src={require('../../assets/images/actualmente.png')} 
+            src={require('../../assets/images/LogoCarn.png')} 
             alt="Carnicería La Bendición" 
             className="navbar-logo"
           />
-          <BootstrapNavbar.Brand className="brand-text"> 
-            <Link to="/Historia" className="brand-link">
-              Carnicería La Bendición
-            </Link>
+          <BootstrapNavbar.Brand as={Link} to="/Historia" className="brand-text brand-link">
+            Carnicería La Bendición
           </BootstrapNavbar.Brand>
+
         </div>
 
         <BootstrapNavbar.Toggle aria-controls="basic-navbar-nav" />
@@ -89,8 +88,8 @@ const NavbarApp = () => {
             <Nav.Link className="icon-link" onClick={() => setSearchOpen(!searchOpen)}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                width="1.5em"
-                height="1.5em"
+                width="1.7em"
+                height="1.7em"
                 fill="currentColor"
                 className="bi bi-search"
                 viewBox="0 0 16 16"
@@ -105,8 +104,8 @@ const NavbarApp = () => {
                   icon={
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      width="1.5em"
-                      height="1.5em"
+                      width="1.7em"
+                      height="1.7em"
                       fill="currentColor"
                       className="bi bi-person"
                       viewBox="0 0 16 16"
@@ -122,8 +121,8 @@ const NavbarApp = () => {
             <Nav.Link className="icon-link cart-icon" onClick={() => setShowCartMenu(!showCartMenu)}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                width="1.5em"
-                height="1.5em"
+                width="1.7em"
+                height="1.7em"
                 fill="currentColor"
                 className="bi bi-cart"
                 viewBox="0 0 16 16"
