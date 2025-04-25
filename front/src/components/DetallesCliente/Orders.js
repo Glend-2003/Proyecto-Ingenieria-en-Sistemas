@@ -437,7 +437,7 @@ const Orders = () => {
 
   return (
     <div className="orders-page">
-    <NavbarApp />
+      <NavbarApp />
       <Carrito />
       <div className="perfil-usuario-container">
       {/* Sidebar Component */}

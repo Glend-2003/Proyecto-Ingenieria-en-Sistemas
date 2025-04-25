@@ -1,30 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from "reactstrap";
-import './DropDown.css';
 
 const DropDown = ({ icon, idUsuario }) => {
     const [isOpen, setIsOpen] = useState(false);
     const navigate = useNavigate();
     
-    const toggle = () => {
-        // Solo permite alternar si hay un usuario
-        if (idUsuario) {
-            setIsOpen(!isOpen);
-        }
-    };
+    const toggle = () => setIsOpen(!isOpen);
 
-    // Manejo del hover
-    const handleMouseEnter = () => {
-        if (idUsuario) {
+    const handleShowMenu = (idUsuario) => {
+        if(!idUsuario){
+            setIsOpen(false);
+        }else{
             setIsOpen(true);
         }
-    };
-
-    const handleMouseLeave = () => {
-        setIsOpen(false);
-    };
+    }
 
     const handleLogout = () => {
         localStorage.removeItem('token');
@@ -32,10 +23,7 @@ const DropDown = ({ icon, idUsuario }) => {
         localStorage.removeItem('nombreUsuario');
         localStorage.removeItem('nombreRol');
         localStorage.removeItem('idUsuario');
-        localStorage.removeItem('rememberedEmail');
-        localStorage.removeItem('rememberedPassword');
         navigate('/');
-        setIsOpen(false);
     };
     
     // Función para manejar la navegación
@@ -49,31 +37,31 @@ const DropDown = ({ icon, idUsuario }) => {
             className="custom-dropdown"
             isOpen={isOpen}
             toggle={toggle}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
+            onMouseEnter={() => handleShowMenu(idUsuario)}
+            onMouseLeave={() => setIsOpen(false)}
+            direction="left"
         >
             <DropdownToggle tag="span" className="cursor-pointer">
-                {icon}
+                {icon} {/* Se usa el icono que viene de App */}
             </DropdownToggle>
-            <DropdownMenu className="dropdown-menu-custom" container="body">
-                <DropdownItem header>PERFIL</DropdownItem>
-                <DropdownItem onClick={() => handleNavigation('/Dashboard')} className="dropdown-item-custom">
+            <DropdownMenu className="dropdown-menu">
+                <DropdownItem header>perfil</DropdownItem>
+                <DropdownItem onClick={() => handleNavigation('/Dashboard')} className="hover:bg-gray-700">
                     Panel
                 </DropdownItem>
-                <DropdownItem onClick={() => handleNavigation('/')} className="dropdown-item-custom">
+                <DropdownItem onClick={() => handleNavigation('/')} className="hover:bg-gray-700">
                     Pedidos
                 </DropdownItem>
-                <DropdownItem onClick={() => handleNavigation('/')} className="dropdown-item-custom">
+                <DropdownItem onClick={() => handleNavigation('/')} className="hover:bg-gray-700">
                     Comprobantes
                 </DropdownItem>
-                <DropdownItem onClick={() => handleNavigation('/DireccionUsuario')} className="dropdown-item-custom">
-                    Dirección
+                <DropdownItem onClick={() => handleNavigation('/DireccionUsuario')} className="hover:bg-gray-700">
+                    Direccion
                 </DropdownItem>
-                <DropdownItem onClick={() => handleNavigation('/PerfilUsuario')} className="dropdown-item-custom">
+                <DropdownItem onClick={() => handleNavigation('/PerfilUsuario')} className="hover:bg-gray-700">
                     Detalles de la cuenta
                 </DropdownItem>
-                <DropdownItem divider />
-                <DropdownItem onClick={handleLogout} className="dropdown-item-logout">
+                <DropdownItem onClick={handleLogout}>
                     Cerrar sesión
                 </DropdownItem>
             </DropdownMenu>
