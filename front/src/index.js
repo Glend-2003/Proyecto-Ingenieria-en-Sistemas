@@ -21,7 +21,6 @@ import Dashboard from './components/DetallesCliente/Dashboard';
 import Orders from './components/DetallesCliente/Orders';
 import SideBarUsuario from './components/DetallesCliente/SideBarUsuario';
 import DireccionUsuario from './components/DetallesCliente/DireccionUsuario';
-import ResetPassword from "./components/Login/ResetPasswod";
 import { CartProvider } from './contexto/ContextoCarrito';
 
 // Componente para proteger rutas
@@ -40,7 +39,6 @@ root.render(
           <Route path="/pedido" element={<LoginApp initialPage="pedido" />} />
           <Route path="/historia" element={<LoginApp initialPage="historia" />} />
           <Route path="/register" element={<Registrar />} />
-          <Route path="/ResetPassword" element={<ResetPassword/>} /> 
           <Route path="/principal" element={<PrivateRoute><Principal /></PrivateRoute>} />
           <Route path="/CategoriaApp" element={<PrivateRoute><Categoria /></PrivateRoute>} />
           <Route path="/GestionarUsuario" element={<PrivateRoute><Usuarios /></PrivateRoute>} />

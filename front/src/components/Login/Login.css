@@ -1,235 +1,135 @@
-/* Variables para la paleta de colores */
-:root {
-  --dark-green: #103f1b;
-  --medium-green: #387623;
-  --light-green: #9fc45a;
-  --golden: #958933;
-  --brown: #875725;
+/* Contenedor principal */
+.product-slider-container {
+  max-width: 100%; /* Asegura que el contenedor no sea más ancho que la pantalla */
+  overflow: hidden; /* Evita que el contenido se salga */
+  padding: 10px; /* Agrega un pequeño padding */
 }
 
-/* Estilos para el formulario de recuperación de contraseña */
-.password-reset-container {
+/* Organiza las tarjetas en una cuadrícula */
+.product-slider {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Ajuste automático */
+  gap: 20px; /* Espacio entre las tarjetas */
+  justify-content: center; /* Centra el contenido */
+  padding: 10px;
+}
+
+/* Ajuste de cada tarjeta */
+.product-card {
   width: 100%;
-  max-width: 450px;
-  margin: 0 auto;
-  padding: 15px;
+  max-width: 300px; /* Tamaño máximo de cada tarjeta */
+  margin: auto; /* Centra las tarjetas */
 }
 
-.reset-message {
-  background-color: rgba(159, 196, 90, 0.15);
-  border-left: 4px solid var(--light-green);
-  padding: 12px 16px;
-  margin-bottom: 20px;
-  border-radius: 4px;
-}
-
-.reset-message p {
-  margin: 5px 0;
-  color: var(--dark-green);
-  line-height: 1.5;
-  font-size: 15px;
-}
-
-.form-group {
-  margin-bottom: 20px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 8px;
-  color: var(--dark-green);
-  font-weight: 500;
-}
-
-.form-group input {
-  width: 100%;
-  padding: 12px 15px;
+/* Estilos de las tarjetas */
+.product-card .card {
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Asegura que todas tengan la misma altura */
   border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 16px;
-  transition: border-color 0.3s, box-shadow 0.3s;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
-.form-group input:focus {
-  outline: none;
-  border-color: var(--medium-green);
-  box-shadow: 0 0 0 3px rgba(56, 118, 35, 0.2);
-}
-
-/* Botones estilizados */
-.btn-submit {
+/* Ajuste de imágenes */
+.product-card img {
   width: 100%;
-  background-color: var(--medium-green);
+  height: 200px; /* Mantiene un tamaño uniforme */
+  object-fit: cover; /* Ajusta la imagen sin deformarla */
+}
+
+/* Cuerpo de la tarjeta */
+.product-card .card-body {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Distribuye el contenido */
+  padding: 10px;
+}
+
+/* Botón de "Añadir al carrito" */
+.product-card .add-to-cart {
+  background-color: #800080; /* Color morado */
   color: white;
   border: none;
-  border-radius: 6px;
-  padding: 14px;
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  transition: background-color 0.3s;
-}
-
-.btn-submit:hover {
-  background-color: var(--dark-green);
-}
-
-.btn-submit:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-/* Botón Volver mejorado */
-.btn-back {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  background-color: #f8f9fa; /* Color de fondo claro */
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  color: var(--medium-green); /* Usar el color verde del tema */
-  font-size: 15px;
-  font-weight: 500;
-  margin-top: 20px;
-  cursor: pointer;
-  width: 100%;
-  padding: 12px;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.btn-accediendo {
-  width: 100%;
-  background-color: var(--medium-green);
-  color: white;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  padding: 14px;
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.btn-accediendo:hover {
-  background-color: var(--dark-green);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-.btn-accediendo:disabled {
-  background-color: #e9ecef;
-  color: #6c757d;
-  cursor: not-allowed;
-  opacity: 0.7;
-}
-
-/* Estilo para el spinner dentro del botón */
-.btn-accediendo .spinner {
-  color: var(--medium-green);
-  animation: spin 1s linear infinite;
-  margin-right: 8px;
-}
-
-/* Mejora visual para el texto "Acuérdate de mí" y otros elementos del formulario */
-.form-check-label {
-  color: var(--dark-green);
-}
-
-/* Agrega un borde en hover para los inputs */
-input.form-control:focus {
-  border-color: var(--medium-green);
-  box-shadow: 0 0 0 0.2rem rgba(56, 118, 35, 0.25);
-}
-
-/* Estilo para el título del modal */
-.login-title {
-  color: var(--dark-green);
-  font-weight: 600;
-}
-
-.btn-back:hover {
-  background-color: #e9ecef;
-  color: var(--dark-green);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-/* Estilos para las alertas */
-.alert-icon {
-  font-size: 18px;
-}
-
-.custom-alert {
-  animation: slideDown 0.3s ease-out forwards;
-}
-
-@keyframes slideDown {
-  from {
-    transform: translateY(-20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-/* Spinner de carga */
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.spinner {
-  animation: spin 1s linear infinite;
-}
-
-/* Estilos para los botones en el formulario de login */
-.btn-primary {
-  background-color: var(--medium-green);
-  border-color: var(--medium-green);
-  font-size: 16px;
-  font-weight: 500;
   padding: 10px;
-  transition: all 0.3s ease;
+  text-align: center;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
-.btn-primary:hover {
-  background-color: var(--dark-green);
-  border-color: var(--dark-green);
+.product-card .add-to-cart:hover {
+  background-color: #660066; /* Color morado oscuro al pasar el mouse */
 }
 
-.btn-secondary {
-  background-color: var(--light-green);
-  border-color: var(--light-green);
-  color: var(--dark-green);
-  transition: all 0.3s ease;
+/* Oculta cualquier scroll sobrante */
+.product-slider::-webkit-scrollbar {
+  display: none;
 }
 
-.btn-secondary:hover {
-  background-color: #8fb349;
-  border-color: #8fb349;
+
+/* Estilos generales */
+html, body {
+  height: 100%; /* Asegura que el body ocupe toda la altura de la ventana */
+  margin: 0; /* Elimina márgenes por defecto */
+  padding: 0; /* Elimina paddings por defecto */
 }
 
-/* Estilos para el link de ¿Perdiste tu contraseña? */
-.btn-link {
-  color: var(--brown);
-  text-decoration: none;
-  transition: color 0.3s ease;
+/* Contenedor principal de la página */
+.page-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Asegura que el contenedor ocupe al menos toda la altura de la ventana */
 }
 
-.btn-link:hover {
-  color: var(--dark-green);
-  text-decoration: underline;
+/* Contenido principal */
+main {
+  flex: 1; /* Hace que el contenido principal ocupe el espacio restante */
+  padding: 20px; /* Espaciado interno */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
+}
+.spinner {
+  animation: spin 1s linear infinite; /* Gira el ícono infinitamente */
+
+}
+/* Añade estos estilos a tu archivo Login.css existente */
+
+/* Social Media Icons */
+.social-media-container {
+  position: fixed !important;
+  right: 20px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 15px !important;
+  z-index: 9999 !important;
+}
+
+.social-icon {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 50px !important;
+  height: 50px !important;
+  border-radius: 50% !important;
+  background-color: #001f3f !important;
+  color: white !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+.social-icon:hover {
+  transform: scale(1.1);
+}
+
+.social-icon.whatsapp:hover {
+  background-color: #25D366;
+}
+
+.social-icon.facebook:hover {
+  background-color: #1877F2;
+}
+

@@ -45,11 +45,11 @@ function LoginApp({ initialPage = "home" }) {
   // Detectar cambios en la URL para actualizar currentPage
   useEffect(() => {
     console.log("Ruta actual:", location.pathname);
-
+    
     // Mapeo directo entre rutas y páginas
     const pathToPage = {
       "/pedido": "pedido",
-      "/Historia": "historia",
+      "/Historia": "historia", 
       "/verOrden": "verOrden",
       "/cortes-de-res": "res",
       "/cortes-de-cerdo": "cerdo",
@@ -58,7 +58,7 @@ function LoginApp({ initialPage = "home" }) {
       "/productos-destacados": "destacados",
       "/": "home"
     };
-
+    
     if (pathToPage[location.pathname]) {
       setCurrentPage(pathToPage[location.pathname]);
       console.log("Página establecida a:", pathToPage[location.pathname]);
@@ -225,7 +225,7 @@ function LoginApp({ initialPage = "home" }) {
           autoClose: 2000, // Duración de la alerta (2 segundos)
           onClose: () => {
             // Redirigir después de que la alerta se cierre
-            navigate("/ResetPassword", { state: { correoUsuario: loginData.correoUsuario } })
+            navigate("/reset-password", { state: { correoUsuario: loginData.correoUsuario } })
           },
         })
       }
@@ -243,26 +243,26 @@ function LoginApp({ initialPage = "home" }) {
       {/* Navbar Component */}
       <NavbarApp />
       {/* Redes sociales */}
-      <div className="social-media-container">
-        <a
-          href="https://wa.me/50688955772"
-          className="social-icon whatsapp"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="WhatsApp"
-        >
-          <FaWhatsapp size={24} />
-        </a>
-        <a
-          href="https://www.facebook.com/jamel.sandi.3"
-          className="social-icon facebook"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Facebook"
-        >
-          <FaFacebook size={20} />
-        </a>
-      </div>
+    <div className="social-media-container">
+      <a 
+        href="https://wa.me/50688955772"
+        className="social-icon whatsapp"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="WhatsApp"
+      >
+        <FaWhatsapp size={24} />
+      </a>
+      <a
+        href="https://www.facebook.com/jamel.sandi.3"
+        className="social-icon facebook"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Facebook"
+      >
+        <FaFacebook size={20} />
+      </a>
+    </div>
 
       {/* Offcanvas Sidebar */}
       <Offcanvas show={showSidebar} onHide={handleShowSidebar} placement="end">
@@ -367,8 +367,8 @@ function LoginApp({ initialPage = "home" }) {
             <form onSubmit={handleForgotPassword}>
               {/* Contenido del formulario de recuperación (código existente) */}
               <p className="mb-4" style={{ fontSize: "16px", color: "#555", lineHeight: "1.9" }}>
-              Ingresa tu correo para verificar que eres tú.<br />
-              Te enviaremos un código para restablecer tu contraseña.
+                Ingresa tu correo electrónico para verificar que eres tú. Te enviaremos un código para restablecer tu
+                contraseña.
               </p>
 
               <div className="mb-3">
@@ -478,9 +478,9 @@ function LoginApp({ initialPage = "home" }) {
         </Alert>
       </Snackbar>
 
-
+      
     </div>
-
+    
   )
 }
 
