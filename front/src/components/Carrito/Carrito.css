@@ -212,3 +212,81 @@ header{
   .btn-pagar {
     width: 100%;
   }
+
+/* Contenedor del carrito con scroll si hay muchos productos */
+.container-cart-products {
+    max-height: calc(100vh - 250px); 
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+/* Estilo para productos individuales en carrito */
+.cart-product {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.cart-footer {
+    position: sticky;
+    bottom: 0;
+    background-color: #fff;
+    padding: 15px 20px;
+    border-top: 1px solid #ddd;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.05);
+    z-index: 10;
+}
+
+
+.item-img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+/* Info del producto al lado de la imagen */
+.info-cart-product {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+/* Botón para eliminar */
+.cart-product .btn {
+    align-self: start;
+    height: 30px;
+    font-size: 12px;
+    padding: 4px 8px;
+}
+
+/* Sección total y botones */
+.cart-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    font-size: 18px;
+    font-weight: bold;
+    border-top: 2px solid #eee;
+    margin-top: 10px;
+}
+
+/* Botones al final del carrito */
+.btn-ver-orden, .btn-pagar {
+    width: 100%;
+    margin-top: 10px;
+}
+
+/* Scroll suave */
+.container-cart-products::-webkit-scrollbar {
+    width: 6px;
+}
+.container-cart-products::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
+}
+
