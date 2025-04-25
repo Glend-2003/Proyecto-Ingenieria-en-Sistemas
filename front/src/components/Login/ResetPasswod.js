@@ -47,6 +47,7 @@ function ResetPassword() {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isResendingCode, setIsResendingCode] = useState(false);
 
   const handleCodigoChange = (index, value) => {
     if (value.length <= 1) {
@@ -235,6 +236,39 @@ function ResetPassword() {
     }
   };
 
+  const handleResendCode = async () => {
+    if (!correoUsuario) {
+      handleOpenSnackbar('No se encontró el correo electrónico', 'error');
+      return;
+    }
+
+    setIsResendingCode(true);
+
+    try {
+      const response = await axios.post("http://localhost:8080/usuario/verificarCambioContrasena", {
+        correoUsuario: correoUsuario,
+      });
+
+      if (response.status === 200) {
+        handleOpenSnackbar('Código de verificación enviado con éxito', 'success');
+        
+        // Limpiar campos del código de verificación
+        setForm(prev => ({
+          ...prev,
+          codigoVerificacion: Array(6).fill('')
+        }));
+      }
+    } catch (error) {
+      if (error.response && error.response.data) {
+        handleOpenSnackbar(error.response.data, 'error');
+      } else {
+        handleOpenSnackbar('Error al enviar el código de verificación', 'error');
+      }
+    } finally {
+      setIsResendingCode(false);
+    }
+  };
+
   const handleOpenSnackbar = (message, severity) => {
     setSnackbarMessage(message);
     setSnackbarSeverity(severity);
@@ -284,7 +318,17 @@ function ResetPassword() {
                 ))}
               </div>
               <p className="verification-help">
-                No recibiste el código? <span className="resend-link">Reenviar código</span>
+                No recibiste el código? <span 
+                  className="resend-link" 
+                  onClick={handleResendCode}
+                  style={{ 
+                    cursor: 'pointer', 
+                    textDecoration: 'underline',
+                    opacity: isResendingCode ? 0.7 : 1
+                  }}
+                >
+                  {isResendingCode ? 'Enviando...' : 'Reenviar código'}
+                </span>
               </p>
             </div>
             
