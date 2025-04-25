@@ -5,15 +5,44 @@ body {
     font-family: Arial, sans-serif;
     display: flex;
     flex-direction: column;
-    min-height: 100vh; 
+    min-height: 100vh;
+    background-color: #f8f8f8;
 }
 
 .page-container {
     display: flex;
     flex-direction: column;
-    min-height: 100vh; 
+    min-height: 100vh;
 }
+
+.orden-header {
+    width: 100%;
+    max-width: 1200px;
+    margin: 20px auto 0;
+    padding: 0 20px;
+}
+
+.back-button {
+    background-color: #ffffff;
+    border: 1px solid #9fc45a;
+    color: rgb(0, 0, 0);
    
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    transition: background-color 0.3s;
+}
+
+.back-button:hover {
+    background-color: #9fc45a;
+    color: white;
+}
+
 .orden-container {
     display: flex;
     justify-content: space-between;
@@ -23,42 +52,49 @@ body {
     width: 100%;
     flex: 1;
 }
-  
+
 .carrito-detalles {
     width: 70%;
 }
-  
+
 .carrito-totales {
     width: 25%;
-    border: 1px solid #ddd;
+    border: 1px solid #875725;
     padding: 20px;
     border-radius: 8px;
-    background-color: #f8f8f8;
-    align-self: flex-start; /* Evita que se extienda verticalmente */
-    height: fit-content; /* Ajusta la altura al contenido */
+    background-color: white;
+    align-self: flex-start;
+    height: fit-content;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .carrito-totales h2 {
     font-size: 1.5rem;
     margin-bottom: 1.5rem;
     font-weight: 600;
+    color: #103f1b;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 20px;
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 table th, table td {
     text-align: left;
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
+    padding: 12px 15px;
+    border-bottom: 1px solid #e0e0e0;
 }
 
 table th {
-    font-weight: 500;
-    color: #666;
+    font-weight: 600;
+    color: #387623;
+    background-color: #f5f9f3;
 }
 
 .producto-info {
@@ -78,7 +114,12 @@ table th {
     background: none;
     border: none;
     cursor: pointer;
-    color: #666;
+    color: #875725;
+    transition: color 0.3s;
+}
+
+.remove-btn:hover {
+    color: #c80909;
 }
 
 .cantidad-control {
@@ -87,13 +128,19 @@ table th {
 }
 
 .cantidad-btn {
-    background-color: transparent;
-    color: #666;
-    border: 1px solid #ddd;
+    background-color: #f5f9f3;
+    color: #387623;
+    border: 1px solid #9fc45a;
     border-radius: 4px;
     padding: 5px 10px;
     cursor: pointer;
     margin: 0 5px;
+    transition: all 0.3s;
+}
+
+.cantidad-btn:hover {
+    background-color: #9fc45a;
+    color: white;
 }
 
 .cantidad-valor {
@@ -101,25 +148,34 @@ table th {
     text-align: center;
 }
 
-.precio, .subtotal {
+.precio {
     font-weight: 500;
+    color: #875725;
 }
 
 .subtotal {
-    color: #c41e3a;
+    font-weight: 600;
+    color: #387623;
 }
 
 .iniciar-sesion p {
-    color: red;
+    color: #875725;
+    margin-bottom: 15px;
 }
 
 .iniciar-sesion button {
-    background-color: #c41e3a;
+    background-color: #387623;
     color: white;
-    padding: 10px 20px;
+    padding: 12px 24px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.3s;
+}
+
+.iniciar-sesion button:hover {
+    background-color: #103f1b;
 }
 
 .totales {
@@ -132,20 +188,23 @@ table th {
     display: flex;
     justify-content: space-between;
     font-size: 1rem;
+    color: #5a5a5a;
 }
 
 .total-final {
     font-weight: 600;
     margin-top: 0.5rem;
+    color: #103f1b;
+    font-size: 1.1rem;
 }
 
 .total-monto {
-    color: #c41e3a;
+    color: #387623;
 }
 
 .finalizar-compra {
     width: 100%;
-    background-color: #042440;
+    background-color: #387623;
     color: white;
     padding: 15px;
     border: none;
@@ -153,16 +212,23 @@ table th {
     cursor: pointer;
     margin-top: 1.5rem;
     font-weight: 500;
+    transition: background-color 0.3s;
 }
 
 .finalizar-compra:hover {
-    background-color: #042440;
+    background-color: #103f1b;
+}
+
+.finalizar-compra:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
 }
 
 .producto-info img {
     width: 80px;
-    height: 80px; 
+    height: 80px;
     object-fit: cover;
-    border-radius: 8px; 
-    margin-right: 10px; 
+    border-radius: 8px;
+    margin-right: 10px;
+    border: 1px solid #e0e0e0;
 }
