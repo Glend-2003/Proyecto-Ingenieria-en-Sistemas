@@ -110,62 +110,69 @@ function CarritoApp() {
       <Offcanvas.Header closeButton>
         <Offcanvas.Title>Tu carrito de compras</Offcanvas.Title>
       </Offcanvas.Header>
-      <Offcanvas.Body>
+      <Offcanvas.Body className="d-flex flex-column" style={{ minHeight: 0 }}>
         {groupedCart.length > 0 ? (
-          <ListGroup className="container-cart-products">
-            {groupedCart.map((item, index) => (
-              <ListGroup.Item key={index} className="cart-product">
-                {item.imgProducto ? (
-                  <img
-                    src={
-                      item.imgProducto.startsWith('http')
-                        ? item.imgProducto
-                        : `http://localhost:8080/producto/images/${item.imgProducto}`
-                    }
-                    alt={item.nombreProducto}
-                    width="50"
-                    className="item-img"
-                  />
-                ) : (
-                  'No disponible'
-                )}
-                <div className="info-cart-product">
-                  <div className="titulo-producto-carrito">
-                    {item.nombreProducto}
-                    <span className="cantidad-producto-carrito"> - 1 Kg</span>
-                  </div>
-                  <div className="precio-producto-carrito">
-                    {item.cantidad} x ₡{item.montoPrecioProducto}
-                  </div>
-                </div>
-                <Button
-                  variant="danger"
-                  size="sm"
-                  className="float-end"
-                  onClick={() => removeFromCart(item.idProducto)} // Usa item.idProducto
-                >
-                  X
-                </Button>
-              </ListGroup.Item>
-            ))}
-            <div className="cart-total">
-              <h3>Total:</h3>
-              <span className="total-pagar">
-                ₡{groupedCart.reduce(
-                  (total, item) => total + item.montoPrecioProducto * item.cantidad,
-                  0
-                )}
-              </span>
+          <>
+            <div className="cart-products-container" style={{ flex: 1, overflowY: 'auto' }}>
+              <ListGroup className="container-cart-products">
+                {groupedCart.map((item, index) => (
+                  <ListGroup.Item key={index} className="cart-product">
+                    {item.imgProducto ? (
+                      <img
+                        src={
+                          item.imgProducto.startsWith('http')
+                            ? item.imgProducto
+                            : `http://localhost:8080/producto/images/${item.imgProducto}`
+                        }
+                        alt={item.nombreProducto}
+                        width="50"
+                        className="item-img"
+                      />
+                    ) : (
+                      'No disponible'
+                    )}
+                    <div className="info-cart-product">
+                      <div className="titulo-producto-carrito">
+                        {item.nombreProducto}
+                        <span className="cantidad-producto-carrito"> - 1 Kg</span>
+                      </div>
+                      <div className="precio-producto-carrito">
+                        {item.cantidad} x ₡{item.montoPrecioProducto}
+                      </div>
+                    </div>
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      className="float-end"
+                      onClick={() => removeFromCart(item.idProducto)}
+                    >
+                      X
+                    </Button>
+                  </ListGroup.Item>
+                ))}
+              </ListGroup>
             </div>
-
-            <Button variant="primary" className="btn-ver-orden" onClick={handleVerOrden}>
-              Ver Orden
-            </Button>
-
-            <Button variant="success" className="btn-pagar" onClick={handlePagar2}>
-              Pagar
-            </Button>
-          </ListGroup>
+  
+            <div className="cart-footer">
+              <div className="cart-total">
+                <h3>Total:</h3>
+                <span className="total-pagar">
+                  ₡{groupedCart.reduce(
+                    (total, item) => total + item.montoPrecioProducto * item.cantidad,
+                    0
+                  )}
+                </span>
+              </div>
+  
+              <Button variant="primary" className="btn-ver-orden" onClick={handleVerOrden}>
+                Ver Orden
+              </Button>
+  
+              <Button variant="success" className="btn-pagar" onClick={handlePagar2}>
+                Pagar
+              </Button>
+            </div>
+          </>
         ) : (
           <p className="cart-empty">No hay productos en el carrito.</p>
         )}
