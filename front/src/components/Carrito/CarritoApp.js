@@ -107,74 +107,85 @@ function CarritoApp() {
 
   return (
     <Offcanvas show={showCartMenu} onHide={() => setShowCartMenu(false)} placement="end">
-      <Offcanvas.Header closeButton>
-        <Offcanvas.Title>Tu carrito de compras</Offcanvas.Title>
+      <Offcanvas.Header closeButton className="border-bottom">
+        <Offcanvas.Title className="fw-bold">Carro de la compra</Offcanvas.Title>
       </Offcanvas.Header>
-      <Offcanvas.Body className="d-flex flex-column" style={{ minHeight: 0 }}>
+      <Offcanvas.Body className="d-flex flex-column p-0" style={{ minHeight: 0 }}>
         {groupedCart.length > 0 ? (
           <>
-            <div className="cart-products-container" style={{ flex: 1, overflowY: 'auto' }}>
-              <ListGroup className="container-cart-products">
-                {groupedCart.map((item, index) => (
-                  <ListGroup.Item key={index} className="cart-product">
-                    {item.imgProducto ? (
-                      <img
-                        src={
-                          item.imgProducto.startsWith('http')
-                            ? item.imgProducto
-                            : `http://localhost:8080/producto/images/${item.imgProducto}`
-                        }
-                        alt={item.nombreProducto}
-                        width="50"
-                        className="item-img"
-                      />
-                    ) : (
-                      'No disponible'
-                    )}
-                    <div className="info-cart-product">
-                      <div className="titulo-producto-carrito">
-                        {item.nombreProducto}
-                        <span className="cantidad-producto-carrito"> - 1 Kg</span>
-                      </div>
-                      <div className="precio-producto-carrito">
-                        {item.cantidad} x ₡{item.montoPrecioProducto}
+            <div className="cart-products-container px-3 pt-3">
+              {groupedCart.map((item, index) => (
+                <div key={index} className="cart-product mb-3">
+                  <div className="d-flex justify-content-between align-items-start">
+                    <div className="d-flex gap-3">
+                      {item.imgProducto && (
+                        <img
+                          src={
+                            item.imgProducto.startsWith('http')
+                              ? item.imgProducto
+                              : `http://localhost:8080/producto/images/${item.imgProducto}`
+                          }
+                          alt={item.nombreProducto}
+                          width="60"
+                          height="60"
+                          className="item-img rounded"
+                          style={{ objectFit: 'cover' }}
+                        />
+                      )}
+                      <div>
+                        <div className="fw-bold">{item.nombreProducto}</div>
+                        <div className="text-muted small">1 Kg</div>
                       </div>
                     </div>
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      className="float-end"
-                      onClick={() => removeFromCart(item.idProducto)}
-                    >
-                      X
-                    </Button>
-                  </ListGroup.Item>
-                ))}
-              </ListGroup>
+                    <div className="text-end">
+                      <div className="fw-bold">₡{(item.montoPrecioProducto * item.cantidad).toLocaleString()}</div>
+                      <div className="text-muted small">{item.cantidad} × ₡{item.montoPrecioProducto.toLocaleString()}</div>
+                    </div>
+                  </div>
+                  <Button
+                    variant="link"
+                    size="sm"
+                    className="text-danger p-0 mt-1"
+                    onClick={() => removeFromCart(item.idProducto)}
+                  >
+                    <small>X</small>
+                  </Button>
+                </div>
+              ))}
             </div>
   
-            <div className="cart-footer">
-              <div className="cart-total">
-                <h3>Total:</h3>
-                <span className="total-pagar">
+            <div className="cart-footer border-top px-3 py-3 mt-auto">
+              <div className="d-flex justify-content-between mb-3">
+                <span className="fw-bold">Subtotal:</span>
+                <span className="fw-bold">
                   ₡{groupedCart.reduce(
                     (total, item) => total + item.montoPrecioProducto * item.cantidad,
                     0
-                  )}
+                  ).toLocaleString()}
                 </span>
               </div>
-  
-              <Button variant="primary" className="btn-ver-orden" onClick={handleVerOrden}>
-                Ver Orden
+              
+              <Button 
+                variant="outline-dark" 
+                className="w-100 mb-2 fw-bold"
+                onClick={handleVerOrden}
+              >
+                VER CARRITO
               </Button>
-  
-              <Button variant="success" className="btn-pagar" onClick={handlePagar2}>
-                Pagar
+              
+              <Button 
+                variant="success" 
+                className="w-100 fw-bold"
+                onClick={handlePagar2}
+              >
+                FINALIZAR COMPRA
               </Button>
             </div>
           </>
         ) : (
-          <p className="cart-empty">No hay productos en el carrito.</p>
+          <div className="text-center p-4">
+            <p className="text-muted">No hay productos en el carrito.</p>
+          </div>
         )}
       </Offcanvas.Body>
     </Offcanvas>
