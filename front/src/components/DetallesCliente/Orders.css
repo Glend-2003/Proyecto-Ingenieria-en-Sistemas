@@ -456,7 +456,7 @@
 }
 
 .cancel-button {
-  background-color: #387623; /* Verde medio */
+  background-color: #875725; /* Verde medio */
   color: white;
   border: none;
   padding: 0.5rem 1.2rem;
@@ -466,8 +466,9 @@
 }
 
 .cancel-button:hover {
-  background-color: #103f1b; /* Verde oscuro */
-}
+  
+  background-color: #387623 ; /* Verde oscuro */
+}#103f1b
 
 /* Estados específicos y otros elementos */
 .loading-spinner {
