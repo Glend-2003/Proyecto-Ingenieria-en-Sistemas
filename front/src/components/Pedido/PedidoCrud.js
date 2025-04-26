@@ -5,43 +5,35 @@ import './PedidoCrud.css';
 import axios from "axios";
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
-import { FaSpinner, FaArrowLeft, FaCheck, FaTimes, FaShoppingCart, FaClock, FaCalendarAlt } from 'react-icons/fa';
+import { FaSpinner, FaArrowLeft, FaCheck, FaTimes, FaShoppingCart, FaCalendarAlt } from 'react-icons/fa';
 
 function PedidoCrud() {
-  // Estados para los campos del formulario
   const [formData, setFormData] = useState({
     nombreUsuario: '',
     primerApellido: '',
     segundoApellido: '',
-    telefonoUsuario: '',
     correoUsuario: '',
     cedulaUsuario: '',
-    // Valores fijos que no se editan
     sucursal: 'Cairo de Cariari',
     provincia: 'Limón',
     localidad: 'SuperMercado en el Centro Comercial',
-    fechaHoraRetiro: '', // Cambiado de horaRetiro a fechaHoraRetiro
+    fechaHoraRetiro: '',
     tipoPago: ''
   });
 
-  // Estado para almacenar los tipos de pago
   const [tiposPago, setTiposPago] = useState([]);
-
-  // Estado para manejar errores y loading
   const [status, setStatus] = useState({
     loading: false,
     error: null,
     success: false
   });
   
-  // Estado para el Snackbar
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
     severity: 'success'
   });
   
-  // Estado para la validación de cédula
   const [cedulaValidation, setCedulaValidation] = useState({
     isValid: false,
     isChecking: false,
@@ -49,39 +41,27 @@ function PedidoCrud() {
     message: ''
   });
 
-  // Estado para la validación de fecha y hora de retiro
   const [fechaHoraRetiroValidation, setFechaHoraRetiroValidation] = useState({
     isValid: true,
     wasChecked: false,
     message: ''
   });
 
-  // Estado para validaciones de campos de texto
   const [fieldValidations, setFieldValidations] = useState({
     nombreUsuario: { isValid: true, message: '' },
     primerApellido: { isValid: true, message: '' },
     segundoApellido: { isValid: true, message: '' },
-    correoUsuario: { isValid: true, message: '' },
-    telefonoUsuario: { isValid: true, message: '' }
+    correoUsuario: { isValid: true, message: '' }
   });
 
-  // Estado para almacenar información del usuario logueado
   const [loggedUser, setLoggedUser] = useState({
     nombreUsuario: '',
     correoUsuario: ''
   });
 
-  // Función para cerrar el Snackbar
-  const handleCloseSnackbar = () => {
-    setSnackbar({...snackbar, open: false});
-  };
-
-  // Recuperar carrito del localStorage
   const [cart, setCart] = useState([]);
 
-  // Obtener información del usuario logueado
   useEffect(() => {
-    // Intentar recuperar información del usuario del localStorage
     const userName = localStorage.getItem("nombreUsuario");
     const userEmail = localStorage.getItem("correoUsuario");
     
@@ -91,7 +71,6 @@ function PedidoCrud() {
         correoUsuario: userEmail
       });
       
-      // Pre-llenar los campos con la información del usuario logueado
       setFormData(prevData => ({
         ...prevData,
         nombreUsuario: userName,
@@ -100,7 +79,6 @@ function PedidoCrud() {
     }
   }, []);
 
-  // Debounce para la validación de cédula
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       if (formData.cedulaUsuario && formData.cedulaUsuario.trim() !== '') {
@@ -114,13 +92,11 @@ function PedidoCrud() {
     const savedCart = JSON.parse(localStorage.getItem("carrito")) || [];
     setCart(savedCart);
     
-    // Llamada a la API para obtener los tipos de pago
     const fetchTiposPago = async () => {
       try {
         const response = await axios.get('http://localhost:8080/tipopago/');
         setTiposPago(response.data);
         
-        // Si hay tipos de pago disponibles, establecer el primero como valor por defecto
         if (response.data && response.data.length > 0) {
           setFormData(prevData => ({
             ...prevData,
@@ -128,7 +104,6 @@ function PedidoCrud() {
           }));
         }
       } catch (error) {
-        console.error('Error al obtener tipos de pago:', error);
         setSnackbar({
           open: true,
           message: 'Error al cargar los tipos de pago',
@@ -140,14 +115,11 @@ function PedidoCrud() {
     fetchTiposPago();
   }, []);
 
-  // Calcular totales
   const subtotal = cart.reduce((total, item) => total + (item.montoPrecioProducto * item.cantidad), 0);
   const iva = subtotal * 0.13;
   const montoTotalPedido = subtotal + iva;
 
-  // Validar que solo se ingresen letras (para nombres y apellidos)
   const validateLettersOnly = (value, fieldName) => {
-    // Expresión regular que permite solo letras, espacios y acentos (caracteres latinos)
     const lettersOnlyRegex = /^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$/;
     
     const isValid = value.trim() === '' || lettersOnlyRegex.test(value);
@@ -163,7 +135,6 @@ function PedidoCrud() {
     return isValid;
   };
 
-  // Validar formato de correo electrónico
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const isValid = email.trim() === '' || emailRegex.test(email);
@@ -179,9 +150,7 @@ function PedidoCrud() {
     return isValid;
   };
 
-  // Validar que coincida con el usuario logueado
   const validateMatchWithLoggedUser = (value, fieldName) => {
-    // Si no hay usuario logueado, no realizamos esta validación
     if (!loggedUser[fieldName]) return true;
     
     const isValid = value === loggedUser[fieldName];
@@ -199,26 +168,7 @@ function PedidoCrud() {
     return isValid;
   };
 
-  // Validar teléfono
-  const validatePhone = (phone) => {
-    // Permitir un formato flexible para teléfonos, pero debe tener números
-    const phoneRegex = /^\d{4}-?\d{4}$/;
-    const isValid = phone.trim() === '' || phoneRegex.test(phone);
-    
-    setFieldValidations(prev => ({
-      ...prev,
-      telefonoUsuario: {
-        isValid: isValid,
-        message: isValid ? '' : 'Formato inválido. Use 8 dígitos (ej: 8888-8888)'
-      }
-    }));
-    
-    return isValid;
-  };
-
-  // Función para validar la cédula con la API de Hacienda
   const validateCedula = async (cedula) => {
-    // Primero validamos que sean 9 dígitos numéricos
     const cedulaRegex = /^\d{9}$/;
     if (!cedulaRegex.test(cedula)) {
       setCedulaValidation({
@@ -230,7 +180,6 @@ function PedidoCrud() {
       return;
     }
     
-    // Verificamos que la cédula tenga al menos un carácter antes de consultar la API
     if (!cedula || cedula.trim().length === 0) {
       setCedulaValidation({
         isValid: false,
@@ -266,8 +215,6 @@ function PedidoCrud() {
         });
       }
     } catch (error) {
-      console.error('Error al validar cédula:', error);
-      
       setCedulaValidation({
         isValid: false,
         isChecking: false,
@@ -277,7 +224,6 @@ function PedidoCrud() {
     }
   };
 
-  // Función para validar la fecha y hora de retiro (entre 8:00 AM y 9:00 PM)
   const validateFechaHoraRetiro = (fechaHora) => {
     if (!fechaHora) {
       setFechaHoraRetiroValidation({
@@ -288,10 +234,8 @@ function PedidoCrud() {
       return false;
     }
     
-    // Crear objeto Date a partir del string de fechaHora
     const dateTime = new Date(fechaHora);
     
-    // Verificar que la fecha no sea anterior a hoy
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
@@ -304,15 +248,11 @@ function PedidoCrud() {
       return false;
     }
     
-    // Extraer la hora
     const hours = dateTime.getHours();
     const minutes = dateTime.getMinutes();
     
-    // Convertir la hora a minutos para facilitar la comparación
     const totalMinutos = hours * 60 + minutes;
     
-    // 8:00 AM = 8 * 60 = 480 minutos
-    // 9:00 PM = 21 * 60 = 1260 minutos
     const horaMinima = 8 * 60; // 8:00 AM
     const horaMaxima = 21 * 60; // 9:00 PM
     
@@ -324,7 +264,6 @@ function PedidoCrud() {
       message: isValid ? '' : 'El horario de retiro debe ser entre 8:00 AM y 9:00 PM'
     });
     
-    // Si no es válido, mostrar también un snackbar
     if (!isValid) {
       setSnackbar({
         open: true,
@@ -339,21 +278,16 @@ function PedidoCrud() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     
-    // Aplicar las validaciones según el campo
     if (name === 'nombreUsuario' || name === 'primerApellido' || name === 'segundoApellido') {
       validateLettersOnly(value, name);
       
-      // Para el nombre de usuario, validar también que coincida con el usuario logueado
       if (name === 'nombreUsuario') {
         validateMatchWithLoggedUser(value, name);
       }
     } else if (name === 'correoUsuario') {
       validateEmail(value);
       validateMatchWithLoggedUser(value, name);
-    } else if (name === 'telefonoUsuario') {
-      validatePhone(value);
     } else if (name === 'cedulaUsuario') {
-      // La validación de cédula se maneja con el efecto
       setCedulaValidation({
         isValid: false,
         isChecking: false,
@@ -370,26 +304,25 @@ function PedidoCrud() {
     });
   };
 
-  // Alert personalizado para Snackbar
+  const handleCloseSnackbar = () => {
+    setSnackbar({...snackbar, open: false});
+  };
+
   const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
   });
 
-  // Función para verificar si hay errores de validación
   const hasValidationErrors = () => {
-    // Verificar campos de texto
     for (const field in fieldValidations) {
       if (!fieldValidations[field].isValid) {
         return true;
       }
     }
     
-    // Verificar cédula
     if (!cedulaValidation.isValid) {
       return true;
     }
     
-    // Verificar fecha y hora
     if (!fechaHoraRetiroValidation.isValid) {
       return true;
     }
@@ -400,17 +333,14 @@ function PedidoCrud() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Verificar todas las validaciones antes de enviar
     const nombreValid = validateLettersOnly(formData.nombreUsuario, 'nombreUsuario') && 
                          validateMatchWithLoggedUser(formData.nombreUsuario, 'nombreUsuario');
     const primerApellidoValid = validateLettersOnly(formData.primerApellido, 'primerApellido');
     const segundoApellidoValid = validateLettersOnly(formData.segundoApellido, 'segundoApellido');
     const correoValid = validateEmail(formData.correoUsuario) && 
                          validateMatchWithLoggedUser(formData.correoUsuario, 'correoUsuario');
-    const telefonoValid = validatePhone(formData.telefonoUsuario);
     
-    // Si alguna validación falla, mostrar mensaje y abortar
-    if (!nombreValid || !primerApellidoValid || !segundoApellidoValid || !correoValid || !telefonoValid) {
+    if (!nombreValid || !primerApellidoValid || !segundoApellidoValid || !correoValid) {
       setSnackbar({
         open: true,
         message: 'Por favor, corrija los campos con errores antes de continuar',
@@ -419,7 +349,6 @@ function PedidoCrud() {
       return;
     }
   
-    // Verificar que la cédula sea válida antes de enviar
     if (!cedulaValidation.isValid) {
       setSnackbar({
         open: true,
@@ -429,7 +358,6 @@ function PedidoCrud() {
       return;
     }
     
-    // Verificar que la fecha y hora de retiro sea válida
     if (!validateFechaHoraRetiro(formData.fechaHoraRetiro)) {
       return;
     }
@@ -437,10 +365,8 @@ function PedidoCrud() {
     setStatus({ loading: true, error: null, success: false });
   
     try {
-      // Obtener el ID de usuario del localStorage o usar uno por defecto
       const idUsuario = localStorage.getItem("idUsuario");
       
-      // PASO 1: Crear un nuevo carrito en la base de datos
       const carritoData = {
         usuario: {
           idUsuario: parseInt(idUsuario, 10)
@@ -451,14 +377,8 @@ function PedidoCrud() {
       };
       
       const carritoResponse = await axios.post('http://localhost:8080/carrito', carritoData);
-      console.log('Carrito creado:', carritoResponse.data);
-      
-      // Obtener el ID del carrito recién creado
       const idCarrito = carritoResponse.data.idCarrito;
-
-      console.log('ID del carrito creado:', idCarrito);
       
-      // PASO 2: Agregar los productos al carrito (en serie, no en paralelo)
       for (const item of cart) {
         const productoCarrito = {
           carrito: {
@@ -469,54 +389,34 @@ function PedidoCrud() {
         };
         
         await axios.post(`http://localhost:8080/carrito/${idCarrito}/productos`, productoCarrito);
-        console.log(`Producto ${item.idProducto} agregado al carrito ${idCarrito}`);
       }
     
-      // PASO 3: Añadir un retraso para asegurar que la base de datos ha procesado todas las transacciones
-      console.log(`Esperando para asegurar que el carrito ${idCarrito} se guarde completamente...`);
       await new Promise(resolve => setTimeout(resolve, 3000));
   
-      // Verificación opcional del carrito
       try {
-        const checkCarritoResponse = await axios.get(`http://localhost:8080/carrito/usuario/${idUsuario}`);
-        console.log(`Verificación de carrito exitosa:`, checkCarritoResponse.data);
+        await axios.get(`http://localhost:8080/carrito/usuario/${idUsuario}`);
       } catch (verifyError) {
-        console.error(`Error al verificar carrito para usuario ${idUsuario}:`, verifyError);
-        // No interrumpir el flujo, solo registrar el error
+        // Continuar con el flujo incluso si hay error en la verificación
       }
       
-      // Extraer la hora de la fecha y hora seleccionada
       const fechaHoraObj = new Date(formData.fechaHoraRetiro);
-      console.log("Fecha y hora original seleccionada:", formData.fechaHoraRetiro);
-console.log("Objeto Date creado:", fechaHoraObj);
-console.log("Fecha ISO:", fechaHoraObj.toISOString());
-console.log("String de fecha:", fechaHoraObj.toString());
       const horaRetiro = `${fechaHoraObj.getHours().toString().padStart(2, '0')}:${fechaHoraObj.getMinutes().toString().padStart(2, '0')}`;
-      console.log("Hora extraída para horaRetiro:", horaRetiro);
 
-      const fechaRetiroSolo = formData.fechaHoraRetiro.split('T')[0];
-console.log("Fecha extraída para fechaRetiro:", fechaRetiroSolo);
-
-      // PASO 4: Crear el pedido con el carrito recién creado
       const pedidoData = {
-        // Datos del usuario
         nombreUsuario: formData.nombreUsuario,
         primerApellido: formData.primerApellido,
         segundoApellido: formData.segundoApellido,
-        telefonoUsuario: formData.telefonoUsuario,
         correoUsuario: formData.correoUsuario,
-        tipoPersona: "Física", // Valor por defecto ya que se eliminó el campo
+        tipoPersona: "Física",
         cedulaUsuario: formData.cedulaUsuario,
-        tipoCedula: "Cédula Física", // Valor por defecto ya que se eliminó el campo
+        tipoCedula: "Cédula Física",
         
-        // Datos de la sucursal y retiro
         sucursal: formData.sucursal,
         provincia: formData.provincia,
         localidad: formData.localidad,
-        horaRetiro: horaRetiro, // Solo la hora extraída de fechaHoraRetiro
-        fechaRetiro: formData.fechaHoraRetiro.split('T')[0], // Solo la fecha extraída de fechaHoraRetiro
+        horaRetiro: horaRetiro,
+        fechaRetiro: formData.fechaHoraRetiro.split('T')[0],
         
-        // Asociar con el carrito recién creado (usando objeto anidado)
         carrito: {
           idCarrito: idCarrito,
           usuario: {
@@ -524,12 +424,10 @@ console.log("Fecha extraída para fechaRetiro:", fechaRetiroSolo);
           }
         },
         
-        // Tipo de pago (usando objeto anidado)
         tipoPago: {
           idTipoPago: parseInt(formData.tipoPago, 10)
         },
         
-        // Datos del pedido
         subtotal: subtotal,
         montoTotalPedido: montoTotalPedido,
         fechaPedido: formData.fechaHoraRetiro,
@@ -537,20 +435,14 @@ console.log("Fecha extraída para fechaRetiro:", fechaRetiroSolo);
         estadoEntregaPedido: "Pendiente"
       };
       
-      console.log("Objeto pedidoData completo:", JSON.stringify(pedidoData, null, 2));
-      console.log("fechaPedido enviado al backend:", pedidoData.fechaPedido);
+      await axios.post('http://localhost:8080/pedido/agregar', pedidoData);
       
-      console.log("Enviando datos del pedido:", JSON.stringify(pedidoData, null, 2));
-      const pedidoResponse = await axios.post('http://localhost:8080/pedido/agregar', pedidoData);
-      console.log('Pedido registrado de manera exitosa:', pedidoResponse.data);
-      
-      // PASO 5: Actualizar el estado del carrito a inactivo
       await axios.put(`http://localhost:8080/carrito/${idCarrito}`, {
         usuario: {
           idUsuario: parseInt(idUsuario, 10)
         },
         montoTotalCarrito: subtotal,
-        estadoCarrito: false,  // Marcar como inactivo
+        estadoCarrito: false,
         cantidadCarrito: cart.length
       });
   
@@ -570,8 +462,6 @@ console.log("Fecha extraída para fechaRetiro:", fechaRetiroSolo);
       }, 2000);
   
     } catch(error) {
-      console.error('Error al registrar el pedido:', error);
-      
       setStatus({ 
         loading: false, 
         error: error.response?.data?.message || "Error al procesar el pedido", 
@@ -586,7 +476,6 @@ console.log("Fecha extraída para fechaRetiro:", fechaRetiroSolo);
     }
   };
 
-  // Renderizar productos del carrito
   const renderCartItems = () => {
     if (cart.length > 0) {
       return cart.map((item, index) => (
@@ -604,7 +493,6 @@ console.log("Fecha extraída para fechaRetiro:", fechaRetiroSolo);
     }
   };
 
-  // Determinar si el botón de finalizar debe estar deshabilitado
   const isSubmitDisabled = status.loading || 
                            tiposPago.length === 0 || 
                            !cedulaValidation.isValid || 
@@ -613,7 +501,6 @@ console.log("Fecha extraída para fechaRetiro:", fechaRetiroSolo);
                            cart.length === 0 ||
                            hasValidationErrors();
 
-  // Función auxiliar para renderizar mensajes de error
   const renderErrorMessage = (fieldName) => {
     const field = fieldValidations[fieldName];
     if (!field.isValid && field.message) {
@@ -622,7 +509,6 @@ console.log("Fecha extraída para fechaRetiro:", fechaRetiroSolo);
     return null;
   };
 
-  // Obtener la fecha mínima (hoy)
   const getMinDate = () => {
     const today = new Date();
     return today.toISOString().split('T')[0];
@@ -659,11 +545,6 @@ console.log("Fecha extraída para fechaRetiro:", fechaRetiroSolo);
                   placeholder="Ingrese su nombre"
                 />
                 {renderErrorMessage('nombreUsuario')}
-                {loggedUser.nombreUsuario && (
-                  <div className="field-info-message">
-                    
-                  </div>
-                )}
               </div>
               <div className="form-group">
                 <label htmlFor="primerApellido">Primer apellido</label>
@@ -695,22 +576,6 @@ console.log("Fecha extraída para fechaRetiro:", fechaRetiroSolo);
                 {renderErrorMessage('segundoApellido')}
               </div>
               <div className="form-group">
-                <label htmlFor="telefonoUsuario">Teléfono</label>
-                <input
-                  type="text"
-                  id="telefonoUsuario"
-                  name="telefonoUsuario"
-                  className={fieldValidations.telefonoUsuario.isValid ? '' : 'invalid'}
-                  value={formData.telefonoUsuario}
-                  onChange={handleChange}
-                  placeholder="Ej: 8888-8888"
-                />
-                {renderErrorMessage('telefonoUsuario')}
-              </div>
-            </div>
-            
-            <div className="form-row">
-              <div className="form-group">
                 <label htmlFor="correoUsuario">Correo electrónico</label>
                 <input
                   type="email"
@@ -722,12 +587,10 @@ console.log("Fecha extraída para fechaRetiro:", fechaRetiroSolo);
                   placeholder="ejemplo@correo.com"
                 />
                 {renderErrorMessage('correoUsuario')}
-                {loggedUser.correoUsuario && (
-                  <div className="field-info-message">
-                   
-                  </div>
-                )}
               </div>
+            </div>
+            
+            <div className="form-row">
               <div className="form-group">
                 <label htmlFor="cedulaUsuario">Cédula</label>
                 <div className="cedula-input-group">
@@ -759,9 +622,6 @@ console.log("Fecha extraída para fechaRetiro:", fechaRetiroSolo);
                   </div>
                 )}
               </div>
-            </div>
-            
-            <div className="form-row">
               <div className="form-group">
                 <label htmlFor="fechaHoraRetiro">
                   Fecha y hora de retiro
@@ -789,6 +649,9 @@ console.log("Fecha extraída para fechaRetiro:", fechaRetiroSolo);
                   </div>
                 )}
               </div>
+            </div>
+            
+            <div className="form-row">
               <div className="form-group">
                 <label htmlFor="tipoPago">Tipo de Pago</label>
                 <select
@@ -891,7 +754,6 @@ console.log("Fecha extraída para fechaRetiro:", fechaRetiroSolo);
         </div>
       </div>
 
-      {/* Snackbar para mensajes de éxito/error */}
       <Snackbar 
         open={snackbar.open} 
         autoHideDuration={6000} 
@@ -903,7 +765,6 @@ console.log("Fecha extraída para fechaRetiro:", fechaRetiroSolo);
         </Alert>
       </Snackbar>
 
-      {/* Estilos para animación del spinner y elementos nuevos */}
       <style>
         {`
           .spinner {
@@ -914,14 +775,12 @@ console.log("Fecha extraída para fechaRetiro:", fechaRetiroSolo);
             to { transform: rotate(360deg); }
           }
           
-          /* Estilos para la validación de la hora */
           .horario-info {
             font-size: 0.8em;
             color: #666;
             font-weight: normal;
           }
           
-          /* Estilos para los mensajes de error en campos */
           .field-error-message {
             color: #f44336;
             font-size: 0.85em;
@@ -934,13 +793,11 @@ console.log("Fecha extraída para fechaRetiro:", fechaRetiroSolo);
             margin-top: 5px;
           }
           
-          /* Estilos para inputs inválidos */
           input.invalid, select.invalid {
             border-color: #f44336;
             background-color: rgba(244, 67, 54, 0.05);
           }
           
-          /* Estilos para la validación de fecha/hora */
           .fecha-hora-input-group {
             position: relative;
             display: flex;
@@ -967,7 +824,6 @@ console.log("Fecha extraída para fechaRetiro:", fechaRetiroSolo);
             border-color: #f44336;
           }
           
-          /* Hora de retiro */
           .hora-input-group {
             position: relative;
             display: flex;
@@ -986,7 +842,6 @@ console.log("Fecha extraída para fechaRetiro:", fechaRetiroSolo);
             font-size: 0.85em;
           }
           
-          /* Mensajes de validación */
           .invalid-message {
             color: #f44336;
           }
@@ -995,7 +850,6 @@ console.log("Fecha extraída para fechaRetiro:", fechaRetiroSolo);
             color: #4caf50;
           }
           
-          /* Iconos de validación */
           .valid-icon {
             color: #4caf50;
           }
@@ -1013,4 +867,4 @@ console.log("Fecha extraída para fechaRetiro:", fechaRetiroSolo);
   );
 }
 
-export default PedidoCrud;
+export default PedidoCrud
