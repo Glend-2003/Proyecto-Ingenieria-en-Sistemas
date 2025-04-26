@@ -1,73 +1,142 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify"; // Importar toast y ToastContainer
-import "react-toastify/dist/ReactToastify.css";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "../styles.min.css";
-import Snackbar from '@mui/material/Snackbar';
-import MuiAlert from '@mui/material/Alert';
-import "../Usuarios/Usuarios.css";
+import Snackbar from "@mui/material/Snackbar";
+import MuiAlert from "@mui/material/Alert";
+import "./Registrar.css";
 import FooterApp from '../Footer/FooterApp';
 
 const Registrar = () => {
-    
   const [correoUsuario, setEmail] = useState("");
   const [nombreUsuario, setName] = useState("");
   const [primerApellido, setFirstSurname] = useState("");
   const [segundoApellido, setSecondSurname] = useState("");
   const [contraseniaUsuario, setPassword] = useState("");
   const [verifyPassword, setVerifyPassword] = useState("");
-  const [emailErrorMsg, setEmailErrorMsg] = useState("");
-  const [passwordErrorMsg, setPasswordErrorMsg] = useState("");
-const [idRol, setIdRol] = useState(null);
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [verifyPasswordVisible, setVerifyPasswordVisible] = useState(false);
 
-  const Alert = React.forwardRef(function Alert(props, ref) {return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;});
+  // Estados para manejo de errores
+  const [formErrors, setFormErrors] = useState({});
+
+  // Alert component
+  const Alert = React.forwardRef(function Alert(props, ref) {
+    return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+  });
+
+  // Snackbar states
   const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState('success'); // 'success', 'error', 'warning', 'info'
-
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.body.classList.add("body-register");
-
-    // Eliminar la clase cuando el componente se desmonta
-    return () => {
-      document.body.classList.remove("body-register");
-    };
+    // No es necesario añadir clases al body, ya que el fondo
+    // se manejará directamente en el CSS global
+    
+    // Limpieza al desmontar
+    return () => {};
   }, []);
 
-  const validateEmail = (correoUsuario) => {
+  // Validación de email
+  const validateEmail = (email) => {
     const regex = /^[^@]+@[^@]+\.[^@]+$/;
-    return regex.test(correoUsuario);
+    return regex.test(email);
   };
 
-  const handleEmailChange = (e) => {
-    setEmail(e.target.value);
-    if (validateEmail(e.target.value)) {
-      setEmailErrorMsg("");
-    } else {
-      setEmailErrorMsg("Correo inválido");
+  // Validación de formulario completo
+  const validateForm = () => {
+    const errors = {};
+    
+    // Validar correo
+    if (!correoUsuario) {
+      errors.email = "El correo electrónico es obligatorio";
+    } else if (!validateEmail(correoUsuario)) {
+      errors.email = "Formato de correo inválido";
+    }
+    
+    // Validar nombre
+    if (!nombreUsuario) {
+      errors.name = "El nombre es obligatorio";
+    }
+    
+    // Validar primer apellido
+    if (!primerApellido) {
+      errors.firstSurname = "El primer apellido es obligatorio";
+    }
+    
+    // Validar segundo apellido
+    if (!segundoApellido) {
+      errors.secondSurname = "El segundo apellido es obligatorio";
+    }
+    
+    // Validar contraseña
+    if (!contraseniaUsuario) {
+      errors.password = "La contraseña es obligatoria";
+    } else if (contraseniaUsuario.length < 8) {
+      errors.password = "La contraseña debe tener al menos 8 caracteres";
+    } else if (!/(?=.*[A-Za-z]{2,})/.test(contraseniaUsuario)) {
+      errors.password = "La contraseña debe contener al menos 2 letras";
+    }
+    
+    // Validar confirmación de contraseña
+    if (!verifyPassword) {
+      errors.verifyPassword = "Por favor confirme la contraseña";
+    } else if (verifyPassword !== contraseniaUsuario) {
+      errors.verifyPassword = "Las contraseñas no coinciden";
+    }
+    
+    return errors;
+  };
+
+  // Manejadores de cambios en los campos
+  const handleInputChange = (e, field) => {
+    const value = e.target.value;
+    
+    // Actualizar el estado según el campo
+    switch(field) {
+      case 'email':
+        setEmail(value);
+        break;
+      case 'name':
+        setName(value);
+        break;
+      case 'firstSurname':
+        setFirstSurname(value);
+        break;
+      case 'secondSurname':
+        setSecondSurname(value);
+        break;
+      case 'password':
+        setPassword(value);
+        break;
+      case 'verifyPassword':
+        setVerifyPassword(value);
+        break;
+      default:
+        break;
+    }
+    
+    // Limpiar error específico si el usuario está corrigiendo
+    if (formErrors[field]) {
+      setFormErrors({
+        ...formErrors,
+        [field]: ""
+      });
     }
   };
 
-  const handleNameChange = (e) => {
-    setName(e.target.value);
+  // Manejadores para mostrar/ocultar contraseña
+  const togglePasswordVisibility = () => {
+    setPasswordVisible(!passwordVisible);
   };
 
-  const handleFirstSurnameChange = (e) => {
-    setFirstSurname(e.target.value);
+  const toggleVerifyPasswordVisibility = () => {
+    setVerifyPasswordVisible(!verifyPasswordVisible);
   };
 
-  const handleSecondSurnameChange = (e) => {
-    setSecondSurname(e.target.value);
-  };
-
-
-
-  //Implementación de Snackbar 
+  // Manejadores de Snackbar
   const handleOpenSnackbar = (message, severity) => {
     setSnackbarMessage(message);
     setSnackbarSeverity(severity);
@@ -76,237 +145,200 @@ const [idRol, setIdRol] = useState(null);
   
   const handleCloseSnackbar = (event, reason) => {
     if (reason === 'clickaway') {
-      return; // No cerrar el Snackbar si el usuario hace clic fuera
+      return;
     }
     setOpenSnackbar(false);
   };
 
-
-
-
-  const handlePasswordChange = (e) => {
-    setPassword(e.target.value);
-    if (e.target.value === verifyPassword) {
-      if (e.target.value.length >= 8) {
-        setPasswordErrorMsg("");
-      } else {
-        setPasswordErrorMsg("La contraseña debe tener al menos 8 caracteres");
-      }
-    } else {
-      setPasswordErrorMsg("Las contraseñas no coinciden");
-    }
-  };
-
-  const handleVerifyPasswordChange = (e) => {
-    setVerifyPassword(e.target.value);
-    if (e.target.value === contraseniaUsuario) {
-      if (e.target.value.length >= 8) {
-        setPasswordErrorMsg("");
-      } else {
-        setPasswordErrorMsg("La contraseña debe tener al menos 8 caracteres");
-      }
-    } else {
-      setPasswordErrorMsg("Las contraseñas no coinciden");
-    }
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (
-      correoUsuario &&
-      nombreUsuario &&
-      primerApellido &&
-      segundoApellido &&
-      contraseniaUsuario
-    ) {
-      if (emailErrorMsg === "" && passwordErrorMsg === "") {
-        // Handle form submission
-
-        const registroData = {
-          correoUsuario: correoUsuario,
-          nombreUsuario: nombreUsuario,
-          primerApellido: primerApellido,
-          segundoApellido: segundoApellido,
-          contraseniaUsuario: contraseniaUsuario,
-        }
-
-        console.log(" Datos enviados al backend:", registroData);
-        axios
-          .post("http://localhost:8080/usuario/registrar", registroData)
-          .then((response) => {
-            console.log("Usuario registrado con éxito:", response.data);
-            handleOpenSnackbar("Usuario registrado con éxito", "success");
-            setTimeout(() => {
-              navigate("../");
-            }, 2500);
-          })
-          .catch((error) => {
-            if (error.response) {
-              console.error(
-                "Error de respuesta del servidor:",
-                error.response.data
-              );
-              handleOpenSnackbar("Error de respuesta del servidor", "error");
-            } else if (error.request) {
-              console.error("No hubo respuesta del servidor:", error.request);
-              handleOpenSnackbar("No hubo respuesta del servidor", "error");
-            } else {
-              console.error("Error en la solicitud:", error.message);
-              handleOpenSnackbar("Error en la solicitud", "error");
-            }
-          });
-      }
-    } else {
-      console.error("Error: Todos los campos son obligatorios");
-      handleOpenSnackbar("Todos los campos son obligatorios", "error");
-    }
-  };
-
-  const handleNoAccountClick = () => {
+  // Volver a la página de inicio de sesión
+  const handleGoBack = () => {
     navigate("../");
   };
+
+  // Envío del formulario
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    // Validar formulario
+    const errors = validateForm();
+    
+    // Si hay errores, mostrarlos y no enviar el formulario
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      handleOpenSnackbar("Por favor, complete correctamente todos los campos", "error");
+      return;
+    }
+
+    // Datos a enviar
+    const registroData = {
+      correoUsuario,
+      nombreUsuario,
+      primerApellido,
+      segundoApellido,
+      contraseniaUsuario,
+    };
+
+    // Enviar datos al backend
+    axios
+      .post("http://localhost:8080/usuario/registrar", registroData)
+      .then((response) => {
+        console.log("Usuario registrado con éxito:", response.data);
+        handleOpenSnackbar("Usuario registrado con éxito", "success");
+        setTimeout(() => {
+          navigate("../");
+        }, 2000);
+      })
+      .catch((error) => {
+        console.error("Error al registrar usuario:", error);
+        
+        if (error.response) {
+          // El servidor respondió con un código de estado fuera del rango 2xx
+          const errorMessage = error.response.data.message || "Error al registrar usuario";
+          handleOpenSnackbar(errorMessage, "error");
+        } else if (error.request) {
+          // La solicitud fue realizada pero no se recibió respuesta
+          handleOpenSnackbar("No se pudo contactar con el servidor", "error");
+        } else {
+          // Algo ocurrió en la configuración de la solicitud
+          handleOpenSnackbar("Error en la solicitud", "error");
+        }
+      });
+  };
+
   return (
-    <div >
-     <div className=".registrar-container d-flex justify-content-center align-items-center" style={{ minHeight: '100vh' }}>
-      <div className="row d-flex justify-content-center">
-        <div
-          className="col-sm-12 col-lg-10 col-xl-9 col-xxl-10 bg-white shadow-lg"
-          style={{ borderRadius: "5px" }}
-        >
-          <div className="p-5">
-            <div className="text-center">
-              <h4 className="text-dark mb-4">Crear una cuenta</h4>
-            </div>
-            <form className="user" onSubmit={handleSubmit}>
-              <div className="mb-3">
-                <label className="form-label" htmlFor="correoUsuario">
-                  Correo Electrónico
-                </label>
-                <input
-                  className="form-control form-control-user"
-                  type="email"
-                  id="email"
-                  
-                  required
-                  value={correoUsuario}
-                  onChange={handleEmailChange}
-                  style={{ borderColor: "#d7d7d7", color: "#212529" }}
-                />
-                {emailErrorMsg && (
-                  <p className="text-danger">{emailErrorMsg}</p>
-                )}
-              </div>
-              <div className="row mb-3">
-                <div className="col-sm-6 col-md-4 mb-3 mb-sm-0">
-                  <label classname="form-label" htmlFor="nombreUsuario">
-                    Nombre
-                  </label>
-                  <input
-                    className="form-control form-control-user"
-                    type="text"
-                    
-                    required
-                    value={nombreUsuario}
-                    onChange={handleNameChange}
-                  />
-                </div>
-                <div className="col-sm-6 col-md-4">
-                  <label classname="form-label" htmlFor="primerApellido">
-                    Primer Apellido
-                  </label>
-                  <input
-                    className="form-control form-control-user"
-                    type="text"
-                    
-                    required
-                    value={primerApellido}
-                    onChange={handleFirstSurnameChange}
-                  />
-                </div>
-                <div className="col-sm-6 col-md-4">
-                  <label classname="form-label" htmlFor="segundoApellido">
-                    Segundo Apellido
-                  </label>
-                  <input
-                    className="form-control form-control-user"
-                    type="text"
-                    
-                    required
-                    value={segundoApellido}
-                    onChange={handleSecondSurnameChange}
-                  />
-                </div>
-              </div>
-              <div className="row mb-3">
-                <div className="col-sm-6 mb-3 mb-sm-0">
-                  <label className="form-label" htmlFor="contraseniaUsuario">
-                    Contraseña
-                  </label>
-                  <input
-                    className="form-control form-control-user"
-                    type="password"
-                    id="password"
-                    
-                    required
-                    value={contraseniaUsuario}
-                    onChange={handlePasswordChange}
-                  />
-                </div>
-                <div className="col-sm-6">
-                  <label className="form-label" htmlFor="verifyPassword">
-                    Confirmar Contraseña
-                  </label>
-                  <input
-                    className="form-control form-control-user"
-                    type="password"
-                    id="verifyPassword"
-                 
-                    required
-                    value={verifyPassword}
-                    onChange={handleVerifyPasswordChange}
-                  />
-                </div>
-              </div>
-              {passwordErrorMsg && (
-                <p className="text-danger">{passwordErrorMsg}</p>
-              )}
-              <button
-                className="btn btn-primary d-block btn-user w-100"
-                id="submitBtn"
-                type="submit"
-                style={{ background: "#042440" }}
-              >
-                Registrar cuenta
-              </button>
-              <hr />
-              <p className="text-center">
-                <span
-                  className="text-primary"
-                  style={{ cursor: "pointer" }}
-                  onClick={handleNoAccountClick}
-                >
-                  Regresar
-                </span>
-              </p>
-            </form>
-            
-          </div>
+    <div className="register-container">
+      <div className="register-card">
+        <div className="register-header">
+          <div className="shield-icon"></div>
+          <h2>Crear una cuenta</h2>
         </div>
-       
+        
+        <form className="register-form" onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="correoUsuario">Correo Electrónico</label>
+            <input
+              type="email"
+              id="correoUsuario"
+              className={formErrors.email ? "input-error" : ""}
+              value={correoUsuario}
+              onChange={(e) => handleInputChange(e, 'email')}
+            />
+            {formErrors.email && <span className="error-message">{formErrors.email}</span>}
+          </div>
+          
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="nombreUsuario">Nombre</label>
+              <input
+                type="text"
+                id="nombreUsuario"
+                className={formErrors.name ? "input-error" : ""}
+                value={nombreUsuario}
+                onChange={(e) => handleInputChange(e, 'name')}
+              />
+              {formErrors.name && <span className="error-message">{formErrors.name}</span>}
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="primerApellido">Primer Apellido</label>
+              <input
+                type="text"
+                id="primerApellido"
+                className={formErrors.firstSurname ? "input-error" : ""}
+                value={primerApellido}
+                onChange={(e) => handleInputChange(e, 'firstSurname')}
+              />
+              {formErrors.firstSurname && <span className="error-message">{formErrors.firstSurname}</span>}
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="segundoApellido">Segundo Apellido</label>
+              <input
+                type="text"
+                id="segundoApellido"
+                className={formErrors.secondSurname ? "input-error" : ""}
+                value={segundoApellido}
+                onChange={(e) => handleInputChange(e, 'secondSurname')}
+              />
+              {formErrors.secondSurname && <span className="error-message">{formErrors.secondSurname}</span>}
+            </div>
+          </div>
+          
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="contraseniaUsuario">Contraseña</label>
+              <div className="password-container">
+                <input
+                  type={passwordVisible ? "text" : "password"}
+                  id="contraseniaUsuario"
+                  className={formErrors.password ? "input-error" : ""}
+                  value={contraseniaUsuario}
+                  onChange={(e) => handleInputChange(e, 'password')}
+                />
+                <span className="password-toggle" onClick={togglePasswordVisibility}>
+                  <img 
+                    src={passwordVisible ? "/eye-slash.svg" : "/eye.svg"} 
+                    alt={passwordVisible ? "Ocultar contraseña" : "Mostrar contraseña"}
+                    className="eye-icon"
+                  />
+                </span>
+              </div>
+              {formErrors.password && <span className="error-message">{formErrors.password}</span>}
+              <div className="password-requirements">
+                <span>• Mínimo 8 caracteres</span>
+                <span>• Al menos 2 letras (mayúsculas o minúsculas)</span>
+              </div>
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="verifyPassword">Confirmar Contraseña</label>
+              <div className="password-container">
+                <input
+                  type={verifyPasswordVisible ? "text" : "password"}
+                  id="verifyPassword"
+                  className={formErrors.verifyPassword ? "input-error" : ""}
+                  value={verifyPassword}
+                  onChange={(e) => handleInputChange(e, 'verifyPassword')}
+                />
+                <span className="password-toggle" onClick={toggleVerifyPasswordVisibility}>
+                  <img 
+                    src={verifyPasswordVisible ? "/eye-slash.svg" : "/eye.svg"} 
+                    alt={verifyPasswordVisible ? "Ocultar contraseña" : "Mostrar contraseña"}
+                    className="eye-icon"
+                  />
+                </span>
+              </div>
+              {formErrors.verifyPassword && <span className="error-message">{formErrors.verifyPassword}</span>}
+            </div>
+          </div>
+          
+          <button type="submit" className="register-button">
+            Registrar cuenta
+          </button>
+          
+          <div className="back-link">
+            <span onClick={handleGoBack}>
+              <span className="back-arrow">←</span> Volver al inicio de sesión
+            </span>
+          </div>
+        </form>
       </div>
+      
       <Snackbar
         open={openSnackbar}
-        autoHideDuration={2500} // Duración en milisegundos
+        autoHideDuration={3000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }} // Posición del Snackbar
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
-        <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
+        <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
           {snackbarMessage}
         </Alert>
       </Snackbar>
-    </div>
-    <FooterApp />
+      
+      {/* Footer */}
+      <div className="footer">
+        <p>Contactos</p>
+      </div>
     </div>
   );
 };
