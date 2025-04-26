@@ -222,9 +222,12 @@ header{
 
 /* Estilo para productos individuales en carrito */
 .cart-product {
-    padding-bottom: 1rem;
+    padding: 0.75rem 0;
     border-bottom: 1px solid #f0f0f0;
-    margin-bottom: 1rem;
+  }
+
+  .cart-product .flex-grow-1 {
+    flex-grow: 1;
   }
 
 .cart-footer {
@@ -259,11 +262,22 @@ header{
 
 /* Botón para eliminar */
 .cart-product .btn {
-    align-self: start;
-    height: 30px;
-    font-size: 12px;
-    padding: 4px 8px;
-}
+    margin-left: 1rem;
+    font-size: 1rem;
+    line-height: 1;
+  }
+
+  .cart-product .fw-bold {
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+
+  .cart-product .text-muted {
+    font-size: 0.875rem;
+    line-height: 1.4;
+    display: block;
+    margin-top: 0.25rem;
+  }
 
 /* Sección total y botones */
 .cart-total {

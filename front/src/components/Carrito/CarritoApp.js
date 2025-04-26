@@ -117,7 +117,7 @@ function CarritoApp() {
               {groupedCart.map((item, index) => (
                 <div key={index} className="cart-product mb-3">
                   <div className="d-flex justify-content-between align-items-start">
-                    <div className="d-flex gap-3">
+                    <div className="d-flex gap-3 w-100">
                       {item.imgProducto && (
                         <img
                           src={
@@ -132,24 +132,22 @@ function CarritoApp() {
                           style={{ objectFit: 'cover' }}
                         />
                       )}
-                      <div>
+                      <div className="flex-grow-1">
                         <div className="fw-bold">{item.nombreProducto}</div>
-                        <div className="text-muted small">1 Kg</div>
+                        <div className="text-muted small">
+                          {item.cantidad} × ₡{item.montoPrecioProducto.toLocaleString()}
+                        </div>
                       </div>
-                    </div>
-                    <div className="text-end">
-                      <div className="fw-bold">₡{(item.montoPrecioProducto * item.cantidad).toLocaleString()}</div>
-                      <div className="text-muted small">{item.cantidad} × ₡{item.montoPrecioProducto.toLocaleString()}</div>
+                      <Button
+                        variant="link"
+                        size="sm"
+                        className="text-danger p-0 align-self-start"
+                        onClick={() => removeFromCart(item.idProducto)}
+                      >
+                        X
+                      </Button>
                     </div>
                   </div>
-                  <Button
-                    variant="link"
-                    size="sm"
-                    className="text-danger p-0 mt-1"
-                    onClick={() => removeFromCart(item.idProducto)}
-                  >
-                    <small>X</small>
-                  </Button>
                 </div>
               ))}
             </div>
