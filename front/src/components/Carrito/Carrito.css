@@ -72,15 +72,12 @@ header{
     
 }
 
-.cart-product{
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 30px;
-
-    border-bottom: 1px solid rgba(0, 0, 0, 0.20);
-
-}
+.cart-product {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f0f0f0;
+    position: relative;
+    padding-right: 1.5rem; /* Espacio para la X */
+  }
 
 .info-cart-product{
     display: flex;
@@ -262,14 +259,24 @@ header{
 
 /* Botón para eliminar */
 .cart-product .btn {
-    margin-left: 1rem;
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
     font-size: 1rem;
     line-height: 1;
+    padding: 0;
+    width: 1.5rem;
+    height: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .cart-product .fw-bold {
     font-size: 1rem;
     line-height: 1.4;
+    padding-right: 1rem; /* Evita que el texto se solape con la X */
   }
 
   .cart-product .text-muted {
@@ -277,8 +284,8 @@ header{
     line-height: 1.4;
     display: block;
     margin-top: 0.25rem;
+    padding-right: 1rem; /* Evita que el texto se solape con la X */
   }
-
 /* Sección total y botones */
 .cart-total {
     display: flex;

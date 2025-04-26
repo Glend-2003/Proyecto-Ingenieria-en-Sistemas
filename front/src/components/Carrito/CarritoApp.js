@@ -115,39 +115,38 @@ function CarritoApp() {
           <>
             <div className="cart-products-container px-3 pt-3">
               {groupedCart.map((item, index) => (
-                <div key={index} className="cart-product mb-3">
-                  <div className="d-flex justify-content-between align-items-start">
-                    <div className="d-flex gap-3 w-100">
-                      {item.imgProducto && (
-                        <img
-                          src={
-                            item.imgProducto.startsWith('http')
-                              ? item.imgProducto
-                              : `http://localhost:8080/producto/images/${item.imgProducto}`
-                          }
-                          alt={item.nombreProducto}
-                          width="60"
-                          height="60"
-                          className="item-img rounded"
-                          style={{ objectFit: 'cover' }}
-                        />
-                      )}
-                      <div className="flex-grow-1">
-                        <div className="fw-bold">{item.nombreProducto}</div>
-                        <div className="text-muted small">
-                          {item.cantidad} × ₡{item.montoPrecioProducto.toLocaleString()}
-                        </div>
+                <div key={index} className="cart-product mb-3 position-relative">
+                  <div className="d-flex gap-3">
+                    {item.imgProducto && (
+                      <img
+                        src={
+                          item.imgProducto.startsWith('http')
+                            ? item.imgProducto
+                            : `http://localhost:8080/producto/images/${item.imgProducto}`
+                        }
+                        alt={item.nombreProducto}
+                        width="60"
+                        height="60"
+                        className="item-img rounded"
+                        style={{ objectFit: 'cover' }}
+                      />
+                    )}
+                    <div>
+                      <div className="fw-bold">{item.nombreProducto}</div>
+                      <div className="text-muted small">
+                        {item.cantidad} × ₡{item.montoPrecioProducto.toLocaleString()}
                       </div>
-                      <Button
-                        variant="link"
-                        size="sm"
-                        className="text-danger p-0 align-self-start"
-                        onClick={() => removeFromCart(item.idProducto)}
-                      >
-                        X
-                      </Button>
                     </div>
                   </div>
+                  <Button
+                    variant="link"
+                    size="sm"
+                    className="text-danger p-0 position-absolute end-0 top-0"
+                    onClick={() => removeFromCart(item.idProducto)}
+                    style={{ transform: 'translateY(25%)' }}
+                  >
+                    X
+                  </Button>
                 </div>
               ))}
             </div>
