@@ -487,8 +487,16 @@ function PedidoCrud() {
       
       // Extraer la hora de la fecha y hora seleccionada
       const fechaHoraObj = new Date(formData.fechaHoraRetiro);
+      console.log("Fecha y hora original seleccionada:", formData.fechaHoraRetiro);
+console.log("Objeto Date creado:", fechaHoraObj);
+console.log("Fecha ISO:", fechaHoraObj.toISOString());
+console.log("String de fecha:", fechaHoraObj.toString());
       const horaRetiro = `${fechaHoraObj.getHours().toString().padStart(2, '0')}:${fechaHoraObj.getMinutes().toString().padStart(2, '0')}`;
-  
+      console.log("Hora extraída para horaRetiro:", horaRetiro);
+
+      const fechaRetiroSolo = formData.fechaHoraRetiro.split('T')[0];
+console.log("Fecha extraída para fechaRetiro:", fechaRetiroSolo);
+
       // PASO 4: Crear el pedido con el carrito recién creado
       const pedidoData = {
         // Datos del usuario
@@ -524,13 +532,15 @@ function PedidoCrud() {
         // Datos del pedido
         subtotal: subtotal,
         montoTotalPedido: montoTotalPedido,
-        fechaPedido: new Date().toISOString(),
+        fechaPedido: formData.fechaHoraRetiro,
         estadoPedido: true,
         estadoEntregaPedido: "Pendiente"
       };
       
-      console.log('Enviando datos del pedido:', JSON.stringify(pedidoData, null, 2));
+      console.log("Objeto pedidoData completo:", JSON.stringify(pedidoData, null, 2));
+      console.log("fechaPedido enviado al backend:", pedidoData.fechaPedido);
       
+      console.log("Enviando datos del pedido:", JSON.stringify(pedidoData, null, 2));
       const pedidoResponse = await axios.post('http://localhost:8080/pedido/agregar', pedidoData);
       console.log('Pedido registrado de manera exitosa:', pedidoResponse.data);
       

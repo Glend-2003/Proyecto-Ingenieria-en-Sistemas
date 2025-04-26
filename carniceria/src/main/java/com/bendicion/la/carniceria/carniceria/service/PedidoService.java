@@ -1,6 +1,6 @@
 package com.bendicion.la.carniceria.carniceria.service;
 
-import java.time.ZoneId;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -40,22 +40,37 @@ public class PedidoService implements IPedidoService {
     public Pedido addPedido(Pedido pedido) {
         Integer idCarrito = pedido.getCarrito().getIdCarrito();
         Integer idTipoPago = pedido.getTipoPago().getIdTipoPago();
-
+    
         Carrito carritos = carritoRepo.obtenerCarritoPorId(idCarrito);
         if (carritos == null) {
             throw new RuntimeException("El carrito con ID " + idCarrito + " no existe");
         }
-
-        Date fechaPedido = Date.from(pedido.getFechaPedido().atZone(ZoneId.systemDefault()).toInstant());
-        pedidoRepo.saveProcedurePedido(
-                pedido.getMontoTotalPedido(),
-                fechaPedido,
-                pedido.isEstadoPedido(),
-                pedido.getEstadoEntregaPedido(),
-                idCarrito,
-                idTipoPago
-        );
-
+    
+        try {
+            // Obtener el LocalDateTime directamente sin manipularlo
+            LocalDateTime localDateTime = pedido.getFechaPedido();
+            
+            // Convertir a java.util.Date para el procedimiento almacenado
+            // Esto mantiene exactamente la misma hora
+            Date fechaPedido = java.sql.Timestamp.valueOf(localDateTime);
+            
+            System.out.println("Fecha exacta seleccionada por usuario: " + localDateTime);
+            System.out.println("Fecha convertida a Timestamp: " + fechaPedido);
+            
+            pedidoRepo.saveProcedurePedido(
+                    pedido.getMontoTotalPedido(),
+                    fechaPedido,
+                    pedido.isEstadoPedido(),
+                    pedido.getEstadoEntregaPedido(),
+                    idCarrito,
+                    idTipoPago
+            );
+        } catch (Exception e) {
+            System.err.println("Error al procesar la fecha: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Error al guardar el pedido: " + e.getMessage());
+        }
+    
         return pedido;
     }
 
