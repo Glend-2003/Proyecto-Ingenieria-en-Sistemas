@@ -75,6 +75,17 @@ const Orders = () => {
     const pedidosSlice = pedidos.slice(startIndex, endIndex);
     setPedidosPaginados(pedidosSlice);
   };
+  const formatearFechaHora = (fechaPedido, horaRetiro) => {
+    if (!fechaPedido) return 'Fecha no disponible';
+    
+    const fecha = new Date(fechaPedido).toLocaleDateString();
+
+    if (horaRetiro) {
+      return `${fecha} - Retiro: ${horaRetiro}`;
+    }
+    
+    return fecha;
+  };
   
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -83,6 +94,65 @@ const Orders = () => {
   const handleNextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
+    }
+  };
+  // Función para formatear fecha y hora desde un objeto LocalDateTime serializado
+  const formatearFechaCompleta = (fechaString) => {
+    if (!fechaString) return 'Fecha no disponible';
+    
+    try {
+      // Primero verificamos si es un string válido
+      if (typeof fechaString !== 'string') {
+        fechaString = String(fechaString);
+      }
+  
+      // Crear un objeto Date a partir del string de fecha
+      const fecha = new Date(fechaString);
+      
+      // Verificar que la fecha sea válida
+      if (isNaN(fecha.getTime())) {
+        console.log("Fecha inválida:", fechaString);
+        
+        // Intento de parseo manual si el formato automático falla
+        if (fechaString.includes(' ')) {
+          const [datePart, timePart] = fechaString.split(' ');
+          const [year, month, day] = datePart.split('-');
+          let [hours, minutes] = ['00', '00'];
+          
+          if (timePart && timePart.includes(':')) {
+            [hours, minutes] = timePart.split(':');
+          }
+          
+          return `${day}/${month}/${year} - Retiro: ${hours}:${minutes}`;
+        }
+        
+        return 'Fecha inválida';
+      }
+      
+      // Formatear la fecha en formato día/mes/año
+      const dia = fecha.getDate().toString().padStart(2, '0');
+      const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
+      const anio = fecha.getFullYear();
+      const fechaFormateada = `${dia}/${mes}/${anio}`;
+      
+      // Formatear la hora
+      const horas = fecha.getHours().toString().padStart(2, '0');
+      const minutos = fecha.getMinutes().toString().padStart(2, '0');
+      const horaFormateada = `${horas}:${minutos}`;
+      
+      // Retornar fecha y hora formateadas
+      return `${fechaFormateada} - Retiro: ${horaFormateada}`;
+      
+    } catch (error) {
+      // Método alternativo en caso de error
+      if (typeof fechaString === 'string' && fechaString.includes(' ')) {
+        const partes = fechaString.split(' ');
+        if (partes.length >= 2) {
+          return `${partes[0]} - Retiro: ${partes[1].substring(0, 5)}`;
+        }
+      }
+      
+      return 'Error de formato de fecha';
     }
   };
   
@@ -163,7 +233,9 @@ const Orders = () => {
           pedidosMap.set(item.idPedido, {
             idPedido: item.idPedido,
             montoTotalPedido: item.montoTotalPedido || 0,
-            fechaPedido: item.fechaPedido ? new Date(item.fechaPedido).toLocaleDateString() : 'Fecha no disponible',
+            fechaPedidoRaw: item.fechaPedido || null,
+            fechaFormateada: formatearFechaCompleta(item.fechaPedido),
+            horaRetiro: item.horaRetiro || 'No especificada',
             estadoPedido: item.estadoPedido,
             estadoPedidoTexto: item.estadoPedidoTexto || 'Estado desconocido',
             estadoEntregaPedido: item.estadoEntregaPedido || "Pendiente",
@@ -595,7 +667,7 @@ const Orders = () => {
                         Pedido #{pedido.idPedido}
                       </div>
                       <div className="order-date">
-                        {pedido.fechaPedido}
+                      {pedido.fechaFormateada}
                       </div>
                     </div>
                     
@@ -614,9 +686,7 @@ const Orders = () => {
                     <div className="order-products">
                       {pedido.productos && pedido.productos.map(producto => (
                         <div key={`${pedido.idPedido}-${producto.idProducto}`} className="product-item">
-                          <div className="product-image">
-                            <img src={producto.imgProducto || 'https://via.placeholder.com/50'} alt={producto.nombreProducto} />
-                          </div>
+                          
                           <div className="product-details">
                             <div className="product-name">{producto.nombreProducto}</div>
                             <div className="product-quantity">
