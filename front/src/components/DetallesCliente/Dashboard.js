@@ -9,20 +9,17 @@ import NavbarApp from '../Navbar/NavbarApp';
 import { AppProvider } from "../Navbar/AppContext"
 import Carrito from '../Carrito/CarritoApp';
 import SideBarUsuario from '../DetallesCliente/SideBarUsuario';
+import { useAppContext } from "../Navbar/AppContext";
 
 const Dashboard = () => {
     const { usuario } = useAuth();
     const navigate = useNavigate();
+     const { 
+     
+        handleLogout
+      } = useAppContext();
 
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('correoUsuario');
-        localStorage.removeItem('nombreUsuario');
-        localStorage.removeItem('nombreUsuario');
-        localStorage.removeItem('nombreRol');
-        localStorage.removeItem('idUsuario');
-        navigate('/');
-    };
+ 
     return (
         <AppProvider>
             <div>

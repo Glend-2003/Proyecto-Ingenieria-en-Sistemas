@@ -40,7 +40,7 @@ function LoginApp({ initialPage = "home" }) {
   const [rememberMe, setRememberMe] = useState(false)
 
   // Usar el contexto para obtener estados y funciones
-  const { showSidebar, handleShowSidebar, addToCart } = useAppContext()
+  const { showSidebar, handleShowSidebar, addToCart, updateUserStatus  } = useAppContext()
 
   // Detectar cambios en la URL para actualizar currentPage
   useEffect(() => {
@@ -120,16 +120,7 @@ function LoginApp({ initialPage = "home" }) {
     }
   }, [])
 
-  const handleLogout = () => {
-    localStorage.removeItem("token")
-    localStorage.removeItem("correoUsuario")
-    localStorage.removeItem("nombreUsuario")
-    localStorage.removeItem("nombreRol")
-    localStorage.removeItem("idUsuario")
-    localStorage.removeItem("rememberedEmail")
-    localStorage.removeItem("rememberedPassword")
-    navigate("/")
-  }
+  
   const [showForgotPassword, setShowForgotPassword] = useState(false) // Estado para mostrar el formulario de "Olvidé mi contraseña"
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false) // Estado para el spinner
@@ -161,7 +152,7 @@ function LoginApp({ initialPage = "home" }) {
           localStorage.setItem("nombreUsuario", response.data.nombreUsuario)
           localStorage.setItem("nombreRol", response.data.rol.nombreRol)
           localStorage.setItem("idUsuario", response.data.idUsuario)
-
+          updateUserStatus(); 
           if (rememberMe) {
             localStorage.setItem("rememberedEmail", loginData.correoUsuario)
             localStorage.setItem("rememberedPassword", loginData.contraseniaUsuario)
@@ -265,7 +256,17 @@ function LoginApp({ initialPage = "home" }) {
       </div>
 
       {/* Offcanvas Sidebar */}
-      <Offcanvas show={showSidebar} onHide={handleShowSidebar} placement="end">
+      <Offcanvas
+        show={showSidebar}
+        onHide={handleShowSidebar}
+        placement="end"
+        style={{
+          position: 'fixed',
+          top: '0',
+          zIndex: 1200, // Mayor que el zIndex del navbar (1100)
+          height: '100vh'
+        }}
+      >
         <Offcanvas.Header closeButton>
           <Offcanvas.Title style={{ fontSize: "24px", fontWeight: "bold", color: "#333" }}>
             {showForgotPassword ? "Recuperar contraseña" : "Iniciar sesión"}
@@ -367,8 +368,8 @@ function LoginApp({ initialPage = "home" }) {
             <form onSubmit={handleForgotPassword}>
               {/* Contenido del formulario de recuperación (código existente) */}
               <p className="mb-4" style={{ fontSize: "16px", color: "#555", lineHeight: "1.9" }}>
-              Ingresa tu correo para verificar que eres tú.<br />
-              Te enviaremos un código para restablecer tu contraseña.
+                Ingresa tu correo para verificar que eres tú.<br />
+                Te enviaremos un código para restablecer tu contraseña.
               </p>
 
               <div className="mb-3">

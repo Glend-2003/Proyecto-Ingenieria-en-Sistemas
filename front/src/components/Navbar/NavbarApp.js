@@ -12,7 +12,12 @@ import { Form, InputGroup, FormControl } from "react-bootstrap";
 const NavbarApp = () => {
   // Usar el contexto para obtener estados y funciones
   const { cart, showCartMenu, setShowCartMenu } = useCart();
-  const { idUsuario } = useAppContext();
+  const { 
+ 
+    idUsuario,
+    updateUserStatus,
+    handleLogout
+  } = useAppContext();
   const { handleShowSidebar } = useAppContext();
   
   const [searchOpen, setSearchOpen] = useState(false);
@@ -39,7 +44,7 @@ const NavbarApp = () => {
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
-  }, []);
+  }, [idUsuario]);
 
   // Clases dinámicas basadas en el estado de scroll
   const navbarClasses = `navbar-transition ${isScrolled ? "navbar-scrolled" : "navbar-top"}`;
@@ -49,6 +54,7 @@ const NavbarApp = () => {
       expand="lg"
       variant="dark"
       className={navbarClasses}
+      style={{ position: 'relative', zIndex: 1100 }} // Aumento de z-index para garantizar que esté por encima
     >
       <Container>
         <div className="navbar-brand-container">
@@ -60,7 +66,6 @@ const NavbarApp = () => {
           <BootstrapNavbar.Brand as={Link} to="/Historia" className="brand-text brand-link">
             Carnicería La Bendición
           </BootstrapNavbar.Brand>
-
         </div>
 
         <BootstrapNavbar.Toggle aria-controls="basic-navbar-nav" />
@@ -98,23 +103,28 @@ const NavbarApp = () => {
               </svg>
             </Nav.Link>
             
-            <div className="icon-link">
+            <div className="icon-link user-dropdown-container">
               <Nav.Link onClick={handleShowSidebar}>
-                <DropDown
-                  icon={
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="1.7em"
-                      height="1.7em"
-                      fill="currentColor"
-                      className="bi bi-person"
-                      viewBox="0 0 16 16"
-                    >
-                      <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664z" />
-                    </svg>
-                  }
-                  idUsuario={idUsuario}
-                />
+              <DropDown
+            icon={
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="1.7em"
+                height="1.7em"
+                fill="currentColor"
+                className="bi bi-person"
+                viewBox="0 0 16 16"
+              >
+                <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664z" />
+              </svg>
+            }
+            idUsuario={idUsuario}
+            onLogout={() => {
+              handleLogout();
+              // Puedes añadir una redirección si es necesario
+              // navigate('/');
+            }}
+          />
               </Nav.Link>
             </div>
             

@@ -44,7 +44,7 @@ function CarritoApp() {
   
     try {
       const token = localStorage.getItem('token');
-      const carritoLocal = JSON.parse(localStorage.getItem('carrito')) || [];
+      const carritoLocal = JSON.parse(localStorage.getItem('carrito')) || localStorage.getItem('carrito');
       
       if (carritoLocal.length === 0) {
         alert('El carrito está vacío');
@@ -106,7 +106,13 @@ function CarritoApp() {
   }, []);
 
   return (
-    <Offcanvas show={showCartMenu} onHide={() => setShowCartMenu(false)} placement="end">
+    <Offcanvas show={showCartMenu} onHide={() => setShowCartMenu(false)} placement="end"
+    style={{
+      position: 'fixed',
+      top: '0',
+      zIndex: 1200, // Mayor que el zIndex del navbar (1100)
+      height: '100vh'
+    }}>
       <Offcanvas.Header closeButton>
         <Offcanvas.Title>Tu carrito de compras</Offcanvas.Title>
       </Offcanvas.Header>

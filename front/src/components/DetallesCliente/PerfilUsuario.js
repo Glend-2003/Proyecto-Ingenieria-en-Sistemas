@@ -12,6 +12,7 @@ import FooterApp from '../Footer/FooterApp';
 import NavbarApp from "../Navbar/NavbarApp";
 import Carrito from "../Carrito/CarritoApp";
 import SideBarUsuario from '../DetallesCliente/SideBarUsuario';
+import { useAppContext } from "../Navbar/AppContext";
 
 const PerfilUsuario = () => {
   const { usuario } = useAuth();
@@ -29,6 +30,8 @@ const PerfilUsuario = () => {
     fechaNacimiento: "",
    
   });
+const { handleLogout
+      } = useAppContext();
 
   const [isEditing, setIsEditing] = useState(false);
 
@@ -66,20 +69,7 @@ const PerfilUsuario = () => {
   } catch (error) {
     toast.error("Error al actualizar tus datos. Por favor intenta nuevamente.");
   }
-};
-
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('correoUsuario');
-    localStorage.removeItem('nombreUsuario');
-    localStorage.removeItem('nombreUsuario');
-    localStorage.removeItem('nombreRol');
-    localStorage.removeItem('idUsuario');
-    navigate('/');
-  };
-
-  
+};  
 
   return (
     <div className="profile-page">

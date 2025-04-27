@@ -13,6 +13,7 @@ import NavbarApp from "../Navbar/NavbarApp";
 import Carrito from "../Carrito/CarritoApp";
 import useAuth from "../../hooks/useAuth";
 import SideBarUsuario from '../DetallesCliente/SideBarUsuario';
+import { useAppContext } from "../Navbar/AppContext";
 
 const DireccionUsuario = () => {
   const { usuario } = useAuth();
@@ -23,6 +24,7 @@ const DireccionUsuario = () => {
   const [cantones, setCantones] = useState([]);
   const [distritos, setDistritos] = useState([]);
   const [isValidatingPostalCode, setIsValidatingPostalCode] = useState(false);
+  
 
   // Estado para el formulario
   const [formData, setFormData] = useState({
@@ -32,6 +34,8 @@ const DireccionUsuario = () => {
     idCanton: "",
     idDistrito: "",
   });
+   const {handleLogout
+        } = useAppContext();
 
   const [isEditing, setIsEditing] = useState(false);
 
@@ -203,14 +207,6 @@ const DireccionUsuario = () => {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('correoUsuario');
-    localStorage.removeItem('nombreUsuario');
-    localStorage.removeItem('nombreRol');
-    localStorage.removeItem('idUsuario');
-    navigate('/');
-  };
 
   return (
     
