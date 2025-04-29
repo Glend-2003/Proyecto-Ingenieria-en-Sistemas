@@ -62,7 +62,7 @@ function ListaProductosApp({ categoria }) {
     const fetchProductos = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('http://localhost:8080/producto/');
+        const response = await axios.get('http://localhost:8080/producto/',{params: { estadoProducto: 1 }});
         setProductos(response.data);
         setLoading(false);
       } catch (error) {

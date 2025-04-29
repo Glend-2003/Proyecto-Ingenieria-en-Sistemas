@@ -7,22 +7,19 @@
    - Café: #875725
 */
 
-/* Espaciador adicional entre el título y el menú */
-.navbar-menu-spacer {
-  width: 20px;
-  display: inline-block;
-}
-
 /* Ajuste del container para mejor espaciado */
 .navbar > .container-lg {
   display: flex;
   justify-content: space-between;
+  padding-left: 15px;
+  padding-right: 15px;
+  width: 100%;
 }
 
 /* Estilos base para el navbar */
 .navbar-transition {
   transition: all 0.3s ease-in-out;
-  background: #103f1b !important; /* Verde oscuro sólido como en la captura */
+  background: #103f1b !important; /* Verde oscuro sólido */
   border-bottom: 3px solid #9fc45a;
 }
 
@@ -43,13 +40,13 @@
 .navbar-brand-container {
   display: flex;
   align-items: center;
-  margin-right: 30px; /* Añadimos margen a la derecha para separar del menú */
+  margin-right: 30px; /* Separación del menú */
 }
 
 /* Estilos para el logo */
 .navbar-logo {
   height: 48px;
-  margin-right: 15px; /* Margen a la derecha */
+  margin-right: 15px;
   transition: all 0.3s ease;
 }
 
@@ -64,7 +61,7 @@
   color: white;
   margin: 0;
   transition: all 0.3s ease;
-  font-size: 1.2rem; /* Tamaño de fuente más pequeño para mejor ajuste */
+  font-size: 1.2rem;
 }
 
 .brand-link {
@@ -82,16 +79,16 @@
   display: flex;
   justify-content: center;
   flex-grow: 1;
-  margin-left: 20px; /* Aumentamos el espacio a la izquierda */
+  margin-left: 20px;
 }
 
 .nav-link-custom {
   color: white !important;
   font-weight: 600 !important;
-  font-size: 0.85rem; /* Reducimos ligeramente el tamaño de fuente */
+  font-size: 0.85rem;
   letter-spacing: 0.5px;
-  padding: 0.5rem 1rem !important; /* Ajustamos espacio horizontal */
-  margin: 0 0.4rem; /* Aumentamos margen entre enlaces */
+  padding: 0.5rem 1rem !important;
+  margin: 0 0.4rem;
   border-radius: 4px;
   transition: all 0.3s ease;
   position: relative;
@@ -129,14 +126,14 @@
 
 .icon-link {
   color: white !important;
-  margin-left: 1.2rem; /* Menos espacio entre iconos */
+  margin-left: 1.2rem;
   transition: all 0.3s ease;
   position: relative;
 }
 
 .icon-link svg {
-  width: 1.5em !important;  /* Tamaño reducido */
-  height: 1.5em !important; /* Tamaño reducido */
+  width: 1.5em !important;
+  height: 1.5em !important;
 }
 
 .icon-link:hover {
@@ -146,6 +143,12 @@
 
 .icon-link:active {
   transform: translateY(0);
+}
+
+/* Usuario dropdown container */
+.user-dropdown-container {
+  display: flex;
+  align-items: center;
 }
 
 /* Estilos específicos para el carrito */
@@ -293,13 +296,6 @@
     width: 1.4em !important;
     height: 1.4em !important;
   }
-}
-
-/* Asegurar que el contenedor del navbar tenga espacio adecuado */
-.navbar > .container {
-  padding-left: 15px;
-  padding-right: 15px;
-  width: 100%;
 }
 
 /* Para pantallas extra pequeñas */
