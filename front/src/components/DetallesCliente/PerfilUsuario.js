@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { NavLink, useNavigate } from 'react-router-dom';
+import {useNavigate } from 'react-router-dom';
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./PerfilUsuario.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSave, faLock, faEnvelope, faPhone, faIdCard, faCalendarAlt } from "@fortawesome/free-solid-svg-icons";
+import { faSave, faPhone, faIdCard, faCalendarAlt } from "@fortawesome/free-solid-svg-icons";
 import useAuth from "../../hooks/useAuth";
 import FooterApp from '../Footer/FooterApp';
-import { FaFileAlt, FaDownload, FaMapMarkerAlt, FaUser, FaSignOutAlt, FaHome } from "react-icons/fa";
 import NavbarApp from "../Navbar/NavbarApp";
 import Carrito from "../Carrito/CarritoApp";
+import SideBarUsuario from '../DetallesCliente/SideBarUsuario';
+import { useAppContext } from "../Navbar/AppContext";
 
 const PerfilUsuario = () => {
   const { usuario } = useAuth();
@@ -29,6 +30,8 @@ const PerfilUsuario = () => {
     fechaNacimiento: "",
    
   });
+const { handleLogout
+      } = useAppContext();
 
   const [isEditing, setIsEditing] = useState(false);
 
@@ -66,50 +69,14 @@ const PerfilUsuario = () => {
   } catch (error) {
     toast.error("Error al actualizar tus datos. Por favor intenta nuevamente.");
   }
-};
-
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('correoUsuario');
-    localStorage.removeItem('nombreUsuario');
-    localStorage.removeItem('nombreUsuario');
-    localStorage.removeItem('nombreRol');
-    localStorage.removeItem('idUsuario');
-    navigate('/');
-  };
-
-  
+};  
 
   return (
     <div className="profile-page">
       <NavbarApp />
-      <Carrito />
+   
       <div className="perfil-usuario-container">
-        {/* Sidebar (sin cambios) */}
-        <div className="sidebar-container">
-          <h3 className="sidebar-title">Bienvenido {usuario?.nombreUsuario || "Usuario"}</h3>
-          <nav className="sidebar-nav">
-            <NavLink to="/dashboard" className="sidebar-link">
-              <FaHome className="icon" /> Inicio
-            </NavLink>
-            <NavLink to="/Orders" className="sidebar-link">
-              <FaFileAlt className="icon" /> Pedidos
-            </NavLink>
-            <NavLink to="/downloads" className="sidebar-link">
-              <FaDownload className="icon" /> Comprobantes
-            </NavLink>
-            <NavLink to="/DireccionUsuario" className="sidebar-link">
-              <FaMapMarkerAlt className="icon" /> Dirección
-            </NavLink>
-            <NavLink to="/PerfilUsuario" className="sidebar-link">
-              <FaUser className="icon" /> Detalles de la cuenta
-            </NavLink>
-            <NavLink to="/" className="sidebar-link logout" onClick={handleLogout}>
-              <FaSignOutAlt className="icon" /> Cerrar sesión
-            </NavLink>
-          </nav>
-        </div>
+      <SideBarUsuario usuario={usuario} handleLogout={handleLogout} />
 
         {/* Contenido principal con nuevo diseño */}
         <div className="profile-content">
@@ -244,7 +211,7 @@ const PerfilUsuario = () => {
             </form>
           </div>
         </div>
-
+        <Carrito />
         <ToastContainer position="bottom-right" autoClose={3000} />
       </div>
       <FooterApp />

@@ -11,6 +11,7 @@ import FooterApp from '../Footer/FooterApp';
 import PaginacionApp from '../Paginacion/PaginacionApp';
 import { ToastContainer, toast } from 'react-toastify';
 import './Orders.css';
+import SideBarUsuario from '../DetallesCliente/SideBarUsuario';
 
 const Orders = () => {
   const [pedidos, setPedidos] = useState([]);
@@ -511,29 +512,8 @@ const Orders = () => {
     <NavbarApp />
       <Carrito />
       <div className="perfil-usuario-container">
-        <div className="sidebar-container">
-          <h3 className="sidebar-title">Bienvenido {localStorage.getItem('nombreUsuario') || "Usuario"}</h3>
-          <nav className="sidebar-nav">
-            <NavLink to="/dashboard" className="sidebar-link">
-              <FaHome className="icon" /> Inicio
-            </NavLink>
-            <NavLink to="/Orders" className="sidebar-link">
-              <FaFileAlt className="icon" /> Pedidos
-            </NavLink>
-            <NavLink to="/downloads" className="sidebar-link">
-              <FaDownload className="icon" /> Comprobantes
-            </NavLink>
-            <NavLink to="/DireccionUsuario" className="sidebar-link">
-              <FaMapMarkerAlt className="icon" /> Dirección
-            </NavLink>
-            <NavLink to="/PerfilUsuario" className="sidebar-link">
-              <FaUser className="icon" /> Detalles de la cuenta
-            </NavLink>
-            <NavLink to="/" className="sidebar-link logout" onClick={handleLogout}>
-              <FaSignOutAlt className="icon" /> Cerrar sesión
-            </NavLink>
-          </nav>
-        </div>
+      {/* Sidebar Component */}
+      <SideBarUsuario usuario={usuario} handleLogout={handleLogout} />
 
         <div className="orders-content">
           <div className="orders-header">

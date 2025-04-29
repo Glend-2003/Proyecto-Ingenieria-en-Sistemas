@@ -39,17 +39,18 @@ function LoginApp({ initialPage = "home" }) {
   const [rememberMe, setRememberMe] = useState(false)
 
   // Usar el contexto para obtener estados y funciones
-  const { showSidebar, handleShowSidebar, addToCart } = useAppContext()
+  const { showSidebar, handleShowSidebar, addToCart, updateUserStatus  } = useAppContext()
   const { showCartMenu } = useCart(); // Obtener el estado del carrito
+
 
   // Detectar cambios en la URL para actualizar currentPage
   useEffect(() => {
     console.log("Ruta actual:", location.pathname);
-    
+
     // Mapeo directo entre rutas y páginas
     const pathToPage = {
       "/pedido": "pedido",
-      "/Historia": "historia", 
+      "/Historia": "historia",
       "/verOrden": "verOrden",
       "/cortes-de-res": "res",
       "/cortes-de-cerdo": "cerdo",
@@ -58,7 +59,7 @@ function LoginApp({ initialPage = "home" }) {
       "/productos-destacados": "destacados",
       "/": "home"
     };
-    
+
     if (pathToPage[location.pathname]) {
       setCurrentPage(pathToPage[location.pathname]);
       console.log("Página establecida a:", pathToPage[location.pathname]);
@@ -120,16 +121,7 @@ function LoginApp({ initialPage = "home" }) {
     }
   }, [])
 
-  const handleLogout = () => {
-    localStorage.removeItem("token")
-    localStorage.removeItem("correoUsuario")
-    localStorage.removeItem("nombreUsuario")
-    localStorage.removeItem("nombreRol")
-    localStorage.removeItem("idUsuario")
-    localStorage.removeItem("rememberedEmail")
-    localStorage.removeItem("rememberedPassword")
-    navigate("/")
-  }
+  
   const [showForgotPassword, setShowForgotPassword] = useState(false) // Estado para mostrar el formulario de "Olvidé mi contraseña"
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false) // Estado para el spinner
@@ -161,7 +153,7 @@ function LoginApp({ initialPage = "home" }) {
           localStorage.setItem("nombreUsuario", response.data.nombreUsuario)
           localStorage.setItem("nombreRol", response.data.rol.nombreRol)
           localStorage.setItem("idUsuario", response.data.idUsuario)
-
+          updateUserStatus(); 
           if (rememberMe) {
             localStorage.setItem("rememberedEmail", loginData.correoUsuario)
             localStorage.setItem("rememberedPassword", loginData.contraseniaUsuario)
@@ -225,7 +217,7 @@ function LoginApp({ initialPage = "home" }) {
           autoClose: 2000, // Duración de la alerta (2 segundos)
           onClose: () => {
             // Redirigir después de que la alerta se cierre
-            navigate("/reset-password", { state: { correoUsuario: loginData.correoUsuario } })
+            navigate("/ResetPassword", { state: { correoUsuario: loginData.correoUsuario } })
           },
         })
       }
@@ -246,7 +238,17 @@ function LoginApp({ initialPage = "home" }) {
       {/* Se eliminaron los iconos de redes sociales ya que ahora están en el footer */}
 
       {/* Offcanvas Sidebar */}
-      <Offcanvas show={showSidebar} onHide={handleShowSidebar} placement="end">
+      <Offcanvas
+        show={showSidebar}
+        onHide={handleShowSidebar}
+        placement="end"
+        style={{
+          position: 'fixed',
+          top: '0',
+          zIndex: 1200, // Mayor que el zIndex del navbar (1100)
+          height: '100vh'
+        }}
+      >
         <Offcanvas.Header closeButton>
           <Offcanvas.Title style={{ fontSize: "24px", fontWeight: "bold", color: "#333" }}>
             {showForgotPassword ? "Recuperar contraseña" : "Iniciar sesión"}
@@ -348,8 +350,8 @@ function LoginApp({ initialPage = "home" }) {
             <form onSubmit={handleForgotPassword}>
               {/* Contenido del formulario de recuperación (código existente) */}
               <p className="mb-4" style={{ fontSize: "16px", color: "#555", lineHeight: "1.9" }}>
-                Ingresa tu correo electrónico para verificar que eres tú. Te enviaremos un código para restablecer tu
-                contraseña.
+                Ingresa tu correo para verificar que eres tú.<br />
+                Te enviaremos un código para restablecer tu contraseña.
               </p>
 
               <div className="mb-3">

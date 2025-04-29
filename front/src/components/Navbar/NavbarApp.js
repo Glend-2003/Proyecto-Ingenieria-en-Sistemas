@@ -12,8 +12,11 @@ import { Form, InputGroup, FormControl } from "react-bootstrap";
 const NavbarApp = () => {
   // Usar el contexto para obtener estados y funciones
   const { cart, showCartMenu, setShowCartMenu } = useCart();
-  const { idUsuario } = useAppContext();
-  const { handleShowSidebar } = useAppContext();
+  const { 
+    idUsuario,
+    handleShowSidebar,
+    handleLogout
+  } = useAppContext();
   
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -50,9 +53,11 @@ const NavbarApp = () => {
       variant="dark"
       className={navbarClasses}
       sticky="top"
+      style={{ position: 'relative', zIndex: 1100 }}
     >
       <Container fluid="lg">
-        <div className="navbar-brand-container">
+        {/* Logo y título para versión desktop */}
+        <div className="navbar-brand-container d-none d-lg-flex">
           <Link to="/Historia" className="d-flex align-items-center text-decoration-none">
             <img 
               src={require('../../assets/images/LogoCarn.png')} 
@@ -64,11 +69,24 @@ const NavbarApp = () => {
             </BootstrapNavbar.Brand>
           </Link>
         </div>
-        <div className="navbar-menu-spacer d-none d-lg-block"></div>
+        
+        {/* Logo y título para versión móvil */}
+        <div className="d-flex d-lg-none align-items-center">
+          <Link to="/Historia" className="d-flex align-items-center text-decoration-none">
+            <img 
+              src={require('../../assets/images/LogoCarn.png')} 
+              alt="Carnicería La Bendición" 
+              className="navbar-logo"
+            />
+            <BootstrapNavbar.Brand className="brand-text">
+              Carnicería La Bendición
+            </BootstrapNavbar.Brand>
+          </Link>
+        </div>
 
+        {/* Iconos móviles */}
         <div className="d-flex align-items-center ml-auto d-lg-none">
-          {/* Iconos visibles en móvil antes de expandir */}
-          <Nav.Link className="icon-link d-lg-none" onClick={() => setSearchOpen(!searchOpen)}>
+          <Nav.Link className="icon-link" onClick={() => setSearchOpen(!searchOpen)}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="1.5em"
@@ -80,7 +98,7 @@ const NavbarApp = () => {
               <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.099zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
             </svg>
           </Nav.Link>
-          <Nav.Link className="icon-link cart-icon d-lg-none mx-2" onClick={() => setShowCartMenu(!showCartMenu)}>
+          <Nav.Link className="icon-link cart-icon mx-2" onClick={() => setShowCartMenu(!showCartMenu)}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="1.5em"
@@ -134,7 +152,7 @@ const NavbarApp = () => {
               </svg>
             </Nav.Link>
             
-            <div className="icon-link">
+            <div className="icon-link user-dropdown-container">
               <Nav.Link onClick={handleShowSidebar}>
                 <DropDown
                   icon={
@@ -150,6 +168,7 @@ const NavbarApp = () => {
                     </svg>
                   }
                   idUsuario={idUsuario}
+                  onLogout={handleLogout}
                 />
               </Nav.Link>
             </div>

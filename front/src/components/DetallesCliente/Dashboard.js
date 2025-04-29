@@ -8,80 +8,57 @@ import FooterApp from '../Footer/FooterApp';
 import NavbarApp from '../Navbar/NavbarApp';
 import { AppProvider } from "../Navbar/AppContext"
 import Carrito from '../Carrito/CarritoApp';
+import SideBarUsuario from '../DetallesCliente/SideBarUsuario';
+import { useAppContext } from "../Navbar/AppContext";
 
 const Dashboard = () => {
     const { usuario } = useAuth();
     const navigate = useNavigate();
+     const { 
+     
+        handleLogout
+      } = useAppContext();
 
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('correoUsuario');
-        localStorage.removeItem('nombreUsuario');
-        localStorage.removeItem('nombreUsuario');
-        localStorage.removeItem('nombreRol');
-        localStorage.removeItem('idUsuario');
-        navigate('/');
-    };
+ 
     return (
         <AppProvider>
-        <NavbarApp/>
-        <div>
-            <div className="dashboard-container">
-                {/* Sidebar */}
-                <div className="sidebar-container">
-                    <h3 className="sidebar-title">Bienvenido {usuario?.nombreUsuario || "Usuario"}</h3>
-                    <nav className="sidebar-nav">
-                        <NavLink to="/dashboard" className="sidebar-link">
-                            <FaHome className="icon" /> Inicio
-                        </NavLink>
-                        <NavLink to="/orders" className="sidebar-link">
-                            <FaFileAlt className="icon" /> Pedidos
-                        </NavLink>
-                        <NavLink to="/downloads" className="sidebar-link">
-                            <FaDownload className="icon" /> Comprobantes
-                        </NavLink>
-                        <NavLink to="/DireccionUsuario" className="sidebar-link">
-                            <FaMapMarkerAlt className="icon" /> Dirección
-                        </NavLink>
-                        <NavLink to="/PerfilUsuario" className="sidebar-link">
-                            <FaUser className="icon" /> Detalles de la cuenta
-                        </NavLink>
-                        <NavLink to="/" className="sidebar-link logout" onClick={handleLogout}>
-                            <FaSignOutAlt className="icon" /> Cerrar sesión
-                        </NavLink>
-                    </nav>
-                </div>
+            <div>
+                <NavbarApp />
+                <div className="dashboard-container">
+                    {/* Sidebar Component */}
+                    <SideBarUsuario usuario={usuario} handleLogout={handleLogout} />
 
-                {/* Contenido */}
-                <div className="content">
-                    <h2 className="text-center">Bienvenido a tu perfil</h2>
-                    <div className="cards-container">
-                        <NavLink to="/orders" className="card">
-                            <FaFileAlt className="icon" />
-                            <span>Pedidos</span>
-                        </NavLink>
-                        <NavLink to="/downloads" className="card">
-                            <FaDownload className="icon" />
-                            <span>Comprobantes</span>
-                        </NavLink>
-                        <NavLink to="/addresses" className="card">
-                            <FaMapMarkerAlt className="icon" />
-                            <span>Dirección</span>
-                        </NavLink>
-                        <NavLink to="/account-details" className="card">
-                            <FaUser className="icon" />
-                            <span>Detalles de la cuenta</span>
-                        </NavLink>
-                        <NavLink to="/" className="card logout" onClick={handleLogout}>
-                            <FaSignOutAlt className="icon" />
-                            <span>Cerrar sesión</span>
-                        </NavLink>
+                    {/* Contenido */}
+                    <div className="content">
+                        <h2 className="text-center">Bienvenido a tu perfil</h2>
+                        <div className="cards-container">
+                            <NavLink to="/orders" className="card">
+                                <FaFileAlt className="icon" />
+                                <span>Pedidos</span>
+                            </NavLink>
+                            <NavLink to="/downloads" className="card">
+                                <FaDownload className="icon" />
+                                <span>Comprobantes</span>
+                            </NavLink>
+                            <NavLink to="/DireccionUsuario" className="card">
+                                <FaMapMarkerAlt className="icon" />
+                                <span>Dirección</span>
+                            </NavLink>
+                            <NavLink to="/PerfilUsuario" className="card">
+                                <FaUser className="icon" />
+                                <span>Detalles de la cuenta</span>
+                            </NavLink>
+                            <NavLink to="/" className="card logout" onClick={handleLogout}>
+                                <FaSignOutAlt className="icon" />
+                                <span>Cerrar sesión</span>
+                            </NavLink>
+                        </div>
                     </div>
+                    <Carrito />
                 </div>
-                <Carrito />
+                <FooterApp />
             </div>
-            <FooterApp /></div>
-            </AppProvider>
+        </AppProvider>
     );
 };
 

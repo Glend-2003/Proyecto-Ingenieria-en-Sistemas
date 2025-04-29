@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from "reactstrap";
 import './DropDown.css';
 
-const DropDown = ({ icon, idUsuario }) => {
+const DropDown = ({ icon, idUsuario, onLogout }) => {
     const [isOpen, setIsOpen] = useState(false);
     const navigate = useNavigate();
+    const dropdownRef = useRef(null);
     
     const toggle = () => {
         // Solo permite alternar si hay un usuario
@@ -51,11 +52,17 @@ const DropDown = ({ icon, idUsuario }) => {
             toggle={toggle}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
+            direction="down"
+            inNavbar={true} /* Esto es importante para el posicionamiento */
+            ref={dropdownRef}
         >
             <DropdownToggle tag="span" className="cursor-pointer">
                 {icon}
             </DropdownToggle>
-            <DropdownMenu className="dropdown-menu-custom" container="body">
+            <DropdownMenu 
+                className="dropdown-menu-custom" 
+                container="body"
+            >
                 <DropdownItem header>PERFIL</DropdownItem>
                 <DropdownItem onClick={() => handleNavigation('/Dashboard')} className="dropdown-item-custom">
                     Panel
@@ -73,7 +80,7 @@ const DropDown = ({ icon, idUsuario }) => {
                     Detalles de la cuenta
                 </DropdownItem>
                 <DropdownItem divider />
-                <DropdownItem onClick={handleLogout} className="dropdown-item-logout">
+                <DropdownItem onClick={onLogout} className="dropdown-item-logout">
                     Cerrar sesión
                 </DropdownItem>
             </DropdownMenu>

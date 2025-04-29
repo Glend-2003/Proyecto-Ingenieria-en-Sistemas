@@ -9,7 +9,8 @@ export const AppProvider = ({ children }) => {
   const [showSidebar, setShowSidebar] = useState(false)
   const [showCart, setShowCart] = useState(false)
   const [cart, setCart] = useState([])
-  const idUsuario = localStorage.getItem("idUsuario")
+  const [idUsuario, setIdUsuario] = useState(localStorage.getItem("idUsuario"));
+  
 
   // Cargar el carrito desde localStorage al iniciar
   useEffect(() => {
@@ -90,7 +91,23 @@ export const AppProvider = ({ children }) => {
     localStorage.setItem("carrito", JSON.stringify([]))
   }
 
-  // Valor del contexto que se proporcionará
+  const updateUserStatus = () => {
+    setIdUsuario(localStorage.getItem("idUsuario"));
+  };
+
+  // Función para logout
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("correoUsuario");
+    localStorage.removeItem("nombreUsuario");
+    localStorage.removeItem("nombreRol");
+    localStorage.removeItem("idUsuario");
+    updateUserStatus(); // Actualizar el estado
+     window.location.href = "/"; // Redirige a la página principal
+
+  };
+
+  // Valor del contexto
   const contextValue = {
     showSidebar,
     showCart,
@@ -101,7 +118,9 @@ export const AppProvider = ({ children }) => {
     addToCart,
     removeFromCart,
     clearCart,
-  }
+    updateUserStatus, // Añadir esta función
+    handleLogout // Añadir función de logout
+  };
 
   return <AppContext.Provider value={contextValue}>{children}</AppContext.Provider>
 }
