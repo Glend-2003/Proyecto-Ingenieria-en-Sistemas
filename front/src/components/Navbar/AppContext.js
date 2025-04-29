@@ -1,5 +1,6 @@
 import { createContext, useState, useContext, useEffect } from "react"
 import { toast } from "react-toastify"
+import axios from "axios";
 
 // Crear el contexto
 const AppContext = createContext()
@@ -10,8 +11,12 @@ export const AppProvider = ({ children }) => {
   const [showCart, setShowCart] = useState(false)
   const [cart, setCart] = useState([])
   const [idUsuario, setIdUsuario] = useState(localStorage.getItem("idUsuario"));
-  
+  const [productos, setProductos] = useState([]);
+  const [globalSearchTerm, setGlobalSearchTerm] = useState(""); 
 
+  const buscarProductos = (termino) => {
+    setGlobalSearchTerm(termino);
+  };
   // Cargar el carrito desde localStorage al iniciar
   useEffect(() => {
     const savedCart = JSON.parse(localStorage.getItem("carrito") || "[]")
@@ -118,6 +123,9 @@ export const AppProvider = ({ children }) => {
     addToCart,
     removeFromCart,
     clearCart,
+    globalSearchTerm,
+    buscarProductos,
+    setGlobalSearchTerm,
     updateUserStatus, // Añadir esta función
     handleLogout // Añadir función de logout
   };

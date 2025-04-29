@@ -4,9 +4,10 @@ import { Card, Button, Modal, Form, Row, Col } from "react-bootstrap";
 import { toast, ToastContainer } from "react-toastify";
 import "./ListaProductos.css";
 import { useCart } from '../../contexto/ContextoCarrito';
+import { useAppContext } from "../Navbar/AppContext";
 
 function ListaProductosApp({ categoria }) {
-  const { addToCart } = useCart(); 
+  const { addToCart } = useCart();
   const [productos, setProductos] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -17,7 +18,9 @@ function ListaProductosApp({ categoria }) {
   const [priceRange, setPriceRange] = useState({ min: 0, max: 0 });
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [selectedPrice, setSelectedPrice] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
   const [sortOrder, setSortOrder] = useState("default"); // Estado para el ordenamiento
+  const { globalSearchTerm, buscarProductos } = useAppContext();
 
   const verDetalles = (producto) => {
     setSelectedProduct(producto);
@@ -37,7 +40,7 @@ function ListaProductosApp({ categoria }) {
         ...selectedProduct,
         cantidad: cantidadValida,
       };
-      addToCart(productoConCantidad, cantidadValida); 
+      addToCart(productoConCantidad, cantidadValida);
       toast.success(
         `${selectedProduct.nombreProducto} agregado al carrito (${cantidadValida} unidad${cantidadValida > 1 ? "es" : ""})`,
       );
@@ -62,7 +65,7 @@ function ListaProductosApp({ categoria }) {
     const fetchProductos = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('http://localhost:8080/producto/',{params: { estadoProducto: 1 }});
+        const response = await axios.get('http://localhost:8080/producto/', { params: { estadoProducto: 1 } });
         setProductos(response.data);
         setLoading(false);
       } catch (error) {
@@ -78,24 +81,24 @@ function ListaProductosApp({ categoria }) {
     if (productos.length > 0 && categorias.length > 0) {
       if (categoria && categoria.toLowerCase() === "varios") {
         const categoriasExcluidas = categorias
-          .filter(cat => 
+          .filter(cat =>
             ["res", "cerdo", "pollo"].includes(cat.nombreCategoria.toLowerCase())
           )
           .map(cat => cat.idCategoria);
-        
-        const filtrados = productos.filter(producto => 
+
+        const filtrados = productos.filter(producto =>
           producto.categoria && !categoriasExcluidas.includes(producto.categoria.idCategoria)
         );
-        
+
         setProductosFiltrados(filtrados);
       } else if (categoria) {
-        const categoriaObj = categorias.find(cat => 
+        const categoriaObj = categorias.find(cat =>
           cat.nombreCategoria.toLowerCase() === categoria.toLowerCase()
         );
-        
+
         if (categoriaObj) {
           const idCategoriaFiltro = categoriaObj.idCategoria;
-          const filtrados = productos.filter(producto => 
+          const filtrados = productos.filter(producto =>
             producto.categoria && producto.categoria.idCategoria === idCategoriaFiltro
           );
           setProductosFiltrados(filtrados);
@@ -111,22 +114,46 @@ function ListaProductosApp({ categoria }) {
   }, [categoria, productos, categorias]);
 
   useEffect(() => {
-    if (productosFiltrados.length > 0) {
-      const prices = productosFiltrados.map(p => p.montoPrecioProducto);
-      const minPrice = Math.min(...prices);
-      const maxPrice = Math.max(...prices);
-      setPriceRange({ min: minPrice, max: maxPrice });
-      setSelectedPrice(maxPrice);
-      setFilteredProducts(productosFiltrados);
+    if (globalSearchTerm) {
+      setSearchTerm(globalSearchTerm);
     }
-  }, [productosFiltrados]);
+  }, [globalSearchTerm]);
+
+  // Mejora la función de filtrado para buscar en varios campos
+  useEffect(() => {
+    if (!productosFiltrados.length) return;
+
+    const filtered = productosFiltrados.filter(product =>
+      product.nombreProducto.toLowerCase().includes(globalSearchTerm.toLowerCase()) ||
+      (product.descripcionProducto &&
+        product.descripcionProducto.toLowerCase().includes(globalSearchTerm.toLowerCase())) ||
+      (product.codigoProducto &&
+        product.codigoProducto.toLowerCase().includes(globalSearchTerm.toLowerCase()))
+    );
+    setFilteredProducts(filtered);
+  }, [globalSearchTerm, productosFiltrados]);
 
   const handlePriceFilter = () => {
-    const filtered = productosFiltrados.filter(product => 
+    const filtered = productosFiltrados.filter(product =>
       product.montoPrecioProducto <= selectedPrice
     );
     setFilteredProducts(filtered);
   };
+
+  useEffect(() => {
+    const filtered = productosFiltrados.filter(product =>
+      product.nombreProducto.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredProducts(filtered);
+  }, [searchTerm, productosFiltrados]);
+
+
+  const handleProductoFilter = () => {
+    const filtered = productosFiltrados.filter(product =>
+      product.nombreProducto <= searchTerm
+    );
+    setFilteredProducts(filtered);
+  }
 
   // Función para ordenar los productos
   const handleSortChange = (e) => {
@@ -150,6 +177,7 @@ function ListaProductosApp({ categoria }) {
 
       <Row>
         <Col md={3}>
+
           <div className="price-filter">
             <h4>FILTRAR POR PRECIO</h4>
             <p>Precio: ₡{priceRange.min} – ₡{priceRange.max}</p>
@@ -163,6 +191,8 @@ function ListaProductosApp({ categoria }) {
             />
             <button onClick={handlePriceFilter} className="filter-button">FILTRAR</button>
           </div>
+          <div className="mb-2"></div>
+
         </Col>
         <Col md={9}>
           <div className="sort-container">
@@ -176,7 +206,14 @@ function ListaProductosApp({ categoria }) {
             {loading ? (
               <p>Cargando productos...</p>
             ) : filteredProducts.length === 0 ? (
-              <p>No hay productos disponibles en esta categoría</p>
+              globalSearchTerm ? (
+                <div className="no-results-message">
+                  <p>No hay productos disponibles con el término: "{globalSearchTerm}"</p>
+
+                </div>
+              ) : (
+                <p>No hay productos disponibles en esta categoría</p>
+              )
             ) : (
               filteredProducts.map((product) => (
                 <div className="product-card" key={product.idProducto}>
@@ -256,7 +293,7 @@ function ListaProductosApp({ categoria }) {
 
                 {selectedProduct.codigoProducto && (
                   <p>
-                    <strong>SKU:</strong> {selectedProduct.codigoProducto} 
+                    <strong>SKU:</strong> {selectedProduct.codigoProducto}
                   </p>
                 )}
 

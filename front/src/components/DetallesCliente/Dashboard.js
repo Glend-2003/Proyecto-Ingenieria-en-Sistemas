@@ -14,10 +14,7 @@ import { useAppContext } from "../Navbar/AppContext";
 const Dashboard = () => {
     const { usuario } = useAuth();
     const navigate = useNavigate();
-     const { 
-     
-        handleLogout
-      } = useAppContext();
+     const {handleLogout} = useAppContext();
 
  
     return (

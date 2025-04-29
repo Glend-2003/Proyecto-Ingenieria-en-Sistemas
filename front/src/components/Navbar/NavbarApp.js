@@ -7,7 +7,7 @@ import '../styles.min.css';
 import { Link } from 'react-router-dom';
 import './Navbar.css';
 import { useCart } from '../../contexto/ContextoCarrito';
-import { Form, InputGroup, FormControl } from "react-bootstrap";
+import { Form, InputGroup, FormControl, Button } from "react-bootstrap";
 
 const NavbarApp = () => {
   // Usar el contexto para obtener estados y funciones
@@ -15,7 +15,10 @@ const NavbarApp = () => {
   const { 
     idUsuario,
     handleShowSidebar,
-    handleLogout
+    handleLogout,
+    buscarProductos,
+    globalSearchTerm,  // Añadimos esto para poder limpiar el buscador
+    setGlobalSearchTerm  // Añadimos esto para poder actualizar el término
   } = useAppContext();
   
   const [searchOpen, setSearchOpen] = useState(false);
@@ -43,6 +46,14 @@ const NavbarApp = () => {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+
+    // Efecto para sincronizar con el término de búsqueda global
+    useEffect(() => {
+      if (globalSearchTerm !== searchQuery) {
+        setSearchQuery(globalSearchTerm);
+      }
+    }, [globalSearchTerm]);
+  
 
   // Clases dinámicas basadas en el estado de scroll
   const navbarClasses = `navbar-transition ${isScrolled ? "navbar-scrolled" : "navbar-top"}`;
@@ -195,29 +206,42 @@ const NavbarApp = () => {
       </Container>
       
       {searchOpen && (
-        <div className="search-container">
-          <Form className="search-form">
-            <InputGroup>
-              <FormControl
-                type="text"
-                placeholder="Buscar productos..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                autoFocus
-                className="search-input"
-              />
-              <button 
-                className="search-close-btn"
-                onClick={() => setSearchOpen(false)}
-                type="button"
-              >
-                ×
-              </button>
-            </InputGroup>
-          </Form>
-        </div>
-      )}
-    </BootstrapNavbar>
+    <div className="search-container">
+      <Form className="search-form">
+        <InputGroup>
+          <FormControl
+            type="text"
+            placeholder="Buscar productos..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyPress={(e) => {
+              if (e.key === "Enter") {
+                buscarProductos(searchQuery);
+              }
+            }}
+          />
+          <Button 
+            variant="primary"
+            onClick={() => buscarProductos(searchQuery)}
+          >
+            Buscar
+          </Button>
+          <button 
+            className="search-close-btn"
+            onClick={() => {
+        
+              setSearchQuery("");
+              buscarProductos(""); // Limpiar la búsqueda al cerrar
+            }}
+            type="button"
+          >
+            ×
+          </button>
+        </InputGroup>
+      </Form>
+    </div>
+  )}
+</BootstrapNavbar>
   );
 };
 
