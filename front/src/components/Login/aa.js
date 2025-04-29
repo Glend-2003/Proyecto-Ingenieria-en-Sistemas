@@ -6,16 +6,16 @@ import "../styles.min.css"
 import { Offcanvas } from "react-bootstrap"
 import ListaProductosApp from "../Catalogo/ListaProductosApp.js"
 import PedidoCrud from "../Pedido/PedidoCrud.js"
-import { ToastContainer, toast } from "react-toastify"
+import { toast } from "react-toastify"
 import "../Login/Login.css"
 import FooterApp from "../Footer/FooterApp"
 import Snackbar from "@mui/material/Snackbar"
 import MuiAlert from "@mui/material/Alert"
+import { FaEye, FaEyeSlash, FaSpinner, FaArrowLeft, FaExclamationTriangle, FaCheckCircle, FaInfoCircle } from "react-icons/fa"
+import { FaWhatsapp, FaFacebook } from "react-icons/fa";
 import NavbarApp from "../Navbar/NavbarApp.js"
 import Carrito from "../Carrito/CarritoApp"
 import { useAppContext } from "../Navbar/AppContext"
-import { useCart } from '../../contexto/ContextoCarrito'
-import { FaEye, FaEyeSlash, FaSpinner, FaArrowLeft, FaExclamationTriangle, FaCheckCircle, FaInfoCircle } from "react-icons/fa"
 import Historia from "../Home/Historia.js"
 import MostrarOrdenApp from "../Orden/MostrarOdenApp.js"
 import ResPagina from "../../paginas/ResPagina.js"
@@ -25,7 +25,7 @@ import ProductosVariosPagina from "../../paginas/ProductosVariosPagina.js"
 import ProductosDestacadosPagina from "../../paginas/ProductosDestacadosPagina.js"
 
 // Componente de alerta personalizado y centralizado
-const Alert = React.forwardRef(function Alert(props, ref) {
+const CentralizedAlert = React.forwardRef(function Alert(props, ref) {
   // Personalización del icono según el tipo de alerta
   const renderIcon = () => {
     switch (props.severity) {
@@ -98,16 +98,19 @@ function LoginApp({ initialPage = "home" }) {
     correoUsuario: "",
     contraseniaUsuario: "",
   })
-  
+  const [fieldErrors, setFieldErrors] = useState({
+    correoUsuario: "",
+    contraseniaUsuario: ""
+  })
   const [loginStatus, setLoginStatus] = useState("")
   const navigate = useNavigate()
-  
+  const [isOpen, setIsOpen] = useState(false)
+  const [productos, setProductos] = useState([])
   const [rememberMe, setRememberMe] = useState(false)
   const [emailValidationTimer, setEmailValidationTimer] = useState(null)
 
   // Usar el contexto para obtener estados y funciones
-  const { showSidebar, handleShowSidebar, addToCart, updateUserStatus } = useAppContext()
-  const { showCartMenu } = useCart(); // Obtener el estado del carrito
+  const { showSidebar, handleShowSidebar, addToCart } = useAppContext()
 
   // Estados para alertas mejoradas y centralizadas
   const [alert, setAlert] = useState({
@@ -232,8 +235,18 @@ function LoginApp({ initialPage = "home" }) {
     return () => {
       if (emailValidationTimer) clearTimeout(emailValidationTimer);
     };
-  }, [emailValidationTimer])
+  }, [])
 
+  const handleLogout = () => {
+    localStorage.removeItem("token")
+    localStorage.removeItem("correoUsuario")
+    localStorage.removeItem("nombreUsuario")
+    localStorage.removeItem("nombreRol")
+    localStorage.removeItem("idUsuario")
+    localStorage.removeItem("rememberedEmail")
+    localStorage.removeItem("rememberedPassword")
+    navigate("/")
+  }
   
   const [showForgotPassword, setShowForgotPassword] = useState(false) // Estado para mostrar el formulario de "Olvidé mi contraseña"
   const [showPassword, setShowPassword] = useState(false)
@@ -278,12 +291,12 @@ function LoginApp({ initialPage = "home" }) {
         setIsLoading(false);
         
         if (response.data.token) {
-          localStorage.setItem("token", response.data.token)
-          localStorage.setItem("correoUsuario", response.data.correoUsuario)
-          localStorage.setItem("nombreUsuario", response.data.nombreUsuario)
-          localStorage.setItem("nombreRol", response.data.rol.nombreRol)
-          localStorage.setItem("idUsuario", response.data.idUsuario)
-          updateUserStatus(); 
+          localStorage.setItem("token", response.data.token);
+          localStorage.setItem("correoUsuario", response.data.correoUsuario);
+          localStorage.setItem("nombreUsuario", response.data.nombreUsuario);
+          localStorage.setItem("nombreRol", response.data.rol.nombreRol);
+          localStorage.setItem("idUsuario", response.data.idUsuario);
+
           if (rememberMe) {
             localStorage.setItem("rememberedEmail", loginData.correoUsuario);
             localStorage.setItem("rememberedPassword", loginData.contraseniaUsuario);
@@ -388,21 +401,29 @@ function LoginApp({ initialPage = "home" }) {
     <div className="page-container">
       {/* Navbar Component */}
       <NavbarApp />
-      
-      {/* Se eliminaron los iconos de redes sociales ya que ahora están en el footer */}
+
+      {/* Alerta Centralizada */}
+      <div className="alert-container" style={{
+        display: alert.open ? 'flex' : 'none',
+        position: 'fixed',
+        top: '20px',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        zIndex: 9999,
+        width: '100%',
+        maxWidth: '500px',
+        justifyContent: 'center'
+      }}>
+        <CentralizedAlert 
+          severity={alert.severity}
+          onClose={handleCloseAlert}
+        >
+          {alert.message}
+        </CentralizedAlert>
+      </div>
 
       {/* Offcanvas Sidebar */}
-      <Offcanvas
-        show={showSidebar}
-        onHide={handleShowSidebar}
-        placement="end"
-        style={{
-          position: 'fixed',
-          top: '0',
-          zIndex: 1200, // Mayor que el zIndex del navbar (1100)
-          height: '100vh'
-        }}
-      >
+      <Offcanvas show={showSidebar} onHide={handleShowSidebar} placement="end">
         <Offcanvas.Header closeButton>
           <Offcanvas.Title className="login-title">
             {showForgotPassword ? "Recuperar contraseña" : "Iniciar sesión"}
@@ -461,18 +482,18 @@ function LoginApp({ initialPage = "home" }) {
 
               {/* Botón de acceso con spinner */}
               <div className="mb-3">
-                <button 
-                  className="btn-accediendo"
-                  disabled={isLoading}
-                  type="submit"
-                >
-                  {isLoading ? (
-                    <>
-                      <FaSpinner className="spinner" />
-                      <span>Accediendo...</span>
-                    </>
-                  ) : "Acceso"}
-                </button>
+              <button 
+  className="btn-accediendo"
+  disabled={isLoading}
+  type="submit"
+>
+  {isLoading ? (
+    <>
+      <FaSpinner className="spinner" />
+      <span>Accediendo...</span>
+    </>
+  ) : "Acceso"}
+</button>
               </div>
 
               {/* Opciones adicionales */}
@@ -515,50 +536,31 @@ function LoginApp({ initialPage = "home" }) {
               </div>
             </form>
           ) : (
-            // Formulario de "Olvidé mi contraseña" - Modificado
-            <form onSubmit={handleForgotPassword}>
-              <p className="mb-4" style={{ fontSize: "16px", color: "#555", lineHeight: "1.9" }}>
-                Ingresa tu correo para verificar que eres tú.<br />
-                Te enviaremos un código para restablecer tu contraseña.
-              </p>
-
-              <div className="mb-3">
-                <label
-                  htmlFor="correoUsuario"
-                  className="form-label"
-                  style={{ fontSize: "16px", color: "#333", fontWeight: "500" }}
-                >
-                  Correo electrónico
-                </label>
-                <input
-                  className="form-control"
-                  type="email"
-                  name="correoUsuario"
-                  id="correoUsuario"
-                  value={loginData.correoUsuario}
-                  onChange={handleInputChange}
-                  placeholder="correo@ejemplo.com"
-                  required
-                  style={{ fontSize: "16px", padding: "10px", width: "100%", maxWidth: "400px", margin: "0 auto" }}
-                />
+            // Formulario de "Olvidé mi contraseña" MEJORADO
+            <div className="password-reset-container">
+              <div className="reset-message">
+                <p>Ingresa tu correo para verificar que eres tú.</p>
+                <p>Te enviaremos un código para restablecer tu contraseña.</p>
               </div>
 
-              <div className="mb-3">
+              <form onSubmit={handleForgotPassword}>
+                <div className="form-group">
+                  <label htmlFor="correoUsuario">Correo electrónico</label>
+                  <input
+                    id="correoUsuario"
+                    type="email"
+                    name="correoUsuario"
+                    value={loginData.correoUsuario}
+                    onChange={handleInputChange}
+                    placeholder="correo@ejemplo.com"
+                    required
+                  />
+                </div>
+
                 <button 
                   type="submit" 
                   className="btn-submit"
                   disabled={isLoading}
-                  style={{
-                    fontSize: "16px",
-                    padding: "10px",
-                    width: "100%",
-                    maxWidth: "400px",
-                    margin: "0 auto",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "8px",
-                  }}
                 >
                   {isLoading ? (
                     <>
@@ -567,29 +569,16 @@ function LoginApp({ initialPage = "home" }) {
                     </>
                   ) : "Enviar código"}
                 </button>
-              </div>
+              </form>
 
-              {/* Botón para volver - Se mantiene */}
-              <div className="text-center mt-4">
-                <button
-                  type="button"
-                  className="btn btn-link"
-                  onClick={() => setShowForgotPassword(false)}
-                  style={{
-                    color: "#333",
-                    textDecoration: "none",
-                    fontSize: "16px",
-                    fontWeight: "500",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "8px",
-                  }}
-                >
-                  <FaArrowLeft /> Volver
-                </button>
-              </div>
-            </form>
+              <button 
+                type="button" 
+                className="btn-back"
+                onClick={() => setShowForgotPassword(false)}
+              >
+                <FaArrowLeft /> Volver al inicio de sesión
+              </button>
+            </div>
           )}
         </Offcanvas.Body>
       </Offcanvas>
@@ -602,20 +591,6 @@ function LoginApp({ initialPage = "home" }) {
       
       {/* Footer */}
       <FooterApp />
-      
-      {/* Snackbar para mostrar alertas */}
-      <Snackbar
-        open={alert.open}
-        autoHideDuration={alert.duration}
-        onClose={handleCloseAlert}
-        anchorOrigin={{ vertical: alert.vertical, horizontal: alert.horizontal }}
-      >
-        <Alert onClose={handleCloseAlert} severity={alert.severity}>
-          {alert.message}
-        </Alert>
-      </Snackbar>
-      
-      <ToastContainer />
     </div>
   )
 }
