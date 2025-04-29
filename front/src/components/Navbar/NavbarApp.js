@@ -49,18 +49,54 @@ const NavbarApp = () => {
       expand="lg"
       variant="dark"
       className={navbarClasses}
+      sticky="top"
     >
-      <Container>
+      <Container fluid="lg">
         <div className="navbar-brand-container">
-          <img 
-            src={require('../../assets/images/LogoCarn.png')} 
-            alt="Carnicería La Bendición" 
-            className="navbar-logo"
-          />
-          <BootstrapNavbar.Brand as={Link} to="/Historia" className="brand-text brand-link">
-            Carnicería La Bendición
-          </BootstrapNavbar.Brand>
+          <Link to="/Historia" className="d-flex align-items-center text-decoration-none">
+            <img 
+              src={require('../../assets/images/LogoCarn.png')} 
+              alt="Carnicería La Bendición" 
+              className="navbar-logo"
+            />
+            <BootstrapNavbar.Brand className="brand-text">
+              Carnicería La Bendición
+            </BootstrapNavbar.Brand>
+          </Link>
+        </div>
+        <div className="navbar-menu-spacer d-none d-lg-block"></div>
 
+        <div className="d-flex align-items-center ml-auto d-lg-none">
+          {/* Iconos visibles en móvil antes de expandir */}
+          <Nav.Link className="icon-link d-lg-none" onClick={() => setSearchOpen(!searchOpen)}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="1.5em"
+              height="1.5em"
+              fill="currentColor"
+              className="bi bi-search"
+              viewBox="0 0 16 16"
+            >
+              <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.099zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
+            </svg>
+          </Nav.Link>
+          <Nav.Link className="icon-link cart-icon d-lg-none mx-2" onClick={() => setShowCartMenu(!showCartMenu)}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="1.5em"
+              height="1.5em"
+              fill="currentColor"
+              className="bi bi-cart"
+              viewBox="0 0 16 16"
+            >
+              <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l1.313 7h8.17l1.313-7zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2" />
+            </svg>
+            {cart.length > 0 && (
+              <Badge className="cart-badge">
+                {cart.length}
+              </Badge>
+            )}
+          </Nav.Link>
         </div>
 
         <BootstrapNavbar.Toggle aria-controls="basic-navbar-nav" />
@@ -84,12 +120,12 @@ const NavbarApp = () => {
             </Nav.Link>
           </Nav>
           
-          <Nav className="icons-nav">
+          <Nav className="icons-nav d-none d-lg-flex">
             <Nav.Link className="icon-link" onClick={() => setSearchOpen(!searchOpen)}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                width="1.7em"
-                height="1.7em"
+                width="1.5em"
+                height="1.5em"
                 fill="currentColor"
                 className="bi bi-search"
                 viewBox="0 0 16 16"
@@ -104,8 +140,8 @@ const NavbarApp = () => {
                   icon={
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      width="1.7em"
-                      height="1.7em"
+                      width="1.5em"
+                      height="1.5em"
                       fill="currentColor"
                       className="bi bi-person"
                       viewBox="0 0 16 16"
@@ -121,8 +157,8 @@ const NavbarApp = () => {
             <Nav.Link className="icon-link cart-icon" onClick={() => setShowCartMenu(!showCartMenu)}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                width="1.7em"
-                height="1.7em"
+                width="1.5em"
+                height="1.5em"
                 fill="currentColor"
                 className="bi bi-cart"
                 viewBox="0 0 16 16"
@@ -154,6 +190,7 @@ const NavbarApp = () => {
               <button 
                 className="search-close-btn"
                 onClick={() => setSearchOpen(false)}
+                type="button"
               >
                 ×
               </button>

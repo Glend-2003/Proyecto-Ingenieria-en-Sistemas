@@ -7,16 +7,15 @@ import { Offcanvas } from "react-bootstrap"
 import ListaProductosApp from "../Catalogo/ListaProductosApp.js"
 import PedidoCrud from "../Pedido/PedidoCrud.js"
 import { toast } from "react-toastify"
-import "../Login/Login.css"
+import "../Login/Login.css" // Importación de estilos que ahora incluye los iconos sociales
 import FooterApp from "../Footer/FooterApp"
 import Snackbar from "@mui/material/Snackbar"
 import MuiAlert from "@mui/material/Alert"
-import { FaEye, FaEyeSlash, FaSpinner, FaArrowLeft } from "react-icons/fa"
-import { FaWhatsapp, FaFacebook } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaSpinner, FaArrowLeft } from "react-icons/fa";
 import NavbarApp from "../Navbar/NavbarApp.js"
 import Carrito from "../Carrito/CarritoApp"
 import { useAppContext } from "../Navbar/AppContext"
-import { use } from "react"
+import { useCart } from '../../contexto/ContextoCarrito'  // Importar useCart
 import Historia from "../Home/Historia.js"
 import MostrarOrdenApp from "../Orden/MostrarOdenApp.js"
 import ResPagina from "../../paginas/ResPagina.js"
@@ -41,6 +40,7 @@ function LoginApp({ initialPage = "home" }) {
 
   // Usar el contexto para obtener estados y funciones
   const { showSidebar, handleShowSidebar, addToCart } = useAppContext()
+  const { showCartMenu } = useCart(); // Obtener el estado del carrito
 
   // Detectar cambios en la URL para actualizar currentPage
   useEffect(() => {
@@ -242,27 +242,8 @@ function LoginApp({ initialPage = "home" }) {
     <div className="page-container">
       {/* Navbar Component */}
       <NavbarApp />
-      {/* Redes sociales */}
-    <div className="social-media-container">
-      <a 
-        href="https://wa.me/50688955772"
-        className="social-icon whatsapp"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="WhatsApp"
-      >
-        <FaWhatsapp size={24} />
-      </a>
-      <a
-        href="https://www.facebook.com/jamel.sandi.3"
-        className="social-icon facebook"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Facebook"
-      >
-        <FaFacebook size={20} />
-      </a>
-    </div>
+      
+      {/* Se eliminaron los iconos de redes sociales ya que ahora están en el footer */}
 
       {/* Offcanvas Sidebar */}
       <Offcanvas show={showSidebar} onHide={handleShowSidebar} placement="end">
@@ -477,10 +458,7 @@ function LoginApp({ initialPage = "home" }) {
           {snackbarMessage}
         </Alert>
       </Snackbar>
-
-      
     </div>
-    
   )
 }
 
