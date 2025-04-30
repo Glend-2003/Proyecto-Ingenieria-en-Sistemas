@@ -116,79 +116,64 @@ function CarritoApp() {
       <Offcanvas.Header closeButton>
         <Offcanvas.Title>Tu carrito de compras</Offcanvas.Title>
       </Offcanvas.Header>
-      <Offcanvas.Body className="d-flex flex-column p-0" style={{ minHeight: 0 }}>
+      <Offcanvas.Body>
         {groupedCart.length > 0 ? (
-          <>
-            <div className="cart-products-container px-3 pt-3">
-              {groupedCart.map((item, index) => (
-                <div key={index} className="cart-product mb-3 position-relative">
-                  <div className="d-flex gap-3">
-                    {item.imgProducto && (
-                      <img
-                        src={
-                          item.imgProducto.startsWith('http')
-                            ? item.imgProducto
-                            : `http://localhost:8080/producto/images/${item.imgProducto}`
-                        }
-                        alt={item.nombreProducto}
-                        width="60"
-                        height="60"
-                        className="item-img rounded"
-                        style={{ objectFit: 'cover' }}
-                      />
-                    )}
-                    <div>
-                      <div className="fw-bold">{item.nombreProducto}</div>
-                      <div className="text-muted small">
-                        {item.cantidad} × ₡{item.montoPrecioProducto.toLocaleString()}
-                      </div>
-                    </div>
+          <ListGroup className="container-cart-products">
+            {groupedCart.map((item, index) => (
+              <ListGroup.Item key={index} className="cart-product">
+                {item.imgProducto ? (
+                  <img
+                    src={
+                      item.imgProducto.startsWith('http')
+                        ? item.imgProducto
+                        : `http://localhost:8080/producto/images/${item.imgProducto}`
+                    }
+                    alt={item.nombreProducto}
+                    width="50"
+                    className="item-img"
+                  />
+                ) : (
+                  'No disponible'
+                )}
+                <div className="info-cart-product">
+                  <div className="titulo-producto-carrito">
+                    {item.nombreProducto}
+                    <span className="cantidad-producto-carrito"> - 1 Kg</span>
                   </div>
-                  <Button
-                    variant="link"
-                    size="sm"
-                    className="text-danger p-0 position-absolute end-0 top-0"
-                    onClick={() => removeFromCart(item.idProducto)}
-                    style={{ transform: 'translateY(25%)' }}
-                  >
-                    X
-                  </Button>
+                  <div className="precio-producto-carrito">
+                    {item.cantidad} x ₡{item.montoPrecioProducto}
+                  </div>
                 </div>
-              ))}
+                <Button
+                  variant="danger"
+                  size="sm"
+                  className="float-end"
+                  onClick={() => removeFromCart(item.idProducto)} // Usa item.idProducto
+                >
+                  X
+                </Button>
+              </ListGroup.Item>
+            ))}
+            <div className="cart-total">
+              <h3>Total:</h3>
+              <span className="total-pagar">
+                ₡{groupedCart.reduce(
+                  (total, item) => total + item.montoPrecioProducto * item.cantidad,
+                  0
+                )}
+              </span>
             </div>
-  
-            <div className="cart-footer border-top px-3 py-3 mt-auto">
-              <div className="d-flex justify-content-between mb-3">
-                <span className="fw-bold">Subtotal:</span>
-                <span className="fw-bold">
-                  ₡{groupedCart.reduce(
-                    (total, item) => total + item.montoPrecioProducto * item.cantidad,
-                    0
-                  ).toLocaleString()}
-                </span>
-              </div>
-              
-              <Button 
-                variant="outline-dark" 
-                className="w-100 mb-2 fw-bold"
-                onClick={handleVerOrden}
-              >
-                VER CARRITO
-              </Button>
-              
-              <Button 
-                variant="success" 
-                className="w-100 fw-bold"
-                onClick={handlePagar2}
-              >
-                FINALIZAR COMPRA
-              </Button>
-            </div>
-          </>
+
+            <Button variant="primary" className="btn-ver-orden" onClick={handleVerOrden}>
+              Ver Orden
+            </Button>
+
+            <Button variant="success" className="btn-pagar" onClick={handlePagar2}>
+              Pagar
+            </Button>
+          </ListGroup>
         ) : (
-          <div className="text-center p-4">
-            <p className="text-muted">No hay productos en el carrito.</p>
-          </div>
+          <p className="cart-empty">No hay productos en el carrito.</p>
         )}
       </Offcanvas.Body>
     </Offcanvas>
