@@ -41,9 +41,7 @@ function ListaProductosApp({ categoria }) {
         cantidad: cantidadValida,
       };
       addToCart(productoConCantidad, cantidadValida);
-      toast.success(
-        `${selectedProduct.nombreProducto} agregado al carrito (${cantidadValida} unidad${cantidadValida > 1 ? "es" : ""})`,
-      );
+      
       handleCloseModal();
     }
   };

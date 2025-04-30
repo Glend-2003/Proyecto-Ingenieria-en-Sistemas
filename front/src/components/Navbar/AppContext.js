@@ -43,14 +43,6 @@ export const AppProvider = ({ children }) => {
     }
   }, [idUsuario])
 
-  // Limpiar el carrito si el usuario cambia
-  useEffect(() => {
-    if (idUsuario && cart.length > 0 && cart[0].usuarioId !== idUsuario) {
-      setCart([])
-      localStorage.setItem("carrito", JSON.stringify([]))
-    }
-  }, [idUsuario, cart])
-
   // Función para mostrar/ocultar el sidebar
   const handleShowSidebar = () => {
     setShowSidebar(!showSidebar && !idUsuario)
