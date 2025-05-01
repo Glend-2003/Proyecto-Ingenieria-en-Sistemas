@@ -5,33 +5,40 @@
   --light-green: #9fc45a;
   --golden: #958933;
   --brown: #875725;
+  --light-gray: #f8f9fa;
+  --border-color: #ddd;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --focus-shadow: rgba(56, 118, 35, 0.2);
 }
 
-/* Estilos para el formulario de recuperación de contraseña */
-.password-reset-container {
-  width: 100%;
-  max-width: 450px;
-  margin: 0 auto;
-  padding: 15px;
+/* Estilos para el sidebar de login/recuperación */
+.login-sidebar {
+  width: 350px !important;
+  max-width: 100%;
+  z-index: 1100; /* Valor mayor que el del navbar para que aparezca por encima */
 }
 
-.reset-message {
-  background-color: rgba(159, 196, 90, 0.15);
-  border-left: 4px solid var(--light-green);
-  padding: 12px 16px;
-  margin-bottom: 20px;
-  border-radius: 4px;
+.login-header {
+  padding: 20px 20px 10px;
+  border-bottom: 1px solid var(--border-color);
 }
 
-.reset-message p {
-  margin: 5px 0;
+.login-title {
   color: var(--dark-green);
-  line-height: 1.5;
-  font-size: 15px;
+  font-weight: 600;
+  font-size: 1.5rem;
+  margin-left: 8px;
 }
 
+/* Contenedor del formulario */
+.auth-form-container {
+  padding: 20px;
+  width: 100%;
+}
+
+/* Grupos de formulario */
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 22px;
 }
 
 .form-group label {
@@ -39,30 +46,102 @@
   margin-bottom: 8px;
   color: var(--dark-green);
   font-weight: 500;
+  font-size: 14px;
 }
 
-.form-group input {
+/* Inputs estilizados */
+.form-control, 
+input[type="email"], 
+input[type="password"], 
+input[type="text"] {
   width: 100%;
   padding: 12px 15px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 16px;
-  transition: border-color 0.3s, box-shadow 0.3s;
+  height: auto;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  background-color: #fff;
 }
 
-.form-group input:focus {
+.form-control:focus,
+input:focus {
   outline: none;
   border-color: var(--medium-green);
-  box-shadow: 0 0 0 3px rgba(56, 118, 35, 0.2);
+  box-shadow: 0 0 0 3px var(--focus-shadow);
 }
 
-/* Botones estilizados */
-.btn-submit {
+/* Contenedor para el input de contraseña con icono */
+.password-input-container {
+  position: relative;
+  width: 100%;
+}
+
+/* Ícono toggle contraseña */
+.password-toggle-icon {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #6c757d;
+  transition: color 0.2s;
+}
+
+.password-toggle-icon:hover {
+  color: var(--medium-green);
+}
+
+/* Opciones (Recordar y Olvidé contraseña) */
+.options-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap; /* Para dispositivos pequeños */
+}
+
+.remember-me {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-check-input {
+  margin: 0;
+  cursor: pointer;
+}
+
+.form-check-label {
+  font-size: 14px;
+  color: #555;
+  cursor: pointer;
+}
+
+/* Link de olvidé contraseña */
+.forgot-password-link {
+  background: none;
+  border: none;
+  color: var(--brown);
+  font-size: 14px;
+  text-decoration: none;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+.forgot-password-link:hover {
+  color: var(--dark-green);
+  text-decoration: underline;
+}
+
+/* Botón de acceso principal */
+.btn-acceso {
   width: 100%;
   background-color: var(--medium-green);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   padding: 14px;
   font-size: 16px;
   font-weight: 500;
@@ -71,28 +150,118 @@
   justify-content: center;
   align-items: center;
   gap: 10px;
-  transition: background-color 0.3s;
+  transition: all 0.3s ease;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 4px var(--shadow-color);
 }
 
-.btn-submit:hover {
+.btn-acceso:hover {
   background-color: var(--dark-green);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px var(--shadow-color);
 }
 
-.btn-submit:disabled {
+.btn-acceso:disabled {
   background-color: #ccc;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
-/* Botón Volver mejorado */
-.btn-back {
+/* Sección de crear cuenta */
+.create-account-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 15px;
+}
+
+/* Divisor con texto "O" */
+.divider {
+  width: 100%;
+  text-align: center;
+  border-bottom: 1px solid var(--border-color);
+  line-height: 0.1em;
+  margin: 20px 0 30px;
+}
+
+.divider span {
+  background: #fff;
+  padding: 0 10px;
+  color: #6c757d;
+  font-size: 14px;
+}
+
+/* Ícono de usuario */
+.user-icon-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 60px;
+  height: 60px;
+  background-color: var(--light-gray);
+  border-radius: 50%;
+  margin-bottom: 15px;
+  color: var(--medium-green);
+}
+
+.no-account-text {
+  margin: 0 0 15px;
+  font-size: 15px;
+  color: #555;
+}
+
+/* Botón crear cuenta */
+.btn-crear-cuenta {
+  display: inline-block;
+  width: 100%;
+  text-align: center;
+  background-color: var(--light-green);
+  color: var(--dark-green);
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+.btn-crear-cuenta:hover {
+  background-color: #8fb349;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px var(--shadow-color);
+  text-decoration: none;
+  color: var(--dark-green);
+}
+
+/* Mensaje de reseteo */
+.reset-message {
+  background-color: rgba(159, 196, 90, 0.15);
+  border-left: 4px solid var(--light-green);
+  padding: 15px;
+  margin-bottom: 25px;
+  border-radius: 6px;
+}
+
+.reset-message p {
+  margin: 5px 0;
+  color: var(--dark-green);
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+/* Botón volver */
+.btn-volver {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  background-color: #f8f9fa; /* Color de fondo claro */
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  color: var(--medium-green); /* Usar el color verde del tema */
+  gap: 10px;
+  background-color: var(--light-gray);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--medium-green);
   font-size: 15px;
   font-weight: 500;
   margin-top: 20px;
@@ -103,89 +272,14 @@
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-.btn-accediendo {
-  width: 100%;
-  background-color: var(--medium-green);
-  color: white;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  padding: 14px;
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.btn-accediendo:hover {
-  background-color: var(--dark-green);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-.btn-accediendo:disabled {
-  background-color: #e9ecef;
-  color: #6c757d;
-  cursor: not-allowed;
-  opacity: 0.7;
-}
-
-/* Estilo para el spinner dentro del botón */
-.btn-accediendo .spinner {
-  color: var(--medium-green);
-  animation: spin 1s linear infinite;
-  margin-right: 8px;
-}
-
-/* Mejora visual para el texto "Acuérdate de mí" y otros elementos del formulario */
-.form-check-label {
-  color: var(--dark-green);
-}
-
-/* Agrega un borde en hover para los inputs */
-input.form-control:focus {
-  border-color: var(--medium-green);
-  box-shadow: 0 0 0 0.2rem rgba(56, 118, 35, 0.25);
-}
-
-/* Estilo para el título del modal */
-.login-title {
-  color: var(--dark-green);
-  font-weight: 600;
-}
-
-.btn-back:hover {
+.btn-volver:hover {
   background-color: #e9ecef;
   color: var(--dark-green);
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 8px var(--shadow-color);
 }
 
-/* Estilos para las alertas */
-.alert-icon {
-  font-size: 18px;
-}
-
-.custom-alert {
-  animation: slideDown 0.3s ease-out forwards;
-}
-
-@keyframes slideDown {
-  from {
-    transform: translateY(-20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-/* Spinner de carga */
+/* Animación para el spinner */
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
@@ -195,50 +289,6 @@ input.form-control:focus {
   animation: spin 1s linear infinite;
 }
 
-/* Estilos para los botones en el formulario de login */
-.btn-primary {
-  background-color: var(--medium-green);
-  border-color: var(--medium-green);
-  font-size: 16px;
-  font-weight: 500;
-  padding: 10px;
-  transition: all 0.3s ease;
-}
-
-.btn-primary:hover {
-  background-color: var(--dark-green);
-  border-color: var(--dark-green);
-}
-
-.btn-secondary {
-  background-color: var(--light-green);
-  border-color: var(--light-green);
-  color: var(--dark-green);
-  transition: all 0.3s ease;
-}
-
-.btn-secondary:hover {
-  background-color: #8fb349;
-  border-color: #8fb349;
-}
-
-/* Estilos para el link de ¿Perdiste tu contraseña? */
-.btn-link {
-  color: var(--brown);
-  text-decoration: none;
-  transition: color 0.3s ease;
-}
-
-.btn-link:hover {
-  color: var(--dark-green);
-  text-decoration: underline;
-}
-
-.offcanvas {
-  top: 0 !important;
-  height: 100vh !important;
-}
-
-.offcanvas-backdrop {
-  z-index: 1100 !important; /* Justo debajo del sidebar pero encima del navbar */
+main.flex-grow-2 {
+  padding-top: 20px; /* Dar un poco más de espacio */
 }
