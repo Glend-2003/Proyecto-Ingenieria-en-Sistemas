@@ -5,6 +5,7 @@
 package com.bendicion.la.carniceria.carniceria.controller;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +25,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bendicion.la.carniceria.carniceria.domain.Comentario;
+import com.bendicion.la.carniceria.carniceria.domain.Usuario;
 import com.bendicion.la.carniceria.carniceria.service.IComentarioService;
+import com.bendicion.la.carniceria.carniceria.service.IUsuarioService;
 
 /**
  *
@@ -37,6 +40,8 @@ public class ComentarioController {
 
     @Autowired
     IComentarioService iComentarioService;
+      @Autowired
+    IUsuarioService iUsuarioService;
 
  @GetMapping("/admin")
 public ResponseEntity<List<Map<String, Object>>> listComentariosAdmin() {
@@ -47,11 +52,78 @@ public ResponseEntity<List<Map<String, Object>>> listComentariosAdmin() {
 
     
      @GetMapping("/usuario")
-    public ResponseEntity<List<Comentario>> listComentariosUsuario() {
-        List<Comentario> comentarios = iComentarioService.getComentariosUsuario();
-        System.out.println("Listando todos los comentarios: " + comentarios.size() + " comentarios encontrados.");
-        return ResponseEntity.ok(comentarios);
+    public ResponseEntity<List<Map<String, Object>>> listComentariosUsuario() {
+        try {
+            // Obtener los comentarios verificados
+            List<Comentario> comentarios = iComentarioService.getComentariosUsuario();
+            System.out.println("Listando todos los comentarios: " + comentarios.size() + " comentarios encontrados.");
+            
+            // Lista para almacenar los comentarios enriquecidos con datos de usuario
+            List<Map<String, Object>> comentariosConUsuario = new ArrayList<>();
+            
+            // Iterar sobre cada comentario para obtener datos completos del usuario
+            for (Comentario comentario : comentarios) {
+                Map<String, Object> comentarioMap = new HashMap<>();
+                comentarioMap.put("idComentario", comentario.getIdComentario());
+                comentarioMap.put("descripcionComentario", comentario.getDescripcionComentario());
+                comentarioMap.put("fechaComentario", comentario.getFechaComentario());
+                comentarioMap.put("numCalificacion", comentario.getNumCalificacion());
+                comentarioMap.put("verificacion", comentario.getVerificacion());
+                
+                // Verificar si el comentario tiene usuario asociado
+                if (comentario.getUsuario() != null) {
+                    try {
+                        // Obtener el ID del usuario
+                        int idUsuario = comentario.getUsuario().getIdUsuario();
+                        
+                        // Obtener datos completos del usuario
+                        Usuario usuarioCompleto = iUsuarioService.getUsuarioById(idUsuario);
+                        
+                        if (usuarioCompleto != null) {
+                            // Crear un Map con los datos del usuario para no exponer datos sensibles
+                            Map<String, Object> usuarioMap = new HashMap<>();
+                            usuarioMap.put("idUsuario", usuarioCompleto.getIdUsuario());
+                            usuarioMap.put("nombre", usuarioCompleto.getNombreUsuario());
+                            usuarioMap.put("correo", usuarioCompleto.getCorreoUsuario());
+                            // Agregar otros campos necesarios pero evitar datos sensibles como contraseña
+                            
+                            // Agregar el usuario completo al comentario
+                            comentarioMap.put("usuario", usuarioMap);
+                            
+                            // Agregar datos del usuario directamente al comentario para facilitar
+                            // su uso en el frontend
+                            comentarioMap.put("nombre", usuarioCompleto.getNombreUsuario());
+                            comentarioMap.put("email", usuarioCompleto.getCorreoUsuario());
+                        } else {
+                            System.out.println("No se encontró el usuario con ID: " + idUsuario);
+                            comentarioMap.put("usuario", null);
+                            comentarioMap.put("nombre", "Usuario Anónimo");
+                            comentarioMap.put("email", "");
+                        }
+                    } catch (Exception e) {
+                        System.out.println("Error al obtener el usuario: " + e.getMessage());
+                        comentarioMap.put("usuario", null);
+                        comentarioMap.put("nombre", "Usuario Anónimo");
+                        comentarioMap.put("email", "");
+                    }
+                } else {
+                    comentarioMap.put("usuario", null);
+                    comentarioMap.put("nombre", "Usuario Anónimo");
+                    comentarioMap.put("email", "");
+                }
+                
+                // Agregar el comentario enriquecido a la lista
+                comentariosConUsuario.add(comentarioMap);
+            }
+            
+            return ResponseEntity.ok(comentariosConUsuario);
+        } catch (Exception e) {
+            System.out.println("Error al listar comentarios: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());
+        }
     }
+
 
     @PostMapping("/agregar")
 public ResponseEntity<?> addComentario(@RequestBody Comentario comentario) {
