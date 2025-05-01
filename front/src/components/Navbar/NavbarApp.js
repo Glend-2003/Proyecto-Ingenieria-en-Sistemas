@@ -43,6 +43,8 @@ const NavbarApp = () => {
     };
   }, []);
 
+  useEffect(() => {
+  }, [idUsuario]);
 
   // Función para manejar la búsqueda y cambiar la página si es necesario
   const handleSearch = (e) => {

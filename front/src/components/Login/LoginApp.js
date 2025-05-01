@@ -110,7 +110,7 @@ function LoginApp({ initialPage = "home" }) {
   const [emailValidationTimer, setEmailValidationTimer] = useState(null)
 
   // Usar el contexto para obtener estados y funciones
-  const { showSidebar, handleShowSidebar, addToCart } = useAppContext()
+  const { showSidebar, handleShowSidebar, addToCart, updateUserStatus} = useAppContext()
 
   // Estados para alertas mejoradas y centralizadas
   const [alert, setAlert] = useState({
@@ -304,6 +304,7 @@ function LoginApp({ initialPage = "home" }) {
             localStorage.removeItem("rememberedEmail");
             localStorage.removeItem("rememberedPassword");
           }
+          updateUserStatus();
 
           // Mostrar alerta de éxito
           showAlert(`Bienvenido ${response.data.nombreUsuario} a Carnicería La Bendición`, "success");
@@ -348,6 +349,7 @@ function LoginApp({ initialPage = "home" }) {
 
         setLoginStatus("Error en el servidor o en las credenciales");
       });
+      updateUserStatus();
   }
 
   const handleSubmit = (e) => {

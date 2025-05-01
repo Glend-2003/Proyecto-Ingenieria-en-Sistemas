@@ -60,6 +60,8 @@ export const AppProvider = ({ children }) => {
     }
   }, []);
 
+
+  
   // Función para limpiar la búsqueda
   const limpiarBusqueda = () => {
     localStorage.removeItem("globalSearchTerm");
@@ -137,7 +139,10 @@ export const AppProvider = ({ children }) => {
   }
 
   const updateUserStatus = () => {
-    setIdUsuario(localStorage.getItem("idUsuario"));
+    const id = localStorage.getItem("idUsuario");
+    setIdUsuario(id);
+   
+    return id;
   };
 
   // Función para logout
@@ -148,7 +153,7 @@ export const AppProvider = ({ children }) => {
     localStorage.removeItem("nombreRol");
     localStorage.removeItem("idUsuario");
     updateUserStatus(); // Actualizar el estado
-     window.location.href = "/"; // Redirige a la página principal
+    window.location.href = "/"; // Redirige a la página principal
   };
 
   // Valor del contexto

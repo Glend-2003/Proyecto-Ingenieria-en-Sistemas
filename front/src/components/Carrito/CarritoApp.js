@@ -5,17 +5,18 @@ import { useNavigate } from 'react-router-dom';
 import './Carrito.css';
 import useAuth from '../../hooks/userInfo'; 
 import axios from 'axios'; 
+import { useAppContext } from "../Navbar/AppContext"
 
 function CarritoApp() {
   const {
     cart,
-    increaseQuantity,
-    decreaseQuantity,
     removeFromCart,
     clearCart,
     showCartMenu,
     setShowCartMenu,
   } = useCart();
+
+  const {idUsuario} = useAppContext();
 
   const { usuario } = useAuth();
   const navigate = useNavigate();
@@ -28,10 +29,12 @@ function CarritoApp() {
   };
 
   const handlePagar2 = async () => {
-    if (!usuario?.idUsuario) {
+    
+    if (!idUsuario) {
       navigate('/register');
       return;
     } else {
+      setShowCartMenu(false); 
       navigate('/pedido');
     }
   }
