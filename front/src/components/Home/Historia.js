@@ -1,7 +1,7 @@
 import React from "react";
 import { Calendar, Award, Clock, Users, MapPin } from "lucide-react";
 import '../Home/Historia.css';
-import dueaImage from '../../assets/images/Duena-carniceria.png';
+import Resena from "../Comentario/Resena";
 
 const Historia = () => {
   return (
@@ -171,17 +171,16 @@ const Historia = () => {
           <div className="historia-testimonial-role">Director General, Segunda Generación</div>
         </div>
 
-        {/* Visit Us */}
-        <div className="historia-visit">
-          <h3 className="historia-visit-title">Visítanos y Conoce Nuestra Historia</h3>
-          <p className="historia-visit-text">Te invitamos a nuestra tienda para experimentar la calidad y tradición que nos distingue.</p>
-          <div className="historia-location">
-            <MapPin className="historia-location-icon" />
-            <span>El cairo de Siquirres</span>
-          </div>
-          <button className="historia-button">
+        {/* Reseñas de Clientes - Reemplazando el div "historia-visit" */}
+        <Resena />
+        
+        {/* Información de ubicación */}
+        <div className="historia-location-info">
+          <MapPin className="historia-location-icon" />
+          <span>El cairo de Siquirres</span>
+          <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" className="historia-location-link">
             Cómo Llegar
-          </button>
+          </a>
         </div>
       </div>
     </div>
