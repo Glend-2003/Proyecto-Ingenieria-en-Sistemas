@@ -147,8 +147,29 @@
 
 /* Usuario dropdown container */
 .user-dropdown-container {
-  display: flex;
-  align-items: center;
+  position: relative;
+  z-index: 1100; /* Mayor que el z-index del search-container */
+}
+
+/* Asegúrate que el dropdown aparezca sobre el buscador */
+.dropdown-menu {
+  z-index: 1102 !important; /* Mayor que el search-container y user-dropdown-container */
+  position: absolute;
+  right: 0;
+  left: auto;
+  margin-top: 0.5rem;
+  background-color: white;
+  border: 1px solid rgba(0,0,0,.15);
+  border-radius: 0.25rem;
+  box-shadow: 0 0.5rem 1rem rgba(0,0,0,.175);
+}
+
+/* Cuando el buscador está abierto, ajustamos el dropdown */
+.search-container-open ~ .navbar-collapse .user-dropdown-container .dropdown-menu {
+  margin-top: 0;
+  border-top: none;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
 }
 
 /* Estilos específicos para el carrito */
@@ -179,7 +200,7 @@
   padding: 1rem;
   background-color: rgba(16, 63, 27, 0.95);
   border-bottom: 3px solid #9fc45a;
-  z-index: 1000;
+  z-index: 1100; /* Asegúrate que sea menor que el dropdown (1102) */
   animation: slideDown 0.3s ease-out;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }

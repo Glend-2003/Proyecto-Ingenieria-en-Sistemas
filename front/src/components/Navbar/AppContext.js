@@ -13,10 +13,59 @@ export const AppProvider = ({ children }) => {
   const [idUsuario, setIdUsuario] = useState(localStorage.getItem("idUsuario"));
   const [productos, setProductos] = useState([]);
   const [globalSearchTerm, setGlobalSearchTerm] = useState(""); 
+  const [allProducts, setAllProducts] = useState([]); // Almacenamiento global de todos los productos
 
+  // Cargar todos los productos al iniciar, sin importar la categoría
+  useEffect(() => {
+    const fetchAllProducts = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/producto/', { 
+          params: { estadoProducto: 1 } 
+        });
+        setAllProducts(response.data);
+      } catch (error) {
+        console.error('Error al cargar todos los productos:', error);
+      }
+    };
+    
+    fetchAllProducts();
+  }, []);
+
+  // Función para buscar en TODOS los productos, sin importar la categoría actual
   const buscarProductos = (termino) => {
+    // Guardar el término en sessionStorage para mantenerlo durante la redirección
+    sessionStorage.setItem("searchTerm", termino);
     setGlobalSearchTerm(termino);
   };
+  
+  // Añadir al final del useEffect inicial en AppContext.js (línea ~21)
+  useEffect(() => {
+    const fetchAllProducts = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/producto/', { 
+          params: { estadoProducto: 1 } 
+        });
+        setAllProducts(response.data);
+      } catch (error) {
+        console.error('Error al cargar todos los productos:', error);
+      }
+    };
+    
+    fetchAllProducts();
+    
+    // Recuperar término de búsqueda de sessionStorage
+    const savedTerm = sessionStorage.getItem("searchTerm");
+    if (savedTerm) {
+      setGlobalSearchTerm(savedTerm);
+    }
+  }, []);
+
+  // Función para limpiar la búsqueda
+  const limpiarBusqueda = () => {
+    localStorage.removeItem("globalSearchTerm");
+    setGlobalSearchTerm("");
+  };
+
   // Cargar el carrito desde localStorage al iniciar
   useEffect(() => {
     const savedCart = JSON.parse(localStorage.getItem("carrito") || "[]")
@@ -81,7 +130,6 @@ export const AppProvider = ({ children }) => {
     })
   }
   
-
   // Función para eliminar productos del carrito
   const removeFromCart = (indexToRemove) => {
     const updatedCart = cart.filter((_, idx) => idx !== indexToRemove)
@@ -109,7 +157,6 @@ export const AppProvider = ({ children }) => {
     localStorage.removeItem("idUsuario");
     updateUserStatus(); // Actualizar el estado
      window.location.href = "/"; // Redirige a la página principal
-
   };
 
   // Valor del contexto
@@ -125,9 +172,11 @@ export const AppProvider = ({ children }) => {
     clearCart,
     globalSearchTerm,
     buscarProductos,
+    limpiarBusqueda,
     setGlobalSearchTerm,
-    updateUserStatus, // Añadir esta función
-    handleLogout // Añadir función de logout
+    allProducts, // Agregamos todos los productos al contexto
+    updateUserStatus,
+    handleLogout
   };
 
   return <AppContext.Provider value={contextValue}>{children}</AppContext.Provider>
@@ -141,4 +190,3 @@ export const useAppContext = () => {
   }
   return context
 }
-

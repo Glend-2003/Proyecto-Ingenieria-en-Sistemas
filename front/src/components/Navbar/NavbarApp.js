@@ -4,7 +4,7 @@ import DropDown from "../DropDown/DropDown";
 import { useAppContext } from "../Navbar/AppContext";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles.min.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import './Navbar.css';
 import { useCart } from '../../contexto/ContextoCarrito';
 import { Form, InputGroup, FormControl, Button } from "react-bootstrap";
@@ -12,25 +12,24 @@ import { Form, InputGroup, FormControl, Button } from "react-bootstrap";
 const NavbarApp = () => {
   // Usar el contexto para obtener estados y funciones
   const { cart, showCartMenu, setShowCartMenu } = useCart();
-  const { 
+  const {
     idUsuario,
     handleShowSidebar,
     handleLogout,
     buscarProductos,
-    globalSearchTerm,  // Añadimos esto para poder limpiar el buscador
-    setGlobalSearchTerm  // Añadimos esto para poder actualizar el término
+    globalSearchTerm,
+    setGlobalSearchTerm
   } = useAppContext();
-  
+
+  const navigate = useNavigate();
+  const location = useLocation();
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-
-  // Estado para controlar si estamos en la parte superior o no
   const [isScrolled, setIsScrolled] = useState(false);
 
   // Efecto para detectar el scroll
   useEffect(() => {
     const handleScroll = () => {
-      // Consideramos "scrolled" cuando bajamos más de 50px
       if (window.scrollY > 50) {
         setIsScrolled(true);
       } else {
@@ -38,22 +37,44 @@ const NavbarApp = () => {
       }
     };
 
-    // Añadir el event listener
     window.addEventListener("scroll", handleScroll);
-
-    // Limpiar el event listener cuando el componente se desmonte
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
 
-    // Efecto para sincronizar con el término de búsqueda global
-    useEffect(() => {
-      if (globalSearchTerm !== searchQuery) {
-        setSearchQuery(globalSearchTerm);
+
+  // Función para manejar la búsqueda y cambiar la página si es necesario
+  const handleSearch = (e) => {
+    // Prevenir comportamiento de formulario si es un evento
+    if (e) e.preventDefault();
+    if (searchQuery.trim()) {
+      // Actualizar el término de búsqueda global
+      buscarProductos(searchQuery.trim());
+      // Forzar redirección a la página principal
+      if (location.pathname !=="/"){      
+        window.location.href = '/';
       }
-    }, [globalSearchTerm]);
-  
+      navigate('/', { replace: true });
+    }
+    setTimeout(() => setSearchQuery(""), 300);
+    setSearchOpen(false);
+  };
+
+  // Función para limpiar la búsqueda
+  const handleClearSearch = () => {
+    setSearchQuery("");
+    limpiarBusqueda();
+    setSearchOpen(false);
+    sessionStorage.removeItem("searchTerm");
+  };
+
+  // Reemplazar función limpiarBusqueda en AppContext.js
+  const limpiarBusqueda = () => {
+    setGlobalSearchTerm("");
+    sessionStorage.removeItem("searchTerm");
+  };
+
 
   // Clases dinámicas basadas en el estado de scroll
   const navbarClasses = `navbar-transition ${isScrolled ? "navbar-scrolled" : "navbar-top"}`;
@@ -70,9 +91,9 @@ const NavbarApp = () => {
         {/* Logo y título para versión desktop */}
         <div className="navbar-brand-container d-none d-lg-flex">
           <Link to="/Historia" className="d-flex align-items-center text-decoration-none">
-            <img 
-              src={require('../../assets/images/LogoCarn.png')} 
-              alt="Carnicería La Bendición" 
+            <img
+              src={require('../../assets/images/LogoCarn.png')}
+              alt="Carnicería La Bendición"
               className="navbar-logo"
             />
             <BootstrapNavbar.Brand className="brand-text">
@@ -80,13 +101,13 @@ const NavbarApp = () => {
             </BootstrapNavbar.Brand>
           </Link>
         </div>
-        
+
         {/* Logo y título para versión móvil */}
         <div className="d-flex d-lg-none align-items-center">
           <Link to="/Historia" className="d-flex align-items-center text-decoration-none">
-            <img 
-              src={require('../../assets/images/LogoCarn.png')} 
-              alt="Carnicería La Bendición" 
+            <img
+              src={require('../../assets/images/LogoCarn.png')}
+              alt="Carnicería La Bendición"
               className="navbar-logo"
             />
             <BootstrapNavbar.Brand className="brand-text">
@@ -129,26 +150,26 @@ const NavbarApp = () => {
         </div>
 
         <BootstrapNavbar.Toggle aria-controls="basic-navbar-nav" />
-        
+
         <BootstrapNavbar.Collapse id="basic-navbar-nav">
-          <Nav className="me-auto main-nav">
-            <Nav.Link as={Link} to="/cortes-de-res" className="nav-link-custom">
+          <Nav className="me-auto main-nav" >
+            <Nav.Link as={Link} to="/cortes-de-res" className="nav-link-custom" onClick={handleClearSearch}>
               CORTES DE RES
             </Nav.Link>
-            <Nav.Link as={Link} to="/cortes-de-cerdo" className="nav-link-custom">
+            <Nav.Link as={Link} to="/cortes-de-cerdo" className="nav-link-custom" onClick={handleClearSearch}>
               CORTES DE CERDO
             </Nav.Link>
-            <Nav.Link as={Link} to="/cortes-de-pollo" className="nav-link-custom">
+            <Nav.Link as={Link} to="/cortes-de-pollo" className="nav-link-custom" onClick={handleClearSearch}>
               CORTES DE POLLO
             </Nav.Link>
-            <Nav.Link as={Link} to="/productos-varios" className="nav-link-custom">
+            <Nav.Link as={Link} to="/productos-varios" className="nav-link-custom" onClick={handleClearSearch}>
               PRODUCTOS VARIOS
             </Nav.Link>
-            <Nav.Link as={Link} to="/productos-destacados" className="nav-link-custom">
+            <Nav.Link as={Link} to="/productos-destacados" className="nav-link-custom" onClick={handleClearSearch}>
               PRODUCTOS DESTACADOS
             </Nav.Link>
           </Nav>
-          
+
           <Nav className="icons-nav d-none d-lg-flex">
             <Nav.Link className="icon-link" onClick={() => setSearchOpen(!searchOpen)}>
               <svg
@@ -162,9 +183,12 @@ const NavbarApp = () => {
                 <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.099zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
               </svg>
             </Nav.Link>
-            
-            <div className="icon-link user-dropdown-container">
-              <Nav.Link onClick={handleShowSidebar}>
+
+            <div className="icon-link user-dropdown-container" style={{ position: 'relative', zIndex: searchOpen ? 1101 : 'auto' }}>
+              <Nav.Link onClick={() => {
+                handleShowSidebar();
+                setSearchOpen(false);
+              }}>
                 <DropDown
                   icon={
                     <svg
@@ -183,7 +207,7 @@ const NavbarApp = () => {
                 />
               </Nav.Link>
             </div>
-            
+
             <Nav.Link className="icon-link cart-icon" onClick={() => setShowCartMenu(!showCartMenu)}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -204,44 +228,40 @@ const NavbarApp = () => {
           </Nav>
         </BootstrapNavbar.Collapse>
       </Container>
-      
+
+      {/* Contenedor de búsqueda que se muestra/oculta */}
       {searchOpen && (
-    <div className="search-container">
-      <Form className="search-form">
-        <InputGroup>
-          <FormControl
-            type="text"
-            placeholder="Buscar productos..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyPress={(e) => {
-              if (e.key === "Enter") {
-                buscarProductos(searchQuery);
-              }
-            }}
-          />
-          <Button 
-            variant="primary"
-            onClick={() => buscarProductos(searchQuery)}
-          >
-            Buscar
-          </Button>
-          <button 
-            className="search-close-btn"
-            onClick={() => {
+        <div className="search-container">
+          <Form className="search-form" onSubmit={handleSearch}>
+            <InputGroup>
+              <FormControl
+                type="text"
+                placeholder="Buscar productos..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyPress={(e) => e.key === "Enter" && handleSearch(e)}
+              />
+              <Button
+                variant="primary"
+                onClick={handleSearch}
+                type="submit"
+              >
+                Buscar
+              </Button>
+              <button
+                className="search-close-btn"
+                onClick={handleClearSearch}
+                type="button"
+                aria-label="Cerrar búsqueda"
+              >
+                ×
+              </button>
+            </InputGroup>
         
-              setSearchQuery("");
-              buscarProductos(""); // Limpiar la búsqueda al cerrar
-            }}
-            type="button"
-          >
-            ×
-          </button>
-        </InputGroup>
-      </Form>
-    </div>
-  )}
-</BootstrapNavbar>
+          </Form>
+        </div>
+      )}
+    </BootstrapNavbar>
   );
 };
 

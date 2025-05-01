@@ -19,8 +19,9 @@ function ListaProductosApp({ categoria }) {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [selectedPrice, setSelectedPrice] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortOrder, setSortOrder] = useState("default"); // Estado para el ordenamiento
-  const { globalSearchTerm, buscarProductos } = useAppContext();
+  const [sortOrder, setSortOrder] = useState("default");
+  const { globalSearchTerm, buscarProductos, allProducts } = useAppContext();
+  const [isBuscando, setIsBuscando] = useState(false);
 
   const verDetalles = (producto) => {
     setSelectedProduct(producto);
@@ -41,9 +42,7 @@ function ListaProductosApp({ categoria }) {
         cantidad: cantidadValida,
       };
       addToCart(productoConCantidad, cantidadValida);
-      toast.success(
-        `${selectedProduct.nombreProducto} agregado al carrito (${cantidadValida} unidad${cantidadValida > 1 ? "es" : ""})`,
-      );
+     
       handleCloseModal();
     }
   };
@@ -67,6 +66,17 @@ function ListaProductosApp({ categoria }) {
         setLoading(true);
         const response = await axios.get('http://localhost:8080/producto/', { params: { estadoProducto: 1 } });
         setProductos(response.data);
+        
+        // Calcular el rango de precios
+        if (response.data.length > 0) {
+          const prices = response.data.map(p => p.montoPrecioProducto);
+          setPriceRange({
+            min: Math.min(...prices),
+            max: Math.max(...prices)
+          });
+          setSelectedPrice(Math.max(...prices)); // Inicializar en el precio máximo
+        }
+        
         setLoading(false);
       } catch (error) {
         console.error('Error al cargar productos:', error);
@@ -75,101 +85,92 @@ function ListaProductosApp({ categoria }) {
     };
 
     fetchProductos();
-  }, []);
-
-  useEffect(() => {
-    if (productos.length > 0 && categorias.length > 0) {
-      if (categoria && categoria.toLowerCase() === "varios") {
+  }, []);useEffect(() => {
+    if (!productos.length || !categorias.length) return;
+  
+    let resultadosFiltrados = [...productos];
+  
+    // Filtrado por categoría
+    if (categoria) {
+      if (categoria.toLowerCase() === "varios") {
         const categoriasExcluidas = categorias
-          .filter(cat =>
-            ["res", "cerdo", "pollo"].includes(cat.nombreCategoria.toLowerCase())
-          )
+          .filter(cat => ["res", "cerdo", "pollo"].includes(cat.nombreCategoria.toLowerCase()))
           .map(cat => cat.idCategoria);
-
-        const filtrados = productos.filter(producto =>
-          producto.categoria && !categoriasExcluidas.includes(producto.categoria.idCategoria)
+        
+        resultadosFiltrados = resultadosFiltrados.filter(
+          producto => producto.categoria && 
+          !categoriasExcluidas.includes(producto.categoria.idCategoria)
         );
-
-        setProductosFiltrados(filtrados);
-      } else if (categoria) {
-        const categoriaObj = categorias.find(cat =>
-          cat.nombreCategoria.toLowerCase() === categoria.toLowerCase()
-        );
-
-        if (categoriaObj) {
-          const idCategoriaFiltro = categoriaObj.idCategoria;
-          const filtrados = productos.filter(producto =>
-            producto.categoria && producto.categoria.idCategoria === idCategoriaFiltro
-          );
-          setProductosFiltrados(filtrados);
-        } else {
-          setProductosFiltrados([]);
-        }
       } else {
-        setProductosFiltrados(productos);
+        const categoriaObj = categorias.find(
+          cat => cat.nombreCategoria.toLowerCase() === categoria.toLowerCase()
+        );
+        
+        if (categoriaObj) {
+          resultadosFiltrados = resultadosFiltrados.filter(
+            producto => producto.categoria && 
+            producto.categoria.idCategoria === categoriaObj.idCategoria
+          );
+        }
       }
-    } else {
-      setProductosFiltrados([]);
     }
-  }, [categoria, productos, categorias]);
+  
+    // Filtrado por búsqueda global (si existe)
+    if (globalSearchTerm) {
+      resultadosFiltrados = resultadosFiltrados.filter(producto =>
+        producto.nombreProducto.toLowerCase().includes(globalSearchTerm.toLowerCase()) ||
+        (producto.descripcionProducto?.toLowerCase().includes(globalSearchTerm.toLowerCase())) ||
+        (producto.codigoProducto?.toLowerCase().includes(globalSearchTerm.toLowerCase()))
+      );
+    }
+  
+    setFilteredProducts(resultadosFiltrados);
+  }, [productos, categorias, categoria, globalSearchTerm]);
 
+  // Efecto para sincronizar searchTerm local con globalSearchTerm
   useEffect(() => {
     if (globalSearchTerm) {
       setSearchTerm(globalSearchTerm);
+      setIsBuscando(true);
+    } else {
+      setSearchTerm("");
+      setIsBuscando(false);
     }
   }, [globalSearchTerm]);
 
-  // Mejora la función de filtrado para buscar en varios campos
+  // Efecto para aplicar filtros a los productos (precio y ordenamiento)
   useEffect(() => {
     if (!productosFiltrados.length) return;
-
-    const filtered = productosFiltrados.filter(product =>
-      product.nombreProducto.toLowerCase().includes(globalSearchTerm.toLowerCase()) ||
-      (product.descripcionProducto &&
-        product.descripcionProducto.toLowerCase().includes(globalSearchTerm.toLowerCase())) ||
-      (product.codigoProducto &&
-        product.codigoProducto.toLowerCase().includes(globalSearchTerm.toLowerCase()))
-    );
+    
+    let filtered = [...productosFiltrados];
+    
+    // Aplicar filtro de precio si está seleccionado y no es el máximo
+    if (selectedPrice < priceRange.max) {
+      filtered = filtered.filter(product =>
+        product.montoPrecioProducto <= selectedPrice
+      );
+    }
+    
+    // Aplicar ordenamiento
+    if (sortOrder === "price-asc") {
+      filtered.sort((a, b) => a.montoPrecioProducto - b.montoPrecioProducto);
+    } else if (sortOrder === "price-desc") {
+      filtered.sort((a, b) => b.montoPrecioProducto - a.montoPrecioProducto);
+    }
+    
     setFilteredProducts(filtered);
-  }, [globalSearchTerm, productosFiltrados]);
+  }, [productosFiltrados, selectedPrice, sortOrder, priceRange.max]);
 
   const handlePriceFilter = () => {
-    const filtered = productosFiltrados.filter(product =>
-      product.montoPrecioProducto <= selectedPrice
-    );
-    setFilteredProducts(filtered);
+    // La lógica ya está en el useEffect de arriba
+    // Este método solo sirve para disparar la acción al hacer clic en el botón
   };
 
-  useEffect(() => {
-    const filtered = productosFiltrados.filter(product =>
-      product.nombreProducto.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    setFilteredProducts(filtered);
-  }, [searchTerm, productosFiltrados]);
-
-
-  const handleProductoFilter = () => {
-    const filtered = productosFiltrados.filter(product =>
-      product.nombreProducto <= searchTerm
-    );
-    setFilteredProducts(filtered);
-  }
-
-  // Función para ordenar los productos
   const handleSortChange = (e) => {
     const order = e.target.value;
     setSortOrder(order);
-
-    let sortedProducts = [...filteredProducts];
-
-    if (order === "price-asc") {
-      sortedProducts.sort((a, b) => a.montoPrecioProducto - b.montoPrecioProducto);
-    } else if (order === "price-desc") {
-      sortedProducts.sort((a, b) => b.montoPrecioProducto - a.montoPrecioProducto);
-    }
-
-    setFilteredProducts(sortedProducts);
   };
+
 
   return (
     <>

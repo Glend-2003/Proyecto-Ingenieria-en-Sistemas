@@ -27,18 +27,6 @@ const DropDown = ({ icon, idUsuario, onLogout }) => {
         setIsOpen(false);
     };
 
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('correoUsuario');
-        localStorage.removeItem('nombreUsuario');
-        localStorage.removeItem('nombreRol');
-        localStorage.removeItem('idUsuario');
-        localStorage.removeItem('rememberedEmail');
-        localStorage.removeItem('rememberedPassword');
-        navigate('/');
-        setIsOpen(false);
-    };
-    
     // Función para manejar la navegación
     const handleNavigation = (path) => {
         navigate(path);
