@@ -6,16 +6,16 @@ import "../styles.min.css"
 import { Offcanvas } from "react-bootstrap"
 import ListaProductosApp from "../Catalogo/ListaProductosApp.js"
 import PedidoCrud from "../Pedido/PedidoCrud.js"
-import { toast } from "react-toastify"
+import { ToastContainer, toast } from "react-toastify"
 import "../Login/Login.css"
 import FooterApp from "../Footer/FooterApp"
 import Snackbar from "@mui/material/Snackbar"
 import MuiAlert from "@mui/material/Alert"
-import { FaEye, FaEyeSlash, FaSpinner, FaArrowLeft, FaExclamationTriangle, FaCheckCircle, FaInfoCircle } from "react-icons/fa"
-import { FaWhatsapp, FaFacebook } from "react-icons/fa";
 import NavbarApp from "../Navbar/NavbarApp.js"
 import Carrito from "../Carrito/CarritoApp"
 import { useAppContext } from "../Navbar/AppContext"
+import { useCart } from '../../contexto/ContextoCarrito'
+import { FaEye, FaEyeSlash, FaSpinner, FaArrowLeft, FaExclamationTriangle, FaCheckCircle, FaInfoCircle } from "react-icons/fa"
 import Historia from "../Home/Historia.js"
 import MostrarOrdenApp from "../Orden/MostrarOdenApp.js"
 import ResPagina from "../../paginas/ResPagina.js"
@@ -25,7 +25,7 @@ import ProductosVariosPagina from "../../paginas/ProductosVariosPagina.js"
 import ProductosDestacadosPagina from "../../paginas/ProductosDestacadosPagina.js"
 
 // Componente de alerta personalizado y centralizado
-const CentralizedAlert = React.forwardRef(function Alert(props, ref) {
+const Alert = React.forwardRef(function Alert(props, ref) {
   // Personalización del icono según el tipo de alerta
   const renderIcon = () => {
     switch (props.severity) {
@@ -78,8 +78,8 @@ const CentralizedAlert = React.forwardRef(function Alert(props, ref) {
         </div>
       </div>
       {props.onClose && (
-        <button
-          className="alert-close"
+        <button 
+          className="alert-close" 
           onClick={props.onClose}
           style={{ background: 'none', border: 'none', cursor: 'pointer', marginLeft: '12px', opacity: 0.7 }}
         >
@@ -98,25 +98,22 @@ function LoginApp({ initialPage = "home" }) {
     correoUsuario: "",
     contraseniaUsuario: "",
   })
-  const [fieldErrors, setFieldErrors] = useState({
-    correoUsuario: "",
-    contraseniaUsuario: ""
-  })
+  
   const [loginStatus, setLoginStatus] = useState("")
   const navigate = useNavigate()
-  const [isOpen, setIsOpen] = useState(false)
-  const [productos, setProductos] = useState([])
+  
   const [rememberMe, setRememberMe] = useState(false)
   const [emailValidationTimer, setEmailValidationTimer] = useState(null)
 
   // Usar el contexto para obtener estados y funciones
-  const { showSidebar, handleShowSidebar, addToCart } = useAppContext()
+  const { showSidebar, handleShowSidebar, addToCart, updateUserStatus } = useAppContext()
+  const { showCartMenu } = useCart(); // Obtener el estado del carrito
 
   // Estados para alertas mejoradas y centralizadas
   const [alert, setAlert] = useState({
     open: false,
     message: "",
-    severity: "info",
+    severity: "info", 
     vertical: "top",
     horizontal: "center",
     duration: 6000
@@ -175,7 +172,7 @@ function LoginApp({ initialPage = "home" }) {
   // Validar todos los campos con alertas centralizadas
   const validateFields = () => {
     let isValid = true
-
+    
     // Validar correo
     if (!loginData.correoUsuario) {
       isValid = false
@@ -230,24 +227,14 @@ function LoginApp({ initialPage = "home" }) {
       })
       setRememberMe(true) // Marcar el checkbox si hay credenciales guardadas
     }
-
+    
     // Limpiar el timer cuando el componente se desmonte
     return () => {
       if (emailValidationTimer) clearTimeout(emailValidationTimer);
     };
-  }, [])
+  }, [emailValidationTimer])
 
-  const handleLogout = () => {
-    localStorage.removeItem("token")
-    localStorage.removeItem("correoUsuario")
-    localStorage.removeItem("nombreUsuario")
-    localStorage.removeItem("nombreRol")
-    localStorage.removeItem("idUsuario")
-    localStorage.removeItem("rememberedEmail")
-    localStorage.removeItem("rememberedPassword")
-    navigate("/")
-  }
-
+  
   const [showForgotPassword, setShowForgotPassword] = useState(false) // Estado para mostrar el formulario de "Olvidé mi contraseña"
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false) // Estado para el spinner
@@ -284,19 +271,19 @@ function LoginApp({ initialPage = "home" }) {
     }
 
     setIsLoading(true);
-
+    
     axios
       .post("http://localhost:8080/usuario/login", loginData)
       .then((response) => {
         setIsLoading(false);
-
+        
         if (response.data.token) {
-          localStorage.setItem("token", response.data.token);
-          localStorage.setItem("correoUsuario", response.data.correoUsuario);
-          localStorage.setItem("nombreUsuario", response.data.nombreUsuario);
-          localStorage.setItem("nombreRol", response.data.rol.nombreRol);
-          localStorage.setItem("idUsuario", response.data.idUsuario);
-
+          localStorage.setItem("token", response.data.token)
+          localStorage.setItem("correoUsuario", response.data.correoUsuario)
+          localStorage.setItem("nombreUsuario", response.data.nombreUsuario)
+          localStorage.setItem("nombreRol", response.data.rol.nombreRol)
+          localStorage.setItem("idUsuario", response.data.idUsuario)
+          updateUserStatus(); 
           if (rememberMe) {
             localStorage.setItem("rememberedEmail", loginData.correoUsuario);
             localStorage.setItem("rememberedPassword", loginData.contraseniaUsuario);
@@ -345,7 +332,7 @@ function LoginApp({ initialPage = "home" }) {
         } else {
           showAlert("Error en el ingreso: " + (error.response.data?.message || error.response.data || "Error desconocido"), "error");
         }
-
+        
         setLoginStatus("Error en el servidor o en las credenciales");
       });
   }
@@ -357,7 +344,7 @@ function LoginApp({ initialPage = "home" }) {
 
   const handleForgotPassword = async (e) => {
     e.preventDefault(); // Evita que el formulario se envíe automáticamente
-
+    
     if (!loginData.correoUsuario) {
       showAlert("Por favor, ingresa tu correo electrónico", "warning");
       return;
@@ -378,7 +365,7 @@ function LoginApp({ initialPage = "home" }) {
 
       if (response.status === 200) {
         showAlert("Código enviado con éxito a tu correo electrónico", "success");
-
+        
         // Esperar 2 segundos antes de redirigir
         setTimeout(() => {
           navigate("/ResetPassword", { state: { correoUsuario: loginData.correoUsuario } });
@@ -401,198 +388,234 @@ function LoginApp({ initialPage = "home" }) {
     <div className="page-container">
       {/* Navbar Component */}
       <NavbarApp />
-
-      {/* Alerta Centralizada */}
-      <div className="alert-container" style={{
-        display: alert.open ? 'flex' : 'none',
-        position: 'fixed',
-        top: '20px',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        zIndex: 9999,
-        width: '100%',
-        maxWidth: '500px',
-        justifyContent: 'center'
-      }}>
-        <CentralizedAlert
-          severity={alert.severity}
-          onClose={handleCloseAlert}
-        >
-          {alert.message}
-        </CentralizedAlert>
-      </div>
+      
+      {/* Se eliminaron los iconos de redes sociales ya que ahora están en el footer */}
 
       {/* Offcanvas Sidebar */}
+      <Offcanvas
+        show={showSidebar}
+        onHide={handleShowSidebar}
+        placement="end"
+        style={{
+          position: 'fixed',
+          top: '0',
+          zIndex: 1200, // Mayor que el zIndex del navbar (1100)
+          height: '100vh'
+        }}
+      >
+        <Offcanvas.Header closeButton>
+          <Offcanvas.Title className="login-title">
+            {showForgotPassword ? "Recuperar contraseña" : "Iniciar sesión"}
+          </Offcanvas.Title>
+        </Offcanvas.Header>
+        <Offcanvas.Body>
+          {!showForgotPassword ? (
+            // Formulario de inicio de sesión
+            <form onSubmit={handleSubmit}>
+              {/* Campo de correo */}
+              <div className="mb-3">
+                <label htmlFor="correoUsuario" className="form-label">
+                  Correo electrónico
+                </label>
+                <input
+                  className="form-control"
+                  type="email"
+                  name="correoUsuario"
+                  id="correoUsuario"
+                  value={loginData.correoUsuario}
+                  onChange={handleInputChange}
+                  placeholder="ejemplo@correo.com"
+                  required
+                />
+              </div>
 
-      {/* Reemplaza el contenido de Offcanvas con este código */}
-{/* Reemplaza el Offcanvas actual con este código */}
-<Offcanvas show={showSidebar} onHide={handleShowSidebar} placement="end" className="login-sidebar">
-  <Offcanvas.Header closeButton className="login-header">
-    <Offcanvas.Title className="login-title">
-      {showForgotPassword ? "Recuperar contraseña" : "Iniciar sesión"}
-    </Offcanvas.Title>
-  </Offcanvas.Header>
-  <Offcanvas.Body>
-    {!showForgotPassword ? (
-      // Formulario de inicio de sesión mejorado
-      <div className="auth-form-container">
-        <form onSubmit={handleSubmit}>
-          {/* Campo de correo */}
-          <div className="form-group">
-            <label htmlFor="correoUsuario">Correo electrónico</label>
-            <input
-              id="correoUsuario"
-              type="email"
-              name="correoUsuario"
-              value={loginData.correoUsuario}
-              onChange={handleInputChange}
-              placeholder="ejemplo@correo.com"
-              className="form-control"
-              required
-            />
-          </div>
+              {/* Campo de contraseña */}
+              <div className="mb-3 position-relative">
+                <label htmlFor="contraseniaUsuario" className="form-label">
+                  Contraseña
+                </label>
+                <input
+                  className="form-control"
+                  type={showPassword ? "text" : "password"}
+                  name="contraseniaUsuario"
+                  id="contraseniaUsuario"
+                  value={loginData.contraseniaUsuario}
+                  onChange={handleInputChange}
+                  placeholder="Ingresa tu contraseña"
+                  required
+                />
+                {/* Ícono para mostrar/ocultar contraseña */}
+                <span
+                  className="position-absolute end-0 me-3"
+                  style={{
+                    cursor: "pointer",
+                    top: "60%",
+                    transform: "translateY(-22%)",
+                    zIndex: 2
+                  }}
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </span>
+              </div>
 
-          {/* Campo de contraseña */}
-          <div className="form-group">
-            <label htmlFor="contraseniaUsuario">Contraseña</label>
-            <div className="password-input-container">
-              <input
-                id="contraseniaUsuario"
-                type={showPassword ? "text" : "password"}
-                name="contraseniaUsuario"
-                value={loginData.contraseniaUsuario}
-                onChange={handleInputChange}
-                placeholder="Ingresa tu contraseña"
-                className="form-control"
-                required
-              />
-              {/* Ícono para mostrar/ocultar contraseña */}
-              <span
-                className="password-toggle-icon"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? <FaEyeSlash /> : <FaEye />}
-              </span>
-            </div>
-          </div>
+              {/* Botón de acceso con spinner */}
+              <div className="mb-3">
+                <button 
+                  className="btn-accediendo"
+                  disabled={isLoading}
+                  type="submit"
+                >
+                  {isLoading ? (
+                    <>
+                      <FaSpinner className="spinner" />
+                      <span>Accediendo...</span>
+                    </>
+                  ) : "Acceso"}
+                </button>
+              </div>
 
-          {/* Opciones adicionales */}
-          <div className="options-container">
-            <div className="remember-me">
-              <input
-                className="form-check-input"
-                type="checkbox"
-                id="rememberMe"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-              />
-              <label className="form-check-label" htmlFor="rememberMe">
-                Acuérdate de mí
-              </label>
-            </div>
-            <button
-              className="forgot-password-link"
-              onClick={() => setShowForgotPassword(true)}
-              type="button"
-            >
-              ¿Perdiste tu contraseña?
-            </button>
-          </div>
+              {/* Opciones adicionales */}
+              <div className="form-check text-start mb-3">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  id="rememberMe"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                />
+                <label className="form-check-label" htmlFor="rememberMe">
+                  Acuérdate de mí
+                </label>
+                <button 
+                  className="btn btn-link float-end" 
+                  onClick={() => setShowForgotPassword(true)}
+                  type="button"
+                >
+                  ¿Perdiste tu contraseña?
+                </button>
+              </div>
 
-          {/* Botón de acceso con spinner */}
-          <button
-            className="btn-acceso"
-            disabled={isLoading}
-            type="submit"
-          >
-            {isLoading ? (
-              <>
-                <FaSpinner className="spinner" />
-                <span>Accediendo...</span>
-              </>
-            ) : "Acceso"}
-          </button>
+              {/* Botón "Crear una cuenta" */}
+              <div className="text-center mt-4">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="3em"
+                  height="3em"
+                  fill="currentColor"
+                  className="bi bi-person"
+                  viewBox="0 0 16 16"
+                >
+                  <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664z" />
+                </svg>
+                <p className="mt-3">¿Aún no tienes cuenta?</p>
+                <a href="/register" className="btn btn-secondary d-block w-50 mx-auto">
+                  Crear una cuenta
+                </a>
+              </div>
+            </form>
+          ) : (
+            // Formulario de "Olvidé mi contraseña" - Modificado
+            <form onSubmit={handleForgotPassword}>
+              <p className="mb-4" style={{ fontSize: "16px", color: "#555", lineHeight: "1.9" }}>
+                Ingresa tu correo para verificar que eres tú.<br />
+                Te enviaremos un código para restablecer tu contraseña.
+              </p>
 
-          {/* Sección "Crear una cuenta" */}
-          <div className="create-account-section">
-            <div className="divider">
-              <span>O</span>
-            </div>
-            <div className="user-icon-container">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="2.5em"
-                height="2.5em"
-                fill="currentColor"
-                className="bi bi-person"
-                viewBox="0 0 16 16"
-              >
-                <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664z" />
-              </svg>
-            </div>
-            <p className="no-account-text">¿Aún no tienes cuenta?</p>
-            <a href="/register" className="btn-crear-cuenta">
-              Crear una cuenta
-            </a>
-          </div>
-        </form>
-      </div>
-    ) : (
-      // Formulario de "Olvidé mi contraseña" mejorado
-      <div className="auth-form-container">
-        <div className="reset-message">
-          <p>Ingresa tu correo para verificar que eres tú.</p>
-          <p>Te enviaremos un código para restablecer tu contraseña.</p>
-        </div>
+              <div className="mb-3">
+                <label
+                  htmlFor="correoUsuario"
+                  className="form-label"
+                  style={{ fontSize: "16px", color: "#333", fontWeight: "500" }}
+                >
+                  Correo electrónico
+                </label>
+                <input
+                  className="form-control"
+                  type="email"
+                  name="correoUsuario"
+                  id="correoUsuario"
+                  value={loginData.correoUsuario}
+                  onChange={handleInputChange}
+                  placeholder="correo@ejemplo.com"
+                  required
+                  style={{ fontSize: "16px", padding: "10px", width: "100%", maxWidth: "400px", margin: "0 auto" }}
+                />
+              </div>
 
-        <form onSubmit={handleForgotPassword}>
-          <div className="form-group">
-            <label htmlFor="correoUsuario">Correo electrónico</label>
-            <input
-              id="correoUsuario"
-              type="email"
-              name="correoUsuario"
-              value={loginData.correoUsuario}
-              onChange={handleInputChange}
-              placeholder="correo@ejemplo.com"
-              className="form-control"
-              required
-            />
-          </div>
+              <div className="mb-3">
+                <button 
+                  type="submit" 
+                  className="btn-submit"
+                  disabled={isLoading}
+                  style={{
+                    fontSize: "16px",
+                    padding: "10px",
+                    width: "100%",
+                    maxWidth: "400px",
+                    margin: "0 auto",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "8px",
+                  }}
+                >
+                  {isLoading ? (
+                    <>
+                      <FaSpinner className="spinner" />
+                      <span>Enviando...</span>
+                    </>
+                  ) : "Enviar código"}
+                </button>
+              </div>
 
-          <button
-            type="submit"
-            className="btn-acceso"
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <>
-                <FaSpinner className="spinner" />
-                <span>Enviando...</span>
-              </>
-            ) : "Enviar código"}
-          </button>
-        </form>
+              {/* Botón para volver - Se mantiene */}
+              <div className="text-center mt-4">
+                <button
+                  type="button"
+                  className="btn btn-link"
+                  onClick={() => setShowForgotPassword(false)}
+                  style={{
+                    color: "#333",
+                    textDecoration: "none",
+                    fontSize: "16px",
+                    fontWeight: "500",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "8px",
+                  }}
+                >
+                  <FaArrowLeft /> Volver
+                </button>
+              </div>
+            </form>
+          )}
+        </Offcanvas.Body>
+      </Offcanvas>
 
-        <button
-          type="button"
-          className="btn-volver"
-          onClick={() => setShowForgotPassword(false)}
-        >
-          <FaArrowLeft /> Volver al inicio de sesión
-        </button>
-      </div>
-    )}
-  </Offcanvas.Body>
-</Offcanvas>
       {/* Contenido principal */}
       <main className="flex-grow-2" style={{ marginTop: "80px" }}>
         {renderMainContent()}
         <Carrito />
       </main>
-
+      
       {/* Footer */}
       <FooterApp />
+      
+      {/* Snackbar para mostrar alertas */}
+      <Snackbar
+        open={alert.open}
+        autoHideDuration={alert.duration}
+        onClose={handleCloseAlert}
+        anchorOrigin={{ vertical: alert.vertical, horizontal: alert.horizontal }}
+      >
+        <Alert onClose={handleCloseAlert} severity={alert.severity}>
+          {alert.message}
+        </Alert>
+      </Snackbar>
+      
+      <ToastContainer />
     </div>
   )
 }

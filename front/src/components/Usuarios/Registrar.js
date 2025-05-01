@@ -21,13 +21,6 @@ const Registrar = () => {
     verify: false
   });
   
-  const [passwordStrength, setPasswordStrength] = useState({
-    score: 0,
-    label: "",
-    color: "",
-    width: "0%"
-  });
-  
   const [formErrors, setFormErrors] = useState({});
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -44,18 +37,11 @@ const Registrar = () => {
 
   // Validar formato de email con dominios específicos
   const validateEmail = (email) => {
-    // Lista ampliada de dominios permitidos
-    const allowedDomains = [
-      "gmail.com", "yahoo.com", "icloud.com", "hotmail.com", "outlook.com", 
-      "live.com", "aol.com", "protonmail.com", "mail.com", "zoho.com",
-      "yandex.com", "msn.com", "me.com", "gmx.com", "icloud.com"
-    ];
-    
+    const allowedDomains = ["gmail.com", "yahoo.com", "icloud.com"];
     const regex = /^[a-zA-Z0-9._-]+@([a-zA-Z0-9.-]+)\.([a-zA-Z]{2,})$/;
     
     if (!regex.test(email)) return false;
     
-    // Verificar que el dominio es uno de los permitidos
     const domain = email.split('@')[1];
     return allowedDomains.includes(domain);
   };
@@ -74,7 +60,7 @@ const Registrar = () => {
     if (!correoUsuario) {
       errors.correoUsuario = "El correo electrónico es obligatorio";
     } else if (!validateEmail(correoUsuario)) {
-      errors.correoUsuario = "Por favor ingrese un correo electrónico válido";
+      errors.correoUsuario = "Use un correo con dominio @gmail.com, @yahoo.com o @icloud.com";
     }
     
     // Validar nombre (solo letras)
@@ -117,54 +103,6 @@ const Registrar = () => {
     return errors;
   };
 
-  const evaluatePasswordStrength = (password) => {
-    // Inicializar puntuación
-    let score = 0;
-    
-    // Si no hay contraseña, devolver la puntuación base
-    if (!password) {
-      return {
-        score: 0,
-        label: "",
-        color: "",
-        width: "0%",
-        strengthClass: ""
-      };
-    }
-    
-    // Criterios de evaluación
-    if (password.length >= 8) score += 1;
-    if (password.length >= 10) score += 1;
-    if (/[A-Z]/.test(password)) score += 1;
-    if (/[a-z]/.test(password)) score += 1;
-    if (/[0-9]/.test(password)) score += 1;
-    if (/[^A-Za-z0-9]/.test(password)) score += 1;
-    
-    // Determinar etiqueta y color basados en la puntuación
-    let label, color, width, strengthClass;
-    
-    switch (true) {
-      case (score <= 2):
-        label = "Débil";
-        color = "var(--color-brown)"; // Color café de la paleta
-        width = "33%";
-        strengthClass = "strength-weak";
-        break;
-      case (score <= 4):
-        label = "Media";
-        color = "var(--color-light-green)"; // Verde claro de la paleta
-        width = "66%";
-        strengthClass = "strength-medium";
-        break;
-      default:
-        label = "Fuerte";
-        color = "var(--color-dark-green)"; // Verde oscuro de la paleta
-        width = "100%";
-        strengthClass = "strength-strong";
-    }
-    
-    return { score, label, color, width, strengthClass };
-  };
   // Manejar cambios en los campos
   const handleInputChange = (e) => {
     const { id, value } = e.target;
@@ -173,11 +111,6 @@ const Registrar = () => {
       ...prev,
       [id]: value
     }));
-    
-    // Evaluar la fortaleza de la contraseña si cambia el campo de contraseña
-    if (id === "contraseniaUsuario") {
-      setPasswordStrength(evaluatePasswordStrength(value));
-    }
     
     // Validación en tiempo real para campos específicos
     let error = "";
@@ -190,17 +123,13 @@ const Registrar = () => {
     
     if (id === "correoUsuario" && value) {
       if (!validateEmail(value)) {
-        error = "Por favor ingrese un correo electrónico válido";
+        error = "Use un correo con dominio @gmail.com, @yahoo.com o @icloud.com";
       }
     }
     
     // Actualizar errores
     if (error) {
       setFormErrors(prev => ({ ...prev, [id]: error }));
-      // Mostrar mensaje de error en Snackbar para validaciones importantes
-      if (id === "correoUsuario" && value.includes("@") && !validateEmail(value)) {
-        showSnackbar("Formato de correo inválido. Verifique el dominio.", "error");
-      }
     } else {
       setFormErrors(prev => {
         const newErrors = { ...prev };
@@ -309,7 +238,7 @@ const Registrar = () => {
                   className={`form-control ${formErrors.correoUsuario ? "is-invalid" : ""}`}
                   value={formData.correoUsuario}
                   onChange={handleInputChange}
-                  placeholder="ejemplo@dominio.com"
+                  placeholder="ejemplo@gmail.com"
                 />
                 {formErrors.correoUsuario && <div className="invalid-feedback">{formErrors.correoUsuario}</div>}
               </div>
@@ -377,42 +306,6 @@ const Registrar = () => {
                   </button>
                 </div>
                 {formErrors.contraseniaUsuario && <div className="invalid-feedback">{formErrors.contraseniaUsuario}</div>}
-                
-                {/* Indicador de fortaleza de contraseña */}
-                {formData.contraseniaUsuario && (
-                  <div style={{ marginTop: '8px' }}>
-                    <div style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      justifyContent: 'space-between',
-                      marginBottom: '4px'
-                    }}>
-                      <div style={{ 
-                        height: '8px', 
-                        width: '100%', 
-                        backgroundColor: '#e9ecef', 
-                        borderRadius: '4px',
-                        overflow: 'hidden'
-                      }}>
-                        <div style={{ 
-                          height: '100%', 
-                          width: passwordStrength.width, 
-                          backgroundColor: passwordStrength.color,
-                          transition: 'width 0.3s ease, background-color 0.3s ease'
-                        }}></div>
-                      </div>
-                      <span style={{ 
-                        marginLeft: '10px', 
-                        color: passwordStrength.color,
-                        fontSize: '14px',
-                        fontWeight: '500'
-                      }}>
-                        {passwordStrength.label}
-                      </span>
-                    </div>
-                  </div>
-                )}
-                
                 <div className="password-requirements">
                   <span>• Mínimo 8 caracteres</span>
                   <span>• Al menos 2 letras (mayúsculas o minúsculas)</span>
@@ -456,7 +349,6 @@ const Registrar = () => {
         </div>
       </div>
       
-      {/* Snackbar para alertas en la parte superior central */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={5000}
