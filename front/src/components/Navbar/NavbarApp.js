@@ -154,7 +154,7 @@ const NavbarApp = () => {
         <BootstrapNavbar.Toggle aria-controls="basic-navbar-nav" />
 
         <BootstrapNavbar.Collapse id="basic-navbar-nav">
-          <Nav className="me-auto main-nav" >
+        <Nav className="me-auto main-nav" >
             <Nav.Link as={Link} to="/cortes-de-res" className="nav-link-custom" onClick={handleClearSearch}>
               CORTES DE RES
             </Nav.Link>

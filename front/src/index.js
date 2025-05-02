@@ -23,6 +23,12 @@ import SideBarUsuario from './components/DetallesCliente/SideBarUsuario';
 import DireccionUsuario from './components/DetallesCliente/DireccionUsuario';
 import ResetPassword from "./components/Login/ResetPasswod";
 import { CartProvider } from './contexto/ContextoCarrito';
+import ResPagina from './paginas/ResPagina';
+import CerdoPagina from './paginas/CerdoPagina';
+import PolloPagina from './paginas/PolloPagina';
+import ProductosVariosPagina from './paginas/ProductosVariosPagina';
+import ProductosDestacadosPagina from './paginas/ProductosDestacadosPagina';
+
 
 // Componente para proteger rutas
 const PrivateRoute = ({ children }) => {
@@ -50,18 +56,20 @@ root.render(
           <Route path="/TipoPagoApp" element={<PrivateRoute><TipoPagoApp /></PrivateRoute>} />
           <Route path="/PedidosApp" element={<PrivateRoute><PedidosApp /></PrivateRoute>} />
           <Route path="/VentaPedido" element={<PrivateRoute><VentaPedido /></PrivateRoute>} />
-          <Route path="/ListaProductosApp" element={<PrivateRoute><ListaProductosApp /></PrivateRoute>} />
+          <Route path="/ListaProductosApp" element={<ListaProductosApp />} />
           <Route path="/PerfilUsuario" element={<PrivateRoute><PerfilUsuario /></PrivateRoute>} />
           <Route path="/Dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
           <Route path="/SideBarUsuario" element={<PrivateRoute><SideBarUsuario /></PrivateRoute>} />
           <Route path="/DireccionUsuario" element={<PrivateRoute><DireccionUsuario /></PrivateRoute>} />
           <Route path= "/Orders" element={<PrivateRoute><Orders /></PrivateRoute>} />
           <Route path="/verOrden" element={<LoginApp initialPage="verOrden" />} />
-          <Route path="/cortes-de-res" element={<LoginApp initialPage="res" />} />
-          <Route path="/cortes-de-cerdo" element={<LoginApp initialPage="cerdo" />} />
-          <Route path="/cortes-de-pollo" element={<LoginApp initialPage="pollo" />} />
-          <Route path="/productos-varios" element={<LoginApp initialPage="varios" />} />
-          <Route path="/productos-destacados" element={<LoginApp initialPage="destacados" />} />
+          <Route path="/cortes-de-res" element={<ResPagina />} />
+          <Route path="/cortes-de-cerdo" element={<CerdoPagina />} />
+          <Route path="/cortes-de-pollo" element={<PolloPagina />} />
+          <Route path="/productos-varios" element={<ProductosVariosPagina />} />
+          <Route path="/productos-destacados" element={<ProductosDestacadosPagina />} />
+
+
         </Routes>
       </Router>
     </CartProvider>
