@@ -286,10 +286,12 @@ public ResponseEntity<List<Map<String, Object>>> filtrarPedidos(
     @PutMapping("/actualizarEstadoPedido/{idPedido}")
     public ResponseEntity<?> updateStateEntregaPedido(
             @PathVariable int idPedido,
-            @RequestParam String estado) {
+            @RequestParam String correoCliente,
+            @RequestParam String nuevoEstado) {
 
         try {
-            pedidoService.updateStateEntregaPedido(idPedido, estado);
+            pedidoService.updateStateEntregaPedido(idPedido, nuevoEstado);
+            pedidoService.sendMail(correoCliente, nuevoEstado);
             return ResponseEntity.ok().body(
                     Collections.singletonMap("mensaje", "Estado de entrega actualizado correctamente")
             );

@@ -208,23 +208,34 @@ const PedidosApp = () => {
       !window.confirm('¿Está seguro que desea cancelar este pedido?')) {
       return;
     }
-
+  
     setUpdatingStatus(pedidoId);
     try {
-      // Corregir la petición para enviar el estado como parámetro query, no como JSON
+      // Obtener el pedido actual para extraer el correo del cliente
+      const pedidoActual = pedidos.find(p => p.idPedido === pedidoId);
+      const correoCliente = pedidoActual?.carrito?.usuario?.correoUsuario || '';
+      console.log("Correo del cliente:", correoCliente);
+      // Enviar tanto el estado como el correo como parámetros query
       await axios.put(
-        `http://localhost:8080/pedido/actualizarEstadoPedido/${pedidoId}?estado=${nuevoEstado}`
+        `http://localhost:8080/pedido/actualizarEstadoPedido/${pedidoId}`,
+        null,
+        {
+          params: {
+            correoCliente: correoCliente,
+            nuevoEstado: nuevoEstado
+          }
+        }
       );
-
+  
       const updatedPedidos = pedidos.map((pedido) => {
         if (pedido.idPedido === pedidoId) {
           return { ...pedido, estadoEntregaPedido: nuevoEstado };
         }
         return pedido;
       });
-
+  
       setPedidos(updatedPedidos);
-
+  
       if (selectedPedido && selectedPedido.idPedido === pedidoId) {
         setSelectedPedido({
           ...selectedPedido,

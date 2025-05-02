@@ -53,4 +53,7 @@ public interface IPedidoService {
     
     @Transactional
     public Map<String, Map<String, Object>> getReporteVentasCompleto();
+    
+       
+    public void sendMail(String correo, String estado);
 }
