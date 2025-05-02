@@ -1,5 +1,6 @@
 import { createContext, useState, useContext, useEffect } from "react"
 import { toast } from "react-toastify"
+import axios from "axios";
 
 // Crear el contexto
 const AppContext = createContext()
@@ -9,7 +10,63 @@ export const AppProvider = ({ children }) => {
   const [showSidebar, setShowSidebar] = useState(false)
   const [showCart, setShowCart] = useState(false)
   const [cart, setCart] = useState([])
-  const idUsuario = localStorage.getItem("idUsuario")
+  const [idUsuario, setIdUsuario] = useState(localStorage.getItem("idUsuario"));
+  const [productos, setProductos] = useState([]);
+  const [globalSearchTerm, setGlobalSearchTerm] = useState(""); 
+  const [allProducts, setAllProducts] = useState([]); // Almacenamiento global de todos los productos
+
+  // Cargar todos los productos al iniciar, sin importar la categoría
+  useEffect(() => {
+    const fetchAllProducts = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/producto/', { 
+          params: { estadoProducto: 1 } 
+        });
+        setAllProducts(response.data);
+      } catch (error) {
+        console.error('Error al cargar todos los productos:', error);
+      }
+    };
+    
+    fetchAllProducts();
+  }, []);
+
+  // Función para buscar en TODOS los productos, sin importar la categoría actual
+  const buscarProductos = (termino) => {
+    // Guardar el término en sessionStorage para mantenerlo durante la redirección
+    sessionStorage.setItem("searchTerm", termino);
+    setGlobalSearchTerm(termino);
+  };
+  
+  // Añadir al final del useEffect inicial en AppContext.js (línea ~21)
+  useEffect(() => {
+    const fetchAllProducts = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/producto/', { 
+          params: { estadoProducto: 1 } 
+        });
+        setAllProducts(response.data);
+      } catch (error) {
+        console.error('Error al cargar todos los productos:', error);
+      }
+    };
+    
+    fetchAllProducts();
+    
+    // Recuperar término de búsqueda de sessionStorage
+    const savedTerm = sessionStorage.getItem("searchTerm");
+    if (savedTerm) {
+      setGlobalSearchTerm(savedTerm);
+    }
+  }, []);
+
+
+  
+  // Función para limpiar la búsqueda
+  const limpiarBusqueda = () => {
+    localStorage.removeItem("globalSearchTerm");
+    setGlobalSearchTerm("");
+  };
 
   // Cargar el carrito desde localStorage al iniciar
   useEffect(() => {
@@ -20,27 +77,22 @@ export const AppProvider = ({ children }) => {
   // Actualizar el carrito cuando cambia el usuario
   useEffect(() => {
     const savedCart = JSON.parse(localStorage.getItem("carrito") || "[]")
+    
     if (idUsuario) {
-      // Asociar el idUsuario a los productos que no lo tienen
+      // Usuario logueado: asignar ID a todos los productos
       const updatedCart = savedCart.map((item) => ({
         ...item,
-        usuarioId: item.usuarioId || idUsuario, // Asignar idUsuario si no existe
+        usuarioId: idUsuario,
       }))
       setCart(updatedCart)
       localStorage.setItem("carrito", JSON.stringify(updatedCart))
     } else {
-      // Si no hay idUsuario, mantener el carrito sin cambios
-      setCart(savedCart)
+      // No hay usuario logueado: eliminar usuarioId de todos los productos
+      const updatedCart = savedCart.map(({ usuarioId, ...rest }) => rest)
+      setCart(updatedCart)
+      localStorage.setItem("carrito", JSON.stringify(updatedCart))
     }
   }, [idUsuario])
-
-  // Limpiar el carrito si el usuario cambia
-  useEffect(() => {
-    if (idUsuario && cart.length > 0 && cart[0].usuarioId !== idUsuario) {
-      setCart([])
-      localStorage.setItem("carrito", JSON.stringify([]))
-    }
-  }, [idUsuario, cart])
 
   // Función para mostrar/ocultar el sidebar
   const handleShowSidebar = () => {
@@ -71,7 +123,7 @@ export const AppProvider = ({ children }) => {
       return newCart
     })
   }
-
+  
   // Función para eliminar productos del carrito
   const removeFromCart = (indexToRemove) => {
     const updatedCart = cart.filter((_, idx) => idx !== indexToRemove)
@@ -86,7 +138,25 @@ export const AppProvider = ({ children }) => {
     localStorage.setItem("carrito", JSON.stringify([]))
   }
 
-  // Valor del contexto que se proporcionará
+  const updateUserStatus = () => {
+    const id = localStorage.getItem("idUsuario");
+    setIdUsuario(id);
+   
+    return id;
+  };
+
+  // Función para logout
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("correoUsuario");
+    localStorage.removeItem("nombreUsuario");
+    localStorage.removeItem("nombreRol");
+    localStorage.removeItem("idUsuario");
+    updateUserStatus(); // Actualizar el estado
+    window.location.href = "/"; // Redirige a la página principal
+  };
+
+  // Valor del contexto
   const contextValue = {
     showSidebar,
     showCart,
@@ -97,7 +167,14 @@ export const AppProvider = ({ children }) => {
     addToCart,
     removeFromCart,
     clearCart,
-  }
+    globalSearchTerm,
+    buscarProductos,
+    limpiarBusqueda,
+    setGlobalSearchTerm,
+    allProducts, // Agregamos todos los productos al contexto
+    updateUserStatus,
+    handleLogout
+  };
 
   return <AppContext.Provider value={contextValue}>{children}</AppContext.Provider>
 }
@@ -110,4 +187,3 @@ export const useAppContext = () => {
   }
   return context
 }
-

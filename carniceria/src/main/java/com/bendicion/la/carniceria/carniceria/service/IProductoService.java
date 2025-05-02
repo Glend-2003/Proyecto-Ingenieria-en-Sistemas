@@ -9,7 +9,6 @@ import java.util.List;
  */
 
 public interface IProductoService {
-
     @Transactional
     public Producto addProducto(Producto producto);
     
@@ -26,5 +25,4 @@ public interface IProductoService {
     
     @Transactional
     public boolean activarProducto(int id);
-       
 }

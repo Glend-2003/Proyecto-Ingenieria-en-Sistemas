@@ -116,4 +116,5 @@ public class CategoriaController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
         }
     }
+     
 }

@@ -1,0 +1,43 @@
+
+CREATE PROCEDURE spEliminarPedido(
+    IN p_idPedido INT
+)
+BEGIN
+    DECLARE v_existePedido INT DEFAULT 0;
+    DECLARE v_idCarrito INT DEFAULT NULL;
+    
+    -- Validar que el pedido exista
+    SELECT COUNT(*) INTO v_existePedido FROM tbpedido WHERE idPedido = p_idPedido;
+    
+    IF v_existePedido = 0 THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Error: El pedido especificado no existe.';
+    ELSE
+        -- Obtener el idCarrito asociado al pedido
+        SELECT idCarrito INTO v_idCarrito FROM tbpedido WHERE idPedido = p_idPedido;
+        
+        -- Iniciar transacción
+        START TRANSACTION;
+        
+        -- Eliminar registros en tbpedidoproducto (productos del pedido)
+        DELETE FROM tbpedidoproducto WHERE idPedido = p_idPedido;
+        
+        -- Eliminar el pedido
+        DELETE FROM tbpedido WHERE idPedido = p_idPedido;
+        
+        -- Si existe carrito asociado, eliminar productos del carrito y el carrito
+        IF v_idCarrito IS NOT NULL THEN
+            -- Eliminar productos del carrito
+            DELETE FROM tbcarritoproducto WHERE idCarrito = v_idCarrito;
+            
+            -- Eliminar el carrito
+            DELETE FROM tbcarrito WHERE idCarrito = v_idCarrito;
+        END IF;
+        
+        -- Confirmar transacción
+        COMMIT;
+        
+        SELECT CONCAT('Pedido ', p_idPedido, ' y todos sus registros relacionados han sido eliminados correctamente.') AS Mensaje;
+    END IF;
+END 
+

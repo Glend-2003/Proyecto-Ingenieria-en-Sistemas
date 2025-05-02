@@ -1,5 +1,4 @@
 package com.bendicion.la.carniceria.carniceria.service;
-
 import com.bendicion.la.carniceria.carniceria.domain.TipoPago;
 import com.bendicion.la.carniceria.carniceria.jpa.TipoPagoRepository;
 import jakarta.transaction.Transactional;

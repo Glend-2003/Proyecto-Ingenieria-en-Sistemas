@@ -4,9 +4,10 @@ import { Card, Button, Modal, Form, Row, Col } from "react-bootstrap";
 import { toast, ToastContainer } from "react-toastify";
 import "./ListaProductos.css";
 import { useCart } from '../../contexto/ContextoCarrito';
+import { useAppContext } from "../Navbar/AppContext";
 
 function ListaProductosApp({ categoria }) {
-  const { addToCart } = useCart(); 
+  const { addToCart } = useCart();
   const [productos, setProductos] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -17,7 +18,10 @@ function ListaProductosApp({ categoria }) {
   const [priceRange, setPriceRange] = useState({ min: 0, max: 0 });
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [selectedPrice, setSelectedPrice] = useState(0);
-  const [sortOrder, setSortOrder] = useState("default"); // Estado para el ordenamiento
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortOrder, setSortOrder] = useState("default");
+  const { globalSearchTerm, buscarProductos, allProducts } = useAppContext();
+  const [isBuscando, setIsBuscando] = useState(false);
 
   const verDetalles = (producto) => {
     setSelectedProduct(producto);
@@ -37,10 +41,8 @@ function ListaProductosApp({ categoria }) {
         ...selectedProduct,
         cantidad: cantidadValida,
       };
-      addToCart(productoConCantidad, cantidadValida); 
-      toast.success(
-        `${selectedProduct.nombreProducto} agregado al carrito (${cantidadValida} unidad${cantidadValida > 1 ? "es" : ""})`,
-      );
+      addToCart(productoConCantidad, cantidadValida);
+     
       handleCloseModal();
     }
   };
@@ -62,8 +64,19 @@ function ListaProductosApp({ categoria }) {
     const fetchProductos = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('http://localhost:8080/producto/');
+        const response = await axios.get('http://localhost:8080/producto/', { params: { estadoProducto: 1 } });
         setProductos(response.data);
+        
+        // Calcular el rango de precios
+        if (response.data.length > 0) {
+          const prices = response.data.map(p => p.montoPrecioProducto);
+          setPriceRange({
+            min: Math.min(...prices),
+            max: Math.max(...prices)
+          });
+          setSelectedPrice(Math.max(...prices)); // Inicializar en el precio máximo
+        }
+        
         setLoading(false);
       } catch (error) {
         console.error('Error al cargar productos:', error);
@@ -72,77 +85,92 @@ function ListaProductosApp({ categoria }) {
     };
 
     fetchProductos();
-  }, []);
-
-  useEffect(() => {
-    if (productos.length > 0 && categorias.length > 0) {
-      if (categoria && categoria.toLowerCase() === "varios") {
+  }, []);useEffect(() => {
+    if (!productos.length || !categorias.length) return;
+  
+    let resultadosFiltrados = [...productos];
+  
+    // Filtrado por categoría
+    if (categoria) {
+      if (categoria.toLowerCase() === "varios") {
         const categoriasExcluidas = categorias
-          .filter(cat => 
-            ["res", "cerdo", "pollo"].includes(cat.nombreCategoria.toLowerCase())
-          )
+          .filter(cat => ["res", "cerdo", "pollo"].includes(cat.nombreCategoria.toLowerCase()))
           .map(cat => cat.idCategoria);
         
-        const filtrados = productos.filter(producto => 
-          producto.categoria && !categoriasExcluidas.includes(producto.categoria.idCategoria)
+        resultadosFiltrados = resultadosFiltrados.filter(
+          producto => producto.categoria && 
+          !categoriasExcluidas.includes(producto.categoria.idCategoria)
         );
-        
-        setProductosFiltrados(filtrados);
-      } else if (categoria) {
-        const categoriaObj = categorias.find(cat => 
-          cat.nombreCategoria.toLowerCase() === categoria.toLowerCase()
+      } else {
+        const categoriaObj = categorias.find(
+          cat => cat.nombreCategoria.toLowerCase() === categoria.toLowerCase()
         );
         
         if (categoriaObj) {
-          const idCategoriaFiltro = categoriaObj.idCategoria;
-          const filtrados = productos.filter(producto => 
-            producto.categoria && producto.categoria.idCategoria === idCategoriaFiltro
+          resultadosFiltrados = resultadosFiltrados.filter(
+            producto => producto.categoria && 
+            producto.categoria.idCategoria === categoriaObj.idCategoria
           );
-          setProductosFiltrados(filtrados);
-        } else {
-          setProductosFiltrados([]);
         }
-      } else {
-        setProductosFiltrados(productos);
       }
-    } else {
-      setProductosFiltrados([]);
     }
-  }, [categoria, productos, categorias]);
+  
+    // Filtrado por búsqueda global (si existe)
+    if (globalSearchTerm) {
+      resultadosFiltrados = resultadosFiltrados.filter(producto =>
+        producto.nombreProducto.toLowerCase().includes(globalSearchTerm.toLowerCase()) ||
+        (producto.descripcionProducto?.toLowerCase().includes(globalSearchTerm.toLowerCase())) ||
+        (producto.codigoProducto?.toLowerCase().includes(globalSearchTerm.toLowerCase()))
+      );
+    }
+  
+    setFilteredProducts(resultadosFiltrados);
+  }, [productos, categorias, categoria, globalSearchTerm]);
 
+  // Efecto para sincronizar searchTerm local con globalSearchTerm
   useEffect(() => {
-    if (productosFiltrados.length > 0) {
-      const prices = productosFiltrados.map(p => p.montoPrecioProducto);
-      const minPrice = Math.min(...prices);
-      const maxPrice = Math.max(...prices);
-      setPriceRange({ min: minPrice, max: maxPrice });
-      setSelectedPrice(maxPrice);
-      setFilteredProducts(productosFiltrados);
+    if (globalSearchTerm) {
+      setSearchTerm(globalSearchTerm);
+      setIsBuscando(true);
+    } else {
+      setSearchTerm("");
+      setIsBuscando(false);
     }
-  }, [productosFiltrados]);
+  }, [globalSearchTerm]);
+
+  // Efecto para aplicar filtros a los productos (precio y ordenamiento)
+  useEffect(() => {
+    if (!productosFiltrados.length) return;
+    
+    let filtered = [...productosFiltrados];
+    
+    // Aplicar filtro de precio si está seleccionado y no es el máximo
+    if (selectedPrice < priceRange.max) {
+      filtered = filtered.filter(product =>
+        product.montoPrecioProducto <= selectedPrice
+      );
+    }
+    
+    // Aplicar ordenamiento
+    if (sortOrder === "price-asc") {
+      filtered.sort((a, b) => a.montoPrecioProducto - b.montoPrecioProducto);
+    } else if (sortOrder === "price-desc") {
+      filtered.sort((a, b) => b.montoPrecioProducto - a.montoPrecioProducto);
+    }
+    
+    setFilteredProducts(filtered);
+  }, [productosFiltrados, selectedPrice, sortOrder, priceRange.max]);
 
   const handlePriceFilter = () => {
-    const filtered = productosFiltrados.filter(product => 
-      product.montoPrecioProducto <= selectedPrice
-    );
-    setFilteredProducts(filtered);
+    // La lógica ya está en el useEffect de arriba
+    // Este método solo sirve para disparar la acción al hacer clic en el botón
   };
 
-  // Función para ordenar los productos
   const handleSortChange = (e) => {
     const order = e.target.value;
     setSortOrder(order);
-
-    let sortedProducts = [...filteredProducts];
-
-    if (order === "price-asc") {
-      sortedProducts.sort((a, b) => a.montoPrecioProducto - b.montoPrecioProducto);
-    } else if (order === "price-desc") {
-      sortedProducts.sort((a, b) => b.montoPrecioProducto - a.montoPrecioProducto);
-    }
-
-    setFilteredProducts(sortedProducts);
   };
+
 
   return (
     <>
@@ -150,6 +178,7 @@ function ListaProductosApp({ categoria }) {
 
       <Row>
         <Col md={3}>
+
           <div className="price-filter">
             <h4>FILTRAR POR PRECIO</h4>
             <p>Precio: ₡{priceRange.min} – ₡{priceRange.max}</p>
@@ -163,6 +192,8 @@ function ListaProductosApp({ categoria }) {
             />
             <button onClick={handlePriceFilter} className="filter-button">FILTRAR</button>
           </div>
+          <div className="mb-2"></div>
+
         </Col>
         <Col md={9}>
           <div className="sort-container">
@@ -176,7 +207,14 @@ function ListaProductosApp({ categoria }) {
             {loading ? (
               <p>Cargando productos...</p>
             ) : filteredProducts.length === 0 ? (
-              <p>No hay productos disponibles en esta categoría</p>
+              globalSearchTerm ? (
+                <div className="no-results-message">
+                  <p>No hay productos disponibles con el término: "{globalSearchTerm}"</p>
+
+                </div>
+              ) : (
+                <p>No hay productos disponibles en esta categoría</p>
+              )
             ) : (
               filteredProducts.map((product) => (
                 <div className="product-card" key={product.idProducto}>
@@ -256,7 +294,7 @@ function ListaProductosApp({ categoria }) {
 
                 {selectedProduct.codigoProducto && (
                   <p>
-                    <strong>SKU:</strong> {selectedProduct.codigoProducto} 
+                    <strong>SKU:</strong> {selectedProduct.codigoProducto}
                   </p>
                 )}
 

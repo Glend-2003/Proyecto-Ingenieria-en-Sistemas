@@ -11,12 +11,11 @@ import "../Login/Login.css"
 import FooterApp from "../Footer/FooterApp"
 import Snackbar from "@mui/material/Snackbar"
 import MuiAlert from "@mui/material/Alert"
-import { FaEye, FaEyeSlash, FaSpinner, FaArrowLeft } from "react-icons/fa"
+import { FaEye, FaEyeSlash, FaSpinner, FaArrowLeft, FaExclamationTriangle, FaCheckCircle, FaInfoCircle } from "react-icons/fa"
 import { FaWhatsapp, FaFacebook } from "react-icons/fa";
 import NavbarApp from "../Navbar/NavbarApp.js"
 import Carrito from "../Carrito/CarritoApp"
 import { useAppContext } from "../Navbar/AppContext"
-import { use } from "react"
 import Historia from "../Home/Historia.js"
 import MostrarOrdenApp from "../Orden/MostrarOdenApp.js"
 import ResPagina from "../../paginas/ResPagina.js"
@@ -24,6 +23,72 @@ import CerdoPagina from "../../paginas/CerdoPagina.js"
 import PolloPagina from "../../paginas/PolloPagina.js"
 import ProductosVariosPagina from "../../paginas/ProductosVariosPagina.js"
 import ProductosDestacadosPagina from "../../paginas/ProductosDestacadosPagina.js"
+
+// Componente de alerta personalizado y centralizado
+const CentralizedAlert = React.forwardRef(function Alert(props, ref) {
+  // Personalización del icono según el tipo de alerta
+  const renderIcon = () => {
+    switch (props.severity) {
+      case 'error':
+        return <FaExclamationTriangle className="alert-icon" />;
+      case 'success':
+        return <FaCheckCircle className="alert-icon" />;
+      case 'warning':
+        return <FaExclamationTriangle className="alert-icon" />;
+      case 'info':
+      default:
+        return <FaInfoCircle className="alert-icon" />;
+    }
+  };
+
+  // Colores personalizados para las alertas
+  const getAlertStyle = () => {
+    const baseStyle = {
+      borderRadius: '8px',
+      display: 'flex',
+      alignItems: 'center',
+      padding: '10px 16px',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
+      width: '100%',
+      animation: 'slideDown 0.3s ease-out forwards'
+    };
+
+    // Personalización por tipo de alerta
+    switch (props.severity) {
+      case 'error':
+        return { ...baseStyle, backgroundColor: '#FEE9E7', color: '#C53030', border: '1px solid #FBD5D2' };
+      case 'warning':
+        return { ...baseStyle, backgroundColor: '#FEFCEE', color: '#704D02', border: '1px solid #FAECC2' };
+      case 'success':
+        return { ...baseStyle, backgroundColor: '#E9F6EC', color: '#276749', border: '1px solid #C6F6D5' };
+      case 'info':
+      default:
+        return { ...baseStyle, backgroundColor: '#EBF8FF', color: '#2A4365', border: '1px solid #BEE3F8' };
+    }
+  };
+
+  return (
+    <div ref={ref} className="centralized-alert" style={getAlertStyle()}>
+      <div className="alert-icon-container" style={{ marginRight: '12px' }}>
+        {renderIcon()}
+      </div>
+      <div className="alert-content" style={{ flex: 1 }}>
+        <div className="alert-message" style={{ fontWeight: '500', fontSize: '14px' }}>
+          {props.children}
+        </div>
+      </div>
+      {props.onClose && (
+        <button
+          className="alert-close"
+          onClick={props.onClose}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', marginLeft: '12px', opacity: 0.7 }}
+        >
+          ×
+        </button>
+      )}
+    </div>
+  );
+});
 
 function LoginApp({ initialPage = "home" }) {
   const [currentPage, setCurrentPage] = useState(initialPage)
@@ -33,37 +98,101 @@ function LoginApp({ initialPage = "home" }) {
     correoUsuario: "",
     contraseniaUsuario: "",
   })
+  const [fieldErrors, setFieldErrors] = useState({
+    correoUsuario: "",
+    contraseniaUsuario: ""
+  })
   const [loginStatus, setLoginStatus] = useState("")
   const navigate = useNavigate()
   const [isOpen, setIsOpen] = useState(false)
   const [productos, setProductos] = useState([])
   const [rememberMe, setRememberMe] = useState(false)
+  const [emailValidationTimer, setEmailValidationTimer] = useState(null)
 
   // Usar el contexto para obtener estados y funciones
-  const { showSidebar, handleShowSidebar, addToCart } = useAppContext()
+  const { showSidebar, handleShowSidebar, addToCart, updateUserStatus} = useAppContext()
+
+  // Estados para alertas mejoradas y centralizadas
+  const [alert, setAlert] = useState({
+    open: false,
+    message: "",
+    severity: "info",
+    vertical: "top",
+    horizontal: "center",
+    duration: 6000
+  })
+
+  // Función para mostrar alertas mejoradas
+  const showAlert = (message, severity = "info", vertical = "top", horizontal = "center", duration = 6000) => {
+    setAlert({
+      open: true,
+      message,
+      severity,
+      vertical,
+      horizontal,
+      duration
+    })
+  }
+
+  // Cerrar alerta
+  const handleCloseAlert = () => {
+    setAlert({ ...alert, open: false })
+  }
 
   // Detectar cambios en la URL para actualizar currentPage
   useEffect(() => {
-    if (location.pathname === "/pedido") {
-      setCurrentPage("pedido")
-    } else if (location.pathname === "/Historia"){
-      setCurrentPage("historia")
-    }else if (location.pathname === "/verOrden"){
-      setCurrentPage("verOrden")
-    }else if (location.pathname === "/cortes-de-res"){
-      setCurrentPage("res")
-    }else if (location.pathname === "/cortes-de-cerdo"){
-      setCurrentPage("cerdo")
-    }else if (location.pathname === "/cortes-de-pollo"){
-      setCurrentPage("pollo")
-    }else if (location.pathname === "/productos-varios"){
-      setCurrentPage("varios")
-    }else if (location.pathname === "/productos-destacados"){
-      setCurrentPage("destacados")
-    }else{
-      setCurrentPage("home")
+    console.log("Ruta actual:", location.pathname);
+
+    // Mapeo directo entre rutas y páginas
+    const pathToPage = {
+      "/pedido": "pedido",
+      "/Historia": "historia",
+      "/verOrden": "verOrden",
+      "/cortes-de-res": "res",
+      "/cortes-de-cerdo": "cerdo",
+      "/cortes-de-pollo": "pollo",
+      "/productos-varios": "varios",
+      "/productos-destacados": "destacados",
+      "/": "home"
+    };
+
+    if (pathToPage[location.pathname]) {
+      setCurrentPage(pathToPage[location.pathname]);
+      console.log("Página establecida a:", pathToPage[location.pathname]);
     }
-  }, [location.pathname])
+  }, [location.pathname]);
+
+  // Validar formato de correo electrónico
+  const validateEmail = (email) => {
+    return email && email.includes('@')
+  }
+
+  // Validar contraseña (que no esté vacía)
+  const validatePassword = (password) => {
+    return password && password.length > 0
+  }
+
+  // Validar todos los campos con alertas centralizadas
+  const validateFields = () => {
+    let isValid = true
+
+    // Validar correo
+    if (!loginData.correoUsuario) {
+      isValid = false
+      showAlert("Por favor, ingresa tu correo electrónico", "warning")
+    } else if (!validateEmail(loginData.correoUsuario)) {
+      isValid = false
+      showAlert(`Incluye un signo '@' en la dirección de correo electrónico. La dirección "${loginData.correoUsuario}" no incluye el signo '@'.`, "warning")
+    }
+
+    // Validar contraseña
+    if (!loginData.contraseniaUsuario) {
+      isValid = false
+      showAlert("Por favor, ingresa tu contraseña", "warning")
+    }
+
+    return isValid
+  }
 
   // Función para cambiar la página actual
   const renderMainContent = () => {
@@ -90,23 +219,6 @@ function LoginApp({ initialPage = "home" }) {
     }
   }
 
-  // Definir el componente Alert para Snackbar
-  const Alert = React.forwardRef(function Alert(props, ref) {
-    return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />
-  })
-
-  // Estados para manejar el Snackbar
-  const [openSnackbar, setOpenSnackbar] = useState(false)
-  const [snackbarMessage, setSnackbarMessage] = useState("")
-  const [snackbarSeverity, setSnackbarSeverity] = useState("success") // 'success', 'error', 'warning', 'info'
-
-  // Función para abrir el Snackbar
-  const handleOpenSnackbar = (message, severity) => {
-    setSnackbarMessage(message)
-    setSnackbarSeverity(severity)
-    setOpenSnackbar(true)
-  }
-
   useEffect(() => {
     const rememberedEmail = localStorage.getItem("rememberedEmail")
     const rememberedPassword = localStorage.getItem("rememberedPassword")
@@ -118,6 +230,11 @@ function LoginApp({ initialPage = "home" }) {
       })
       setRememberMe(true) // Marcar el checkbox si hay credenciales guardadas
     }
+
+    // Limpiar el timer cuando el componente se desmonte
+    return () => {
+      if (emailValidationTimer) clearTimeout(emailValidationTimer);
+    };
   }, [])
 
   const handleLogout = () => {
@@ -130,48 +247,67 @@ function LoginApp({ initialPage = "home" }) {
     localStorage.removeItem("rememberedPassword")
     navigate("/")
   }
+
   const [showForgotPassword, setShowForgotPassword] = useState(false) // Estado para mostrar el formulario de "Olvidé mi contraseña"
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false) // Estado para el spinner
 
-  // Función para cerrar el Snackbar
-  const handleCloseSnackbar = (event, reason) => {
-    if (reason === "clickaway") {
-      return
-    }
-    setOpenSnackbar(false)
-  }
-
-  // Función para manejar el cambio en los inputs del formulario
+  // Función para manejar el cambio en los inputs del formulario con validación centralizada
   const handleInputChange = (e) => {
     const { name, value } = e.target
     setLoginData({
       ...loginData,
       [name]: value,
     })
+
+    // Si es el campo de correo y no está vacío, validar formato
+    if (name === "correoUsuario" && value && !validateEmail(value)) {
+      // Mostrar alerta solo cuando el usuario deje de escribir por un momento
+      if (value.length > 3) {
+        clearTimeout(emailValidationTimer);
+        const timer = setTimeout(() => {
+          showAlert(`Incluye un signo '@' en la dirección de correo electrónico. La dirección "${value}" no incluye el signo '@'.`, "warning")
+        }, 1000)
+        setEmailValidationTimer(timer);
+      }
+    }
   }
 
   const login = () => {
+    // Validar campos antes de intentar login
+    if (!validateFields()) {
+      // Mostrar alerta si hay campos vacíos
+      if (!loginData.correoUsuario || !loginData.contraseniaUsuario) {
+        showAlert("Por favor completa todos los campos requeridos", "warning");
+      }
+      return;
+    }
+
+    setIsLoading(true);
+
     axios
       .post("http://localhost:8080/usuario/login", loginData)
       .then((response) => {
+        setIsLoading(false);
+
         if (response.data.token) {
-          localStorage.setItem("token", response.data.token)
-          localStorage.setItem("correoUsuario", response.data.correoUsuario)
-          localStorage.setItem("nombreUsuario", response.data.nombreUsuario)
-          localStorage.setItem("nombreRol", response.data.rol.nombreRol)
-          localStorage.setItem("idUsuario", response.data.idUsuario)
+          localStorage.setItem("token", response.data.token);
+          localStorage.setItem("correoUsuario", response.data.correoUsuario);
+          localStorage.setItem("nombreUsuario", response.data.nombreUsuario);
+          localStorage.setItem("nombreRol", response.data.rol.nombreRol);
+          localStorage.setItem("idUsuario", response.data.idUsuario);
 
           if (rememberMe) {
-            localStorage.setItem("rememberedEmail", loginData.correoUsuario)
-            localStorage.setItem("rememberedPassword", loginData.contraseniaUsuario)
+            localStorage.setItem("rememberedEmail", loginData.correoUsuario);
+            localStorage.setItem("rememberedPassword", loginData.contraseniaUsuario);
           } else {
-            localStorage.removeItem("rememberedEmail")
-            localStorage.removeItem("rememberedPassword")
+            localStorage.removeItem("rememberedEmail");
+            localStorage.removeItem("rememberedPassword");
           }
+          updateUserStatus();
 
-          // Mostrar Snackbar de éxito
-          handleOpenSnackbar("Bienvenido a Carnoiceria La Bendición.", "success")
+          // Mostrar alerta de éxito
+          showAlert(`Bienvenido ${response.data.nombreUsuario} a Carnicería La Bendición`, "success");
 
           setTimeout(() => {
             if (
@@ -179,27 +315,41 @@ function LoginApp({ initialPage = "home" }) {
               response.data.rol.nombreRol === "Usuario" ||
               response.data.rol.nombreRol === "Gerente"
             ) {
-              navigate("/principal")
+              navigate("/principal");
             }
 
             if (response.data.rol.nombreRol === "Usuario") {
-              navigate("/")
-              handleShowSidebar() // Usar la función del contexto
+              navigate("/");
+              handleShowSidebar(); // Usar la función del contexto
             }
-          }, 2000) // (2 segundos) para que el Snackbar se muestre
+          }, 2000); // (2 segundos) para que la alerta se muestre
 
-          setLoginStatus("Login exitoso. Bienvenido " + response.data.nombreUsuario)
+          setLoginStatus("Login exitoso. Bienvenido " + response.data.nombreUsuario);
         } else {
-          handleOpenSnackbar("Error en el ingreso, verificar datos!", "error")
-          setLoginStatus("Credenciales incorrectas")
+          showAlert("Credenciales no válidas. Por favor verifica tu correo y contraseña", "error");
+          setLoginStatus("Credenciales incorrectas");
         }
       })
       .catch((error) => {
-        console.error("Error en el login:", error.response ? error.response.data : error.message)
+        setIsLoading(false);
+        console.error("Error en el login:", error.response ? error.response.data : error.message);
 
-        handleOpenSnackbar("Error en el ingreso, " + error.response.data, "error")
-        setLoginStatus("Error en el servidor o en las credenciales")
-      })
+        // Manejar diferentes tipos de errores
+        if (!error.response) {
+          showAlert("Error de conexión. Verifica tu conexión a internet o inténtalo más tarde", "error");
+        } else if (error.response.status === 401) {
+          showAlert("Correo o contraseña incorrectos", "error");
+        } else if (error.response.status === 404) {
+          showAlert("El usuario no existe en nuestro sistema", "error");
+        } else if (error.response.status === 500) {
+          showAlert("Error en el servidor. Por favor inténtalo más tarde", "error");
+        } else {
+          showAlert("Error en el ingreso: " + (error.response.data?.message || error.response.data || "Error desconocido"), "error");
+        }
+
+        setLoginStatus("Error en el servidor o en las credenciales");
+      });
+      updateUserStatus();
   }
 
   const handleSubmit = (e) => {
@@ -208,33 +358,44 @@ function LoginApp({ initialPage = "home" }) {
   }
 
   const handleForgotPassword = async (e) => {
-    e.preventDefault() // Evita que el formulario se envíe automáticamente
+    e.preventDefault(); // Evita que el formulario se envíe automáticamente
 
     if (!loginData.correoUsuario) {
-      toast.error("Por favor, ingresa tu correo electrónico")
-      return
+      showAlert("Por favor, ingresa tu correo electrónico", "warning");
+      return;
     }
+
+    // Validar formato de correo
+    if (!validateEmail(loginData.correoUsuario)) {
+      showAlert(`Incluye un signo '@' en la dirección de correo electrónico. La dirección "${loginData.correoUsuario}" no incluye el signo '@'.`, "warning");
+      return;
+    }
+
+    setIsLoading(true); // Activar el spinner
 
     try {
       const response = await axios.post("http://localhost:8080/usuario/verificarCambioContrasena", {
         correoUsuario: loginData.correoUsuario,
-      })
+      });
 
       if (response.status === 200) {
-        toast.success("Código enviado con éxito", {
-          autoClose: 2000, // Duración de la alerta (2 segundos)
-          onClose: () => {
-            // Redirigir después de que la alerta se cierre
-            navigate("/reset-password", { state: { correoUsuario: loginData.correoUsuario } })
-          },
-        })
+        showAlert("Código enviado con éxito a tu correo electrónico", "success");
+
+        // Esperar 2 segundos antes de redirigir
+        setTimeout(() => {
+          navigate("/ResetPassword", { state: { correoUsuario: loginData.correoUsuario } });
+        }, 2000);
       }
     } catch (error) {
-      toast.error("Correo inexistente", {
-        autoClose: 3000, // Duración de la alerta (3 segundos)
-      })
+      if (!error.response) {
+        showAlert("Error de conexión. Verifica tu conexión a internet", "error");
+      } else if (error.response.status === 404) {
+        showAlert("El correo electrónico no existe en nuestro sistema", "error");
+      } else {
+        showAlert("Error al enviar el código: " + (error.response?.data?.message || "Correo inexistente"), "error");
+      }
     } finally {
-      // setIsLoading(false); // Desactivar el spinner
+      setIsLoading(false); // Desactivar el spinner
     }
   }
 
@@ -242,247 +403,200 @@ function LoginApp({ initialPage = "home" }) {
     <div className="page-container">
       {/* Navbar Component */}
       <NavbarApp />
-      {/* Redes sociales */}
-    <div className="social-media-container">
-      <a 
-        href="https://wa.me/50688955772"
-        className="social-icon whatsapp"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="WhatsApp"
-      >
-        <FaWhatsapp size={24} />
-      </a>
-      <a
-        href="https://www.facebook.com/jamel.sandi.3"
-        className="social-icon facebook"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Facebook"
-      >
-        <FaFacebook size={20} />
-      </a>
-    </div>
+
+      {/* Alerta Centralizada */}
+      <div className="alert-container" style={{
+        display: alert.open ? 'flex' : 'none',
+        position: 'fixed',
+        top: '20px',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        zIndex: 9999,
+        width: '100%',
+        maxWidth: '500px',
+        justifyContent: 'center'
+      }}>
+        <CentralizedAlert
+          severity={alert.severity}
+          onClose={handleCloseAlert}
+        >
+          {alert.message}
+        </CentralizedAlert>
+      </div>
 
       {/* Offcanvas Sidebar */}
-      <Offcanvas show={showSidebar} onHide={handleShowSidebar} placement="end">
-        <Offcanvas.Header closeButton>
-          <Offcanvas.Title style={{ fontSize: "24px", fontWeight: "bold", color: "#333" }}>
-            {showForgotPassword ? "Recuperar contraseña" : "Iniciar sesión"}
-          </Offcanvas.Title>
-        </Offcanvas.Header>
-        <Offcanvas.Body>
-          {/* Contenido del Offcanvas.Body */}
-          {!showForgotPassword ? (
-            // Formulario de inicio de sesión
-            <form onSubmit={handleSubmit}>
-              {/* Campo de correo */}
-              <div className="mb-3">
-                <label htmlFor="correoUsuario" className="form-label">
-                  Correo electrónico
-                </label>
-                <input
-                  className="form-control"
-                  type="email"
-                  name="correoUsuario"
-                  id="correoUsuario"
-                  value={loginData.correoUsuario}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
 
-              {/* Campo de contraseña */}
-              <div className="mb-3 position-relative">
-                <label htmlFor="contraseniaUsuario" className="form-label">
-                  Contraseña
-                </label>
-                <input
-                  className="form-control"
-                  type={showPassword ? "text" : "password"}
-                  name="contraseniaUsuario"
-                  id="contraseniaUsuario"
-                  value={loginData.contraseniaUsuario}
-                  onChange={handleInputChange}
-                  required
-                />
-                {/* Ícono para mostrar/ocultar contraseña */}
-                <span
-                  className="position-absolute end-0 me-3"
-                  style={{
-                    cursor: "pointer",
-                    top: "60%",
-                    transform: "translateY(-22%)",
-                  }}
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? <FaEyeSlash /> : <FaEye />}
-                </span>
-              </div>
+      {/* Reemplaza el contenido de Offcanvas con este código */}
+{/* Reemplaza el Offcanvas actual con este código */}
+<Offcanvas show={showSidebar} onHide={handleShowSidebar} placement="end" className="login-sidebar">
+  <Offcanvas.Header closeButton className="login-header">
+    <Offcanvas.Title className="login-title">
+      {showForgotPassword ? "Recuperar contraseña" : "Iniciar sesión"}
+    </Offcanvas.Title>
+  </Offcanvas.Header>
+  <Offcanvas.Body>
+    {!showForgotPassword ? (
+      // Formulario de inicio de sesión mejorado
+      <div className="auth-form-container">
+        <form onSubmit={handleSubmit}>
+          {/* Campo de correo */}
+          <div className="form-group">
+            <label htmlFor="correoUsuario">Correo electrónico</label>
+            <input
+              id="correoUsuario"
+              type="email"
+              name="correoUsuario"
+              value={loginData.correoUsuario}
+              onChange={handleInputChange}
+              placeholder="ejemplo@correo.com"
+              className="form-control"
+              required
+            />
+          </div>
 
-              {/* Botón de acceso */}
-              <div className="mb-3">
-                <button className="btn btn-primary d-block w-100" type="submit">
-                  Acceso
-                </button>
-              </div>
+          {/* Campo de contraseña */}
+          <div className="form-group">
+            <label htmlFor="contraseniaUsuario">Contraseña</label>
+            <div className="password-input-container">
+              <input
+                id="contraseniaUsuario"
+                type={showPassword ? "text" : "password"}
+                name="contraseniaUsuario"
+                value={loginData.contraseniaUsuario}
+                onChange={handleInputChange}
+                placeholder="Ingresa tu contraseña"
+                className="form-control"
+                required
+              />
+              {/* Ícono para mostrar/ocultar contraseña */}
+              <span
+                className="password-toggle-icon"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </span>
+            </div>
+          </div>
 
-              {/* Opciones adicionales */}
-              <div className="form-check text-start mb-3">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  id="rememberMe"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                />
-                <label className="form-check-label" htmlFor="rememberMe">
-                  Acuérdate de mí
-                </label>
-                <button className="btn btn-link float-end text-muted" onClick={() => setShowForgotPassword(true)}>
-                  ¿Perdiste tu contraseña?
-                </button>
-              </div>
+          {/* Opciones adicionales */}
+          <div className="options-container">
+            <div className="remember-me">
+              <input
+                className="form-check-input"
+                type="checkbox"
+                id="rememberMe"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+              />
+              <label className="form-check-label" htmlFor="rememberMe">
+                Acuérdate de mí
+              </label>
+            </div>
+            <button
+              className="forgot-password-link"
+              onClick={() => setShowForgotPassword(true)}
+              type="button"
+            >
+              ¿Perdiste tu contraseña?
+            </button>
+          </div>
 
-              {/* Botón "Crear una cuenta" */}
-              <div className="text-center mt-4">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="3em"
-                  height="3em"
-                  fill="currentColor"
-                  className="bi bi-person"
-                  viewBox="0 0 16 16"
-                >
-                  <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664z" />
-                </svg>
-                <p className="mt-3">¿Aún no tienes cuenta?</p>
-                <a href="/register" className="btn btn-secondary d-block w-50 mx-auto">
-                  Crear una cuenta
-                </a>
-              </div>
-            </form>
-          ) : (
-            // Formulario de "Olvidé mi contraseña"
-            <form onSubmit={handleForgotPassword}>
-              {/* Contenido del formulario de recuperación (código existente) */}
-              <p className="mb-4" style={{ fontSize: "16px", color: "#555", lineHeight: "1.9" }}>
-                Ingresa tu correo electrónico para verificar que eres tú. Te enviaremos un código para restablecer tu
-                contraseña.
-              </p>
+          {/* Botón de acceso con spinner */}
+          <button
+            className="btn-acceso"
+            disabled={isLoading}
+            type="submit"
+          >
+            {isLoading ? (
+              <>
+                <FaSpinner className="spinner" />
+                <span>Accediendo...</span>
+              </>
+            ) : "Acceso"}
+          </button>
 
-              <div className="mb-3">
-                <label
-                  htmlFor="correoUsuario"
-                  className="form-label"
-                  style={{ fontSize: "16px", color: "#333", fontWeight: "500" }}
-                >
-                  Correo electrónico
-                </label>
-                <input
-                  className="form-control"
-                  type="email"
-                  name="correoUsuario"
-                  id="correoUsuario"
-                  value={loginData.correoUsuario}
-                  onChange={handleInputChange}
-                  required
-                  style={{ fontSize: "16px", padding: "10px", width: "100%", maxWidth: "400px", margin: "0 auto" }}
-                />
-              </div>
+          {/* Sección "Crear una cuenta" */}
+          <div className="create-account-section">
+            <div className="divider">
+              <span>O</span>
+            </div>
+            <div className="user-icon-container">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="2.5em"
+                height="2.5em"
+                fill="currentColor"
+                className="bi bi-person"
+                viewBox="0 0 16 16"
+              >
+                <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664z" />
+              </svg>
+            </div>
+            <p className="no-account-text">¿Aún no tienes cuenta?</p>
+            <a href="/register" className="btn-crear-cuenta">
+              Crear una cuenta
+            </a>
+          </div>
+        </form>
+      </div>
+    ) : (
+      // Formulario de "Olvidé mi contraseña" mejorado
+      <div className="auth-form-container">
+        <div className="reset-message">
+          <p>Ingresa tu correo para verificar que eres tú.</p>
+          <p>Te enviaremos un código para restablecer tu contraseña.</p>
+        </div>
 
-              <div className="mb-3">
-                <button
-                  className="btn btn-primary d-block w-100"
-                  type="submit"
-                  disabled={isLoading}
-                  style={{
-                    fontSize: "16px",
-                    padding: "6px",
-                    maxWidth: "400px",
-                    margin: "0 auto",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "8px",
-                  }}
-                >
-                  {isLoading ? (
-                    <>
-                      <FaSpinner className="spinner" />
-                      Enviando...
-                    </>
-                  ) : (
-                    "Enviar"
-                  )}
-                </button>
-              </div>
+        <form onSubmit={handleForgotPassword}>
+          <div className="form-group">
+            <label htmlFor="correoUsuario">Correo electrónico</label>
+            <input
+              id="correoUsuario"
+              type="email"
+              name="correoUsuario"
+              value={loginData.correoUsuario}
+              onChange={handleInputChange}
+              placeholder="correo@ejemplo.com"
+              className="form-control"
+              required
+            />
+          </div>
 
-              <hr />
-              <div className="text-center mt-4">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="3em"
-                  height="3em"
-                  fill="currentColor"
-                  className="bi bi-person"
-                  viewBox="0 0 16 16"
-                >
-                  <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664z" />
-                </svg>
-                <p className="mt-3">¿Aún no tienes cuenta?</p>
-                <a href="/register" className="btn btn-secondary d-block w-50 mx-auto">
-                  Crear una cuenta
-                </a>
-              </div>
-              <div className="text-center">
-                <button
-                  type="button"
-                  className="btn btn-link"
-                  onClick={() => setShowForgotPassword(false)}
-                  style={{
-                    color: "#333",
-                    textDecoration: "none",
-                    fontSize: "16px",
-                    fontWeight: "500",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "8px",
-                  }}
-                >
-                  <FaArrowLeft /> Volver
-                </button>
-              </div>
-            </form>
-          )}
-        </Offcanvas.Body>
-      </Offcanvas>
+          <button
+            type="submit"
+            className="btn-acceso"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <FaSpinner className="spinner" />
+                <span>Enviando...</span>
+              </>
+            ) : "Enviar código"}
+          </button>
+        </form>
 
-      {/* Contenido principal modificado para usar renderMainContent */}
+        <button
+          type="button"
+          className="btn-volver"
+          onClick={() => setShowForgotPassword(false)}
+        >
+          <FaArrowLeft /> Volver al inicio de sesión
+        </button>
+      </div>
+    )}
+  </Offcanvas.Body>
+</Offcanvas>
+      {/* Contenido principal */}
       <main className="flex-grow-2" style={{ marginTop: "80px" }}>
         {renderMainContent()}
         <Carrito />
       </main>
+
       {/* Footer */}
       <FooterApp />
-      {/* Snackbar para mostrar alertas */}
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: "100%" }}>
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
-
-      
     </div>
-    
   )
 }
 
 export default LoginApp
-

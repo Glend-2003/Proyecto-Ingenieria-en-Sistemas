@@ -38,5 +38,48 @@ public class Carrito {
     
     @Column(name = "montoTotalCarrito")
     private BigDecimal montoTotalCarrito;
+
+    @Column(name = "estadoCarrito")
+    private boolean estadoCarrito;
+
+    public int getIdCarrito() {
+        return idCarrito;
+    }
+
+    public void setIdCarrito(int idCarrito) {
+        this.idCarrito = idCarrito;
+    }
+
+    public int getCantidadCarrito() {
+        return cantidadCarrito;
+    }
+    public void setCantidadCarrito(int cantidadCarrito) {
+        this.cantidadCarrito = cantidadCarrito;
+    }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
+
+    public boolean isEstadoCarrito() {
+        return estadoCarrito;
+    }
+
+    public void setEstadoCarrito(boolean estadoCarrito) {
+        this.estadoCarrito = estadoCarrito;
+    }
+
+    public BigDecimal getMontoTotalCarrito() {
+        return montoTotalCarrito;
+    }
+
+    public void setMontoTotalCarrito(BigDecimal montoTotalCarrito) {
+        this.montoTotalCarrito = montoTotalCarrito;
+    }
+
+    
     
 }

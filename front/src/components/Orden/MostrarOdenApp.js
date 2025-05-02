@@ -26,7 +26,7 @@ function MostrarOrdenApp() {
     setCart(newCart)
     localStorage.setItem("carrito", JSON.stringify(newCart))
   }
-
+  
   const removeItem = (index) => {
     const newCart = cart.filter((_, i) => i !== index)
     setCart(newCart)
@@ -49,7 +49,16 @@ function MostrarOrdenApp() {
 
   return (
     <div className="page-container"> 
+    <div className="orden-header">
+        <button 
+          onClick={() => navigate("/")} // Esto vuelve a la página anterior
+          className="back-button"
+        >
+          &larr; Volver
+        </button>
+      </div>
       <div className="orden-container">
+      
         <div className="carrito-detalles">
           <table>
             <thead>
@@ -118,7 +127,7 @@ function MostrarOrdenApp() {
               <span>Total</span>
               <span className="monto total-monto">₡{subtotal.toLocaleString()}</span>
             </div>
-            <button className="finalizar-compra">FINALIZAR COMPRA</button>
+            <button onClick={() => navigate("/pedido")} className="finalizar-compra">FINALIZAR COMPRA</button>
           </div>
         </div>
       </div>

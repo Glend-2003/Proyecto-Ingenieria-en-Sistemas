@@ -1,6 +1,123 @@
+/* 
+   Paleta de colores de la carnicería:
+   - Verde oscuro: #103f1b
+   - Verde medio: #387623
+   - Verde claro: #9fc45a
+   - Mostaza: #958933
+   - Café: #875725
+*/
+
+/* Estilos del footer */
+.page-footer {
+    background-color: #103f1b !important; /* Verde oscuro como color principal */
+    color: #fff;
+    padding: 1rem 0; /* Reducido el padding */
+    border-top: 3px solid #9fc45a; /* Borde superior con el verde claro */
+    position: relative;
+    box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Contenedor del footer */
 .footer-container {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    padding: 0.5rem 0; /* Padding reducido */
+}
+
+/* Logo del footer */
+.footer-logo {
+    max-width: 120px;
+    margin-bottom: 1rem;
+}
+
+/* Eliminamos todos los enlaces ya que no se necesitan más */
+.links {
+    display: none;
+}
+
+/* Ajustamos el tamaño y estilo del texto para la información de contacto */
+.contact-info {
+    font-size: 0.9rem;
+    color: #9fc45a; /* Verde claro para mejor visibilidad */
+}
+
+/* Iconos sociales */
+.social-icons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem; /* Espacio reducido entre iconos */
+}
+
+.social-icons a {
+    display: flex;
     align-items: center;
     justify-content: center;
+    width: 35px; /* Tamaño reducido */
+    height: 35px; /* Tamaño reducido */
+    border-radius: 50%;
+    background-color: #387623; /* Verde medio */
+    color: white;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    border: 2px solid #9fc45a; /* Borde con verde claro */
+}
+
+.social-icons a:hover {
+    transform: translateY(-3px);
+    background-color: #9fc45a; /* Verde claro al hover */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.social-icons svg,
+.social-icons i {
+    font-size: 1.2rem;
+    color: white;
+}
+
+/* Sección de copyright */
+.copyright {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.7);
+    padding: 0.5rem 0;
+    margin-top: 0; /* Eliminar margen superior */
+}
+
+/* Adaptaciones responsivas */
+@media (max-width: 768px) {
+    .footer-container {
+        flex-direction: column;
+        gap: 10px;
+        padding: 0.5rem;
+    }
+    
+    .footer-brand {
+        margin-bottom: 5px !important;
+    }
+    
+    .social-icons {
+        margin: 5px 0;
+    }
+    
+    .copyright {
+        font-size: 0.75rem;
+    }
+}
+
+/* Decoración adicional */
+.page-footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #103f1b, #9fc45a, #958933, #9fc45a, #103f1b);
+    opacity: 0.7;
 }

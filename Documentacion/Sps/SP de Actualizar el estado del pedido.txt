@@ -1,0 +1,25 @@
+CREATE DEFINER=`root`@`localhost` PROCEDURE `spActualizarEstadoPedido`(
+    IN p_idPedido INT
+)
+BEGIN
+    DECLARE v_existePedido INT DEFAULT 0;
+    DECLARE v_estadoActual BIT(1);
+    
+    -- Validar que el pedido exista
+    SELECT COUNT(*) INTO v_existePedido FROM tbpedido WHERE idPedido = p_idPedido;
+    
+    IF v_existePedido = 0 THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Error: El pedido especificado no existe.';
+    ELSE
+        -- Obtener el estado actual del pedido
+        SELECT estadoPedido INTO v_estadoActual FROM tbpedido WHERE idPedido = p_idPedido;
+        
+        -- Cambiar el estado (si es 1 pasa a 0, si es 0 pasa a 1)
+        UPDATE tbpedido 
+        SET estadoPedido = NOT v_estadoActual 
+        WHERE idPedido = p_idPedido;
+        
+        SELECT CONCAT('Estado del pedido ', p_idPedido, ' cambiado de ', v_estadoActual, ' a ', NOT v_estadoActual) AS Mensaje;
+    END IF;
+END

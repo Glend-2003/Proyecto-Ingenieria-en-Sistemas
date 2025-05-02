@@ -10,53 +10,15 @@ import SideBar from '../SideBar/SideBar';
 import { Button } from 'react-bootstrap';
 import FooterApp from '../Footer/FooterApp';
 import "./Principal.css";
+import { useAppContext } from "../Navbar/AppContext";
+
 const Principal = () => {
     const { usuario} = useAuth();
+    const {handleLogout} = useAppContext();
 
     const navigate = useNavigate();
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('correoUsuario');
-        localStorage.removeItem('nombreUsuario');
-        localStorage.removeItem('nombreUsuario');
-        localStorage.removeItem('nombreRol');
-        localStorage.removeItem('idUsuario');
-        
-        navigate('/');
-    };
-    /*const [usuario, setUsuario] = useState(null);
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-
-        if (token) {
-            axios.get('http://localhost:8080/usuario/datos', {
-                headers: {
-                    'Authorization': `Bearer ${token}` 
-                }
-            })
-            .then(response => {
-                setUsuario(response.data);
-            })
-            .catch(error => {
-                console.error('Error al obtener los datos del usuario:', error);
-                localStorage.removeItem('token');
-                localStorage.removeItem('correoUsuario');
-                localStorage.removeItem('nombreUsuario');
-                navigate('/');
-            });
-        } else {
-            navigate('/');
-        }
-    }, [navigate]);
-
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('correoUsuario');
-        localStorage.removeItem('nombreUsuario');
-        navigate('/');
-    };*/
+    
+   
 
     return (
         <div className="principal-container">

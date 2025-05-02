@@ -1,64 +1,180 @@
 .perfil-usuario-container {
-    display: flex;
-    height: 100vh; /* Ocupa toda la pantalla */
+  display: flex;
+  min-height: 80vh; /* Ajustado para dar espacio al footer */
 }
-
-.sidebar-container {
-    width: 250px;
-    background-color: #ffffff; /* Color igual al contenido */
-    color: #333;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-}
-
-.sidebar-title {
-    font-size: 1.2rem;
-    font-weight: bold;
-    margin-bottom: 20px;
-    text-align: center;
-    color: #2c3e50;
-}
-
-/* Navegación */
-.sidebar-nav {
-    display: flex;
-    flex-direction: column;
+/* Contenido principal */
+.profile-content {
+    flex: 1;
+    padding: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
     width: 100%;
-}
-
-.sidebar-link {
+  }
+  
+  .profile-header {
+    margin-bottom: 30px;
+  }
+  
+  .profile-header h2 {
+    color: #2c3e50;
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 5px;
+  }
+  
+  .profile-header p {
+    color: #7f8c8d;
+    font-size: 16px;
+  }
+  
+  /* Tarjeta de perfil */
+  .profile-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+  }
+  
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 30px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .card-header h3 {
+    color: #2c3e50;
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+  }
+  
+  .edit-btn, .cancel-btn, .save-btn {
+    padding: 8px 20px;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .edit-btn {
+    background-color: #3498db;
+    color: white;
+  }
+  
+  .edit-btn:hover {
+    background-color: #2980b9;
+  }
+  
+  .cancel-btn {
+    background-color: #e74c3c;
+    color: white;
+  }
+  
+  .cancel-btn:hover {
+    background-color: #c0392b;
+  }
+  
+  .save-btn {
+    background-color: #2ecc71;
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 25px;
+    font-size: 16px;
+  }
+  
+  .save-btn:hover {
+    background-color: #27ae60;
+  }
+  
+  /* Formulario */
+  .profile-form {
+    padding: 30px;
+  }
+  
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+  }
+  
+  .form-group {
+    margin-bottom: 15px;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #34495e;
+    font-weight: 500;
     display: flex;
     align-items: center;
-    text-decoration: none;
-    color: #2c3e50;
-    padding: 10px 15px;
-    margin: 5px 0;
-    font-size: 1rem;
-    border-radius: 5px;
-    transition: background 0.3s, color 0.3s;
-}
-
-.sidebar-link:hover {
-    background-color: #e2e6ea;
-    color: #1a252f;
-}
-
-.sidebar-link .icon {
+  }
+  
+  .input-icon {
     margin-right: 10px;
-    font-size: 1.2rem;
-}
-
-/* Estilo para la opción de cerrar sesión */
-.sidebar-link.logout {
-    margin-top: auto;
-    color: #e74c3c;
-}
-
-.sidebar-link.logout:hover {
-    background-color: #f8d7da;
-    color: #c0392b;
-}
-
+    color: #7f8c8d;
+    width: 16px;
+  }
+  
+  .form-input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 15px;
+    transition: border 0.3s;
+    background-color: #f9f9f9;
+  }
+  
+  .form-input:disabled {
+    background-color: #f0f0f0;
+    color: #555;
+  }
+  
+  .form-input:focus {
+    outline: none;
+    border-color: #3498db;
+    background-color: white;
+  }
+  
+  .form-actions {
+    margin-top: 30px;
+    text-align: right;
+  }
+  
+  /* Responsive */
+  @media (max-width: 992px) {
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .perfil-usuario-container {
+      flex-direction: column;
+    }
+    
+    .sidebar-container {
+      width: 100%;
+      min-height: auto;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .profile-content {
+      padding: 20px 15px;
+    }
+    
+    .profile-form {
+      padding: 20px;
+    }
+    
+    .card-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 15px;
+    }
+  }

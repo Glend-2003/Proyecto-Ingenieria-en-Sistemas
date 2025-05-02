@@ -15,60 +15,55 @@ export const CartProvider = ({ children }) => {
     localStorage.setItem("carrito", JSON.stringify(cart));
   }, [cart]);
 
-  const addToCart = (product, quantity) => {
-    // Buscar si el producto ya está en el carrito
+  const addToCart = (product, cantidad) => {
     const existingProductIndex = cart.findIndex((item) => item.idProducto === product.idProducto);
-
+  
     if (existingProductIndex !== -1) {
-      // Si el producto ya está en el carrito, actualizar la cantidad
       const updatedCart = [...cart];
-      const totalQuantity = updatedCart[existingProductIndex].quantity + quantity;
-
-      // Verificar si hay suficiente stock
-      if (totalQuantity > product.stockProducto) {
+      const totalCantidad = updatedCart[existingProductIndex].cantidad + cantidad;
+  
+      if (totalCantidad > product.stockProducto) {
         setErrorMessage(
           `No hay suficiente stock disponible. Solo puedes agregar ${
-            product.stockProducto - updatedCart[existingProductIndex].quantity
+            product.stockProducto - updatedCart[existingProductIndex].cantidad
           } unidades más.`
         );
         return;
       } else {
-        // Actualizar la cantidad del producto existente
-        updatedCart[existingProductIndex].quantity += quantity;
+        updatedCart[existingProductIndex].cantidad += cantidad;
         setCart(updatedCart);
         setErrorMessage("");
       }
     } else {
-      // Si el producto no está en el carrito, agregarlo
-      if (quantity > product.stockProducto) {
+      if (cantidad > product.stockProducto) {
         setErrorMessage(
           `No hay suficiente stock disponible. Solo puedes agregar ${product.stockProducto} unidades.`
         );
         return;
       } else {
-        setCart([...cart, { ...product, quantity }]);
+        setCart([...cart, { ...product, cantidad }]);
         setErrorMessage("");
       }
     }
-
-    setShowCartMenu(true); // Mostrar el carrito después de agregar un producto
+  
+    setShowCartMenu(true);
   };
 
   const increaseQuantity = (productId) => {
     setCart(
       cart.map((item) =>
         item.idProducto === productId
-          ? { ...item, quantity: item.quantity + 1 }
+          ? { ...item, cantidad: item.cantidad + 1 }
           : item
       )
     );
   };
-
+  
   const decreaseQuantity = (productId) => {
     setCart(
       cart.map((item) =>
-        item.idProducto === productId && item.quantity > 1
-          ? { ...item, quantity: item.quantity - 1 }
+        item.idProducto === productId && item.cantidad > 1
+          ? { ...item, cantidad: item.cantidad - 1 }
           : item
       )
     );

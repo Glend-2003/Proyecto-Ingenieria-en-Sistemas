@@ -1,8 +1,6 @@
 package com.bendicion.la.carniceria.carniceria.service;
 import java.util.List;
-
 import com.bendicion.la.carniceria.carniceria.domain.Usuario;
-
 import jakarta.transaction.Transactional;
 
 /**
@@ -51,5 +49,8 @@ public interface IUsuarioService {
     
     @Transactional
     public String cambiarContrasenaConCodigo(String numCodigo, String nuevaContrasenia);
+    
+     @Transactional // Asegúrate de que esté anotado
+    public Usuario actualizarCredenciales(Usuario usuario);
      
 }

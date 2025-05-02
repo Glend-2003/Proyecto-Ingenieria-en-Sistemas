@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import com.bendicion.la.carniceria.carniceria.Logic.JwtService;
 import com.bendicion.la.carniceria.carniceria.Logic.Seguridad;
-import com.bendicion.la.carniceria.carniceria.domain.Rol;
 import com.bendicion.la.carniceria.carniceria.domain.Usuario;
 import com.bendicion.la.carniceria.carniceria.jpa.UsuarioCodigoRepository;
 import com.bendicion.la.carniceria.carniceria.jpa.UsuarioRepository;
@@ -439,4 +438,25 @@ public Usuario registerUsuario(Usuario usuario) {
         }
     }
    
+    
+    @Override
+@Transactional
+public Usuario actualizarCredenciales(Usuario usuario) {
+    try {
+        usuario.setEstadoUsuario(true);
+        usuarioRepo.actualizarCredenciales(
+                usuario.getIdUsuario(),
+                usuario.getCedulaUsuario(),
+                usuario.getNombreUsuario(),
+                usuario.getPrimerApellido(),
+                usuario.getSegundoApellido(),
+                usuario.getTelefonoUsuario(),
+                usuario.getFechaNacimiento()
+        );
+        return usuario;
+    } catch (Exception e) {
+        throw new RuntimeException("Error al actualizar credenciales: " + e.getMessage());
+    }
+}
+
 }
