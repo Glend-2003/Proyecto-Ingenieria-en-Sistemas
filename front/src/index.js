@@ -28,6 +28,7 @@ import CerdoPagina from './paginas/CerdoPagina';
 import PolloPagina from './paginas/PolloPagina';
 import ProductosVariosPagina from './paginas/ProductosVariosPagina';
 import ProductosDestacadosPagina from './paginas/ProductosDestacadosPagina';
+import Historia from "./components/Home/Historia";
 
 
 // Componente para proteger rutas
@@ -44,7 +45,7 @@ root.render(
         <Routes>
           <Route path="/" element={<LoginApp />} />
           <Route path="/pedido" element={<LoginApp initialPage="pedido" />} />
-          <Route path="/historia" element={<LoginApp initialPage="historia" />} />
+          <Route path="/historia" element={<Historia initialPage="historia" />} />
           <Route path="/register" element={<Registrar />} />
           <Route path="/ResetPassword" element={<ResetPassword/>} /> 
           <Route path="/principal" element={<PrivateRoute><Principal /></PrivateRoute>} />
