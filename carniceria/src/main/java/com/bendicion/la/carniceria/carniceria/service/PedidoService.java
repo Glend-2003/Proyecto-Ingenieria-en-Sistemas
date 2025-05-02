@@ -13,10 +13,17 @@ import org.springframework.stereotype.Service;
 
 import com.bendicion.la.carniceria.carniceria.domain.Carrito;
 import com.bendicion.la.carniceria.carniceria.domain.Pedido;
+import com.bendicion.la.carniceria.carniceria.domain.Usuario;
 import com.bendicion.la.carniceria.carniceria.jpa.GraficosPedidoRepository;
 import com.bendicion.la.carniceria.carniceria.jpa.PedidoRepository;
+import com.bendicion.la.carniceria.carniceria.jpa.UsuarioRepository;
 
 import jakarta.transaction.Transactional;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 
 /**
  *
@@ -34,7 +41,13 @@ public class PedidoService implements IPedidoService {
 
     @Autowired
     private GraficosPedidoRepository graficosRepo;
+    
+    @Autowired
+    private UsuarioRepository usuarioRepo;
 
+    @Autowired
+    private CorreoService correoService;
+    
     @Transactional
     @Override
     public Pedido addPedido(Pedido pedido) {
@@ -245,4 +258,66 @@ public class PedidoService implements IPedidoService {
         }
     }
 
+    @Override
+    @Transactional
+    public void sendMail(String correoUsuario, String estado) {
+        try {
+            // Verificar si el correo tiene un usuario asociado
+            Usuario usuario = usuarioRepo.searchUsuario(correoUsuario);
+
+            if (usuario == null) {
+                throw new RuntimeException("El correo no está registrado");
+            }
+
+            // Crear el mensaje del correo en HTML
+            String asunto = "Estado el pedido";
+            String mensajeHTML = mensajePredeterminado(usuario.getNombreUsuario(), estado);
+
+            // 4. Enviar el correo
+            correoService.enviarMensaje(correoUsuario, asunto, mensajeHTML);
+
+            System.out.println("Correoenviado a: " + correoUsuario);
+        } catch (Exception e) {
+            throw new RuntimeException("Error al enviar el correo: " + e.getMessage());
+        }
+    }
+
+    @Transactional
+    public String mensajePredeterminado(String nombreUsuario, String estadoPedido) {
+        // Obtener fecha actual en formato legible
+        LocalDate fecha = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        String fechaFormateada = fecha.format(formatter);
+
+        return "<!DOCTYPE html>"
+                + "<html lang='es'>"
+                + "<head>"
+                + "    <meta charset='UTF-8'>"
+                + "    <meta name='viewport' content='width=device-width, initial-scale=1.0'>"
+                + "    <title>Actualización de Estado de Pedido</title>"
+                + "    <style>"
+                + "        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }"
+                + "        .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); border: 1px solid #dddddd; }"
+                + "        h1 { color: #333333; }"
+                + "        p { color: #555555; line-height: 1.6; }"
+                + "        .status { font-size: 20px; font-weight: bold; color: #28a745; margin: 20px 0; }"
+                + "        .footer { margin-top: 20px; font-size: 12px; color: #888888; }"
+                + "    </style>"
+                + "</head>"
+                + "<body>"
+                + "    <div class='container'>"
+                + "        <h1>Estado de tu Pedido</h1>"
+                + "        <p>Hola <strong>" + nombreUsuario + "</strong>,</p>"
+                + "        <p>Queremos informarte que el estado de tu pedido ha sido actualizado.</p>"
+                + "        <div class='status'>Nuevo estado: " + estadoPedido + "</div>"
+                + "        <p>Fecha de actualización: <strong>" + fechaFormateada + "</strong></p>"
+                + "        <p>Gracias por confiar en Carnicería La Bendición. Si tenés alguna duda, no dudes en contactarnos.</p>"
+                + "        <div class='footer'>"
+                + "            <p>Atentamente,</p>"
+                + "            <p>El equipo de Carnicería La Bendición</p>"
+                + "        </div>"
+                + "    </div>"
+                + "</body>"
+                + "</html>";
+    }
 }
