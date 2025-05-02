@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, forwardRef } from "react";
 import { Star, MessageCircle, Send, AlertCircle } from "lucide-react";
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 import "./Resena.css";
 
 const Resena = () => {
@@ -14,6 +16,30 @@ const Resena = () => {
     numCalificacion: 5,
     descripcionComentario: "",
   });
+  
+  // Estado para el Snackbar
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+  
+  // Componente Alert personalizado
+  const Alert = forwardRef(function Alert(props, ref) {
+    return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+  });
+
+  // Funciones para manejar el Snackbar
+  const handleOpenSnackbar = (message, severity = "success") => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setOpenSnackbar(true);
+  };
+
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenSnackbar(false);
+  };
 
   useEffect(() => {
     fetchComentarios();
@@ -98,7 +124,7 @@ const Resena = () => {
       const userId = localStorage.getItem("idUsuario");
       
       if (!userId && !usuarioActual) {
-        alert("Debes iniciar sesión para dejar un comentario");
+        handleOpenSnackbar("Debes iniciar sesión para dejar un comentario", "error");
         return;
       }
       
@@ -131,10 +157,10 @@ const Resena = () => {
       });
 
       // Mostrar mensaje de éxito
-      alert("¡Gracias por tu comentario! Será revisado antes de publicarse.");
+      handleOpenSnackbar("¡Gracias por tu comentario! Será revisado antes de publicarse.", "success");
     } catch (error) {
       console.error("Error:", error);
-      alert("No pudimos enviar tu comentario. Por favor, intente más tarde.");
+      handleOpenSnackbar("No pudimos enviar tu comentario. Por favor, intente más tarde.", "error");
     }
   };
 
@@ -184,10 +210,10 @@ const Resena = () => {
               <div className="resena-header">
                 <div className="resena-user">
                   <div className="resena-avatar">
-                    {comentario.nombreUsuario ? comentario.nombreUsuario.charAt(0).toUpperCase() : "U"}
+                    {comentario.nombre ? comentario.nombre.charAt(0).toUpperCase() : "C"}
                   </div>
                   <div className="resena-user-info">
-                    <h4 className="resena-name">{comentario.nombreUsuario}</h4>
+                    <h4 className="resena-name">{comentario.nombre}</h4>
                     <div className="resena-date">
                       {formatDate(comentario.fechaComentario)}
                     </div>
@@ -263,6 +289,18 @@ const Resena = () => {
           *Los comentarios son revisados antes de ser publicados
         </p>
       </div>
+      
+      {/* Snackbar para notificaciones */}
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };
