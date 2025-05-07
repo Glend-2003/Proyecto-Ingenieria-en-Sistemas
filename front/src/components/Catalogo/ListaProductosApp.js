@@ -103,47 +103,60 @@ function ListaProductosApp({ categoria }) {
     fetchProductos();
   }, [])
 
-  useEffect(() => {
-    if (!productos.length || !categorias.length) return;
-  
-    let resultadosFiltrados = [...productos];
-  
-    // Filtrado por categoría
-    if (categoria) {
-      if (categoria.toLowerCase() === "varios") {
-        const categoriasExcluidas = categorias
-          .filter(cat => ["res", "cerdo", "pollo"].includes(cat.nombreCategoria.toLowerCase()))
-          .map(cat => cat.idCategoria);
-        
-        resultadosFiltrados = resultadosFiltrados.filter(
-          producto => producto.categoria && 
+ useEffect(() => {
+  if (!productos.length || !categorias.length) {
+    setProductosFiltrados([]);
+    setFilteredProducts([]);
+    return;
+  }
+
+  let resultadosFiltrados = [...productos];
+
+  // Filtrado por categoría
+  if (categoria) {
+    if (categoria.toLowerCase() === "varios") {
+      const categoriasExcluidas = categorias
+        .filter(cat =>
+          ["res", "cerdo", "pollo"].includes(cat.nombreCategoria.toLowerCase())
+        )
+        .map(cat => cat.idCategoria);
+
+      resultadosFiltrados = resultadosFiltrados.filter(
+        producto =>
+          producto.categoria &&
           !categoriasExcluidas.includes(producto.categoria.idCategoria)
+      );
+    } else {
+      const categoriaObj = categorias.find(
+        cat => cat.nombreCategoria.toLowerCase() === categoria.toLowerCase()
+      );
+
+      if (categoriaObj) {
+        resultadosFiltrados = resultadosFiltrados.filter(
+          producto =>
+            producto.categoria &&
+            producto.categoria.idCategoria === categoriaObj.idCategoria
         );
       } else {
-        const categoriaObj = categorias.find(
-          cat => cat.nombreCategoria.toLowerCase() === categoria.toLowerCase()
-        );
-        
-        if (categoriaObj) {
-          resultadosFiltrados = resultadosFiltrados.filter(
-            producto => producto.categoria && 
-            producto.categoria.idCategoria === categoriaObj.idCategoria
-          );
-        }
+        resultadosFiltrados = [];
       }
     }
-  
-    // Filtrado por búsqueda global (si existe)
-    if (globalSearchTerm) {
-      resultadosFiltrados = resultadosFiltrados.filter(producto =>
-        producto.nombreProducto.toLowerCase().includes(globalSearchTerm.toLowerCase()) ||
-        (producto.descripcionProducto?.toLowerCase().includes(globalSearchTerm.toLowerCase())) ||
-        (producto.codigoProducto?.toLowerCase().includes(globalSearchTerm.toLowerCase()))
-      );
-    }
-  
-    setFilteredProducts(resultadosFiltrados);
-  }, [productos, categorias, categoria, globalSearchTerm]);
+  }
+
+  // Filtrado por búsqueda global (si existe)
+  if (globalSearchTerm) {
+    resultadosFiltrados = resultadosFiltrados.filter(producto =>
+      producto.nombreProducto.toLowerCase().includes(globalSearchTerm.toLowerCase()) ||
+      (producto.descripcionProducto?.toLowerCase().includes(globalSearchTerm.toLowerCase())) ||
+      (producto.codigoProducto?.toLowerCase().includes(globalSearchTerm.toLowerCase()))
+    );
+  }
+
+  // Actualizar ambos estados si los estás usando en diferentes partes
+  setProductosFiltrados(resultadosFiltrados);
+  setFilteredProducts(resultadosFiltrados);
+}, [productos, categorias, categoria, globalSearchTerm]);
+
 
   // Efecto para sincronizar searchTerm local con globalSearchTerm
   useEffect(() => {
