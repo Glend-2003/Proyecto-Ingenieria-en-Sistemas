@@ -2,6 +2,7 @@ import React, { useState, useEffect, forwardRef } from "react";
 import { Star, MessageCircle, Send, AlertCircle } from "lucide-react";
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
+import PaginacionApp from "../Paginacion/PaginacionApp";
 import "./Resena.css";
 
 const Resena = () => {
@@ -16,6 +17,10 @@ const Resena = () => {
     numCalificacion: 5,
     descripcionComentario: "",
   });
+  
+  // Estado para paginación
+  const [currentPage, setCurrentPage] = useState(1);
+  const comentariosPorPagina = 3;
   
   // Estado para el Snackbar
   const [openSnackbar, setOpenSnackbar] = useState(false);
@@ -150,14 +155,16 @@ const Resena = () => {
 
       // Resetear el formulario
       setNewComentario({
-        nombre: "",
-        email: "",
+        ...newComentario,
         numCalificacion: 5,
         descripcionComentario: "",
       });
 
       // Mostrar mensaje de éxito
       handleOpenSnackbar("¡Gracias por tu comentario! Será revisado antes de publicarse.", "success");
+      
+      // Recargar los comentarios después de enviar uno nuevo
+      fetchComentarios();
     } catch (error) {
       console.error("Error:", error);
       handleOpenSnackbar("No pudimos enviar tu comentario. Por favor, intente más tarde.", "error");
@@ -189,6 +196,31 @@ const Resena = () => {
       year: "numeric",
     });
   };
+  
+  // Funciones para la paginación
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  // Obtener comentarios para la página actual
+  const indexOfLastComentario = currentPage * comentariosPorPagina;
+  const indexOfFirstComentario = indexOfLastComentario - comentariosPorPagina;
+  const comentariosActuales = comentarios.slice(indexOfFirstComentario, indexOfLastComentario);
+  
+  // Calcular el número total de páginas
+  const totalPages = Math.ceil(comentarios.length / comentariosPorPagina);
 
   return (
     <div className="resena-container">
@@ -205,15 +237,19 @@ const Resena = () => {
             No hay comentarios aún. ¡Sé el primero en dejarnos tu opinión!
           </div>
         ) : (
-          comentarios.map((comentario) => (
+          comentariosActuales.map((comentario) => (
             <div key={comentario.idComentario} className="resena-card">
               <div className="resena-header">
                 <div className="resena-user">
                   <div className="resena-avatar">
-                    {comentario.nombre ? comentario.nombre.charAt(0).toUpperCase() : "C"}
+                    {comentario.usuario && comentario.usuario.nombreUsuario 
+                      ? comentario.usuario.nombreUsuario.charAt(0).toUpperCase() 
+                      : "C"}
                   </div>
                   <div className="resena-user-info">
-                    <h4 className="resena-name">{comentario.nombre}</h4>
+                    <h4 className="resena-name">
+                      {comentario.usuario ? comentario.usuario.nombreUsuario : "Cliente"}
+                    </h4>
                     <div className="resena-date">
                       {formatDate(comentario.fechaComentario)}
                     </div>
@@ -230,6 +266,19 @@ const Resena = () => {
           ))
         )}
       </div>
+      
+      {/* Paginación */}
+      {!loading && !error && comentarios.length > 0 && (
+        <div className="resena-pagination">
+          <PaginacionApp
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+            onNextPage={handleNextPage}
+            onPreviousPage={handlePreviousPage}
+          />
+        </div>
+      )}
 
       {/* Formulario para nuevo comentario */}
       <div className="resena-form-container">

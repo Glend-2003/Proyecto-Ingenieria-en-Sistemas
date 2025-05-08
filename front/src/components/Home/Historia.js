@@ -1,6 +1,6 @@
 import React from "react";
 import { Calendar, Award, Clock, Users, MapPin } from "lucide-react";
-import '../Home/Historia.css';
+import './Historia.css';
 import Resena from "../Comentario/Resena";
 import FooterApp from "../Footer/FooterApp";
 import NavbarApp from "../Navbar/NavbarApp";
@@ -67,7 +67,7 @@ const Historia = () => {
                 <div className="historia-event-right">
                   <div className="historia-event-image-container">
                     <div className="historia-event-image-placeholder">
-                    <img src={require('../../assets/images/Duena-carniceria.png')} alt="Fundación de la carnicería" className="historia-event-image" />
+                      <img src={require('../../assets/images/Duena-carniceria.png')} alt="Fundación de la carnicería" className="historia-event-image" />
                     </div>
                   </div>
                 </div>
@@ -80,7 +80,7 @@ const Historia = () => {
                 <div className="historia-event-left">
                   <div className="historia-event-image-container">
                     <div className="historia-event-image-placeholder">
-                    <img src={require('../../assets/images/expansion.png')} alt="Fundación de la carnicería" className="historia-event-image" />
+                      <img src={require('../../assets/images/expansion.png')} alt="Expansión del negocio" className="historia-event-image" />
                     </div>
                   </div>
                 </div>
@@ -107,7 +107,7 @@ const Historia = () => {
                 <div className="historia-event-right">
                   <div className="historia-event-image-container">
                     <div className="historia-event-image-placeholder">
-                    <img src={require('../../assets/images/tercera.png')} alt="Fundación de la carnicería" className="historia-event-image" />
+                      <img src={require('../../assets/images/tercera.png')} alt="Segunda generación" className="historia-event-image" />
                     </div>
                   </div>
                 </div>
@@ -120,7 +120,7 @@ const Historia = () => {
                 <div className="historia-event-left">
                   <div className="historia-event-image-container">
                     <div className="historia-event-image-placeholder">
-                    <img src={require('../../assets/images/actualmente.png')} alt="Fundación de la carnicería" className="historia-event-image" />
+                      <img src={require('../../assets/images/actualmente.png')} alt="Actualidad" className="historia-event-image" />
                     </div>
                   </div>
                 </div>
@@ -174,7 +174,7 @@ const Historia = () => {
           <div className="historia-testimonial-role">Director General, Segunda Generación</div>
         </div>
 
-        {/* Reseñas de Clientes - Reemplazando el div "historia-visit" */}
+        {/* Reseñas de Clientes */}
         <Resena />
         
         {/* Información de ubicación */}

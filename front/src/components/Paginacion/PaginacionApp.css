@@ -1,0 +1,77 @@
+/* Estilos para el componente de paginación */
+.pagination {
+    display: flex;
+    padding-left: 0;
+    list-style: none;
+    border-radius: 0.25rem;
+  }
+  
+  .pagination .page-item:first-child .page-link {
+    margin-left: 0;
+    border-top-left-radius: 0.25rem;
+    border-bottom-left-radius: 0.25rem;
+  }
+  
+  .pagination .page-item:last-child .page-link {
+    border-top-right-radius: 0.25rem;
+    border-bottom-right-radius: 0.25rem;
+  }
+  
+  .pagination .page-item .page-link {
+    position: relative;
+    display: block;
+    padding: 0.5rem 0.75rem;
+    margin-left: -1px;
+    line-height: 1.25;
+    color: #387623; /* Verde medio de la paleta */
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    transition: all 0.3s ease;
+  }
+  
+  .pagination .page-item .page-link:hover {
+    color: #103f1b; /* Verde oscuro de la paleta */
+    background-color: #f1f7e9; /* Fondo verde muy claro */
+    border-color: #9fc45a; /* Verde claro de la paleta */
+    z-index: 2;
+  }
+  
+  .pagination .page-item .page-link:focus {
+    z-index: 3;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(159, 196, 90, 0.25); /* Sombra verde claro */
+  }
+  
+  .pagination .page-item.active .page-link {
+    z-index: 3;
+    color: #fff;
+    background-color: #387623; /* Verde medio de la paleta */
+    border-color: #103f1b; /* Verde oscuro de la paleta */
+  }
+  
+  .pagination .page-item.disabled .page-link {
+    color: #6c757d;
+    pointer-events: none;
+    cursor: auto;
+    background-color: #fff;
+    border-color: #dee2e6;
+  }
+  
+  /* Estilos para botones anterior y siguiente */
+  .pagination .page-item:first-child .page-link,
+  .pagination .page-item:last-child .page-link {
+    font-weight: 500;
+  }
+  
+  /* Estilos hover adicionales para mejorar interacción */
+  .pagination .page-item:not(.active):not(.disabled) .page-link:hover {
+    transform: translateY(-2px);
+  }
+  
+  /* Estilos responsivos */
+  @media (max-width: 576px) {
+    .pagination .page-link {
+      padding: 0.4rem 0.6rem;
+      font-size: 0.9rem;
+    }
+  }
