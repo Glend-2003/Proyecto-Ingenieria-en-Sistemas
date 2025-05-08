@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from "prop-types";
+import './PaginacionApp.css'; // Importamos el nuevo archivo CSS
 
 const PaginacionApp = ({ currentPage, totalPages, onPageChange, onNextPage, onPreviousPage }) => {
     return (

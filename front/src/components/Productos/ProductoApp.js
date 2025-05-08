@@ -23,15 +23,20 @@ const ProductoApp = () => {
   const [nombreProducto, setNombreProducto] = useState("");
   const [montoPrecioProducto, setMontoPrecioProducto] = useState("");
   const [descripcionProducto, setDescripcionProducto] = useState("");
-  const [cantidadProducto, setCantidadProducto] = useState("");
-  const [tipoPesoProducto, setTipoPesoProducto] = useState("");
+  const [cantidadProducto, setCantidadProducto] = useState(1);
+  const [unidadMedida, setUnidadMedida] = useState("Ud");
   const [codigoProducto, setCodigoProducto] = useState("");
-  const [stockProducto, setStockProducto] = useState("");
+  const [stockProducto, setStockProducto] = useState(0);
   const [idCategoria, setIdCategoria] = useState("");
   const [estadoProducto, setEstadoProducto] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
   const [imgProductoFile, setImgProductoFile] = useState(null);
   const itemsPerPage = 5;
+  
+  // Opciones para el combobox de unidad de medida
+  const unidadesMedida = ["Ud", "Kg", "Gr", "Lb", "Oz", "Lt", "Ml"];
+
+  const [imgPreview, setImgPreview] = useState(null);
 
   useEffect(() => {
     cargarProductos();
@@ -43,10 +48,8 @@ const ProductoApp = () => {
       const response = await axios.get("http://localhost:8080/producto/", {
         params: { estadoProducto: 0 }
       });
-      console.log(response.data);
       const productos = response.data;
 
-      // Iterar sobre cada producto y obtener el nombre de la categoría
       for (let producto of productos) {
         if (producto.categoria && producto.categoria.idCategoria) {
           producto.nombreCategoria = producto.categoria.nombreCategoria;
@@ -78,10 +81,10 @@ const ProductoApp = () => {
     if (
       !nombreProducto.trim() ||
       !descripcionProducto.trim() ||
-      !cantidadProducto < 0 ||
-      !tipoPesoProducto.trim() ||
+      cantidadProducto <= 0 ||
+      !unidadMedida ||
       !codigoProducto.trim() ||
-      !stockProducto < 0 ||
+      stockProducto < 0 ||
       !montoPrecioProducto ||
       !idCategoria
     ) {
@@ -105,7 +108,7 @@ const ProductoApp = () => {
     formData.append("montoPrecioProducto", montoPrecioProducto);
     formData.append("descripcionProducto", descripcionProducto.trim());
     formData.append("cantidadProducto", cantidadProducto);
-    formData.append("tipoPesoProducto", tipoPesoProducto.trim());
+    formData.append("tipoPesoProducto", unidadMedida);
     formData.append("codigoProducto", codigoProducto.trim());
     formData.append("stockProducto", stockProducto);
     formData.append("idCategoria", idCategoria);
@@ -114,8 +117,6 @@ const ProductoApp = () => {
 
     if (imgProductoFile) {
       formData.append("file", imgProductoFile);
-
-      console.log("Datos enviados al backend:", formData);
       try {
         await axios.post("http://localhost:8080/producto/agregarConImagen", formData, {
           headers: {
@@ -135,7 +136,7 @@ const ProductoApp = () => {
           montoPrecioProducto,
           descripcionProducto: descripcionProducto.trim(),
           cantidadProducto,
-          tipoPesoProducto: tipoPesoProducto.trim(),
+          tipoPesoProducto: unidadMedida,
           codigoProducto: codigoProducto.trim(),
           stockProducto,
           idCategoria,
@@ -163,17 +164,16 @@ const ProductoApp = () => {
     formData.append("montoPrecioProducto", montoPrecioProducto);
     formData.append("descripcionProducto", descripcionProducto.trim());
     formData.append("cantidadProducto", cantidadProducto);
-    formData.append("tipoPesoProducto", tipoPesoProducto.trim());
+    formData.append("tipoPesoProducto", unidadMedida);
     formData.append("codigoProducto", codigoProducto.trim());
     formData.append("stockProducto", stockProducto);
     formData.append("idCategoria", idCategoria);
     formData.append("estadoProducto", estadoProducto ? 1 : 0);
 
     if (imgProductoFile) {
-        formData.append("file", imgProductoFile); // Cambiado de "file" a "imgProducto"
+        formData.append("file", imgProductoFile);
     }
 
-    console.log("Datos enviados al backend:", formData);
     try {
         await axios.put("http://localhost:8080/producto/actualizar", formData, {
             headers: { "Content-Type": "multipart/form-data" },
@@ -185,8 +185,7 @@ const ProductoApp = () => {
         console.error("Error al actualizar producto:", error);
         toast.error("Ocurrió un error al actualizar el producto");
     }
-};
-
+  };
 
   const eliminarProducto = async (id) => {
     const { isConfirmed } = await Swal.fire({
@@ -229,24 +228,32 @@ const ProductoApp = () => {
       setMontoPrecioProducto(producto.montoPrecioProducto);
       setDescripcionProducto(producto.descripcionProducto);
       setCantidadProducto(producto.cantidadProducto);
-      setTipoPesoProducto(producto.tipoPesoProducto);
+      setUnidadMedida(producto.tipoPesoProducto);
       setCodigoProducto(producto.codigoProducto);
       setStockProducto(producto.stockProducto);
       setIdCategoria(producto.categoria?.idCategoria || "");
       setEstadoProducto(producto.estadoProducto);
       setImgProductoFile(null);
+      
+      // Si el producto tiene una imagen, mostrar la previsualización
+      if (producto.imgProducto) {
+        setImgPreview(`http://localhost:8080/producto/images/${producto.imgProducto}`);
+      } else {
+        setImgPreview(null);
+      }
     } else {
       setProductoEdit(null);
       setNombreProducto("");
       setMontoPrecioProducto("");
       setDescripcionProducto("");
-      setCantidadProducto(0);
-      setTipoPesoProducto("");
+      setCantidadProducto(1);
+      setUnidadMedida("Ud");
       setCodigoProducto("");
-      setStockProducto(-1);
+      setStockProducto(0);
       setIdCategoria("");
       setEstadoProducto(1);
       setImgProductoFile(null);
+      setImgPreview(null);
     }
     setShowModal(true);
   };
@@ -257,17 +264,27 @@ const ProductoApp = () => {
     setNombreProducto("");
     setMontoPrecioProducto("");
     setDescripcionProducto("");
-    setCantidadProducto(0);
-    setTipoPesoProducto("");
+    setCantidadProducto(1);
+    setUnidadMedida("Ud");
     setCodigoProducto("");
-    setStockProducto(-1);
+    setStockProducto(0);
     setIdCategoria("");
     setEstadoProducto(1);
     setImgProductoFile(null);
+    setImgPreview(null);
   };
 
   const handleFileChange = (e) => {
-    setImgProductoFile(e.target.files[0]);
+    const file = e.target.files[0];
+    if (file) {
+      setImgProductoFile(file);
+      // Crear URL para previsualización
+      const previewURL = URL.createObjectURL(file);
+      setImgPreview(previewURL);
+    } else {
+      setImgProductoFile(null);
+      setImgPreview(null);
+    }
   };
 
   const handleSearchChange = (e) => setSearch(e.target.value);
@@ -294,7 +311,7 @@ const ProductoApp = () => {
       <SideBar usuario={usuario} /> 
       <div className="container mt-5">
         <h1>Gestión de productos</h1>
-        <Button className="custom-button" onClick={() => handleShowModal()}>
+        <Button className="custom-button add-product-btn" onClick={() => handleShowModal()}>
           Agregar producto nuevo
         </Button>
         <div className="mb-2"></div>
@@ -307,128 +324,172 @@ const ProductoApp = () => {
           onChange={handleSearchChange}
         />
 
-        <Modal show={showModal} onHide={handleCloseModal}>
-          <Modal.Header closeButton>
+        <Modal show={showModal} onHide={handleCloseModal} className="producto-modal" size="lg" centered>
+          <Modal.Header closeButton className="modal-header">
             <Modal.Title>
               {productoEdit ? "Actualizar Producto" : "Agregar Producto"}
             </Modal.Title>
           </Modal.Header>
-          <Modal.Body>
+          <Modal.Body className="modal-body">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 productoEdit ? actualizarProducto() : agregarProducto();
               }}
             >
-              <div className="mb-3">
-              <label>Nombre del producto</label>
-                <input
-                  className="form-control"
-                  type="text"
-                  placeholder="Nombre del producto"
-                  required
-                  value={nombreProducto}
-                  onChange={(e) => setNombreProducto(e.target.value)}
-                />
+              <div className="row">
+                <div className="col-md-6">
+                  <div className="form-group mb-3">
+                    <label htmlFor="nombreProducto">Nombre del producto</label>
+                    <input
+                      id="nombreProducto"
+                      className="form-control"
+                      type="text"
+                      placeholder="Nombre del producto"
+                      required
+                      value={nombreProducto}
+                      onChange={(e) => setNombreProducto(e.target.value)}
+                    />
+                  </div>
+                  
+                  <div className="form-group mb-3">
+                    <label htmlFor="precioProducto">Precio</label>
+                    <div className="input-group">
+                      <span className="input-group-text">₡</span>
+                      <input
+                        id="precioProducto"
+                        className="form-control"
+                        type="number"
+                        placeholder="Precio del producto"
+                        required
+                        value={montoPrecioProducto}
+                        onChange={(e) => setMontoPrecioProducto(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="form-group mb-3">
+                    <label htmlFor="codigoProducto">Código del producto</label>
+                    <input
+                      id="codigoProducto"
+                      className="form-control"
+                      type="text"
+                      placeholder="Código del producto"
+                      required
+                      value={codigoProducto}
+                      onChange={(e) => setCodigoProducto(e.target.value)}
+                    />
+                  </div>
+                  
+                  <div className="form-group mb-3">
+                    <label htmlFor="categoriaProducto">Categoría</label>
+                    <select
+                      id="categoriaProducto"
+                      className="form-control"
+                      required
+                      value={idCategoria}
+                      onChange={(e) => setIdCategoria(e.target.value)}
+                    >
+                      <option value="">Seleccionar Categoría</option>
+                      {categorias.map((categoria) => (
+                        <option key={categoria.idCategoria} value={categoria.idCategoria}>
+                          {categoria.nombreCategoria}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                
+                <div className="col-md-6">
+                  <div className="form-group mb-3">
+                    <label htmlFor="imgProducto">Imagen del producto</label>
+                    <input
+                      id="imgProducto"
+                      className="form-control"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                    />
+                    {imgPreview && (
+                      <div className="mt-2 text-center">
+                        <img
+                          src={imgPreview}
+                          alt="Vista previa"
+                          className="img-preview"
+                          style={{ maxWidth: '100%', maxHeight: '200px', objectFit: 'contain' }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="form-group mb-3">
+                    <label htmlFor="descripcionProducto">Descripción</label>
+                    <textarea
+                      id="descripcionProducto"
+                      className="form-control"
+                      placeholder="Descripción del producto"
+                      required
+                      rows="3"
+                      value={descripcionProducto}
+                      onChange={(e) => setDescripcionProducto(e.target.value)}
+                    />
+                  </div>
+                  
+                  <div className="row mb-3">
+                    <div className="col-6">
+                      <label htmlFor="cantidadProducto">Cantidad</label>
+                      <input
+                        id="cantidadProducto"
+                        type="number"
+                        className="form-control"
+                        min="1"
+                        value={cantidadProducto}
+                        onChange={(e) => setCantidadProducto(parseInt(e.target.value) || 1)}
+                      />
+                    </div>
+                    
+                    <div className="col-6">
+                      <label htmlFor="unidadMedida">Unidad de medida</label>
+                      <select
+                        id="unidadMedida"
+                        className="form-control"
+                        value={unidadMedida}
+                        onChange={(e) => setUnidadMedida(e.target.value)}
+                        required
+                      >
+                        {unidadesMedida.map((unidad) => (
+                          <option key={unidad} value={unidad}>
+                            {unidad}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  
+                  <div className="form-group mb-3">
+                    <label htmlFor="stockProducto">Stock disponible</label>
+                    <input
+                      id="stockProducto"
+                      type="number"
+                      className="form-control"
+                      min="0"
+                      value={stockProducto}
+                      onChange={(e) => setStockProducto(parseInt(e.target.value) || 0)}
+                    />
+                  </div>
+                </div>
               </div>
-              <div className="mb-3">
-              <label>Seleccionar una imagen</label>
-                <input
-                  className="form-control"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                />
+              
+              <div className="d-flex justify-content-end gap-2 mt-4">
+                <Button variant="outline-secondary" onClick={handleCloseModal}>
+                  Cancelar
+                </Button>
+                <Button className="btn-submit" type="submit">
+                  {productoEdit ? "Actualizar" : "Agregar"}
+                </Button>
               </div>
-              <div className="mb-3">
-              <label>Precio</label>
-                <input
-                  className="form-control"
-                  type="number"
-                  placeholder="Precio del producto"
-                  required
-                  value={montoPrecioProducto}
-                  onChange={(e) => setMontoPrecioProducto(e.target.value)}
-                />
-              </div>
-              <div className="mb-3">
-              <label>Describe el producto</label>
-                <textarea
-                  className="form-control"
-                  placeholder="Descripción del producto"
-                  required
-                  value={descripcionProducto}
-                  onChange={(e) => setDescripcionProducto(e.target.value)}
-                />
-              </div>
-              <div className="mb-3">
-              <label>Ingresa el peso o unidades del producto</label>
-                <textarea
-                  className="form-control"
-                  type="number"
-                  placeholder="Cantidad del producto"
-                  required
-                  value={cantidadProducto}
-                  onChange={(e) => setCantidadProducto(e.target.value)}
-                />
-              </div>
-              <div className="mb-3">
-              <label>Ingresa el tipo de peso</label>
-                <textarea
-                  className="form-control"
-                  placeholder="Kg - Gr - Ud"
-                  required
-                  value={tipoPesoProducto}
-                  onChange={(e) => setTipoPesoProducto(e.target.value)}
-                />
-              </div>
-              <div className="mb-3">
-              <label>Ingresa el código del producto</label>
-                <textarea
-                  className="form-control"
-                  placeholder="Código del producto"
-                  required
-                  value={codigoProducto}
-                  onChange={(e) => setCodigoProducto(e.target.value)}
-                />
-              </div>
-              <div className="mb-3">
-              <label>Ingresa el stock disponible</label>
-                <textarea
-                  className="form-control"
-                  type="number"
-                  placeholder="Stock disponible del producto"
-                  required
-                  value={stockProducto}
-                  onChange={(e) => setStockProducto(e.target.value)}
-                />
-              </div>
-              <div className="mb-3">
-              <label>Elegir categoría</label>
-                <select
-                  className="form-control"
-                  required
-                  value={idCategoria}
-                  onChange={(e) => setIdCategoria(e.target.value)}
-                >
-                  <option value="">Seleccionar Categoría</option>
-                  {categorias.map((categoria) => (
-                    <option key={categoria.idCategoria} value={categoria.idCategoria}>
-                      {categoria.nombreCategoria}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <Button variant="primary" type="submit">
-                {productoEdit ? "Actualizar" : "Agregar"}
-              </Button>
             </form>
           </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={handleCloseModal}>
-              Cerrar
-            </Button>
-          </Modal.Footer>
         </Modal>
 
         <ToastContainer />
@@ -443,7 +504,7 @@ const ProductoApp = () => {
                 <th>Precio</th>
                 <th>Descripción</th>
                 <th>Cantidad</th>
-                <th>Tipo peso</th>
+                <th>Unidad de medida</th>
                 <th>Codigo</th>
                 <th>Stock</th>
                 <th>Categoría</th>
@@ -454,7 +515,7 @@ const ProductoApp = () => {
             <tbody>
               {currentProductos.length === 0 ? (
                 <tr className="warning no-result">
-                  <td colSpan="7" className="text-center">
+                  <td colSpan="12" className="text-center">
                     <FontAwesomeIcon icon={faExclamationTriangle} /> No hay productos disponibles
                   </td>
                 </tr>
