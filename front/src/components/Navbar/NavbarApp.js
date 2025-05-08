@@ -8,6 +8,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import './Navbar.css';
 import { useCart } from '../../contexto/ContextoCarrito';
 import { Form, InputGroup, FormControl, Button } from "react-bootstrap";
+import { FaHome } from 'react-icons/fa';
 
 const NavbarApp = () => {
   // Usar el contexto para obtener estados y funciones
@@ -54,7 +55,7 @@ const NavbarApp = () => {
       // Actualizar el término de búsqueda global
       buscarProductos(searchQuery.trim());
       // Forzar redirección a la página principal
-      if (location.pathname !=="/"){      
+      if (location.pathname !== "/") {
         window.location.href = '/';
       }
       navigate('/', { replace: true });
@@ -154,7 +155,10 @@ const NavbarApp = () => {
         <BootstrapNavbar.Toggle aria-controls="basic-navbar-nav" />
 
         <BootstrapNavbar.Collapse id="basic-navbar-nav">
-        <Nav className="me-auto main-nav" >
+          <Nav className="me-auto main-nav" >
+            <Nav.Link as={Link} to="/" className="nav-link-custom" onClick={handleClearSearch}>
+              <FaHome size={28} />
+            </Nav.Link>
             <Nav.Link as={Link} to="/cortes-de-res" className="nav-link-custom" onClick={handleClearSearch}>
               CORTES DE RES
             </Nav.Link>
@@ -259,7 +263,7 @@ const NavbarApp = () => {
                 ×
               </button>
             </InputGroup>
-        
+
           </Form>
         </div>
       )}
