@@ -1,138 +1,67 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import { FaUsers, FaListAlt, FaComments, FaBoxOpen, FaPercentage, FaCreditCard, FaShoppingCart, FaChartLine, FaUserCircle } from 'react-icons/fa';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './SideBar.css';
-import FooterApp from '../Footer/FooterApp';
 
 const SideBar = ({ usuario }) => {
     return (
-        <div>
-        <div className="sidebar-container">{
-            <div id="offcanvas-menu" className="offcanvas offcanvas-start bg-body show" style={{ width: '200px'  }} tabIndex="-1" data-bs-backdrop="false">
-            <div className="offcanvas-header">
-                <NavLink className="link-body-emphasis d-flex align-items-center me-md-auto mb-3 mb-md-0 text-decoration-none" to="">
-                    <span className="fs-4">Administrar datos</span>
-                </NavLink>
-            </div>
-            <div className="offcanvas-body d-flex flex-column justify-content-between pt-0">
-                <div>
-                    <hr className="mt-0" />
-                    <ul className="nav nav-pills flex-column mb-auto">
-                        <li className="nav-item">
-                            <NavLink 
-                                className={({ isActive }) => isActive ? "nav-link active link-light" : "nav-link link-body-emphasis"} 
-                                to="/GestionarUsuario" 
-                                style={({ isActive }) => ({
-                                    backgroundColor: isActive ? 'rgb(4, 36, 64)' : 'transparent',
-                                })}
-                            >
-                                Usuarios
-                            </NavLink>
-                        </li>
-                        <li className="nav-item">
-                            <NavLink 
-                                className={({ isActive }) => isActive ? "nav-link active link-light" : "nav-link link-body-emphasis"} 
-                                to="/CategoriaApp" 
-                                style={({ isActive }) => ({
-                                    backgroundColor: isActive ? 'rgb(4, 36, 64)' : 'transparent',
-                                })}
-                            >
-                                Categorias
-                            </NavLink>
-                        </li>
-                        <li className="nav-item">
-                            <NavLink 
-                                className={({ isActive }) => isActive ? "nav-link active link-light" : "nav-link link-body-emphasis"} 
-                                to="/ComentarioApp" 
-                                style={({ isActive }) => ({
-                                    backgroundColor: isActive ? 'rgb(4, 36, 64)' : 'transparent',
-                                })}
-                            >
-                                Comentarios
-                            </NavLink>
-                        </li>
-                        <li className="nav-item">
-                            <NavLink 
-                                className={({ isActive }) => isActive ? "nav-link active link-light" : "nav-link link-body-emphasis"} 
-                                to="/ProductoApp" 
-                                style={({ isActive }) => ({
-                                    backgroundColor: isActive ? 'rgb(4, 36, 64)' : 'transparent',
-                                })}
-                            >
-                                Productos
-                            </NavLink>
-                        </li>
-                        <li className="nav-item">
-                            <NavLink 
-                                className={({ isActive }) => isActive ? "nav-link active link-light" : "nav-link link-body-emphasis"} 
-                                to="/PromocionApp" 
-                                style={({ isActive }) => ({
-                                    backgroundColor: isActive ? 'rgb(4, 36, 64)' : 'transparent',
-                                })}
-                            >
-                                Promociones
-                            </NavLink>
-                        </li>
-
-                        <li className="nav-item">
-                            <NavLink 
-                                className={({ isActive }) => isActive ? "nav-link active link-light" : "nav-link link-body-emphasis"} 
-                                to="/TipoPagoApp" 
-                                style={({ isActive }) => ({
-                                    backgroundColor: isActive ? 'rgb(4, 36, 64)' : 'transparent',
-                                })}
-                            >
-                                Tipo Pago
-                            </NavLink>
-                        </li>
-
-                        <li className="nav-item">
-                            <NavLink 
-                                className={({ isActive }) => isActive ? "nav-link active link-light" : "nav-link link-body-emphasis"} 
-                                to="/PedidosApp"
-                                style={({ isActive }) => ({
-                                    backgroundColor: isActive ? 'rgb(4, 36, 64)' : 'transparent',
-                                })} 
-                            >
-                                Pedidos
-                            </NavLink>
-                        </li>
-                        <li className="nav-item">
-                            <NavLink 
-                                className={({ isActive }) => isActive ? "nav-link active link-light" : "nav-link link-body-emphasis"} 
-                                to="/VentaPedido"
-                                style={({ isActive }) => ({
-                                    backgroundColor: isActive ? 'rgb(4, 36, 64)' : 'transparent',
-                                })} 
-                            >
-                                Ventas
-                            </NavLink>
-                        </li>
-                    </ul>
+        <div className="sidebar-container">
+            <div className="sidebar-inner">
+                <div className="sidebar-header">
+                    <h3 className="sidebar-title">Administrar datos</h3>
                 </div>
-                <div>
-                    <hr />
-                    <div className="dropdown">
-                        <a className="dropdown-toggle link-body-emphasis d-flex align-items-center text-decoration-none" data-bs-toggle="dropdown" href="/principal" role="button" aria-expanded="false">
-                            <img className="rounded-circle me-2" alt="User" width="32" height="32" src="https://cdn.bootstrapstudio.io/placeholders/1400x800.png" style={{ objectFit: 'cover' }} />
-                            <strong>{usuario ? usuario.nombreUsuario : "User"}</strong>
-                        </a>
-                        <div className="dropdown-menu shadow text-small">
-                            <NavLink className="dropdown-item" to="/">New project...</NavLink>
-                            <NavLink className="dropdown-item" to="/settings">Settings</NavLink>
-                            <NavLink className="dropdown-item" to="/profile">Profile</NavLink>
-                            <div className="dropdown-divider"></div>
-                            <NavLink className="dropdown-item" to="/signout">Sign out</NavLink>
+                
+                <div className="sidebar-content">
+                    <nav className="sidebar-nav">
+                        <NavLink to="/GestionarUsuario" className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}>
+                            <FaUsers className="sidebar-icon" /> Usuarios
+                        </NavLink>
+                        
+                        <NavLink to="/CategoriaApp" className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}>
+                            <FaListAlt className="sidebar-icon" /> Categorías
+                        </NavLink>
+                        
+                        <NavLink to="/ComentarioApp" className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}>
+                            <FaComments className="sidebar-icon" /> Comentarios
+                        </NavLink>
+                        
+                        <NavLink to="/ProductoApp" className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}>
+                            <FaBoxOpen className="sidebar-icon" /> Productos
+                        </NavLink>
+                        
+                        <NavLink to="/PromocionApp" className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}>
+                            <FaPercentage className="sidebar-icon" /> Promociones
+                        </NavLink>
+                        
+                        <NavLink to="/TipoPagoApp" className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}>
+                            <FaCreditCard className="sidebar-icon" /> Tipo Pago
+                        </NavLink>
+                        
+                        <NavLink to="/PedidosApp" className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}>
+                            <FaShoppingCart className="sidebar-icon" /> Pedidos
+                        </NavLink>
+                        
+                        <NavLink to="/VentaPedido" className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}>
+                            <FaChartLine className="sidebar-icon" /> Ventas
+                        </NavLink>
+                    </nav>
+                </div>
+                
+                <div className="sidebar-footer">
+                    {/* Cambiado a NavLink para que use el estado "active" igual que los demás links */}
+                    <NavLink to="/principal" className={({ isActive }) => isActive ? "profile-button active" : "profile-button"}>
+                        <div className="user-avatar">
+                            <FaUserCircle className="avatar-icon" />
                         </div>
-                    </div>
+                        <div className="user-info">
+                            <span className="user-name">{usuario ? usuario.nombreUsuario : "Usuario"}</span>
+                            <span className="user-role">Ver perfil</span>
+                        </div>
+                    </NavLink>
                 </div>
             </div>
         </div>
-        
-    }
-    </div>  
-    
-    </div>
     );
 };
 
