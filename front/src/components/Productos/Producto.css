@@ -1,23 +1,68 @@
+/* Estilos base para el contenedor */
 .content-container {
   display: flex;
   min-height: 100vh;
   background-color: #f8f9fa;
 }
 
+/* Contenedor principal con mejor espaciado */
+.container {
+  padding: 2rem 1.5rem;
+  margin-left: 10px;
+}
+
+/* ===== ESTILOS PARA BUSCADOR Y BOTÓN AGREGAR - REFORZADOS ===== */
+.search-container {
+  width: 50%;
+  margin-bottom: 0;
+}
+
+.search-input {
+  border: 2px solid #d1e7b7 !important;
+  padding: 12px 15px !important;
+  font-weight: 500;
+  color: #333;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  border-color: #9fc45a;
+  box-shadow: 0 0 0 0.2rem rgba(159, 196, 90, 0.25);
+}
+
+.search-icon {
+  background-color: #387623;
+  border-color: #387623;
+  color: white;
+  padding: 12px;
+  border-radius: 8px 0 0 8px !important;
+}
+
+/* Botón de agregar producto - MEJORADO Y VISIBLE */
 .add-product-btn {
   background-color: #387623 !important;
   border-color: #387623 !important;
   color: white !important;
-  font-weight: bold;
+  font-weight: bold !important;
+  padding: 12px 24px !important;
+  border-radius: 8px !important;
+  box-shadow: 0 3px 12px rgba(56, 118, 35, 0.25) !important;
+  font-size: 1rem !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
   transition: all 0.3s ease;
 }
 
 .add-product-btn:hover {
-  background-color: #103f1b !important;
-  border-color: #103f1b !important;
+  background-color: #2a5c19 !important;
+  border-color: #2a5c19 !important;
   transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(56, 118, 35, 0.35) !important;
 }
 
+/* Estilos para el modal */
 .producto-modal .modal-dialog {
   max-width: 800px;
 }
@@ -26,7 +71,7 @@
   border-radius: 8px;
   overflow: hidden;
   border: none;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
 }
 
 .producto-modal .modal-header {
@@ -61,7 +106,7 @@
 .producto-modal .form-control {
   border: 1px solid #ddd;
   border-radius: 4px;
-  padding: 8px 12px;
+  padding: 10px 12px;
   height: auto;
 }
 
@@ -70,54 +115,27 @@
   box-shadow: 0 0 0 0.2rem rgba(159, 196, 90, 0.25);
 }
 
-.spinner {
-  display: flex;
-  align-items: center;
-}
-
-.spinner input {
-  text-align: center;
-  min-width: 60px;
-  border-radius: 0;
-}
-
-.spinner-btn {
-  background-color: #9fc45a;
-  border-color: #9fc45a;
-  color: white;
-  padding: 0.375rem 0.75rem;
-}
-
-.spinner-btn:hover {
-  background-color: #958933;
-  border-color: #958933;
-}
-
-.input-group-prepend .spinner-btn {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
-.input-group-append .spinner-btn {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-}
-
+/* Estilos para los selectores */
 select.form-control {
   cursor: pointer;
   background-color: white;
   -webkit-appearance: menulist;
   appearance: menulist;
+  padding: 8px 12px;
+  height: auto;
 }
 
+/* Botón de envío */
 .btn-submit {
   background-color: #387623 !important;
   border-color: #387623 !important;
   color: white !important;
-  padding: 8px 20px;
+  padding: 10px 24px;
   font-weight: 600;
   border-radius: 4px;
   transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .btn-submit:hover {
@@ -126,42 +144,359 @@ select.form-control {
   transform: translateY(-2px);
 }
 
+/* ESTILOS MEJORADOS PARA LA TABLA - MÁS SIMILAR A COMENTARIOS */
+.table-responsive {
+  margin-left: 5px;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  margin-top: 2rem;
+}
+
+.table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  margin-bottom: 0;
+  background-color: white;
+}
+
 .table thead {
   background-color: #387623;
   color: white;
 }
 
+.table thead th {
+  padding: 15px 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  vertical-align: middle;
+  border-bottom: 3px solid #9fc45a;
+}
+
+/* Rayas más definidas como en la tabla de comentarios */
+.table tbody tr:nth-child(odd) {
+  background-color: #f2f2f2;
+}
+
+.table tbody tr:nth-child(even) {
+  background-color: #ffffff;
+}
+
+.table tbody tr {
+  transition: all 0.2s ease;
+  border-bottom: 1px solid #dee2e6;
+}
+
 .table tbody tr:hover {
-  background-color: rgba(159, 196, 90, 0.1);
+  background-color: rgba(159, 196, 90, 0.15);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
-.btn-warning {
-  background-color: #958933;
-  border-color: #958933;
-  color: white;
+.table tbody td {
+  padding: 12px 10px;
+  vertical-align: middle;
+  border-bottom: 1px solid #e9f2dd;
 }
 
-.btn-warning:hover {
-  background-color: #875725;
-  border-color: #875725;
-  color: white;
+/* Estilos para la fila "No hay productos" */
+.warning.no-result {
+  background-color: #fff9e6 !important;
 }
 
-.btn-success {
+.warning.no-result td {
+  padding: 20px !important;
+}
+
+.warning.no-result .text-warning {
+  color: #958933 !important;
+}
+
+/* Estilos para la columna de imágenes */
+.product-image-container {
+  width: 80px !important;
+  height: 80px !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+  border: 2px solid #9fc45a !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  background-color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.product-image-container:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.product-image-container img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Estilos para las etiquetas */
+.badge {
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 4px;
+}
+
+/* ESTILOS MEJORADOS PARA EL CÓDIGO DE PRODUCTO */
+.code-badge {
+  background-color: #ebf5e0;
+  color: #387623;
+  padding: 6px 12px;
+  border-radius: 15px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  display: inline-block;
+  border: 1px solid #d1e7b7;
+}
+
+/* Mejoras para los botones de acción */
+.btn-sm {
+  padding: 8px 12px !important;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  margin: 0 3px;
+}
+
+.btn-sm:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Estilos específicos para los botones de editar y eliminar */
+.btn-editar {
   background-color: #387623 !important;
   border-color: #387623 !important;
 }
 
-.btn-danger {
-  background-color: #875725 !important;
-  border-color: #875725 !important;
+.btn-eliminar {
+  background-color: #d9534f !important;
+  border-color: #d9534f !important;
+}
+
+/* Mejoras para iconos - CAMBIADO A COLOR NEGRO */
+.action-icon {
+  font-size: 1.25rem;
+  color: #000 !important;
+  margin: 0 8px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 6px;
+}
+
+.edit-icon:hover, 
+.delete-icon:hover {
+  color: #333 !important;
+  transform: scale(1.15);
+}
+
+/* Mejoras para el botón de estado */
+.btn-estado {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  font-size: 0.8rem;
+  padding: 8px 12px;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.btn-estado:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Estado Activo más suave y amigable */
+.btn-activo {
+  background-color: #ebf5e0 !important;
+  color: #2a5c19 !important;
+  border: 1px solid #9fc45a !important;
+}
+
+.btn-activo:before {
+  content: "•";
+  display: inline-block;
+  color: #387623;
+  font-size: 1.5rem;
+  margin-right: 5px;
+  line-height: 0;
+  position: relative;
+  top: 2px;
+}
+
+.btn-inactivo {
+  background-color: #f5ebe0 !important;
+  color: #875725 !important;
+  border: 1px solid #d4a76a !important;
+}
+
+.btn-inactivo:before {
+  content: "•";
+  display: inline-block;
+  color: #875725;
+  font-size: 1.5rem;
+  margin-right: 5px;
+  line-height: 0;
+  position: relative;
+  top: 2px;
+}
+
+/* Estilos para el precio */
+.price-badge {
+  background-color: #f0f8e6;
+  border: 1px solid #d1e7b7;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-weight: bold;
+  color: #103f1b;
+  display: inline-block;
+}
+
+/* Estilos para stock */
+.stock-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.in-stock {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.low-stock {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+/* Estilos para la descripción */
+.description-container {
+  max-height: 100px;
+  overflow-y: auto;
+  padding-right: 5px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: #444;
+}
+
+/* Estilos para la categoría */
+.category-badge {
+  background-color: #ebf5e0;
+  color: #387623;
+  padding: 6px 12px;
+  border-radius: 15px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  display: inline-block;
+  border: 1px solid #d1e7b7;
+}
+
+/* Estilos para la paginación */
+.pagination {
+  margin: 1.5rem 0;
+  justify-content: center;
+}
+
+.pagination .page-item .page-link {
+  color: #387623;
+  border-color: #e9f2dd;
+  padding: 8px 16px;
+  font-weight: 500;
+}
+
+.pagination .page-item.active .page-link {
+  background-color: #387623;
+  border-color: #387623;
+  color: white;
+}
+
+.pagination .page-item:not(.active) .page-link:hover {
+  background-color: #e9f2dd;
+  color: #103f1b;
 }
 
 .warning.no-result {
-  color: #875725;
+  background-color: #fff9e6 !important;
 }
 
-.btn-sm .fa-edit,
-.btn-sm .fa-trash {
-  margin: 0;
+/* Mejoras para la previsualización de imágenes en el modal */
+.img-preview {
+  border-radius: 8px;
+  border: 2px solid #9fc45a;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Contenedor específico para búsqueda y botón agregar - ASEGURAR POSICIÓN */
+.action-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: 15px 20px;
+  border-radius: 10px;
+  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.12);
+  border: 1px solid #e0e8d7;
+  position: relative;
+  z-index: 5;
+}
+
+.actions-container {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+/* ASEGURAR QUE LOS ICONOS SON NEGROS */
+.action-icon {
+  font-size: 1.25rem;
+  color: #000 !important;
+  margin: 0 8px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 6px;
+}
+
+.edit-icon {
+  color: #000 !important;
+}
+
+.edit-icon:hover {
+  color: #333 !important;
+  transform: scale(1.15);
+}
+
+.delete-icon {
+  color: #000 !important;
+}
+
+.delete-icon:hover {
+  color: #333 !important;
+  transform: scale(1.15);
 }

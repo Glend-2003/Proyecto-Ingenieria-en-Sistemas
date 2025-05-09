@@ -5,7 +5,7 @@ import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Swal from "sweetalert2";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faTrash, faExclamationTriangle } from "@fortawesome/free-solid-svg-icons";
+import { faEdit, faTrash, faExclamationTriangle, faSearch } from "@fortawesome/free-solid-svg-icons";
 import SideBar from "../SideBar/SideBar";
 import useAuth from "../../hooks/useAuth";
 import { Button, Modal } from "react-bootstrap";
@@ -32,7 +32,7 @@ const ProductoApp = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [imgProductoFile, setImgProductoFile] = useState(null);
   const itemsPerPage = 5;
-  
+
   // Opciones para el combobox de unidad de medida
   const unidadesMedida = ["Ud", "Kg", "Gr", "Lb", "Oz", "Lt", "Ml"];
 
@@ -171,19 +171,19 @@ const ProductoApp = () => {
     formData.append("estadoProducto", estadoProducto ? 1 : 0);
 
     if (imgProductoFile) {
-        formData.append("file", imgProductoFile);
+      formData.append("file", imgProductoFile);
     }
 
     try {
-        await axios.put("http://localhost:8080/producto/actualizar", formData, {
-            headers: { "Content-Type": "multipart/form-data" },
-        });
-        toast.success("Producto actualizado con éxito");
-        cargarProductos();
-        handleCloseModal();
+      await axios.put("http://localhost:8080/producto/actualizar", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      toast.success("Producto actualizado con éxito");
+      cargarProductos();
+      handleCloseModal();
     } catch (error) {
-        console.error("Error al actualizar producto:", error);
-        toast.error("Ocurrió un error al actualizar el producto");
+      console.error("Error al actualizar producto:", error);
+      toast.error("Ocurrió un error al actualizar el producto");
     }
   };
 
@@ -234,7 +234,7 @@ const ProductoApp = () => {
       setIdCategoria(producto.categoria?.idCategoria || "");
       setEstadoProducto(producto.estadoProducto);
       setImgProductoFile(null);
-      
+
       // Si el producto tiene una imagen, mostrar la previsualización
       if (producto.imgProducto) {
         setImgPreview(`http://localhost:8080/producto/images/${producto.imgProducto}`);
@@ -308,21 +308,30 @@ const ProductoApp = () => {
 
   return (
     <div className="content-container">
-      <SideBar usuario={usuario} /> 
+      <SideBar usuario={usuario} />
       <div className="container mt-5">
         <h1>Gestión de productos</h1>
-        <Button className="custom-button add-product-btn" onClick={() => handleShowModal()}>
-          Agregar producto nuevo
-        </Button>
-        <div className="mb-2"></div>
-        <label>Buscar producto</label>
-        <input
-          type="text"
-          className="form-control my-3"
-          placeholder="Buscar producto por nombre"
-          value={search}
-          onChange={handleSearchChange}
-        />
+
+        {/* Contenedor para búsqueda y agregar nuevo producto */}
+        <div className="action-container">
+  <div className="search-container">
+    <div className="input-group">
+      <span className="input-group-text search-icon">
+        <FontAwesomeIcon icon={faSearch} />
+      </span>
+      <input
+        type="text"
+        className="form-control search-input"
+        placeholder="Buscar producto por nombre"
+        value={search}
+        onChange={handleSearchChange}
+      />
+    </div>
+  </div>
+  <Button className="add-product-btn" onClick={() => handleShowModal()}>
+    Agregar producto nuevo
+  </Button>
+</div>
 
         <Modal show={showModal} onHide={handleCloseModal} className="producto-modal" size="lg" centered>
           <Modal.Header closeButton className="modal-header">
@@ -351,7 +360,7 @@ const ProductoApp = () => {
                       onChange={(e) => setNombreProducto(e.target.value)}
                     />
                   </div>
-                  
+
                   <div className="form-group mb-3">
                     <label htmlFor="precioProducto">Precio</label>
                     <div className="input-group">
@@ -367,7 +376,7 @@ const ProductoApp = () => {
                       />
                     </div>
                   </div>
-                  
+
                   <div className="form-group mb-3">
                     <label htmlFor="codigoProducto">Código del producto</label>
                     <input
@@ -380,7 +389,7 @@ const ProductoApp = () => {
                       onChange={(e) => setCodigoProducto(e.target.value)}
                     />
                   </div>
-                  
+
                   <div className="form-group mb-3">
                     <label htmlFor="categoriaProducto">Categoría</label>
                     <select
@@ -399,7 +408,7 @@ const ProductoApp = () => {
                     </select>
                   </div>
                 </div>
-                
+
                 <div className="col-md-6">
                   <div className="form-group mb-3">
                     <label htmlFor="imgProducto">Imagen del producto</label>
@@ -421,7 +430,7 @@ const ProductoApp = () => {
                       </div>
                     )}
                   </div>
-                  
+
                   <div className="form-group mb-3">
                     <label htmlFor="descripcionProducto">Descripción</label>
                     <textarea
@@ -434,9 +443,9 @@ const ProductoApp = () => {
                       onChange={(e) => setDescripcionProducto(e.target.value)}
                     />
                   </div>
-                  
+
                   <div className="row mb-3">
-                    <div className="col-6">
+                    <div className="col-4">
                       <label htmlFor="cantidadProducto">Cantidad</label>
                       <input
                         id="cantidadProducto"
@@ -447,9 +456,9 @@ const ProductoApp = () => {
                         onChange={(e) => setCantidadProducto(parseInt(e.target.value) || 1)}
                       />
                     </div>
-                    
-                    <div className="col-6">
-                      <label htmlFor="unidadMedida">Unidad de medida</label>
+
+                    <div className="col-4">
+                      <label htmlFor="unidadMedida">Unidad</label>
                       <select
                         id="unidadMedida"
                         className="form-control"
@@ -464,22 +473,22 @@ const ProductoApp = () => {
                         ))}
                       </select>
                     </div>
-                  </div>
-                  
-                  <div className="form-group mb-3">
-                    <label htmlFor="stockProducto">Stock disponible</label>
-                    <input
-                      id="stockProducto"
-                      type="number"
-                      className="form-control"
-                      min="0"
-                      value={stockProducto}
-                      onChange={(e) => setStockProducto(parseInt(e.target.value) || 0)}
-                    />
+
+                    <div className="col-4">
+                      <label htmlFor="stockProducto">Stock</label>
+                      <input
+                        id="stockProducto"
+                        type="number"
+                        className="form-control"
+                        min="0"
+                        value={stockProducto}
+                        onChange={(e) => setStockProducto(parseInt(e.target.value) || 0)}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
-              
+
               <div className="d-flex justify-content-end gap-2 mt-4">
                 <Button variant="outline-secondary" onClick={handleCloseModal}>
                   Cancelar
@@ -494,79 +503,111 @@ const ProductoApp = () => {
 
         <ToastContainer />
 
-        <div className="table-responsive mt-5">
-          <table className="table table-hover table-bordered">
+        {/* TABLA MEJORADA Y SIMPLIFICADA */}
+        <div className="table-responsive mt-4 px-2">
+          <table className="table table-hover table-striped">
             <thead>
-              <tr>
-                <th>No.</th>
-                <th>Nombre</th>
-                <th>Imagen</th>
-                <th>Precio</th>
-                <th>Descripción</th>
-                <th>Cantidad</th>
-                <th>Unidad de medida</th>
-                <th>Codigo</th>
-                <th>Stock</th>
-                <th>Categoría</th>
-                <th>Estado</th>
-                <th>Acción</th>
+              <tr className="text-center">
+                <th style={{ width: "5%" }}>No.</th>
+                <th style={{ width: "20%" }}>Información Producto</th>
+                <th style={{ width: "10%" }}>Imagen</th>
+                <th style={{ width: "15%" }}>Precio / Stock</th>
+                <th style={{ width: "20%" }}>Descripción</th>
+                <th style={{ width: "15%" }}>Categoría</th>
+                <th style={{ width: "15%" }}>Acciones</th>
               </tr>
             </thead>
             <tbody>
               {currentProductos.length === 0 ? (
                 <tr className="warning no-result">
-                  <td colSpan="12" className="text-center">
-                    <FontAwesomeIcon icon={faExclamationTriangle} /> No hay productos disponibles
+                  <td colSpan="7" className="text-center py-4">
+                    <FontAwesomeIcon icon={faExclamationTriangle} className="text-warning me-2" size="lg" />
+                    <span className="fs-5">No hay productos disponibles</span>
                   </td>
                 </tr>
               ) : (
                 currentProductos.map((producto, index) => (
-                  <tr key={producto.idProducto}>
+                  <tr key={producto.idProducto} className="align-middle text-center">
                     <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
-                    <td>{producto.nombreProducto}</td>
+                    <td className="text-start">
+                      <div className="fw-bold mb-1">{producto.nombreProducto}</div>
+                      <div className="small">
+                        <span className="badge code-badge">{producto.codigoProducto}</span>
+                      </div>
+                      <div className="small mt-1">
+                        <span className="text-muted">
+                          {producto.cantidadProducto} {producto.tipoPesoProducto}
+                        </span>
+                      </div>
+                    </td>
                     <td>
                       {producto.imgProducto ? (
-                        <img
-                          src={`http://localhost:8080/producto/images/${producto.imgProducto}`}
-                          alt={producto.imgProducto}
-                          width="50"
-                        />
+                        <div className="d-flex justify-content-center">
+                          <div className="product-image-container">
+                            <img
+                              src={`http://localhost:8080/producto/images/${producto.imgProducto}`}
+                              alt={producto.nombreProducto}
+                              style={{
+                                maxWidth: "100%",
+                                maxHeight: "100%",
+                                objectFit: "contain"
+                              }}
+                            />
+                          </div>
+                        </div>
                       ) : (
-                        "No disponible"
+                        <div className="text-center text-muted fst-italic">
+                          No disponible
+                        </div>
                       )}
                     </td>
-                    <td>{producto.montoPrecioProducto}</td>
-                    <td>{producto.descripcionProducto}</td>
-                    <td>{producto.cantidadProducto}</td>
-                    <td>{producto.tipoPesoProducto}</td>
-                    <td>{producto.codigoProducto}</td>
-                    <td>{producto.stockProducto}</td>
-                    <td>{producto.nombreCategoria || "Sin categoría"}</td>
                     <td>
-                      <button
-                        className={`btn btn-sm ${
-                          producto.estadoProducto ? "btn-success" : "btn-danger"
-                        }`}
-                        onClick={() => activarDesactivarProductos(producto.idProducto)}
-                      >
-                        {producto.estadoProducto ? "Activo" : "Inactivo"}
-                      </button>
+                      <div className="price-badge mb-2">
+                        ₡{parseFloat(producto.montoPrecioProducto).toLocaleString()}
+                      </div>
+                      <div className="stock-info">
+                        <span className={`stock-badge ${parseInt(producto.stockProducto) < 10 ? "low-stock" : "in-stock"}`}>
+                          Stock: {producto.stockProducto}
+                        </span>
+                      </div>
                     </td>
-                    <td className="text-center">
-                      <button
-                        className="btn btn-warning btn-sm me-2"
-                        type="button"
-                        onClick={() => handleShowModal(producto)}
-                      >
-                        <FontAwesomeIcon icon={faEdit} style={{ fontSize: "15px" }} />
-                      </button>
-                      <button
-                        className="btn btn-danger btn-sm"
-                        type="button"
-                        onClick={() => eliminarProducto(producto.idProducto)}
-                      >
-                        <FontAwesomeIcon icon={faTrash} style={{ fontSize: "15px" }} />
-                      </button>
+                    <td className="text-start">
+                      <div className="description-container">
+                        {producto.descripcionProducto}
+                      </div>
+                    </td>
+                    <td>
+                      <span className="category-badge">
+                        {producto.nombreCategoria || "Sin categoría"}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="d-flex flex-column gap-2">
+                        <button
+                          className={`btn-estado ${producto.estadoProducto ? "btn-activo" : "btn-inactivo"}`}
+                          onClick={() => activarDesactivarProductos(producto.idProducto)}
+                        >
+                          {producto.estadoProducto ? "Activo" : "Inactivo"}
+                        </button>
+                        <div className="actions-container">
+                          <button
+                            className="action-icon edit-icon"
+                            type="button"
+                            onClick={() => handleShowModal(producto)}
+                            title="Editar producto"
+                          >
+                            <FontAwesomeIcon icon={faEdit} />
+                          </button>
+                          <button
+                            className="action-icon delete-icon"
+                            type="button"
+                            onClick={() => eliminarProducto(producto.idProducto)}
+                            title="Eliminar producto"
+                          >
+                            <FontAwesomeIcon icon={faTrash} />
+                          </button>
+                        </div>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -574,6 +615,7 @@ const ProductoApp = () => {
             </tbody>
           </table>
         </div>
+
         <PaginacionApp
           currentPage={currentPage}
           totalPages={totalPages}
