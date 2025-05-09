@@ -34,6 +34,22 @@ const PromocionApp = () => {
     cargarProductos();
   }, []);
 
+
+  useEffect(() => {
+    if (showModal && promocionEdit && productos.length > 0) {
+      console.log("Estado actual:");
+      console.log("ID de producto seleccionado:", idProducto);
+      console.log("Productos disponibles:", productos);
+      
+      const productoSeleccionado = productos.find(p => p.idProducto.toString() === idProducto);
+      if (productoSeleccionado) {
+        console.log("Producto seleccionado encontrado:", productoSeleccionado.nombreProducto);
+      } else if (idProducto) {
+        console.log("⚠️ ADVERTENCIA: ID de producto seleccionado no encontrado en la lista de productos");
+      }
+    }
+  }, [showModal, promocionEdit, productos, idProducto]);
+
   const cargarPromociones = async () => {
     try {
       const response = await axios.get("http://localhost:8080/promocion/");
@@ -57,14 +73,22 @@ const PromocionApp = () => {
     }
   };
 
+
+  const isPromocionVencida = (fechaFin) => {
+    const fechaFinDate = new Date(fechaFin);
+
+    fechaFinDate.setHours(0, 0, 0, 0);
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    return fechaFinDate < hoy;
+  };
+
   const validarCamposPromocion = () => {
     const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0); // Eliminar la hora para comparar solo fechas
+    hoy.setHours(0, 0, 0, 0);
     
     const fechaInicio = new Date(fechaInicioPromocion);
     const fechaFin = new Date(fechaFinPromocion);
-  
-
   
     if (!fechaFinPromocion || isNaN(fechaFin)) {
       toast.error("La fecha de fin es inválida o está vacía");
@@ -94,23 +118,29 @@ const PromocionApp = () => {
     return true;
   };
   
-  
-
   const agregarPromocion = async () => {
     if (!validarCamposPromocion()) {
-
       return;
     }
+
+
+    const ajustarFechaSumandoUnDia = (fechaStr) => {
+      const fecha = new Date(fechaStr);
+      fecha.setDate(fecha.getDate() + 1); 
+      return fecha.toISOString().split('T')[0]; 
+    };
   
     const promocionData = {
       descripcionPromocion: descripcionPromocion.trim(),
-      fechaInicioPromocion: fechaInicioPromocion.trim(),
-      fechaFinPromocion: fechaFinPromocion.trim(),
+      fechaInicioPromocion: ajustarFechaSumandoUnDia(fechaInicioPromocion),
+      fechaFinPromocion: ajustarFechaSumandoUnDia(fechaFinPromocion),
       montoPromocion,
       producto: {
         idProducto,
       },
     };
+  
+    console.log("Datos enviados al backend (con fecha ajustada):", promocionData);
   
     console.log(" Datos enviados al backend:", promocionData);
     
@@ -124,23 +154,31 @@ const PromocionApp = () => {
     }
 
     cargarPromociones();
-      handleCloseModal();
+    handleCloseModal();
   };
-
 
   const actualizarPromocion = async () => {
     if (!validarCamposPromocion()) return;
 
+
+    const ajustarFechaSumandoUnDia = (fechaStr) => {
+      const fecha = new Date(fechaStr);
+      fecha.setDate(fecha.getDate() + 1); 
+      return fecha.toISOString().split('T')[0]; 
+    };
+
     const promocionData = {
       idPromocion: promocionEdit.idPromocion,
       descripcionPromocion: descripcionPromocion.trim(),
-      fechaInicioPromocion: fechaInicioPromocion.trim(),
-      fechaFinPromocion: fechaFinPromocion.trim(),
+      fechaInicioPromocion: ajustarFechaSumandoUnDia(fechaInicioPromocion),
+      fechaFinPromocion: ajustarFechaSumandoUnDia(fechaFinPromocion),
       montoPromocion,
       producto: {
         idProducto,
       },
     };
+    
+    console.log("Datos enviados al backend (con fecha ajustada):", promocionData);
 
     try {
       console.log("Datos enviados al backend:", promocionData);
@@ -193,25 +231,25 @@ const PromocionApp = () => {
 
     console.log("Datos enviados al backend:", promocion);
 
-    // Mostrar un indicador de carga mientras se envía el correo
+
     const loadingToast = toast.loading("Enviando mensaje...");
 
     try {
-        // Enviar la solicitud de backend
+   
         const response = await axios.post(`http://localhost:8080/promocion/mensaje?nombreProducto=${encodeURIComponent(promocion.nombreProducto)}`, promocion);
 
-        // Verificar la respuesta del servidor
+
         if (response.status === 200) {
-            // Cerrar el indicador de carga y mostrar el mensaje de éxito
+
             toast.update(loadingToast, {
                 render: "Mensaje enviado con éxito",
                 type: "success",
                 isLoading: false,
                 autoClose: 5000,
             });
-            cargarPromociones();  // Recargar las promociones después de enviar el correo
+            cargarPromociones(); 
         } else {
-            // En caso de error, mostrar mensaje de error
+
             toast.update(loadingToast, {
                 render: "Ocurrió un error al enviar el mensaje",
                 type: "error",
@@ -228,36 +266,75 @@ const PromocionApp = () => {
             autoClose: 5000,
         });
     }
-};
+  };
 
-const activarDesactivarPromocion = async (id) => {
-  try {
-    await axios.put(`http://localhost:8080/promocion/activar/${id}`);
-    toast.success("Cambio realizado con éxito.");
-    cargarPromociones();
-  } catch (error) {
-    console.error("Error al realizar el cambio:", error);
-    toast.error("Ocurrió un error al cambiar el estado de la promocion.");
-  }
-};
+  const activarDesactivarPromocion = async (id) => {
+  
+    const promocion = promociones.find(p => p.idPromocion === id);
+
+    if (!promocion.estadoPromocion && isPromocionVencida(promocion.fechaFinPromocion)) {
+      toast.error("No se puede activar esta promoción porque su fecha de fin ya pasó");
+      return;
+    }
+    
+    try {
+      await axios.put(`http://localhost:8080/promocion/activar/${id}`);
+      toast.success("Cambio realizado con éxito.");
+      cargarPromociones();
+    } catch (error) {
+      console.error("Error al realizar el cambio:", error);
+      toast.error("Ocurrió un error al cambiar el estado de la promocion.");
+    }
+  };
 
   const handleShowModal = (promocion = null) => {
     if (promocion) {
       setPromocionEdit(promocion);
       setDescripcionPromocion(promocion.descripcionPromocion);
-      setFechaInicioPromocion(new Date(promocion.fechaInicioPromocion)); // Asegúrate de convertir a Date
-      setFechaFinPromocion(new Date(promocion.fechaFinPromocion)); // Asegúrate de convertir a Date
+      
+      const formatearFechaParaInput = (fechaStr) => {
+        const fecha = new Date(fechaStr);
+        return fecha.toISOString().split('T')[0]; 
+      };
+      
+      setFechaInicioPromocion(formatearFechaParaInput(promocion.fechaInicioPromocion));
+      setFechaFinPromocion(formatearFechaParaInput(promocion.fechaFinPromocion));
       setMontoPromocion(promocion.montoPromocion);
+      
 
-      setIdProducto(promocion.producto?.idProducto || "");
+      if (promocion.producto && promocion.producto.idProducto) {
+        console.log("Caso 1: Producto encontrado como objeto:", promocion.producto.idProducto);
+        setIdProducto(promocion.producto.idProducto.toString());
+      } 
 
+      else if (promocion.idProducto) {
+        console.log("Caso 2: Producto encontrado como ID directo:", promocion.idProducto);
+        setIdProducto(promocion.idProducto.toString());
+      }
+ 
+      else if (promocion.nombreProducto && productos.length > 0) {
+        console.log("Caso 3: Buscando producto por nombre:", promocion.nombreProducto);
+        const productoEncontrado = productos.find(
+          p => p.nombreProducto === promocion.nombreProducto
+        );
+        
+        if (productoEncontrado) {
+          console.log("Producto encontrado por nombre. ID:", productoEncontrado.idProducto);
+          setIdProducto(productoEncontrado.idProducto.toString());
+        } else {
+          console.log("No se encontró producto con el nombre:", promocion.nombreProducto);
+          setIdProducto("");
+        }
+      } else {
+        console.log("No se encontró información de producto");
+        setIdProducto("");
+      }
     } else {
       setPromocionEdit(null);
       setDescripcionPromocion("");
       setFechaInicioPromocion("");
       setFechaFinPromocion("");
       setMontoPromocion("");
-
       setIdProducto("");
     }
     setShowModal(true);
@@ -270,7 +347,6 @@ const activarDesactivarPromocion = async (id) => {
     setFechaInicioPromocion("");
     setFechaFinPromocion("");
     setMontoPromocion("");
-
     setIdProducto("");
   };
 
@@ -441,6 +517,8 @@ const activarDesactivarPromocion = async (id) => {
                   <button
                     className="btn btn-primary btn-sm mx-1"
                     onClick={() => enviarMensaje(promocion)}
+                    disabled={isPromocionVencida(promocion.fechaFinPromocion)}
+                    title={isPromocionVencida(promocion.fechaFinPromocion) ? "No se puede enviar mensaje de una promoción vencida" : "Enviar mensaje de promoción"}
                   >
                     <FontAwesomeIcon icon={faEnvelope} />
                   </button>
