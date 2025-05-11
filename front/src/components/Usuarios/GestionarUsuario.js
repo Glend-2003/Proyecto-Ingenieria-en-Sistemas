@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { FaKey, FaTrash, FaEdit } from "react-icons/fa";
+import { FaKey, FaTrash, FaEdit, FaEye, FaEyeSlash } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Swal from "sweetalert2";
@@ -20,6 +20,10 @@ const GestionarUsuario = () => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordStrength, setPasswordStrength] = useState(0);
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
+  const [modalTitle, setModalTitle] = useState("Agregar Usuario");
   const { usuario } = useAuth();
   const [roles, setRoles] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -30,6 +34,44 @@ const GestionarUsuario = () => {
     cargarUsuarios();
     cargarRoles();
   }, []);
+
+  // Evaluar la fortaleza de la contraseña
+  useEffect(() => {
+    if (!password) {
+      setPasswordStrength(0);
+      return;
+    }
+    
+    // Inicializar fortaleza
+    let strength = 0;
+    
+    // Verificar longitud mínima (8 caracteres)
+    const hasMinLength = password.length >= 8;
+    
+    // Verificar si contiene letras
+    const hasLetters = /[a-zA-Z]/.test(password);
+    
+    // Verificar si contiene números
+    const hasNumbers = /[0-9]/.test(password);
+    
+    // Verificar si contiene caracteres especiales
+    const hasSpecialChars = /[^A-Za-z0-9]/.test(password);
+    
+    // Si tiene menos de 8 caracteres o solo letras o solo números, es débil (33%)
+    if (!hasMinLength || (!hasLetters && hasNumbers) || (hasLetters && !hasNumbers)) {
+      strength = 33;
+    } 
+    // Si tiene letras Y números con longitud adecuada, es buena (66%)
+    else if (hasLetters && hasNumbers && !hasSpecialChars) {
+      strength = 66;
+    } 
+    // Si tiene letras, números Y caracteres especiales, es excelente (100%)
+    else if (hasLetters && hasNumbers && hasSpecialChars) {
+      strength = 100;
+    }
+    
+    setPasswordStrength(strength);
+  }, [password]);
 
   const cargarUsuarios = async () => {
     try {
@@ -51,45 +93,81 @@ const GestionarUsuario = () => {
     }
   };
 
-  const handleOpenModal = () => {
-    setUserEdit({
-      correoUsuario: "",
-      nombreUsuario: "",
-      primerApellido: "",
-      segundoApellido: "",
-      idRol: "", // Valor predeterminado para el rol de cliente
-    });
+  const handleOpenModal = (user = null) => {
+    if (user) {
+      // Modo edición
+      setUserEdit({
+        ...user,
+        idRol: user.rol.idRol
+      });
+      setModalTitle("Actualizar Usuario");
+    } else {
+      // Modo agregar
+      setUserEdit({
+        correoUsuario: "",
+        nombreUsuario: "",
+        primerApellido: "",
+        segundoApellido: "",
+        idRol: "",
+      });
+      setPassword("");
+      setConfirmPassword("");
+      setModalTitle("Agregar Usuario");
+    }
     setShowModal(true);
   };
+
   // Funciones para cerrar modales
   const handleCloseModal = () => {
     setShowModal(false);
     setUserEdit(null);
     setPassword("");
     setConfirmPassword("");
+    setPasswordVisible(false);
+    setConfirmPasswordVisible(false);
   };
 
   const handleClosePasswordModal = () => {
     setShowPasswordModal(false);
     setPassword("");
     setConfirmPassword("");
+    setPasswordVisible(false);
+    setConfirmPasswordVisible(false);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const idRol = userEdit.idRol; // 3 es el valor predeterminado para el rol de cliente
+    
+    // Validar que se haya seleccionado un rol
+    if (!userEdit.idRol) {
+      toast.error("Debe seleccionar un rol para el usuario");
+      return;
+    }
+
+    // Validar contraseñas para usuarios nuevos
+    if (!userEdit.idUsuario) {
+      if (password !== confirmPassword) {
+        toast.error("Las contraseñas no coinciden");
+        return;
+      }
+      
+      // No permitir contraseñas débiles
+      if (passwordStrength < 60) {
+        toast.error(" La contraseña es demasiado débil. Debe tener al menos 8 caracteres e incluir letras y números.");
+        return;
+      }
+    }
 
     const userData = {
       ...userEdit,
-      contraseniaUsuario: password,
+      contraseniaUsuario: userEdit.idUsuario ? undefined : password,
       rol: {
-        idRol
-      }, // Usa el valor predeterminado si no se selecciona un rol
+        idRol: userEdit.idRol
+      },
     };
 
-    console.log("Datos enviados al backend:", userData); // Verifica que idRol esté correcto
     try {
-      if (userEdit?.idUsuario) {
+      if (userEdit.idUsuario) {
         await axios.put("http://localhost:8080/usuario/actualizar", userData);
         toast.success("Usuario actualizado con éxito");
       } else {
@@ -140,8 +218,15 @@ const GestionarUsuario = () => {
 
   const handlePasswordUpdate = async (e) => {
     e.preventDefault();
+    
     if (password !== confirmPassword) {
       toast.error("Las contraseñas no coinciden");
+      return;
+    }
+    
+    // No permitir contraseñas débiles
+    if (passwordStrength < 60) {
+      toast.error("La contraseña es demasiado débil. Debe tener al menos 6 caracteres e incluir letras y números.");
       return;
     }
 
@@ -156,6 +241,13 @@ const GestionarUsuario = () => {
       console.error("Error al actualizar la contraseña:", error);
       toast.error("Ocurrió un error al actualizar la contraseña");
     }
+  };
+
+  const handleOpenPasswordModal = (user) => {
+    setUserEdit(user);
+    setShowPasswordModal(true);
+    setPassword("");
+    setConfirmPassword("");
   };
 
   const handleSearchChange = (e) => setSearch(e.target.value);
@@ -184,13 +276,18 @@ const GestionarUsuario = () => {
     currentPage * itemsPerPage
   );
 
+  const getPasswordStrengthColor = () => {
+    if (passwordStrength < 60) return 'bg-danger';
+    if (passwordStrength < 100) return 'bg-warning';
+    return 'bg-success';
+  };
 
   return (
     <div className="content-container">
       <SideBar usuario={usuario} />
       <div className="container mt-5">
         <h1>Gestión de usuarios</h1>
-        <Button className="custom-button" onClick={() => setShowModal(true)}>
+        <Button className="custom-button" onClick={() => handleOpenModal()}>
           Agregar usuario nuevo
         </Button>
         <div className="mb-2"></div>
@@ -206,22 +303,20 @@ const GestionarUsuario = () => {
             </option>
           ))}
         </select>
-            <br></br>
+        <br></br>
         <label>Buscar usuario</label>
         <input
           type="text"
           className="form-control"
-          placeholder="Buscar usuario por nombre o contraseña"
+          placeholder="Buscar usuario por nombre o correo"
           value={search}
           onChange={handleSearchChange}
         />
 
-
-
-
-        <Modal show={showModal} onHide={() => setShowModal(false)}>
+        {/* Modal para agregar/editar usuario */}
+        <Modal show={showModal} onHide={handleCloseModal}>
           <Modal.Header closeButton>
-            <Modal.Title>{userEdit ? "Actualizar Usuario" : "Agregar Usuario"}</Modal.Title>
+            <Modal.Title>{modalTitle}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <form onSubmit={handleSubmit}>
@@ -277,7 +372,7 @@ const GestionarUsuario = () => {
                   <select
                     className="form-control"
                     required
-                    value={userEdit?.idRol || ""} // Usa un valor predeterminado vacío si es null/undefined
+                    value={userEdit?.idRol || ""}
                     onChange={(e) => setUserEdit({ ...userEdit, idRol: parseInt(e.target.value) })}
                   >
                     <option value="">Seleccione un rol</option>
@@ -290,29 +385,76 @@ const GestionarUsuario = () => {
                 </div>
               </div>
 
+              {/* Solo mostrar campos de contraseña para nuevos usuarios */}
               {!userEdit?.idUsuario && (
                 <>
                   <div className="mb-3">
                     <label>Contraseña</label>
-                    <input
-                      className="form-control"
-                      type="password"
-                      placeholder="Contraseña"
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                    />
+                    <div className="input-group">
+                      <input
+                        className="form-control"
+                        type={passwordVisible ? "text" : "password"}
+                        placeholder="Contraseña"
+                        required
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        minLength="6"
+                      />
+                      <button 
+                        type="button"
+                        className="btn btn-outline-secondary"
+                        onClick={() => setPasswordVisible(!passwordVisible)}
+                      >
+                        {passwordVisible ? <FaEyeSlash /> : <FaEye />}
+                      </button>
+                    </div>
+                    {password && (
+                      <>
+                        <div className="progress mt-2">
+                          <div 
+                            className={`progress-bar ${getPasswordStrengthColor()}`} 
+                            role="progressbar" 
+                            style={{ width: `${passwordStrength}%` }} 
+                            aria-valuenow={passwordStrength} 
+                            aria-valuemin="0" 
+                            aria-valuemax="100"
+                          ></div>
+                        </div>
+                        <small className="text-muted">
+                          {passwordStrength < 60 && "Contraseña débil - No permitida. "}
+                          {passwordStrength >= 60 && passwordStrength < 100 && "Contraseña aceptable. "}
+                          {passwordStrength >= 100 && "Contraseña fuerte. "}
+                        </small>
+                      </>
+                    )}
+                    <small className="form-text text-muted">
+                      La contraseña debe tener al menos 8 caracteres, incluir letras y números.
+                    </small>
                   </div>
                   <div className="mb-3">
                     <label>Confirmar Contraseña</label>
-                    <input
-                      className="form-control"
-                      type="password"
-                      placeholder="Confirmar Contraseña"
-                      required
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                    />
+                    <div className="input-group">
+                      <input
+                        className="form-control"
+                        type={confirmPasswordVisible ? "text" : "password"}
+                        placeholder="Confirmar Contraseña"
+                        required
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                      />
+                      <button 
+                        type="button"
+                        className="btn btn-outline-secondary"
+                        onClick={() => setConfirmPasswordVisible(!confirmPasswordVisible)}
+                      >
+                        {confirmPasswordVisible ? <FaEyeSlash /> : <FaEye />}
+                      </button>
+                    </div>
+                    {password && confirmPassword && (
+                      <small className={password === confirmPassword ? "text-success" : "text-danger"}>
+                        {password === confirmPassword ? "Las contraseñas coinciden" : "Las contraseñas no coinciden"}
+                      </small>
+                    )}
                   </div>
                 </>
               )}
@@ -323,33 +465,80 @@ const GestionarUsuario = () => {
           </Modal.Body>
         </Modal>
 
-        <Modal show={showPasswordModal} onHide={() => setShowPasswordModal(false)}>
+        {/* Modal para cambiar contraseña */}
+        <Modal show={showPasswordModal} onHide={handleClosePasswordModal}>
           <Modal.Header closeButton>
             <Modal.Title>Cambiar Contraseña</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <form onSubmit={handlePasswordUpdate}>
               <div className="mb-3">
-                <label>Contraseña</label>
-                <input
-                  className="form-control"
-                  type="password"
-                  placeholder="Nueva Contraseña"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
+                <label>Nueva Contraseña</label>
+                <div className="input-group">
+                  <input
+                    className="form-control"
+                    type={passwordVisible ? "text" : "password"}
+                    placeholder="Nueva Contraseña"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    minLength="6"
+                  />
+                  <button 
+                    type="button"
+                    className="btn btn-outline-secondary"
+                    onClick={() => setPasswordVisible(!passwordVisible)}
+                  >
+                    {passwordVisible ? <FaEyeSlash /> : <FaEye />}
+                  </button>
+                </div>
+                {password && (
+                  <>
+                    <div className="progress mt-2">
+                      <div 
+                        className={`progress-bar ${getPasswordStrengthColor()}`} 
+                        role="progressbar" 
+                        style={{ width: `${passwordStrength}%` }} 
+                        aria-valuenow={passwordStrength} 
+                        aria-valuemin="0" 
+                        aria-valuemax="100"
+                      ></div>
+                    </div>
+                    <small className="text-muted">
+                      {passwordStrength < 60 && "Contraseña débil - No permitida"}
+                      {passwordStrength >= 60 && passwordStrength < 100 && "Contraseña aceptable"}
+                      {passwordStrength >= 100 && "Contraseña fuerte"}
+                    </small>
+                  </>
+                )}
+                <small className="form-text text-muted">
+                  La contraseña debe tener al menos 6 caracteres, incluir letras y números.
+                </small>
               </div>
               <div className="mb-3">
-                <label>Confirmar Contraseña</label>
-                <input
-                  className="form-control"
-                  type="password"
-                  placeholder="Confirmar Contraseña"
-                  required
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                />
+                <label>Confirmar Nueva Contraseña</label>
+                <div className="input-group">
+                  <input
+                    className="form-control"
+                    type={confirmPasswordVisible ? "text" : "password"}
+                    placeholder="Confirmar Contraseña"
+                    required
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                  />
+                  <button 
+                    type="button"
+                    className="btn btn-outline-secondary"
+                    onClick={() => setConfirmPasswordVisible(!confirmPasswordVisible)}
+                  >
+                    {confirmPasswordVisible ? <FaEyeSlash /> : <FaEye />}
+                  </button>
+                </div>
+                {password && confirmPassword && (
+                  <small className={password === confirmPassword ? "text-success" : "text-danger"}>
+                    {password === confirmPassword ? "Las contraseñas coinciden" : "Las contraseñas no coinciden"}
+                  </small>
+                )}
               </div>
               <Button variant="primary" type="submit">
                 Cambiar Contraseña
@@ -364,12 +553,11 @@ const GestionarUsuario = () => {
           <table className="table table-hover table-bordered table-lg">
             <thead>
               <tr>
-
                 <th>Nombre</th>
                 <th>Primer Apellido</th>
                 <th>Segundo Apellido</th>
                 <th>Correo</th>
-                <th>Telefono Usuario</th>
+                <th>Teléfono Usuario</th>
                 <th>Rol Usuario</th>
                 <th>Estado</th>
                 <th>Acciones</th>
@@ -378,14 +566,13 @@ const GestionarUsuario = () => {
             <tbody>
               {currentUsers.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="text-center">
+                  <td colSpan="8" className="text-center">
                     No hay registros.
                   </td>
                 </tr>
               ) : (
-                currentUsers.map((user, index) => (
+                currentUsers.map((user) => (
                   <tr key={user.idUsuario}>
-
                     <td>{user.nombreUsuario}</td>
                     <td>{user.primerApellido}</td>
                     <td>{user.segundoApellido}</td>
@@ -403,20 +590,22 @@ const GestionarUsuario = () => {
                     <td>
                       <button
                         className="btn btn-warning btn-sm me-2"
-                        onClick={() => { setUserEdit(user); setShowModal(true); }}
-
+                        onClick={() => handleOpenModal(user)}
+                        title="Editar usuario"
                       >
                         <FaEdit />
                       </button>
                       <button
                         className="btn btn-danger btn-sm me-2"
                         onClick={() => handleDelete(user.idUsuario)}
+                        title="Eliminar usuario"
                       >
                         <FaTrash />
                       </button>
                       <button
                         className="btn btn-info btn-sm"
-                        onClick={() => { setUserEdit(user); setShowPasswordModal(true); }}
+                        onClick={() => handleOpenPasswordModal(user)}
+                        title="Cambiar contraseña"
                       >
                         <FaKey />
                       </button>

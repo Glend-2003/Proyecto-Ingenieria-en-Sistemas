@@ -292,7 +292,7 @@ function ListaProductosApp({ categoria }) {
               <h6 className="fw-bold mb-3">Precio</h6>
               <div className="d-flex justify-content-between mb-2">
                 <span>₡{priceRange.min.toLocaleString()}</span>
-                <span>₡{priceRange.max.toLocaleString()}</span>
+                <span>₡{selectedPrice.toLocaleString()}</span>
               </div>
               <input
                 type="range"
