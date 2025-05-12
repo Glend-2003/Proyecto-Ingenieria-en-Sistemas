@@ -92,6 +92,12 @@ const CategoriaApp = () => {
   const actualizarCategoria = async () => {
     if (!validarCamposCategoria()) return;
 
+    // Verificar si la categoría está activa antes de permitir la actualización
+    if (!categoriaEdit.estadoCategoria) {
+      toast.error("No se puede actualizar una categoría inactiva");
+      return;
+    }
+
     const nombreDuplicado = categorias.some(
       (cat) =>
         cat.nombreCategoria.toLowerCase() ===
@@ -168,6 +174,8 @@ const CategoriaApp = () => {
   };
 
   const handleShowModal = (categoria = null) => {
+ 
+
     if (categoria) {
       setCategoriaEdit(categoria);
       setNombreCategoria(categoria.nombreCategoria);
@@ -315,9 +323,13 @@ const CategoriaApp = () => {
                     </td>
                     <td className="text-center">
                       <button
-                        className="btn btn-warning btn-sm me-2"
+                        className={`btn btn-sm me-2 ${
+                          categoria.estadoCategoria ? "btn-warning" : "btn-secondary"
+                        }`}
                         type="button"
                         onClick={() => handleShowModal(categoria)}
+                        disabled={!categoria.estadoCategoria}
+                        title={!categoria.estadoCategoria ? "No se puede editar una categoría inactiva" : ""}
                       >
                         <FontAwesomeIcon
                           icon={faEdit}
