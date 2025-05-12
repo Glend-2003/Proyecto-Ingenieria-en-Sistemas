@@ -48,22 +48,9 @@ public class TipoPagoService implements ITipoPagoService{
     public TipoPago getTipoPagoById(int id) {
         return tipoPagoRep.listProcedureTipoPagoById(id);
     }
-
-    @Override
-    @Transactional
-    public boolean deleteTipoPago(int id) {
-        try {
-            System.out.println("Eliminando tipo de pago con ID: " + id);
-            tipoPagoRep.deleteProcedureTipoPago(id);
-            return true;
-        } catch (Exception e) {
-            System.err.println("Error al eliminar el tipo de pago con ID: " + id + ". Detalles: " + e.getMessage());
-            return false;
-        }
-    }
  
-     @Override
-     @Transactional 
+    @Override
+    @Transactional 
     public boolean activarTipoPago(int id) {
         try {
           

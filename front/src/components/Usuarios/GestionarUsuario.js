@@ -17,9 +17,7 @@ const GestionarUsuario = () => {
   const [search, setSearch] = useState("");
   const [userEdit, setUserEdit] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const { usuario } = useAuth();
   const [roles, setRoles] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -65,15 +63,8 @@ const GestionarUsuario = () => {
   const handleCloseModal = () => {
     setShowModal(false);
     setUserEdit(null);
-    setPassword("");
-    setConfirmPassword("");
   };
 
-  const handleClosePasswordModal = () => {
-    setShowPasswordModal(false);
-    setPassword("");
-    setConfirmPassword("");
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -135,26 +126,6 @@ const GestionarUsuario = () => {
     } catch (error) {
       console.error("Error al realizar el cambio:", error);
       toast.error("Ocurrió un error al cambiar el estado del usuario.");
-    }
-  };
-
-  const handlePasswordUpdate = async (e) => {
-    e.preventDefault();
-    if (password !== confirmPassword) {
-      toast.error("Las contraseñas no coinciden");
-      return;
-    }
-
-    try {
-      await axios.put("http://localhost:8080/usuario/actualizarContrasena", {
-        idUsuario: userEdit.idUsuario,
-        contraseniaUsuario: password,
-      });
-      toast.success("Contraseña actualizada con éxito");
-      handleClosePasswordModal();
-    } catch (error) {
-      console.error("Error al actualizar la contraseña:", error);
-      toast.error("Ocurrió un error al actualizar la contraseña");
     }
   };
 
@@ -289,70 +260,8 @@ const GestionarUsuario = () => {
                   </select>
                 </div>
               </div>
-
-              {!userEdit?.idUsuario && (
-                <>
-                  <div className="mb-3">
-                    <label>Contraseña</label>
-                    <input
-                      className="form-control"
-                      type="password"
-                      placeholder="Contraseña"
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label>Confirmar Contraseña</label>
-                    <input
-                      className="form-control"
-                      type="password"
-                      placeholder="Confirmar Contraseña"
-                      required
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                    />
-                  </div>
-                </>
-              )}
               <Button variant="primary" type="submit">
                 Guardar Datos
-              </Button>
-            </form>
-          </Modal.Body>
-        </Modal>
-
-        <Modal show={showPasswordModal} onHide={() => setShowPasswordModal(false)}>
-          <Modal.Header closeButton>
-            <Modal.Title>Cambiar Contraseña</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <form onSubmit={handlePasswordUpdate}>
-              <div className="mb-3">
-                <label>Contraseña</label>
-                <input
-                  className="form-control"
-                  type="password"
-                  placeholder="Nueva Contraseña"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-              <div className="mb-3">
-                <label>Confirmar Contraseña</label>
-                <input
-                  className="form-control"
-                  type="password"
-                  placeholder="Confirmar Contraseña"
-                  required
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                />
-              </div>
-              <Button variant="primary" type="submit">
-                Cambiar Contraseña
               </Button>
             </form>
           </Modal.Body>
@@ -413,12 +322,6 @@ const GestionarUsuario = () => {
                         onClick={() => handleDelete(user.idUsuario)}
                       >
                         <FaTrash />
-                      </button>
-                      <button
-                        className="btn btn-info btn-sm"
-                        onClick={() => { setUserEdit(user); setShowPasswordModal(true); }}
-                      >
-                        <FaKey />
                       </button>
                     </td>
                   </tr>
