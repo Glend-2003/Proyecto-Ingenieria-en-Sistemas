@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { FaKey, FaTrash, FaEdit } from "react-icons/fa";
+import { FaKey, FaTrash, FaEdit } from "react-icons/fa"; // Assuming FaKey is used elsewhere or intended
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Swal from "sweetalert2";
@@ -25,6 +25,17 @@ const GestionarUsuario = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedRole, setSelectedRole] = useState("Todos");
   const itemsPerPage = 5;
+  const [passwordVisibility, setPasswordVisibility] = useState({
+    password: false,
+    confirm: false
+  });
+  const [passwordStrength, setPasswordStrength] = useState({
+    score: 0,
+    label: "",
+    color: "",
+    width: "0%"
+  });
+  const [formErrors, setFormErrors] = useState({});
 
   // Estados para datos de usuario
   const [correoUsuario, setCorreoUsuario] = useState("");
@@ -58,7 +69,56 @@ const GestionarUsuario = () => {
     }
   };
 
+  const validateEmail = (email) => {
+    const allowedDomains = [
+      "gmail.com", "yahoo.com", "icloud.com", "hotmail.com", "outlook.com",
+      "live.com", "aol.com", "protonmail.com", "mail.com", "zoho.com",
+      "yandex.com", "msn.com", "me.com", "gmx.com" // icloud.com was duplicated, removed one
+    ];
+    const regex = /^[a-zA-Z0-9._-]+@([a-zA-Z0-9.-]+)\.([a-zA-Z]{2,})$/;
+    if (!regex.test(email)) return false;
+    const domain = email.split('@')[1];
+    return allowedDomains.includes(domain);
+  };
+
+  const validateLettersOnly = (text) => {
+    return /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/.test(text);
+  };
+
+  const evaluatePasswordStrength = (password) => {
+    let score = 0;
+    if (!password) {
+      return { score: 0, label: "", color: "", width: "0%" };
+    }
+    if (password.length >= 8) score += 1;
+    if (password.length >= 10) score += 1;
+    if (/[A-Z]/.test(password)) score += 1;
+    if (/[a-z]/.test(password)) score += 1;
+    if (/[0-9]/.test(password)) score += 1;
+    if (/[^A-Za-z0-9]/.test(password)) score += 1;
+
+    let label, color, width;
+    switch (true) {
+      case (score <= 2):
+        label = "Débil";
+        color = "#875725";
+        width = "33%";
+        break;
+      case (score <= 4):
+        label = "Media";
+        color = "#9fc45a";
+        width = "66%";
+        break;
+      default:
+        label = "Fuerte";
+        color = "#387623";
+        width = "100%";
+    }
+    return { score, label, color, width };
+  };
+
   const validarFormulario = () => {
+    const errors = {};
     if (
       !correoUsuario.trim() ||
       !nombreUsuario.trim() ||
@@ -69,55 +129,84 @@ const GestionarUsuario = () => {
       toast.error("Todos los campos marcados son obligatorios");
       return false;
     }
-
-    // Validar formato de correo
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(correoUsuario)) {
-      toast.error("El formato del correo electrónico es incorrecto");
+    if (!validateEmail(correoUsuario)) {
+      errors.correoUsuario = "El formato del correo electrónico es incorrecto";
+      toast.error(errors.correoUsuario);
       return false;
     }
-
-    // Validar teléfono (opcional pero si se ingresa debe ser válido)
+    if (!validateLettersOnly(nombreUsuario)) {
+      errors.nombreUsuario = "El nombre solo debe contener letras";
+      toast.error(errors.nombreUsuario);
+      return false;
+    }
+    if (!validateLettersOnly(primerApellido)) {
+      errors.primerApellido = "El primer apellido solo debe contener letras";
+      toast.error(errors.primerApellido);
+      return false;
+    }
+    if (!validateLettersOnly(segundoApellido)) {
+      errors.segundoApellido = "El segundo apellido solo debe contener letras";
+      toast.error(errors.segundoApellido);
+      return false;
+    }
     if (telefono && !/^\d{8,15}$/.test(telefono)) {
-      toast.error("El número de teléfono debe tener entre 8 y 15 dígitos");
+      errors.telefono = "El número de teléfono debe tener entre 8 y 15 dígitos";
+      toast.error(errors.telefono);
       return false;
     }
 
-    // Validar contraseña solo al crear usuario nuevo
-    if (!userEdit?.idUsuario) {
+    if (!userEdit?.idUsuario) { // Only validate password for new users
       if (!password) {
-        toast.error("La contraseña es obligatoria para nuevos usuarios");
+        errors.password = "La contraseña es obligatoria para nuevos usuarios";
+        toast.error(errors.password);
         return false;
       }
-      
-      if (password.length < 6) {
-        toast.error("La contraseña debe tener al menos 6 caracteres");
+      if (password.length < 8) {
+        errors.password = "La contraseña debe tener al menos 8 caracteres";
+        toast.error(errors.password);
         return false;
       }
-      
+      if (!/(?=.*[A-Za-z]{2,})/.test(password)) {
+        errors.password = "La contraseña debe contener al menos 2 letras";
+        toast.error(errors.password);
+        return false;
+      }
       if (password !== confirmPassword) {
-        toast.error("Las contraseñas no coinciden");
+        errors.confirmPassword = "Las contraseñas no coinciden";
+        toast.error(errors.confirmPassword);
         return false;
       }
-    } else if (password) {
-      // Si está editando y proporciona una contraseña
-      if (password.length < 6) {
-        toast.error("La contraseña debe tener al menos 6 caracteres");
+    } else if (password) { // If editing and password is provided
+      if (password.length < 8) {
+        errors.password = "La contraseña debe tener al menos 8 caracteres";
+        toast.error(errors.password);
         return false;
       }
-      
+      if (!/(?=.*[A-Za-z]{2,})/.test(password)) {
+        errors.password = "La contraseña debe contener al menos 2 letras";
+        toast.error(errors.password);
+        return false;
+      }
       if (password !== confirmPassword) {
-        toast.error("Las contraseñas no coinciden");
+        errors.confirmPassword = "Las contraseñas no coinciden";
+        toast.error(errors.confirmPassword);
         return false;
       }
     }
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
-    return true;
+  const togglePasswordVisibility = (field) => {
+    setPasswordVisibility(prev => ({
+      ...prev,
+      [field]: !prev[field]
+    }));
   };
 
   const handleShowModal = (user = null) => {
+    setFormErrors({});
     if (user) {
-      // Editar usuario existente
       setUserEdit(user);
       setCorreoUsuario(user.correoUsuario);
       setNombreUsuario(user.nombreUsuario);
@@ -127,8 +216,8 @@ const GestionarUsuario = () => {
       setIdRol(user.rol.idRol);
       setPassword("");
       setConfirmPassword("");
+      setPasswordStrength({ score: 0, label: "", color: "", width: "0%" });
     } else {
-      // Crear nuevo usuario
       setUserEdit(null);
       setCorreoUsuario("");
       setNombreUsuario("");
@@ -138,6 +227,7 @@ const GestionarUsuario = () => {
       setIdRol("");
       setPassword("");
       setConfirmPassword("");
+      setPasswordStrength({ score: 0, label: "", color: "", width: "0%" });
     }
     setShowModal(true);
   };
@@ -153,11 +243,131 @@ const GestionarUsuario = () => {
     setIdRol("");
     setPassword("");
     setConfirmPassword("");
+    setFormErrors({});
+    setPasswordStrength({ score: 0, label: "", color: "", width: "0%" });
+  };
+
+  const handleInputChange = (field, value) => {
+    switch (field) {
+      case "correoUsuario":
+        setCorreoUsuario(value);
+        if (value && !validateEmail(value)) {
+          setFormErrors(prev => ({ ...prev, correoUsuario: "Por favor ingrese un correo electrónico válido" }));
+        } else {
+          setFormErrors(prev => {
+            const newErrors = { ...prev };
+            delete newErrors.correoUsuario;
+            return newErrors;
+          });
+        }
+        break;
+      case "nombreUsuario":
+        setNombreUsuario(value);
+        if (value && !validateLettersOnly(value)) {
+          setFormErrors(prev => ({ ...prev, nombreUsuario: "El nombre solo debe contener letras" }));
+        } else {
+          setFormErrors(prev => {
+            const newErrors = { ...prev };
+            delete newErrors.nombreUsuario;
+            return newErrors;
+          });
+        }
+        break;
+      case "primerApellido":
+        setPrimerApellido(value);
+        if (value && !validateLettersOnly(value)) {
+          setFormErrors(prev => ({ ...prev, primerApellido: "El apellido solo debe contener letras" }));
+        } else {
+          setFormErrors(prev => {
+            const newErrors = { ...prev };
+            delete newErrors.primerApellido;
+            return newErrors;
+          });
+        }
+        break;
+      case "segundoApellido":
+        setSegundoApellido(value);
+        if (value && !validateLettersOnly(value)) {
+          setFormErrors(prev => ({ ...prev, segundoApellido: "El apellido solo debe contener letras" }));
+        } else {
+          setFormErrors(prev => {
+            const newErrors = { ...prev };
+            delete newErrors.segundoApellido;
+            return newErrors;
+          });
+        }
+        break;
+      case "telefono":
+        setTelefono(value);
+        if (value && !/^\d{0,15}$/.test(value)) {
+          setFormErrors(prev => ({ ...prev, telefono: "El teléfono solo debe contener números" }));
+        } else if (value && value.length > 0 && value.length < 8) { // check length only if not empty
+          setFormErrors(prev => ({ ...prev, telefono: "El teléfono debe tener al menos 8 dígitos" }));
+        } else if (value && value.length > 15) {
+          setFormErrors(prev => ({ ...prev, telefono: "El teléfono no debe exceder 15 dígitos" }));
+        } else {
+          setFormErrors(prev => {
+            const newErrors = { ...prev };
+            delete newErrors.telefono;
+            return newErrors;
+          });
+        }
+        break;
+      case "idRol":
+        setIdRol(value);
+        break;
+      case "password":
+        setPassword(value);
+        setPasswordStrength(evaluatePasswordStrength(value));
+        if (value) {
+          if (value.length < 8) {
+            setFormErrors(prev => ({ ...prev, password: "La contraseña debe tener al menos 8 caracteres" }));
+          } else if (!/(?=.*[A-Za-z]{2,})/.test(value)) {
+            setFormErrors(prev => ({ ...prev, password: "La contraseña debe contener al menos 2 letras" }));
+          } else {
+            setFormErrors(prev => {
+              const newErrors = { ...prev };
+              delete newErrors.password;
+              return newErrors;
+            });
+          }
+          if (confirmPassword && value !== confirmPassword) {
+            setFormErrors(prev => ({ ...prev, confirmPassword: "Las contraseñas no coinciden" }));
+          } else if (confirmPassword) {
+            setFormErrors(prev => {
+              const newErrors = { ...prev };
+              delete newErrors.confirmPassword;
+              return newErrors;
+            });
+          }
+        } else {
+          setFormErrors(prev => {
+            const newErrors = { ...prev };
+            delete newErrors.password;
+            delete newErrors.confirmPassword;
+            return newErrors;
+          });
+        }
+        break;
+      case "confirmPassword":
+        setConfirmPassword(value);
+        if (password && value !== password) {
+          setFormErrors(prev => ({ ...prev, confirmPassword: "Las contraseñas no coinciden" }));
+        } else {
+          setFormErrors(prev => {
+            const newErrors = { ...prev };
+            delete newErrors.confirmPassword;
+            return newErrors;
+          });
+        }
+        break;
+      default:
+        break;
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     if (!validarFormulario()) return;
 
     const userData = {
@@ -171,15 +381,13 @@ const GestionarUsuario = () => {
       }
     };
 
-    // Añadir contraseña si se proporciona
     if (password) {
       userData.contraseniaUsuario = password;
     }
 
-    // Añadir ID si estamos editando
     if (userEdit?.idUsuario) {
       userData.idUsuario = userEdit.idUsuario;
-      userData.estadoUsuario = userEdit.estadoUsuario;
+      userData.estadoUsuario = userEdit.estadoUsuario; // Make sure to include existing state if needed
     }
 
     try {
@@ -193,8 +401,8 @@ const GestionarUsuario = () => {
       cargarUsuarios();
       handleCloseModal();
     } catch (error) {
-      console.error("Error al procesar el usuario:", error);
-      toast.error("Ocurrió un error al procesar el usuario");
+      console.error("Error al procesar el usuario:", error.response ? error.response.data : error.message);
+      toast.error(error.response?.data?.message || "Ocurrió un error al procesar el usuario");
     }
   };
 
@@ -207,6 +415,8 @@ const GestionarUsuario = () => {
       confirmButtonText: "Sí, eliminar",
       cancelButtonText: "No, cancelar",
       reverseButtons: true,
+      confirmButtonColor: "#387623", // Verde oscuro
+      cancelButtonColor: "#875725", // Café
     });
 
     if (!isConfirmed) return;
@@ -234,25 +444,20 @@ const GestionarUsuario = () => {
 
   const handleSearchChange = (e) => setSearch(e.target.value);
 
-  // Filtrar usuarios por nombre o correo
   const filteredUsers = users.filter((user) =>
-    user.nombreUsuario.toLowerCase().includes(search.toLowerCase()) ||
-    user.correoUsuario.toLowerCase().includes(search.toLowerCase())
+    (user.nombreUsuario && user.nombreUsuario.toLowerCase().includes(search.toLowerCase())) ||
+    (user.correoUsuario && user.correoUsuario.toLowerCase().includes(search.toLowerCase()))
   );
 
-  // Obtener roles únicos para el select
   const uniqueRoles = ["Todos", ...new Set(roles.map((rol) => rol.nombreRol))];
 
-  // Filtrar los datos según el rol seleccionado
   const filteredData =
     selectedRole === "Todos"
       ? filteredUsers
       : filteredUsers.filter((user) => user.rol.nombreRol === selectedRole);
 
-  // Calcular el número total de páginas basado en los datos filtrados
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
-  // Obtener los usuarios para la página actual
   const currentUsers = filteredData.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
@@ -267,11 +472,15 @@ const GestionarUsuario = () => {
           Agregar usuario nuevo
         </Button>
         <div className="mb-2"></div>
-        <label>Filtrar usuario por rol</label>
+        <label htmlFor="roleFilter">Filtrar usuario por rol</label>
         <select
+          id="roleFilter"
           value={selectedRole}
-          onChange={(e) => setSelectedRole(e.target.value)}
-          className="form-control"
+          onChange={(e) => {
+            setSelectedRole(e.target.value);
+            setCurrentPage(1); // Reset to first page on filter change
+          }}
+          className="form-control mb-3"
         >
           {uniqueRoles.map((rol) => (
             <option key={rol} value={rol}>
@@ -279,14 +488,18 @@ const GestionarUsuario = () => {
             </option>
           ))}
         </select>
-        <br></br>
-        <label>Buscar usuario</label>
+
+        <label htmlFor="searchUser">Buscar usuario</label>
         <input
+          id="searchUser"
           type="text"
           className="form-control"
           placeholder="Buscar usuario por nombre o correo"
           value={search}
-          onChange={handleSearchChange}
+          onChange={(e) => {
+            handleSearchChange(e);
+            setCurrentPage(1); // Reset to first page on search change
+          }}
         />
 
         <Modal show={showModal} onHide={handleCloseModal} className="usuario-modal" size="lg" centered>
@@ -303,39 +516,48 @@ const GestionarUsuario = () => {
                     <label htmlFor="correoUsuario">Correo Electrónico <span className="text-danger">*</span></label>
                     <input
                       id="correoUsuario"
-                      className="form-control"
+                      className={`form-control ${formErrors.correoUsuario ? "is-invalid" : ""}`}
                       type="email"
                       placeholder="Correo electrónico"
                       required
                       value={correoUsuario}
-                      onChange={(e) => setCorreoUsuario(e.target.value)}
+                      onChange={(e) => handleInputChange("correoUsuario", e.target.value)}
                     />
+                    {formErrors.correoUsuario && (
+                      <div className="invalid-feedback">{formErrors.correoUsuario}</div>
+                    )}
                   </div>
 
                   <div className="form-group mb-3">
                     <label htmlFor="nombreUsuario">Nombre <span className="text-danger">*</span></label>
                     <input
                       id="nombreUsuario"
-                      className="form-control"
+                      className={`form-control ${formErrors.nombreUsuario ? "is-invalid" : ""}`}
                       type="text"
                       placeholder="Nombre"
                       required
                       value={nombreUsuario}
-                      onChange={(e) => setNombreUsuario(e.target.value)}
+                      onChange={(e) => handleInputChange("nombreUsuario", e.target.value)}
                     />
+                    {formErrors.nombreUsuario && (
+                      <div className="invalid-feedback">{formErrors.nombreUsuario}</div>
+                    )}
                   </div>
 
                   <div className="form-group mb-3">
                     <label htmlFor="primerApellido">Primer Apellido <span className="text-danger">*</span></label>
                     <input
                       id="primerApellido"
-                      className="form-control"
+                      className={`form-control ${formErrors.primerApellido ? "is-invalid" : ""}`}
                       type="text"
                       placeholder="Primer apellido"
                       required
                       value={primerApellido}
-                      onChange={(e) => setPrimerApellido(e.target.value)}
+                      onChange={(e) => handleInputChange("primerApellido", e.target.value)}
                     />
+                    {formErrors.primerApellido && (
+                      <div className="invalid-feedback">{formErrors.primerApellido}</div>
+                    )}
                   </div>
 
                   <div className="form-group mb-3">
@@ -345,7 +567,7 @@ const GestionarUsuario = () => {
                       className="form-control"
                       required
                       value={idRol}
-                      onChange={(e) => setIdRol(e.target.value)}
+                      onChange={(e) => handleInputChange("idRol", e.target.value)}
                     >
                       <option value="">Seleccione un rol</option>
                       {roles.map((rol) => (
@@ -362,61 +584,132 @@ const GestionarUsuario = () => {
                     <label htmlFor="segundoApellido">Segundo Apellido <span className="text-danger">*</span></label>
                     <input
                       id="segundoApellido"
-                      className="form-control"
+                      className={`form-control ${formErrors.segundoApellido ? "is-invalid" : ""}`}
                       type="text"
                       placeholder="Segundo apellido"
                       required
                       value={segundoApellido}
-                      onChange={(e) => setSegundoApellido(e.target.value)}
+                      onChange={(e) => handleInputChange("segundoApellido", e.target.value)}
                     />
+                    {formErrors.segundoApellido && (
+                      <div className="invalid-feedback">{formErrors.segundoApellido}</div>
+                    )}
                   </div>
 
                   <div className="form-group mb-3">
                     <label htmlFor="telefonoUsuario">Teléfono</label>
                     <input
                       id="telefonoUsuario"
-                      className="form-control"
+                      className={`form-control ${formErrors.telefono ? "is-invalid" : ""}`}
                       type="tel"
                       placeholder="Número de teléfono"
                       value={telefono}
-                      onChange={(e) => setTelefono(e.target.value)}
+                      onChange={(e) => handleInputChange("telefono", e.target.value)}
                     />
+                    {formErrors.telefono && (
+                      <div className="invalid-feedback">{formErrors.telefono}</div>
+                    )}
                   </div>
 
                   <div className="form-group mb-3">
                     <label htmlFor="contraseniaUsuario">
-                      {userEdit ? "Contraseña (Dejar en blanco para mantener la actual)" : "Contraseña"} 
+                      {userEdit ? "Nueva Contraseña (Dejar en blanco para mantener la actual)" : "Contraseña"}
                       {!userEdit && <span className="text-danger">*</span>}
                     </label>
-                    <input
-                      id="contraseniaUsuario"
-                      className="form-control"
-                      type="password"
-                      placeholder="Contraseña"
-                      required={!userEdit}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                    />
+                    <div className="position-relative">
+                      <input
+                        id="contraseniaUsuario"
+                        className={`form-control ${formErrors.password ? "is-invalid" : ""}`}
+                        type={passwordVisibility.password ? "text" : "password"}
+                        placeholder="Contraseña"
+                        required={!userEdit} // Required only for new users
+                        value={password}
+                        onChange={(e) => handleInputChange("password", e.target.value)}
+                      />
+                      <button
+                        type="button"
+                        className="btn btn-link position-absolute end-0 top-50 translate-middle-y text-decoration-none border-0"
+                        style={{ right: "10px", zIndex: 5 }} // Added zIndex
+                        onClick={() => togglePasswordVisibility("password")}
+                      >
+                        <i className={`fa fa-${passwordVisibility.password ? "eye-slash" : "eye"}`}></i>
+                      </button>
+                    </div>
+                    {formErrors.password && (
+                      <div className="invalid-feedback d-block">{formErrors.password}</div>
+                    )}
+                    {password && (
+                      <div style={{ marginTop: '8px' }}>
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          marginBottom: '4px'
+                        }}>
+                          <div style={{
+                            height: '8px',
+                            width: '100%',
+                            backgroundColor: '#e9ecef',
+                            borderRadius: '4px',
+                            overflow: 'hidden'
+                          }}>
+                            <div style={{
+                              height: '100%',
+                              width: passwordStrength.width,
+                              backgroundColor: passwordStrength.color,
+                              transition: 'width 0.3s ease, background-color 0.3s ease'
+                            }}></div>
+                          </div>
+                          <span style={{
+                            marginLeft: '10px',
+                            color: passwordStrength.color,
+                            fontSize: '14px',
+                            fontWeight: '500'
+                          }}>
+                            {passwordStrength.label}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                    <div className="mt-2" style={{ fontSize: '12px', color: '#6c757d' }}>
+                      <span>• Mínimo 8 caracteres</span><br />
+                      <span>• Al menos 2 letras (mayúsculas o minúsculas)</span>
+                    </div>
                   </div>
 
                   <div className="form-group mb-3">
                     <label htmlFor="confirmarContrasenia">
-                      {userEdit ? "Confirmar Contraseña (Si la cambió)" : "Confirmar Contraseña"}
-                      {!userEdit && <span className="text-danger">*</span>}
+                      {userEdit && password ? "Confirmar Nueva Contraseña" : (!userEdit ? "Confirmar Contraseña" : "Confirmar Contraseña (Si la cambió)")}
+                      {(!userEdit || password) && <span className="text-danger">*</span>}
                     </label>
-                    <input
-                      id="confirmarContrasenia"
-                      className="form-control"
-                      type="password"
-                      placeholder="Confirmar contraseña"
-                      required={!userEdit}
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                    />
+                    <div className="position-relative">
+                      <input
+                        id="confirmarContrasenia"
+                        className={`form-control ${formErrors.confirmPassword ? "is-invalid" : ""}`}
+                        type={passwordVisibility.confirm ? "text" : "password"}
+                        placeholder="Confirmar contraseña"
+                        required={!userEdit || !!password} // Required if new user or if password is being changed
+                        value={confirmPassword}
+                        onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
+                        disabled={!password && !!userEdit} // Disable if editing and no new password is typed
+                      />
+                      <button
+                        type="button"
+                        className="btn btn-link position-absolute end-0 top-50 translate-middle-y text-decoration-none border-0"
+                        style={{ right: "10px", zIndex: 5 }} // Added zIndex
+                        onClick={() => togglePasswordVisibility("confirm")}
+                        disabled={!password && !!userEdit} // Disable if editing and no new password is typed
+                      >
+                        <i className={`fa fa-${passwordVisibility.confirm ? "eye-slash" : "eye"}`}></i>
+                      </button>
+                    </div>
+                    {formErrors.confirmPassword && (
+                      <div className="invalid-feedback d-block">{formErrors.confirmPassword}</div>
+                    )}
                   </div>
                 </div>
               </div>
-
+              {/* Moved Buttons outside the column structure, but still within the form */}
               <div className="d-flex justify-content-end gap-2 mt-4">
                 <Button variant="outline-secondary" onClick={handleCloseModal}>
                   Cancelar
@@ -429,7 +722,7 @@ const GestionarUsuario = () => {
           </Modal.Body>
         </Modal>
 
-        <ToastContainer />
+        <ToastContainer position="top-right" autoClose={3000} />
 
         <div className="table-responsive mt-5">
           <table className="table table-hover table-bordered table-lg">
