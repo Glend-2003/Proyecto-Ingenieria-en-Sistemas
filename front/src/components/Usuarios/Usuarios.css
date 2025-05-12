@@ -1,86 +1,167 @@
-.custom-button {
-    background-color: #042440; /* Cambia este color al que prefieras */
-    color: white;
-    border: none;
-  }
-  .custom-button:hover {
-    background-color: #042440; /* Cambia este color al que prefieras */
-  }
-
-
-.custom-table {
-  width: 80%; /* Cambia el tamaño de la tabla */
-  margin: auto; /* Centrar la tabla */
-  border-collapse: collapse;
-}
-
-.custom-table th, .custom-table td {
-  padding: 10px;
-  border: 1px solid black;
-  text-align: center;
-}
-
-.custom-table th {
-  font-size: 18px; /* Tamaño de la letra para los encabezados */
-}
-
-.custom-table td {
-  font-size: 16px; /* Tamaño de la letra para las celdas */
-}
-
-.body-register {
-  position: relative; /* Necesario para posicionar el pseudo-elemento */
-  margin: 0;
-  padding: 0;
+.content-container {
+  display: flex;
   min-height: 100vh;
-  width: 100%;
+  background-color: #f8f9fa;
 }
 
-.body-register::before {
-  content: ""; /* Necesario para que el pseudo-elemento se renderice */
-  position: absolute; /* Posiciona el pseudo-elemento sobre el body */
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: url('../../../images/vaca2.jpg'); /* Ruta de la imagen */
-  background-size: cover; /* Ajusta la imagen para cubrir toda la pantalla */
-  background-position: center; /* Centra la imagen */
-  background-repeat: no-repeat; /* Evita que la imagen se repita */
-  background-attachment: fixed; /* Fija la imagen para que no se desplace con el scroll */
-  z-index: -1; /* Coloca el pseudo-elemento detrás del contenido */
+.add-usuario-btn {
+  background-color: #387623 !important;
+  border-color: #387623 !important;
+  color: white !important;
+  font-weight: bold;
+  transition: all 0.3s ease;
 }
 
-.body-register::after {
-  content: ""; /* Necesario para que el pseudo-elemento se renderice */
-  position: absolute; /* Posiciona el pseudo-elemento sobre el body */
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro semitransparente */
-  z-index: -1; /* Coloca el pseudo-elemento detrás del contenido */
+.add-usuario-btn:hover {
+  background-color: #103f1b !important;
+  border-color: #103f1b !important;
+  transform: translateY(-2px);
 }
 
-.registrar-container {
-  position: relative; /* Necesario para que el z-index funcione */
-  z-index: 1; /* Coloca el contenido por encima del fondo */
-  background: transparent; /* Fondo transparente */
-  color: white; /* Color de texto claro para contrastar con el fondo oscuro */
+.usuario-modal .modal-dialog {
+  max-width: 800px;
 }
 
-
-/* Fondo semitransparente para el formulario (opcional) */
-.registrar-container .bg-white {
-  background-color: rgba(255, 255, 255, 0.9); /* Fondo semitransparente */
-  border-radius: 5px; /* Bordes redondeados */
-  padding: 20px; /* Espaciado interno */
-  color: #212529; /* Color de texto oscuro para el formulario */
+.usuario-modal .modal-content {
+  border-radius: 8px;
+  overflow: hidden;
+  border: none;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
-body, html {
+.usuario-modal .modal-header {
+  background-color: #387623;
+  color: white;
+  border-bottom: none;
+  padding: 15px 20px;
+}
+
+.usuario-modal .modal-title {
+  font-weight: bold;
+  font-size: 1.25rem;
+}
+
+.usuario-modal .modal-header .btn-close {
+  color: white;
+  opacity: 1;
+  filter: brightness(0) invert(1);
+}
+
+.usuario-modal .modal-body {
+  padding: 20px;
+  background-color: #f9faf7;
+}
+
+.usuario-modal label {
+  font-weight: 600;
+  color: #103f1b;
+  margin-bottom: 0.5rem;
+}
+
+.usuario-modal .form-control {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 8px 12px;
+  height: auto;
+}
+
+.usuario-modal .form-control:focus {
+  border-color: #9fc45a;
+  box-shadow: 0 0 0 0.2rem rgba(159, 196, 90, 0.25);
+}
+
+.spinner {
+  display: flex;
+  align-items: center;
+}
+
+.spinner input {
+  text-align: center;
+  min-width: 60px;
+  border-radius: 0;
+}
+
+.spinner-btn {
+  background-color: #9fc45a;
+  border-color: #9fc45a;
+  color: white;
+  padding: 0.375rem 0.75rem;
+}
+
+.spinner-btn:hover {
+  background-color: #958933;
+  border-color: #958933;
+}
+
+.input-group-prepend .spinner-btn {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.input-group-append .spinner-btn {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+select.form-control {
+  cursor: pointer;
+  background-color: white;
+  -webkit-appearance: menulist;
+  appearance: menulist;
+}
+
+.btn-submit {
+  background-color: #387623 !important;
+  border-color: #387623 !important;
+  color: white !important;
+  padding: 8px 20px;
+  font-weight: 600;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.btn-submit:hover {
+  background-color: #103f1b !important;
+  border-color: #103f1b !important;
+  transform: translateY(-2px);
+}
+
+.table thead {
+  background-color: #387623;
+  color: white;
+}
+
+.table tbody tr:hover {
+  background-color: rgba(159, 196, 90, 0.1);
+}
+
+.btn-warning {
+  background-color: #958933;
+  border-color: #958933;
+  color: white;
+}
+
+.btn-warning:hover {
+  background-color: #875725;
+  border-color: #875725;
+  color: white;
+}
+
+.btn-success {
+  background-color: #387623 !important;
+  border-color: #387623 !important;
+}
+
+.btn-danger {
+  background-color: #875725 !important;
+  border-color: #875725 !important;
+}
+
+.warning.no-result {
+  color: #875725;
+}
+
+.btn-sm .fa-edit,
+.btn-sm .fa-trash {
   margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
 }

@@ -91,22 +91,8 @@ public class TipoPagoController {
                     .body(Collections.singletonMap("error", "Error al actualizar el tipo de pago: " + e.getMessage()));
         }
     }
-
-    // Delete TipoPago
-    @DeleteMapping("/eliminar/{id}")
-    public ResponseEntity<Boolean> deleteTipoPago(@PathVariable int id) {
-        boolean eliminado = iTipoPagoService.deleteTipoPago(id);
-
-        if (eliminado) {
-            System.out.println("Tipo de pago eliminado: ID --> " + id);
-            return ResponseEntity.ok(true);
-        } else {
-            System.out.println("No se pudo eliminar el tipo de pago: ID --> " + id + " no encontrado.");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
-        }
-    }
     
-      @PutMapping("/activar/{id}")
+    @PutMapping("/activar/{id}")
     public ResponseEntity<Boolean> activarTipoPago(@PathVariable int id) {
         boolean estado = iTipoPagoService.activarTipoPago(id);
 

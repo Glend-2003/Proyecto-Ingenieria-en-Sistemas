@@ -4,7 +4,12 @@
  */
 package com.bendicion.la.carniceria.carniceria.domain;
 
+import java.math.BigDecimal;
+import java.util.Date;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -12,8 +17,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import java.math.BigDecimal;
-import java.util.Date;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 
 /**
  *
@@ -30,11 +35,15 @@ public class Promocion {
     
     @Column(name = "descripcionPromocion")
     private String descripcionPromocion;
-    
+   
     @Column(name = "fechaInicioPromocion")
+     @Temporal(TemporalType.DATE) 
+    @JsonFormat(pattern="yyyy-MM-dd", timezone = "America/Costa_Rica")
     private Date fechaInicioPromocion;
-            
+     
     @Column(name = "fechaFinPromocion")
+    @Temporal(TemporalType.DATE) 
+    @JsonFormat(pattern="yyyy-MM-dd", timezone = "America/Costa_Rica")
     private Date fechaFinPromocion;
     
     @Column(name = "montoPromocion")
@@ -44,7 +53,7 @@ public class Promocion {
     private boolean estadoPromocion;
     
      @ManyToOne
-    @JoinColumn(name = "idProducto") // Aquí mapeas la relación
+    @JoinColumn(name = "idProducto") 
      @JsonBackReference 
     private Producto producto;
      
@@ -66,7 +75,7 @@ public class Promocion {
     }
 
     /**
-     * @return the idPromocion
+     * @return 
      */
     public int getIdPromocion() {
         return idPromocion;

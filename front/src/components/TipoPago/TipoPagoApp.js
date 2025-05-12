@@ -117,30 +117,6 @@ const TipoPagoApp = () => {
   
   };
 
-  const eliminarTipoPago = async (id) => {
-    const { isConfirmed } = await Swal.fire({
-      title: "¿Estás seguro?",
-      text: "No podrás revertir esto.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Sí, eliminar",
-      cancelButtonText: "No, cancelar",
-      reverseButtons: true,
-    });
-
-    if (!isConfirmed) return;
-
-    try {
-      await axios.delete(`http://localhost:8080/tipopago/eliminar/${id}`);
-
-      toast.success("Tipo pago eliminado con éxito");
-      cargarTipoPago();
-    } catch (error) {
-      console.error("Error al eliminar el tipo pago:", error);
-      toast.error("Ocurrió un error al eliminar el tipo pago");
-    }
-  };
-
   const activarDesactivarTipoPago = async (id) => {
     try {
       await axios.put(`http://localhost:8080/tipopago/activar/${id}`);
@@ -287,12 +263,6 @@ const TipoPagoApp = () => {
                             title="Editar tipo de pago"
                           >
                     <FontAwesomeIcon icon={faEdit} />
-                  </button>
-                  <button
-                    className="btn btn-danger btn-sm"
-                    onClick={() => eliminarTipoPago(tipoPago.idTipoPago)}
-                  >
-                    <FontAwesomeIcon icon={faTrash} />
                   </button>
 
                   
