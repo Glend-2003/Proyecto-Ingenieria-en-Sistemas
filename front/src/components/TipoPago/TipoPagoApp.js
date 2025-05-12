@@ -46,6 +46,15 @@ const TipoPagoApp = () => {
     return true;
   };
 
+    const showAlertaInactivo = () => {
+      Swal.fire({
+        title: "Tipo pago inactivo",
+        text: "No puedes editar un registro inactivo.",
+        icon: "warning",
+        confirmButtonText: "Aceptar",
+      });
+    }
+
   const agregarTipoPago = async () => {
     if (!validarCamposTipoPago()) return;
 
@@ -265,9 +274,18 @@ const TipoPagoApp = () => {
                     </td>
                 <td>
                   <button
-                    className="btn btn-warning btn-sm mx-1"
-                    onClick={() => handleShowModal(tipoPago)}
-                  >
+                       className={`btn btn-sm me-2 ${
+                          tipoPago.estadoTipoPago ? "btn-warning" : "btn-secondary"
+                        }`}
+                   onClick={() => {
+                              if (!tipoPago.estadoTipoPago) {
+                                showAlertaInactivo();
+                              } else {
+                                handleShowModal(tipoPago);
+                              }
+                            }}
+                            title="Editar tipo de pago"
+                          >
                     <FontAwesomeIcon icon={faEdit} />
                   </button>
                   <button

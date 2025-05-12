@@ -222,6 +222,15 @@ const ProductoApp = () => {
     }
   };
 
+  const showAlertaInactivo = () => {
+    Swal.fire({
+      title: "Producto inactivo",
+      text: "No puedes editar un producto inactivo.",
+      icon: "warning",
+      confirmButtonText: "Aceptar",
+    });
+  }
+
   const handleShowModal = (producto = null) => {
     if (producto) {
       setProductoEdit(producto);
@@ -500,6 +509,7 @@ const ProductoApp = () => {
                 </Button>
                 <Button className="producto-submit-button" type="submit">
                   {productoEdit ? "Actualizar" : "Agregar"}
+
                 </Button>
               </div>
             </form>
@@ -577,10 +587,17 @@ const ProductoApp = () => {
                           <button
                             className="producto-edit-button"
                             type="button"
-                            onClick={() => handleShowModal(producto)}
+                            onClick={() => {
+                              if (!producto.estadoProducto) {
+                                showAlertaInactivo();
+                              } else {
+                                handleShowModal(producto);
+                              }
+                            }}
                             title="Editar producto"
                           >
                             <FontAwesomeIcon icon={faEdit} />
+
                           </button>
                           <button
                             className="producto-delete-button"
