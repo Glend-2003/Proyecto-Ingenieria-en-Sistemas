@@ -11,10 +11,14 @@
 .page-footer {
     background-color: #103f1b !important; /* Verde oscuro como color principal */
     color: #fff;
-    padding: 1rem 0; /* Reducido el padding */
+    padding: 1rem 0;
     border-top: 3px solid #9fc45a; /* Borde superior con el verde claro */
-    position: relative;
     box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 800;
+    width: 100%;
+    margin-left: 0;
+    margin-top: 2rem;
 }
 
 /* Contenedor del footer */
@@ -24,18 +28,9 @@
     align-items: center;
     justify-content: space-between;
     position: relative;
-    padding: 0.5rem 0; /* Padding reducido */
-}
-
-/* Logo del footer */
-.footer-logo {
-    max-width: 120px;
-    margin-bottom: 1rem;
-}
-
-/* Eliminamos todos los enlaces ya que no se necesitan más */
-.links {
-    display: none;
+    padding: 0.5rem 2rem; /* Padding horizontal aumentado */
+    margin-left: 250px; /* Mismo ancho que el sidebar */
+    width: calc(100% - 250px);
 }
 
 /* Ajustamos el tamaño y estilo del texto para la información de contacto */
@@ -86,7 +81,9 @@
     font-size: 0.8rem;
     color: rgba(255, 255, 255, 0.7);
     padding: 0.5rem 0;
-    margin-top: 0; /* Eliminar margen superior */
+    margin-top: 0;
+    margin-left: 250px; /* Mismo ancho que el sidebar */
+    width: calc(100% - 250px);
 }
 
 /* Adaptaciones responsivas */
@@ -95,6 +92,14 @@
         flex-direction: column;
         gap: 10px;
         padding: 0.5rem;
+        margin-left: 65px; /* Ancho del sidebar responsive */
+        width: calc(100% - 65px);
+    }
+    
+    .copyright {
+        margin-left: 65px; /* Ancho del sidebar responsive */
+        width: calc(100% - 65px);
+        font-size: 0.75rem;
     }
     
     .footer-brand {
@@ -103,10 +108,6 @@
     
     .social-icons {
         margin: 5px 0;
-    }
-    
-    .copyright {
-        font-size: 0.75rem;
     }
 }
 

@@ -1,0 +1,80 @@
+/* Estilos generales */
+.content-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    position: relative;
+  }
+  
+  /* Estilos para el contenedor principal */
+  .container.mt-5 {
+    margin-top: 1rem !important;
+    position: relative;
+  }
+  
+  /* Eliminar el cuadro verde en la parte superior */
+  .content-container:before,
+  .content-container:after,
+  .container.mt-5:before,
+  .container.mt-5:after {
+    display: none !important;
+  }
+  
+  /* Ocultar todos los elementos que podrían ser el cuadro verde */
+  .content-container > div:first-of-type > div.green-box,
+  .content-container > div:first-of-type > div:empty,
+  .container.mt-5 > div:first-of-type:not(h1):not(.custom-button):not(.mb-2):not(label):not(input):not(table):not(form),
+  .container.mt-5 > div:empty {
+    display: none !important;
+  }
+  
+  /* Estilos para el sidebar */
+  .sidebar {
+    display: block !important;  /* Asegurar que el sidebar se muestre */
+  }
+  
+  /* Estilos para los botones de acción */
+  .btn-primary {
+    color: #fff;
+    background-color: #3498db;
+    border-color: #3498db;
+    margin-left: 5px;
+  }
+  
+  .btn-primary:hover {
+    background-color: #2980b9;
+    border-color: #2980b9;
+  }
+  
+  /* Estilos para la tabla */
+  .table {
+    margin-top: 20px;
+    background-color: #fff;
+    border-radius: 5px;
+  }
+  
+  /* Estilo para el botón personalizado */
+  .custom-button {
+    background-color: #003366;
+    border-color: #002244;
+  }
+  
+  .custom-button:hover {
+    background-color: #002244;
+    border-color: #001122;
+  }
+  
+  /* Estilos para los estados de promoción */
+  .btn-success, .btn-danger {
+    transition: all 0.3s ease;
+  }
+  
+  /* Estilos para el modal */
+  .modal-header {
+    background-color: #003366;
+    color: white;
+  }
+  
+  .modal-title {
+    color: white;
+  }

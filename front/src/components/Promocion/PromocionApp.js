@@ -28,7 +28,7 @@ const PromocionApp = () => {
   const [estadoPromocion, setEstadoPromocion] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
-
+  
   useEffect(() => {
     cargarPromociones();
     cargarProductos();
@@ -380,7 +380,6 @@ const activarDesactivarPromocion = async (id) => {
                     </option>
                   ))}
                 </select>
-
               </div>
 
               <div className="modal-footer">
@@ -404,30 +403,28 @@ const activarDesactivarPromocion = async (id) => {
               <th>Fecha Inicio</th>
               <th>Fecha Fin</th>
               <th>Monto</th>
-
+              <th>Estado</th>
               <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
             {currentPromociones.map((promocion, index) => (
               <tr key={promocion.idPromocion}>
-
                 <td>{promocion.descripcionPromocion}</td>
                 <td>{promocion.nombreProducto || "Sin producto"}</td>
                 <td>{new Date(promocion.fechaInicioPromocion).toLocaleDateString()}</td>
                 <td>{new Date(promocion.fechaFinPromocion).toLocaleDateString()}</td>
                 <td>{promocion.montoPromocion}</td>
                 <td>
-                      <button
-                        className={`btn btn-sm ${
-                          promocion.estadoPromocion ? "btn-success" : "btn-danger"
-                        }`}
-                        onClick={() => activarDesactivarPromocion(promocion.idPromocion)}
-                      >
-                        {promocion.estadoPromocion ? "Activo" : "Inactivo"}
-                      </button>
+                  <button
+                    className={`btn btn-sm ${
+                      promocion.estadoPromocion ? "btn-success" : "btn-danger"
+                    }`}
+                    onClick={() => activarDesactivarPromocion(promocion.idPromocion)}
+                  >
+                    {promocion.estadoPromocion ? "Activo" : "Inactivo"}
+                  </button>
                 </td>
-                
                 <td>
                   <button
                     className="btn btn-warning btn-sm mx-1"
@@ -441,9 +438,8 @@ const activarDesactivarPromocion = async (id) => {
                   >
                     <FontAwesomeIcon icon={faTrash} />
                   </button>
-
                   <button
-                    className="btn btn-primar"
+                    className="btn btn-primary btn-sm mx-1"
                     onClick={() => enviarMensaje(promocion)}
                   >
                     <FontAwesomeIcon icon={faEnvelope} />
@@ -470,4 +466,4 @@ const activarDesactivarPromocion = async (id) => {
   );
 };
 
-export default PromocionApp; 
+export default PromocionApp;
