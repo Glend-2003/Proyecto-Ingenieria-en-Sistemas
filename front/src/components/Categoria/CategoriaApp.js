@@ -35,7 +35,7 @@ const CategoriaApp = () => {
 
   const cargarCategorias = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/categoria/",{
+      const response = await axios.get("http://localhost:8080/categoria/", {
         params: { estadoCategoria: 0 }
       });
       setCategorias(response.data);
@@ -101,7 +101,7 @@ const CategoriaApp = () => {
     const nombreDuplicado = categorias.some(
       (cat) =>
         cat.nombreCategoria.toLowerCase() ===
-          nombreCategoria.trim().toLowerCase() &&
+        nombreCategoria.trim().toLowerCase() &&
         cat.idCategoria !== categoriaEdit.idCategoria
     );
 
@@ -138,7 +138,14 @@ const CategoriaApp = () => {
       }
     }
   };
-
+  const showAlertaInactivo = () => {
+    Swal.fire({
+      title: "Categoria inactiva",
+      text: "No puedes editar un registro inactivo.",
+      icon: "warning",
+      confirmButtonText: "Aceptar",
+    });
+  }
   const eliminarCategoria = async (id) => {
     const { isConfirmed } = await Swal.fire({
       title: "¿Estás seguro?",
@@ -174,7 +181,7 @@ const CategoriaApp = () => {
   };
 
   const handleShowModal = (categoria = null) => {
- 
+
 
     if (categoria) {
       setCategoriaEdit(categoria);
@@ -219,7 +226,7 @@ const CategoriaApp = () => {
 
   return (
     <div className="content-container">
-      <SideBar usuario={usuario} /> 
+      <SideBar usuario={usuario} />
       <div className="container mt-5">
         <h1>Gestión de categorías</h1>
         <Button className="custom-button" onClick={() => handleShowModal()}>
@@ -249,7 +256,7 @@ const CategoriaApp = () => {
               }}
             >
               <div className="mb-3">
-              <label>Nombre de la categoria</label>
+                <label>Nombre de la categoria</label>
                 <input
                   className="form-control"
                   type="text"
@@ -260,7 +267,7 @@ const CategoriaApp = () => {
                 />
               </div>
               <div className="mb-3">
-              <label>Descripción</label>
+                <label>Descripción</label>
                 <input
                   className="form-control"
                   type="text"
@@ -296,14 +303,14 @@ const CategoriaApp = () => {
               </tr>
             </thead>
             <tbody>
-                {currentCategorias.length === 0 ? (
-                  <tr className="warning no-result">
-                    <td colSpan="4" className="text-center">
-                      <FontAwesomeIcon icon={faExclamationTriangle} /> No hay registros.
-                      !!!
-                    </td>
-                  </tr>
-                ) : (
+              {currentCategorias.length === 0 ? (
+                <tr className="warning no-result">
+                  <td colSpan="4" className="text-center">
+                    <FontAwesomeIcon icon={faExclamationTriangle} /> No hay registros.
+                    !!!
+                  </td>
+                </tr>
+              ) : (
                 currentCategorias.map((categoria, index) => (
                   <tr key={categoria.idCategoria}>
                     <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
@@ -311,11 +318,10 @@ const CategoriaApp = () => {
                     <td>{categoria.descripcionCategoria}</td>
                     <td>
                       <button
-                        className={`btn btn-sm ${
-                          categoria.estadoCategoria
+                        className={`btn btn-sm ${categoria.estadoCategoria
                             ? "btn-success"
                             : "btn-danger"
-                        }`}
+                          }`}
                         onClick={() => activarDesactivarCategoria(categoria.idCategoria)}
                       >
                         {categoria.estadoCategoria ? "Activo" : "Inactivo"}
@@ -323,13 +329,17 @@ const CategoriaApp = () => {
                     </td>
                     <td className="text-center">
                       <button
-                        className={`btn btn-sm me-2 ${
-                          categoria.estadoCategoria ? "btn-warning" : "btn-secondary"
-                        }`}
+                        className={`btn btn-sm me-2 ${categoria.estadoCategoria ? "btn-warning" : "btn-secondary"
+                          }`}
                         type="button"
-                        onClick={() => handleShowModal(categoria)}
-                        disabled={!categoria.estadoCategoria}
-                        title={!categoria.estadoCategoria ? "No se puede editar una categoría inactiva" : ""}
+                        onClick={() => {
+                          if (!categoria.estadoCategoria) {
+                            showAlertaInactivo();
+                          } else {
+                            handleShowModal(categoria);
+                          }
+                        }}
+                        title="Editar producto"
                       >
                         <FontAwesomeIcon
                           icon={faEdit}
