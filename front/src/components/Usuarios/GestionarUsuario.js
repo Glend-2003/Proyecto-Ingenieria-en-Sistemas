@@ -18,11 +18,20 @@ const GestionarUsuario = () => {
   const [userEdit, setUserEdit] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [telefono, setTelefono] = useState("");
   const { usuario } = useAuth();
   const [roles, setRoles] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedRole, setSelectedRole] = useState("Todos");
   const itemsPerPage = 5;
+
+  // Estados para datos de usuario
+  const [correoUsuario, setCorreoUsuario] = useState("");
+  const [nombreUsuario, setNombreUsuario] = useState("");
+  const [primerApellido, setPrimerApellido] = useState("");
+  const [segundoApellido, setSegundoApellido] = useState("");
+  const [idRol, setIdRol] = useState("");
 
   useEffect(() => {
     cargarUsuarios();
@@ -49,36 +58,130 @@ const GestionarUsuario = () => {
     }
   };
 
-  const handleOpenModal = () => {
-    setUserEdit({
-      correoUsuario: "",
-      nombreUsuario: "",
-      primerApellido: "",
-      segundoApellido: "",
-      idRol: "", // Valor predeterminado para el rol de cliente
-    });
+  const validarFormulario = () => {
+    if (
+      !correoUsuario.trim() ||
+      !nombreUsuario.trim() ||
+      !primerApellido.trim() ||
+      !segundoApellido.trim() ||
+      !idRol
+    ) {
+      toast.error("Todos los campos marcados son obligatorios");
+      return false;
+    }
+
+    // Validar formato de correo
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(correoUsuario)) {
+      toast.error("El formato del correo electrónico es incorrecto");
+      return false;
+    }
+
+    // Validar teléfono (opcional pero si se ingresa debe ser válido)
+    if (telefono && !/^\d{8,15}$/.test(telefono)) {
+      toast.error("El número de teléfono debe tener entre 8 y 15 dígitos");
+      return false;
+    }
+
+    // Validar contraseña solo al crear usuario nuevo
+    if (!userEdit?.idUsuario) {
+      if (!password) {
+        toast.error("La contraseña es obligatoria para nuevos usuarios");
+        return false;
+      }
+      
+      if (password.length < 6) {
+        toast.error("La contraseña debe tener al menos 6 caracteres");
+        return false;
+      }
+      
+      if (password !== confirmPassword) {
+        toast.error("Las contraseñas no coinciden");
+        return false;
+      }
+    } else if (password) {
+      // Si está editando y proporciona una contraseña
+      if (password.length < 6) {
+        toast.error("La contraseña debe tener al menos 6 caracteres");
+        return false;
+      }
+      
+      if (password !== confirmPassword) {
+        toast.error("Las contraseñas no coinciden");
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  const handleShowModal = (user = null) => {
+    if (user) {
+      // Editar usuario existente
+      setUserEdit(user);
+      setCorreoUsuario(user.correoUsuario);
+      setNombreUsuario(user.nombreUsuario);
+      setPrimerApellido(user.primerApellido);
+      setSegundoApellido(user.segundoApellido);
+      setTelefono(user.telefonoUsuario || "");
+      setIdRol(user.rol.idRol);
+      setPassword("");
+      setConfirmPassword("");
+    } else {
+      // Crear nuevo usuario
+      setUserEdit(null);
+      setCorreoUsuario("");
+      setNombreUsuario("");
+      setPrimerApellido("");
+      setSegundoApellido("");
+      setTelefono("");
+      setIdRol("");
+      setPassword("");
+      setConfirmPassword("");
+    }
     setShowModal(true);
   };
-  // Funciones para cerrar modales
+
   const handleCloseModal = () => {
     setShowModal(false);
     setUserEdit(null);
+    setCorreoUsuario("");
+    setNombreUsuario("");
+    setPrimerApellido("");
+    setSegundoApellido("");
+    setTelefono("");
+    setIdRol("");
+    setPassword("");
+    setConfirmPassword("");
   };
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const idRol = userEdit.idRol; // 3 es el valor predeterminado para el rol de cliente
+    
+    if (!validarFormulario()) return;
 
     const userData = {
-      ...userEdit,
-      contraseniaUsuario: password,
+      correoUsuario,
+      nombreUsuario,
+      primerApellido,
+      segundoApellido,
+      telefonoUsuario: telefono || null,
       rol: {
-        idRol
-      }, // Usa el valor predeterminado si no se selecciona un rol
+        idRol: parseInt(idRol)
+      }
     };
 
-    console.log("Datos enviados al backend:", userData); // Verifica que idRol esté correcto
+    // Añadir contraseña si se proporciona
+    if (password) {
+      userData.contraseniaUsuario = password;
+    }
+
+    // Añadir ID si estamos editando
+    if (userEdit?.idUsuario) {
+      userData.idUsuario = userEdit.idUsuario;
+      userData.estadoUsuario = userEdit.estadoUsuario;
+    }
+
     try {
       if (userEdit?.idUsuario) {
         await axios.put("http://localhost:8080/usuario/actualizar", userData);
@@ -155,13 +258,12 @@ const GestionarUsuario = () => {
     currentPage * itemsPerPage
   );
 
-
   return (
     <div className="content-container">
       <SideBar usuario={usuario} />
       <div className="container mt-5">
         <h1>Gestión de usuarios</h1>
-        <Button className="custom-button" onClick={() => setShowModal(true)}>
+        <Button className="custom-button add-product-btn" onClick={() => handleShowModal()}>
           Agregar usuario nuevo
         </Button>
         <div className="mb-2"></div>
@@ -177,92 +279,152 @@ const GestionarUsuario = () => {
             </option>
           ))}
         </select>
-            <br></br>
+        <br></br>
         <label>Buscar usuario</label>
         <input
           type="text"
           className="form-control"
-          placeholder="Buscar usuario por nombre o contraseña"
+          placeholder="Buscar usuario por nombre o correo"
           value={search}
           onChange={handleSearchChange}
         />
 
-
-
-
-        <Modal show={showModal} onHide={() => setShowModal(false)}>
-          <Modal.Header closeButton>
-            <Modal.Title>{userEdit ? "Actualizar Usuario" : "Agregar Usuario"}</Modal.Title>
+        <Modal show={showModal} onHide={handleCloseModal} className="usuario-modal" size="lg" centered>
+          <Modal.Header closeButton className="modal-header">
+            <Modal.Title>
+              {userEdit ? "Actualizar Usuario" : "Agregar Usuario"}
+            </Modal.Title>
           </Modal.Header>
-          <Modal.Body>
+          <Modal.Body className="modal-body">
             <form onSubmit={handleSubmit}>
-              <div className="mb-3">
-                <label>Correo Electrónico</label>
-                <input
-                  className="form-control"
-                  type="email"
-                  placeholder="Correo Electrónico"
-                  required
-                  value={userEdit?.correoUsuario || ""}
-                  onChange={(e) => setUserEdit({ ...userEdit, correoUsuario: e.target.value })}
-                />
+              <div className="row">
+                <div className="col-md-6">
+                  <div className="form-group mb-3">
+                    <label htmlFor="correoUsuario">Correo Electrónico <span className="text-danger">*</span></label>
+                    <input
+                      id="correoUsuario"
+                      className="form-control"
+                      type="email"
+                      placeholder="Correo electrónico"
+                      required
+                      value={correoUsuario}
+                      onChange={(e) => setCorreoUsuario(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="form-group mb-3">
+                    <label htmlFor="nombreUsuario">Nombre <span className="text-danger">*</span></label>
+                    <input
+                      id="nombreUsuario"
+                      className="form-control"
+                      type="text"
+                      placeholder="Nombre"
+                      required
+                      value={nombreUsuario}
+                      onChange={(e) => setNombreUsuario(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="form-group mb-3">
+                    <label htmlFor="primerApellido">Primer Apellido <span className="text-danger">*</span></label>
+                    <input
+                      id="primerApellido"
+                      className="form-control"
+                      type="text"
+                      placeholder="Primer apellido"
+                      required
+                      value={primerApellido}
+                      onChange={(e) => setPrimerApellido(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="form-group mb-3">
+                    <label htmlFor="rolUsuario">Rol del usuario <span className="text-danger">*</span></label>
+                    <select
+                      id="rolUsuario"
+                      className="form-control"
+                      required
+                      value={idRol}
+                      onChange={(e) => setIdRol(e.target.value)}
+                    >
+                      <option value="">Seleccione un rol</option>
+                      {roles.map((rol) => (
+                        <option key={rol.idRol} value={rol.idRol}>
+                          {rol.nombreRol}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="col-md-6">
+                  <div className="form-group mb-3">
+                    <label htmlFor="segundoApellido">Segundo Apellido <span className="text-danger">*</span></label>
+                    <input
+                      id="segundoApellido"
+                      className="form-control"
+                      type="text"
+                      placeholder="Segundo apellido"
+                      required
+                      value={segundoApellido}
+                      onChange={(e) => setSegundoApellido(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="form-group mb-3">
+                    <label htmlFor="telefonoUsuario">Teléfono</label>
+                    <input
+                      id="telefonoUsuario"
+                      className="form-control"
+                      type="tel"
+                      placeholder="Número de teléfono"
+                      value={telefono}
+                      onChange={(e) => setTelefono(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="form-group mb-3">
+                    <label htmlFor="contraseniaUsuario">
+                      {userEdit ? "Contraseña (Dejar en blanco para mantener la actual)" : "Contraseña"} 
+                      {!userEdit && <span className="text-danger">*</span>}
+                    </label>
+                    <input
+                      id="contraseniaUsuario"
+                      className="form-control"
+                      type="password"
+                      placeholder="Contraseña"
+                      required={!userEdit}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="form-group mb-3">
+                    <label htmlFor="confirmarContrasenia">
+                      {userEdit ? "Confirmar Contraseña (Si la cambió)" : "Confirmar Contraseña"}
+                      {!userEdit && <span className="text-danger">*</span>}
+                    </label>
+                    <input
+                      id="confirmarContrasenia"
+                      className="form-control"
+                      type="password"
+                      placeholder="Confirmar contraseña"
+                      required={!userEdit}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                    />
+                  </div>
+                </div>
               </div>
-              <div className="row mb-3">
-                <div className="col-sm-6">
-                  <label>Nombre</label>
-                  <input
-                    className="form-control"
-                    type="text"
-                    placeholder="Nombre"
-                    required
-                    value={userEdit?.nombreUsuario || ""}
-                    onChange={(e) => setUserEdit({ ...userEdit, nombreUsuario: e.target.value })}
-                  />
-                </div>
-                <div className="col-sm-6">
-                  <label>Primer Apellido</label>
-                  <input
-                    className="form-control"
-                    type="text"
-                    placeholder="Primer Apellido"
-                    required
-                    value={userEdit?.primerApellido || ""}
-                    onChange={(e) => setUserEdit({ ...userEdit, primerApellido: e.target.value })}
-                  />
-                </div>
+
+              <div className="d-flex justify-content-end gap-2 mt-4">
+                <Button variant="outline-secondary" onClick={handleCloseModal}>
+                  Cancelar
+                </Button>
+                <Button className="btn-submit" type="submit">
+                  {userEdit ? "Actualizar" : "Agregar"}
+                </Button>
               </div>
-              <div className="row mb-3">
-                <div className="col-sm-6">
-                  <label>Segundo Apellido</label>
-                  <input
-                    className="form-control"
-                    type="text"
-                    placeholder="Segundo Apellido"
-                    required
-                    value={userEdit?.segundoApellido || ""}
-                    onChange={(e) => setUserEdit({ ...userEdit, segundoApellido: e.target.value })}
-                  />
-                </div>
-                <div className="col-sm-6">
-                  <label>Rol del usuario</label>
-                  <select
-                    className="form-control"
-                    required
-                    value={userEdit?.idRol || ""} // Usa un valor predeterminado vacío si es null/undefined
-                    onChange={(e) => setUserEdit({ ...userEdit, idRol: parseInt(e.target.value) })}
-                  >
-                    <option value="">Seleccione un rol</option>
-                    {roles.map((rol) => (
-                      <option key={rol.idRol} value={rol.idRol}>
-                        {rol.nombreRol}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              <Button variant="primary" type="submit">
-                Guardar Datos
-              </Button>
             </form>
           </Modal.Body>
         </Modal>
@@ -273,12 +435,11 @@ const GestionarUsuario = () => {
           <table className="table table-hover table-bordered table-lg">
             <thead>
               <tr>
-
                 <th>Nombre</th>
                 <th>Primer Apellido</th>
                 <th>Segundo Apellido</th>
                 <th>Correo</th>
-                <th>Telefono Usuario</th>
+                <th>Teléfono Usuario</th>
                 <th>Rol Usuario</th>
                 <th>Estado</th>
                 <th>Acciones</th>
@@ -287,14 +448,13 @@ const GestionarUsuario = () => {
             <tbody>
               {currentUsers.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="text-center">
+                  <td colSpan="8" className="text-center">
                     No hay registros.
                   </td>
                 </tr>
               ) : (
-                currentUsers.map((user, index) => (
+                currentUsers.map((user) => (
                   <tr key={user.idUsuario}>
-
                     <td>{user.nombreUsuario}</td>
                     <td>{user.primerApellido}</td>
                     <td>{user.segundoApellido}</td>
@@ -312,13 +472,12 @@ const GestionarUsuario = () => {
                     <td>
                       <button
                         className="btn btn-warning btn-sm me-2"
-                        onClick={() => { setUserEdit(user); setShowModal(true); }}
-
+                        onClick={() => handleShowModal(user)}
                       >
                         <FaEdit />
                       </button>
                       <button
-                        className="btn btn-danger btn-sm me-2"
+                        className="btn btn-danger btn-sm"
                         onClick={() => handleDelete(user.idUsuario)}
                       >
                         <FaTrash />
