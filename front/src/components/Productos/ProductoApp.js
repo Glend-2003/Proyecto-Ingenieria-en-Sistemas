@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -5,7 +6,7 @@ import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Swal from "sweetalert2";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faTrash, faExclamationTriangle, faSearch } from "@fortawesome/free-solid-svg-icons";
+import { faEdit, faTrash, faExclamationTriangle } from "@fortawesome/free-solid-svg-icons";
 import SideBar from "../SideBar/SideBar";
 import useAuth from "../../hooks/useAuth";
 import { Button, Modal } from "react-bootstrap";
@@ -307,52 +308,52 @@ const ProductoApp = () => {
   };
 
   return (
-    <div className="content-container">
+    <div className="producto-container">
       <SideBar usuario={usuario} />
-      <div className="container mt-5">
+      <div className="producto-main-container">
         <h1>Gestión de productos</h1>
-
-        {/* Contenedor para búsqueda y agregar nuevo producto */}
-        <div className="action-container">
-  <div className="search-container">
-    <div className="input-group">
-      <span className="input-group-text search-icon">
-        <FontAwesomeIcon icon={faSearch} />
-      </span>
-      <input
-        type="text"
-        className="form-control search-input"
-        placeholder="Buscar producto por nombre"
-        value={search}
-        onChange={handleSearchChange}
-      />
-    </div>
-  </div>
-  <Button className="add-product-btn" onClick={() => handleShowModal()}>
-    Agregar producto nuevo
-  </Button>
-</div>
+        <Button className="producto-add-button" onClick={() => handleShowModal()}>
+          Agregar producto nuevo
+        </Button>
+        <div className="producto-search-container">
+          <label>Buscar producto</label>
+          <input
+            type="text"
+            className="producto-search-input"
+            placeholder="Buscar producto por nombre"
+            value={search}
+            onChange={handleSearchChange}
+          />
+        </div>
 
         <Modal show={showModal} onHide={handleCloseModal} className="producto-modal" size="lg" centered>
-          <Modal.Header closeButton className="modal-header">
+          <Modal.Header
+            closeButton
+            className="producto-modal-header"
+            style={{
+              backgroundColor: '#9fc45a',
+              color: '#000',
+              borderBottom: 'none'
+            }}
+          >
             <Modal.Title>
               {productoEdit ? "Actualizar Producto" : "Agregar Producto"}
             </Modal.Title>
           </Modal.Header>
-          <Modal.Body className="modal-body">
+          <Modal.Body className="producto-modal-body">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 productoEdit ? actualizarProducto() : agregarProducto();
               }}
             >
-              <div className="row">
-                <div className="col-md-6">
-                  <div className="form-group mb-3">
+              <div className="producto-form-row">
+                <div className="producto-form-column">
+                  <div className="producto-form-group">
                     <label htmlFor="nombreProducto">Nombre del producto</label>
                     <input
                       id="nombreProducto"
-                      className="form-control"
+                      className="producto-form-control"
                       type="text"
                       placeholder="Nombre del producto"
                       required
@@ -361,13 +362,13 @@ const ProductoApp = () => {
                     />
                   </div>
 
-                  <div className="form-group mb-3">
+                  <div className="producto-form-group">
                     <label htmlFor="precioProducto">Precio</label>
-                    <div className="input-group">
-                      <span className="input-group-text">₡</span>
+                    <div className="producto-input-group">
+                      <span className="producto-input-group-text">₡</span>
                       <input
                         id="precioProducto"
-                        className="form-control"
+                        className="producto-form-control"
                         type="number"
                         placeholder="Precio del producto"
                         required
@@ -377,11 +378,11 @@ const ProductoApp = () => {
                     </div>
                   </div>
 
-                  <div className="form-group mb-3">
+                  <div className="producto-form-group">
                     <label htmlFor="codigoProducto">Código del producto</label>
                     <input
                       id="codigoProducto"
-                      className="form-control"
+                      className="producto-form-control"
                       type="text"
                       placeholder="Código del producto"
                       required
@@ -390,11 +391,11 @@ const ProductoApp = () => {
                     />
                   </div>
 
-                  <div className="form-group mb-3">
+                  <div className="producto-form-group">
                     <label htmlFor="categoriaProducto">Categoría</label>
                     <select
                       id="categoriaProducto"
-                      className="form-control"
+                      className="producto-form-control"
                       required
                       value={idCategoria}
                       onChange={(e) => setIdCategoria(e.target.value)}
@@ -409,33 +410,37 @@ const ProductoApp = () => {
                   </div>
                 </div>
 
-                <div className="col-md-6">
-                  <div className="form-group mb-3">
+                <div className="producto-form-column">
+                  <div className="producto-form-group">
                     <label htmlFor="imgProducto">Imagen del producto</label>
-                    <input
-                      id="imgProducto"
-                      className="form-control"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileChange}
-                    />
+                    <div className="file-input-container">
+                      <input
+                        id="imgProducto"
+                        className="producto-form-control"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                      />
+                      <span className="file-status">
+                        {imgProductoFile ? imgProductoFile.name : "Ningún archivo seleccionado"}
+                      </span>
+                    </div>
                     {imgPreview && (
-                      <div className="mt-2 text-center">
+                      <div className="producto-img-preview-container">
                         <img
                           src={imgPreview}
                           alt="Vista previa"
-                          className="img-preview"
-                          style={{ maxWidth: '100%', maxHeight: '200px', objectFit: 'contain' }}
+                          className="producto-img-preview"
                         />
                       </div>
                     )}
                   </div>
 
-                  <div className="form-group mb-3">
+                  <div className="producto-form-group">
                     <label htmlFor="descripcionProducto">Descripción</label>
                     <textarea
                       id="descripcionProducto"
-                      className="form-control"
+                      className="producto-form-control"
                       placeholder="Descripción del producto"
                       required
                       rows="3"
@@ -444,24 +449,24 @@ const ProductoApp = () => {
                     />
                   </div>
 
-                  <div className="row mb-3">
-                    <div className="col-4">
+                  <div className="producto-form-row">
+                    <div className="producto-form-col">
                       <label htmlFor="cantidadProducto">Cantidad</label>
                       <input
                         id="cantidadProducto"
                         type="number"
-                        className="form-control"
+                        className="producto-form-control"
                         min="1"
                         value={cantidadProducto}
                         onChange={(e) => setCantidadProducto(parseInt(e.target.value) || 1)}
                       />
                     </div>
 
-                    <div className="col-4">
-                      <label htmlFor="unidadMedida">Unidad</label>
+                    <div className="producto-form-col">
+                      <label htmlFor="unidadMedida">Unidad de medida</label>
                       <select
                         id="unidadMedida"
-                        className="form-control"
+                        className="producto-form-control"
                         value={unidadMedida}
                         onChange={(e) => setUnidadMedida(e.target.value)}
                         required
@@ -473,27 +478,27 @@ const ProductoApp = () => {
                         ))}
                       </select>
                     </div>
+                  </div>
 
-                    <div className="col-4">
-                      <label htmlFor="stockProducto">Stock</label>
-                      <input
-                        id="stockProducto"
-                        type="number"
-                        className="form-control"
-                        min="0"
-                        value={stockProducto}
-                        onChange={(e) => setStockProducto(parseInt(e.target.value) || 0)}
-                      />
-                    </div>
+                  <div className="producto-form-group">
+                    <label htmlFor="stockProducto">Stock disponible</label>
+                    <input
+                      id="stockProducto"
+                      type="number"
+                      className="producto-form-control"
+                      min="0"
+                      value={stockProducto}
+                      onChange={(e) => setStockProducto(parseInt(e.target.value) || 0)}
+                    />
                   </div>
                 </div>
               </div>
 
-              <div className="d-flex justify-content-end gap-2 mt-4">
+              <div className="producto-form-actions">
                 <Button variant="outline-secondary" onClick={handleCloseModal}>
                   Cancelar
                 </Button>
-                <Button className="btn-submit" type="submit">
+                <Button className="producto-submit-button" type="submit">
                   {productoEdit ? "Actualizar" : "Agregar"}
                 </Button>
               </div>
@@ -503,95 +508,74 @@ const ProductoApp = () => {
 
         <ToastContainer />
 
-        {/* TABLA MEJORADA Y SIMPLIFICADA */}
-        <div className="table-responsive mt-4 px-2">
-          <table className="table table-hover table-striped">
+        <div className="producto-table-container">
+          <table className="producto-table">
             <thead>
-              <tr className="text-center">
-                <th style={{ width: "5%" }}>No.</th>
-                <th style={{ width: "20%" }}>Información Producto</th>
-                <th style={{ width: "10%" }}>Imagen</th>
-                <th style={{ width: "15%" }}>Precio / Stock</th>
-                <th style={{ width: "20%" }}>Descripción</th>
-                <th style={{ width: "15%" }}>Categoría</th>
-                <th style={{ width: "15%" }}>Acciones</th>
+              <tr className="producto-table-header-row">
+                <th>No.</th>
+                <th>Información Producto</th>
+                <th>Imagen</th>
+                <th>Precio / Stock</th>
+                <th>Descripción</th>
+                <th>Categoría</th>
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
               {currentProductos.length === 0 ? (
-                <tr className="warning no-result">
-                  <td colSpan="7" className="text-center py-4">
-                    <FontAwesomeIcon icon={faExclamationTriangle} className="text-warning me-2" size="lg" />
-                    <span className="fs-5">No hay productos disponibles</span>
+                <tr className="producto-no-results">
+                  <td colSpan="7">
+                    <FontAwesomeIcon icon={faExclamationTriangle} className="producto-warning-icon" size="lg" />
+                    <span>No hay productos disponibles</span>
                   </td>
                 </tr>
               ) : (
                 currentProductos.map((producto, index) => (
-                  <tr key={producto.idProducto} className="align-middle text-center">
+                  <tr key={producto.idProducto} className="producto-table-row">
                     <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
-                    <td className="text-start">
-                      <div className="fw-bold mb-1">{producto.nombreProducto}</div>
-                      <div className="small">
-                        <span className="badge code-badge">{producto.codigoProducto}</span>
-                      </div>
-                      <div className="small mt-1">
-                        <span className="text-muted">
-                          {producto.cantidadProducto} {producto.tipoPesoProducto}
-                        </span>
+                    <td className="producto-info-cell">
+                      <div className="producto-name">{producto.nombreProducto}</div>
+                      <div className="producto-code">{producto.codigoProducto}</div>
+                      <div className="producto-quantity">
+                        {producto.cantidadProducto} {producto.tipoPesoProducto}
                       </div>
                     </td>
-                    <td>
+                    <td className="producto-image-cell">
                       {producto.imgProducto ? (
-                        <div className="d-flex justify-content-center">
-                          <div className="product-image-container">
-                            <img
-                              src={`http://localhost:8080/producto/images/${producto.imgProducto}`}
-                              alt={producto.nombreProducto}
-                              style={{
-                                maxWidth: "100%",
-                                maxHeight: "100%",
-                                objectFit: "contain"
-                              }}
-                            />
-                          </div>
+                        <div className="producto-image-wrapper">
+                          <img
+                            src={`http://localhost:8080/producto/images/${producto.imgProducto}`}
+                            alt={producto.nombreProducto}
+                            className="producto-image"
+                          />
                         </div>
                       ) : (
-                        <div className="text-center text-muted fst-italic">
-                          No disponible
-                        </div>
+                        <div className="producto-no-image">No disponible</div>
                       )}
                     </td>
-                    <td>
-                      <div className="price-badge mb-2">
-                        ₡{parseFloat(producto.montoPrecioProducto).toLocaleString()}
-                      </div>
-                      <div className="stock-info">
-                        <span className={`stock-badge ${parseInt(producto.stockProducto) < 10 ? "low-stock" : "in-stock"}`}>
-                          Stock: {producto.stockProducto}
-                        </span>
+                    <td className="producto-price-cell">
+                      <div className="producto-price">₡{parseFloat(producto.montoPrecioProducto).toLocaleString()}</div>
+                      <div className={`producto-stock ${parseInt(producto.stockProducto) < 10 ? "producto-low-stock" : "producto-in-stock"}`}>
+                        Stock: {producto.stockProducto}
                       </div>
                     </td>
-                    <td className="text-start">
-                      <div className="description-container">
-                        {producto.descripcionProducto}
-                      </div>
+                    <td className="producto-description-cell">
+                      {producto.descripcionProducto}
                     </td>
-                    <td>
-                      <span className="category-badge">
-                        {producto.nombreCategoria || "Sin categoría"}
-                      </span>
+                    <td className="producto-category-cell">
+                      {producto.nombreCategoria || "Sin categoría"}
                     </td>
-                    <td>
-                      <div className="d-flex flex-column gap-2">
+                    <td className="producto-actions-cell">
+                      <div className="producto-actions-container">
                         <button
-                          className={`btn-estado ${producto.estadoProducto ? "btn-activo" : "btn-inactivo"}`}
+                          className={`producto-status-button ${producto.estadoProducto ? "producto-status-active" : "producto-status-inactive"}`}
                           onClick={() => activarDesactivarProductos(producto.idProducto)}
                         >
                           {producto.estadoProducto ? "Activo" : "Inactivo"}
                         </button>
-                        <div className="actions-container">
+                        <div className="producto-action-buttons">
                           <button
-                            className="action-icon edit-icon"
+                            className="producto-edit-button"
                             type="button"
                             onClick={() => handleShowModal(producto)}
                             title="Editar producto"
@@ -599,7 +583,7 @@ const ProductoApp = () => {
                             <FontAwesomeIcon icon={faEdit} />
                           </button>
                           <button
-                            className="action-icon delete-icon"
+                            className="producto-delete-button"
                             type="button"
                             onClick={() => eliminarProducto(producto.idProducto)}
                             title="Eliminar producto"
@@ -615,7 +599,6 @@ const ProductoApp = () => {
             </tbody>
           </table>
         </div>
-
         <PaginacionApp
           currentPage={currentPage}
           totalPages={totalPages}
@@ -625,6 +608,7 @@ const ProductoApp = () => {
         />
       </div>
       <FooterApp />
+
     </div>
   );
 };
