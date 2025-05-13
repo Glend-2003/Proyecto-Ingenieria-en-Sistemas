@@ -16,60 +16,61 @@ const SideBar = ({ usuario }) => {
     }, []);
 
     return (
-        <div className="sidebar-container">
-            <div className="sidebar-inner">
-                <div className="sidebar-header">
-                    <h3 className="sidebar-title">Administrar datos</h3>
+        <div className="admin-sidebar__container">
+            <div className="admin-sidebar__inner">
+                <div className="admin-sidebar__header">
+                    <h3 className="admin-sidebar__title">Administrar datos</h3>
                 </div>
                 
-                <div className="sidebar-content">
-                    <nav className="sidebar-nav">
-                        <NavLink to="/GestionarUsuario" className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}>
-                            <FaUsers className="sidebar-icon" /> Usuarios
+                <div className="admin-sidebar__content">
+                    <nav className="admin-sidebar__nav">
+                        <NavLink to="/GestionarUsuario" className={({ isActive }) => isActive ? "admin-sidebar__link admin-sidebar__link--active" : "admin-sidebar__link"}>
+                            <FaUsers className="admin-sidebar__icon" /> Usuarios
                         </NavLink>
                         
-                        <NavLink to="/CategoriaApp" className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}>
-                            <FaListAlt className="sidebar-icon" /> Categorías
+                        <NavLink to="/CategoriaApp" className={({ isActive }) => isActive ? "admin-sidebar__link admin-sidebar__link--active" : "admin-sidebar__link"}>
+                            <FaListAlt className="admin-sidebar__icon" /> Categorías
                         </NavLink>
                         
-                        <NavLink to="/ComentarioApp" className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}>
-                            <FaComments className="sidebar-icon" /> Comentarios
+                        <NavLink to="/ComentarioApp" className={({ isActive }) => isActive ? "admin-sidebar__link admin-sidebar__link--active" : "admin-sidebar__link"}>
+                            <FaComments className="admin-sidebar__icon" /> Comentarios
                         </NavLink>
                         
-                        <NavLink to="/ProductoApp" className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}>
-                            <FaBoxOpen className="sidebar-icon" /> Productos
+                        <NavLink to="/ProductoApp" className={({ isActive }) => isActive ? "admin-sidebar__link admin-sidebar__link--active" : "admin-sidebar__link"}>
+                            <FaBoxOpen className="admin-sidebar__icon" /> Productos
                         </NavLink>
                         
-                        <NavLink to="/PromocionApp" className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}>
-                            <FaPercentage className="sidebar-icon" /> Promociones
+                        <NavLink to="/PromocionApp" className={({ isActive }) => isActive ? "admin-sidebar__link admin-sidebar__link--active" : "admin-sidebar__link"}>
+                            <FaPercentage className="admin-sidebar__icon" /> Promociones
                         </NavLink>
                         
-                        <NavLink to="/TipoPagoApp" className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}>
-                            <FaCreditCard className="sidebar-icon" /> Tipo Pago
+                        <NavLink to="/TipoPagoApp" className={({ isActive }) => isActive ? "admin-sidebar__link admin-sidebar__link--active" : "admin-sidebar__link"}>
+                            <FaCreditCard className="admin-sidebar__icon" /> Tipo Pago
                         </NavLink>
                         
-                        <NavLink to="/PedidosApp" className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}>
-                            <FaShoppingCart className="sidebar-icon" /> Pedidos
+                        <NavLink to="/PedidosApp" className={({ isActive }) => isActive ? "admin-sidebar__link admin-sidebar__link--active" : "admin-sidebar__link"}>
+                            <FaShoppingCart className="admin-sidebar__icon" /> Pedidos
                         </NavLink>
                         
-                        <NavLink to="/VentaPedido" className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}>
-                            <FaChartLine className="sidebar-icon" /> Ventas
+                        <NavLink to="/VentaPedido" className={({ isActive }) => isActive ? "admin-sidebar__link admin-sidebar__link--active" : "admin-sidebar__link"}>
+                            <FaChartLine className="admin-sidebar__icon" /> Ventas
                         </NavLink>
                     </nav>
                 </div>
                 
-                <div className="sidebar-footer">
-                    <NavLink to="/principal" className={({ isActive }) => isActive ? "profile-button active" : "profile-button"}>
-                        <div className="user-avatar">
-                            <FaUserCircle className="avatar-icon" />
+                <div className="admin-sidebar__footer">
+                    <NavLink to="/principal" className={({ isActive }) => isActive ? "admin-sidebar__profile admin-sidebar__profile--active" : "admin-sidebar__profile"}>
+                        <div className="admin-sidebar__avatar">
+                            <FaUserCircle className="admin-sidebar__avatar-icon" />
                         </div>
-                        <div className="user-info">
-                            <span className="user-name">{usuario ? usuario.nombreUsuario : "Usuario"}</span>
-                            <span className="user-role">Ver perfil</span>
+                        <div className="admin-sidebar__user-info">
+                            <span className="admin-sidebar__user-name">{usuario ? usuario.nombreUsuario : "Usuario"}</span>
+                            <span className="admin-sidebar__user-role">Ver perfil</span>
                         </div>
                     </NavLink>
                 </div>
             </div>
+            
         </div>
     );
 };
