@@ -54,10 +54,29 @@ const PromocionApp = () => {
     try {
       const response = await axios.get("http://localhost:8080/promocion/");
       console.log("Promociones recibidas del backend:", response.data);
-      setPromociones(response.data);
+      
+      const promocionesActualizadas = response.data.map(promocion => {
+        if (isPromocionVencida(promocion.fechaFinPromocion) && promocion.estadoPromocion) {
+          
+          desactivarPromocionVencida(promocion.idPromocion);
+          return { ...promocion, estadoPromocion: 0 };
+        }
+        return promocion;
+      });
+      
+      setPromociones(promocionesActualizadas);
     } catch (error) {
       console.error("Error al cargar promociones:", error);
       toast.error("Ocurrió un error al cargar las promociones");
+    }
+  };
+
+  const desactivarPromocionVencida = async (idPromocion) => {
+    try {
+      await axios.put(`http://localhost:8080/promocion/desactivar/${idPromocion}`);
+      console.log(`Promoción ${idPromocion} desactivada automáticamente por vencimiento`);
+    } catch (error) {
+      console.error(`Error al desactivar promoción vencida ${idPromocion}:`, error);
     }
   };
 
@@ -369,6 +388,15 @@ const PromocionApp = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
 
+  const showAlertaInactivo = () => {
+      Swal.fire({
+        title: "Promoción inactiva",
+        text: "No puedes editar una promoción inactiva.",
+        icon: "warning",
+        confirmButtonText: "Aceptar",
+      });
+    }
+
   return (
     <div className="promocion-container">
       <SideBar usuario={usuario} />
@@ -472,7 +500,6 @@ const PromocionApp = () => {
             </form>
           </Modal.Body>
         </Modal>
-                  >
         
         <div className="promocion-table-container">
           <table className="promocion-table">
@@ -501,9 +528,11 @@ const PromocionApp = () => {
                     <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
                     <td className="promocion-descripcion">{promocion.descripcionPromocion}</td>
                     <td className="promocion-nombreProducto">{promocion.nombreProducto || "Sin producto"}</td>
-                    <td>{new Date(promocion.fechaInicioPromocion).toLocaleDateString()}</td>
-                    <td>{new Date(promocion.fechaFinPromocion).toLocaleDateString()}</td>
-                    <td className="promocion-precio">₡{promocion.montoPromocion}</td>
+                    <td className="fecha-columna fecha-inicio">{new Date(promocion.fechaInicioPromocion).toLocaleDateString()}</td>
+                    <td className="fecha-columna fecha-fin">{new Date(promocion.fechaFinPromocion).toLocaleDateString()}</td>
+                    <td className="precio-celda">
+                      <span className="promocion-precio">₡{promocion.montoPromocion}</span>
+                    </td>
                     <td>
                       <div className="promocion-actions-container">
                         <button
@@ -518,7 +547,13 @@ const PromocionApp = () => {
                           <button
                             className="promocion-edit-button"
                             type="button"
-                            onClick={() => handleShowModal(promocion)}
+                            onClick={() => {
+                              if (!promocion.estadoPromocion) {
+                                showAlertaInactivo();
+                              } else {
+                                handleShowModal(promocion);
+                              }
+                            }}
                             title="Editar promoción"
                           >
                             <FontAwesomeIcon icon={faEdit} />
