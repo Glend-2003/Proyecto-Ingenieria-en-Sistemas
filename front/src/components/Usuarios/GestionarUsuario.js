@@ -780,7 +780,6 @@ const GestionarUsuario = () => {
           <table className="usuario-table">
             <thead>
               <tr className="usuario-table-header-row">
-                <th>No.</th>
                 <th>Nombre completo</th>
                 <th>Correo</th>
                 <th>Teléfono Usuario</th>
@@ -799,7 +798,6 @@ const GestionarUsuario = () => {
               ) : (
                 currentUsers.map((user, index) => (
                   <tr key={user.idUsuario} className="usuario-table-row">
-                    <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
                     <td>
                       <div className="usuario-letraComun">{user.nombreUsuario} {user.primerApellido} {user.segundoApellido}</div>
                     </td>

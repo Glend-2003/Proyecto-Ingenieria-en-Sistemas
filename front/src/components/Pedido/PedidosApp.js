@@ -348,7 +348,6 @@ const PedidosApp = () => {
               <table className="pedidos-table">
                 <thead>
                   <tr>
-                    <th>ID</th>
                     <th>Cliente</th>
                     <th>Fecha</th>
                     <th>Monto</th>
@@ -359,8 +358,7 @@ const PedidosApp = () => {
                 </thead>
                 <tbody>
                   {filteredPedidos.map((pedido) => (
-                    <tr key={pedido.idPedido} className={pedido.estadoPedido ? '' : 'inactive-row'}>
-                      <td>{pedido.idPedido}</td>
+                    <tr key={pedido.idPedido} className={pedido.estadoPedido ? '' : 'inactive-row'}>                   
                       <td>
                         {pedido.carrito && pedido.carrito.usuario 
                           ? `${pedido.carrito.usuario.nombreUsuario} ${pedido.carrito.usuario.primerApellido}`

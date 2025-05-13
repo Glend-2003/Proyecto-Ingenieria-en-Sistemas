@@ -247,7 +247,6 @@ const ComentarioApp = () => {
           <table className="table table-hover table-bordered">
             <thead>
               <tr>
-                <th>No.</th>
                 <th>Usuario</th>
                 <th>Comentario</th>
                 <th>Calificación</th>
@@ -266,7 +265,6 @@ const ComentarioApp = () => {
               ) : (
                 currentComentarios.map((comentario, index) => (
                   <tr key={comentario.idComentario}>
-                    <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
                     <td>{comentario.correoUsuario || "Correo no disponible"}</td> {/* Accede directamente al correo */}
                     <td>{comentario.descripcionComentario}</td>
                     <td>{comentario.numCalificacion}</td>

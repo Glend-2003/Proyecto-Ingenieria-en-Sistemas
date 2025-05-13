@@ -229,7 +229,6 @@ const TipoPagoApp = () => {
             <tr>
               <th>Tipo de pago</th>
               <th>Estado</th>
-
               <th>Acciones</th>
             </tr>
           </thead>

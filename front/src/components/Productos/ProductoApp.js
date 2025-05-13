@@ -522,7 +522,6 @@ const ProductoApp = () => {
           <table className="producto-table">
             <thead>
               <tr className="producto-table-header-row">
-                <th>No.</th>
                 <th>Información Producto</th>
                 <th>Imagen</th>
                 <th>Precio / Stock</th>
@@ -542,7 +541,6 @@ const ProductoApp = () => {
               ) : (
                 currentProductos.map((producto, index) => (
                   <tr key={producto.idProducto} className="producto-table-row">
-                    <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
                     <td className="producto-info-cell">
                       <div className="producto-name">{producto.nombreProducto}</div>
                       <div className="producto-code">{producto.codigoProducto}</div>

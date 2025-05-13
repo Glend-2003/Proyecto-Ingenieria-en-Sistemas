@@ -472,13 +472,11 @@ const PromocionApp = () => {
             </form>
           </Modal.Body>
         </Modal>
-                  >
-        
+                  
         <div className="promocion-table-container">
           <table className="promocion-table">
             <thead>
               <tr className="promocion-table-header-row">
-                <th>No.</th>
                 <th>Descripción</th>
                 <th>Producto</th>
                 <th>Fecha Inicio</th>
@@ -498,7 +496,6 @@ const PromocionApp = () => {
               ) : (
                 currentPromociones.map((promocion, index) => (
                   <tr key={promocion.idPromocion} className="promocion-table-row">
-                    <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
                     <td className="promocion-descripcion">{promocion.descripcionPromocion}</td>
                     <td className="promocion-nombreProducto">{promocion.nombreProducto || "Sin producto"}</td>
                     <td>{new Date(promocion.fechaInicioPromocion).toLocaleDateString()}</td>
