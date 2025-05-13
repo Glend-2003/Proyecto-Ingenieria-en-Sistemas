@@ -227,6 +227,7 @@ const TipoPagoApp = () => {
         <table className="table">
           <thead>
             <tr>
+              <th>No</th>
               <th>Tipo de pago</th>
               <th>Estado</th>
               <th>Acciones</th>
@@ -235,7 +236,7 @@ const TipoPagoApp = () => {
           <tbody>
             {currentTipoPagos.map((tipoPago, index) => (
               <tr key={tipoPago.idTipoPago}>
-
+                <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
                 <td>{tipoPago.descripcionTipoPago}</td>
                 <td>
                       <button

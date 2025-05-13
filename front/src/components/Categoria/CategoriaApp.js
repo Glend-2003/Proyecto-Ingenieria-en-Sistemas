@@ -295,6 +295,7 @@ const CategoriaApp = () => {
           <table className="table table-hover table-bordered">
             <thead>
               <tr>
+                <th>No</th>
                 <th>Nombre</th>
                 <th>Descripción</th>
                 <th>Estado</th>
@@ -312,6 +313,7 @@ const CategoriaApp = () => {
               ) : (
                 currentCategorias.map((categoria, index) => (
                   <tr key={categoria.idCategoria}>
+                    <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
                     <td>{categoria.nombreCategoria}</td>
                     <td>{categoria.descripcionCategoria}</td>
                     <td>

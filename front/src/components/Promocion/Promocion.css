@@ -43,6 +43,94 @@
   outline: none;
 }
 
+/* Filtro de fechas */
+.promocion-filter-container {
+  margin-bottom: 25px;
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: 15px 20px;
+  border-radius: 10px;
+  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.12);
+  border: 1px solid #e0e8d7;
+}
+
+.promocion-filter-row {
+  display: flex;
+  align-items: end;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.promocion-filter-group {
+  flex: 1;
+  min-width: 200px;
+}
+
+.promocion-filter-label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.promocion-filter-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d1e7b7;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background-color: white;
+}
+
+.promocion-filter-input:focus {
+  border-color: #9fc45a;
+  box-shadow: 0 0 0 0.2rem rgba(159, 196, 90, 0.25);
+  outline: none;
+}
+
+.promocion-filter-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: end;
+}
+
+.promocion-filter-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.promocion-filter-apply {
+  background-color: #387623;
+  color: white;
+}
+
+.promocion-filter-apply:hover {
+  background-color: #2a5c19;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+.promocion-filter-clear {
+  background-color: #f5ebe0 !important;
+  color: #875725 !important;
+  border: 1px solid #d4a76a !important;
+}
+
+.promocion-filter-clear:hover {
+  background-color: #f0e6db !important;
+  color: #6b4419 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
 /*Botón de agregar*/
 .promocion-add-button {
   background-color: #387623 !important;
@@ -93,6 +181,14 @@
 .promocion-table-row {
   transition: all 0.2s ease;
   border-bottom: 1px solid #dee2e6;
+}
+
+.promocion-table-row:nth-child(odd) {
+  background-color: #f2f2f2;
+}
+
+.promocion-table-row:nth-child(even) {
+  background-color: #ffffff;
 }
 
 .promocion-table-row:hover {
