@@ -11,6 +11,8 @@ import { Button, Modal } from "react-bootstrap";
 import "./Usuarios.css";
 import FooterApp from "../Footer/FooterApp";
 import PaginacionApp from "../Paginacion/PaginacionApp";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEdit, faTrash, faExclamationTriangle } from "@fortawesome/free-solid-svg-icons";
 
 const GestionarUsuario = () => {
   const [users, setUsers] = useState([]);
@@ -501,44 +503,56 @@ const GestionarUsuario = () => {
     currentPage * itemsPerPage
   );
 
+  const showAlertaInactivo = () => {
+      Swal.fire({
+        title: "Usuario inactivo",
+        text: "No puedes editar un usuario inactivo.",
+        icon: "warning",
+        confirmButtonText: "Aceptar",
+      });
+    }
+
   return (
-    <div className="content-container">
+    <div className="usuario-container">
       <SideBar usuario={usuario} />
-      <div className="container mt-5">
+      <div className="usuario-main-container">
         <h1>Gestión de usuarios</h1>
-        <Button className="custom-button add-product-btn" onClick={() => handleShowModal()}>
+        <Button className="usuario-add-button" onClick={() => handleShowModal()}>
           Agregar usuario nuevo
         </Button>
-        <div className="mb-2"></div>
-        <label htmlFor="roleFilter">Filtrar usuario por rol</label>
-        <select
-          id="roleFilter"
-          value={selectedRole}
-          onChange={(e) => {
-            setSelectedRole(e.target.value);
-            setCurrentPage(1); // Reset to first page on filter change
-          }}
-          className="form-control mb-3"
-        >
-          {uniqueRoles.map((rol) => (
-            <option key={rol} value={rol}>
-              {rol}
-            </option>
-          ))}
-        </select>
-
-        <label htmlFor="searchUser">Buscar usuario</label>
-        <input
-          id="searchUser"
-          type="text"
-          className="form-control"
-          placeholder="Buscar usuario por nombre o correo"
-          value={search}
-          onChange={(e) => {
-            handleSearchChange(e);
-            setCurrentPage(1); // Reset to first page on search change
-          }}
-        />
+        
+        <div className="usuario-search-container">
+          <label>Buscar por rol</label>
+            <select
+              id="roleFilter"
+              value={selectedRole}
+              onChange={(e) => {
+                setSelectedRole(e.target.value);
+                setCurrentPage(1); // Reset to first page on filter change
+              }}
+              className="form-control mb-3"
+            >
+              {uniqueRoles.map((rol) => (
+                <option key={rol} value={rol}>
+                  {rol}
+                </option>
+              ))}
+          </select>
+        </div>
+            
+        <div className="usuario-search-container">
+          <label>Buscar usuario</label>
+          <input
+            type="text"
+            className="usuario-search-input"
+            placeholder="Buscar usuario por nombre o correo"
+            value={search}
+            onChange={(e) => {
+              handleSearchChange(e);
+              setCurrentPage(1); 
+            }}
+          />
+        </div>
 
         <Modal show={showModal} onHide={handleCloseModal} className="usuario-modal" size="lg" centered>
           <Modal.Header closeButton className="modal-header">
@@ -762,58 +776,70 @@ const GestionarUsuario = () => {
 
         <ToastContainer position="top-right" autoClose={3000} />
 
-        <div className="table-responsive mt-5">
-          <table className="table table-hover table-bordered table-lg">
+        <div className="usuario-table-container">
+          <table className="usuario-table">
             <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>Primer Apellido</th>
-                <th>Segundo Apellido</th>
+              <tr className="usuario-table-header-row">
+                <th>No.</th>
+                <th>Nombre completo</th>
                 <th>Correo</th>
                 <th>Teléfono Usuario</th>
                 <th>Rol Usuario</th>
-                <th>Estado</th>
                 <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
               {currentUsers.length === 0 ? (
-                <tr>
-                  <td colSpan="8" className="text-center">
-                    No hay registros.
+                <tr className="usuario-no-results">
+                  <td colSpan="7">
+                    <FontAwesomeIcon icon={faExclamationTriangle} className="usuario-warning-icon" size="lg" />
+                    <span>No hay productos disponibles</span>
                   </td>
                 </tr>
               ) : (
-                currentUsers.map((user) => (
-                  <tr key={user.idUsuario}>
-                    <td>{user.nombreUsuario}</td>
-                    <td>{user.primerApellido}</td>
-                    <td>{user.segundoApellido}</td>
-                    <td>{user.correoUsuario}</td>
-                    <td>{user.telefonoUsuario || "Sin número registrado..."}</td>
-                    <td>{user.rol.nombreRol}</td>
+                currentUsers.map((user, index) => (
+                  <tr key={user.idUsuario} className="usuario-table-row">
+                    <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
                     <td>
-                      <button
-                        className={`btn btn-sm ${user.estadoUsuario ? "btn-success" : "btn-danger"}`}
-                        onClick={() => activarDesactivarUsuario(user.idUsuario)}
-                      >
-                        {user.estadoUsuario ? "Activo" : "Inactivo"}
-                      </button>
+                      <div className="usuario-letraComun">{user.nombreUsuario} {user.primerApellido} {user.segundoApellido}</div>
                     </td>
-                    <td>
-                      <button
-                        className="btn btn-warning btn-sm me-2"
-                        onClick={() => handleShowModal(user)}
-                      >
-                        <FaEdit />
-                      </button>
-                      <button
-                        className="btn btn-danger btn-sm"
-                        onClick={() => handleDelete(user.idUsuario)}
-                        title="Eliminar usuario"
-                      >
-                        <FaTrash />
-                      </button>
+                    <td className="usuario-letraNegrita">{user.correoUsuario}</td>
+                    <td className="usuario-letraComun">{user.telefonoUsuario || "Sin número registrado..."}</td>
+                    <td className="usuario-roll">{user.rol.nombreRol}</td>
+                    <td className="usuario-actions-cell">
+                      <div className="usuario-actions-container">
+                        <button
+                          className={`usuario-status-button ${user.estadoUsuario ? "usuario-status-active" : "usuario-status-inactive"}`}
+                          type="button"
+                          onClick={() => activarDesactivarUsuario(user.idUsuario)}
+                        >
+                          {user.estadoUsuario ? "Activo" : "Inactivo"}
+                        </button>
+                        <div className="usuario-action-buttons">
+                            <button
+                              className="usuario-edit-button"
+                              type="button"
+                              onClick={() => {
+                                if (!user.estadoUsuario) {
+                                  showAlertaInactivo();
+                                } else {
+                                  handleShowModal(user);
+                                }
+                              }}
+                              title="Editar producto"
+                            >
+                              <FontAwesomeIcon icon={faEdit} />
+                            </button>
+                            <button
+                              className="usuario-delete-button"
+                              type="button"
+                              onClick={() => handleDelete(user.idUsuario)}
+                              title="Eliminar usuario"
+                            >
+                              <FontAwesomeIcon icon={faTrash} />
+                            </button>
+                        </div>
+                      </div>
                     </td>
                   </tr>
                 ))

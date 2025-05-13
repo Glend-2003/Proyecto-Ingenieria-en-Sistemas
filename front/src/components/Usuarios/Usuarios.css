@@ -165,3 +165,237 @@ select.form-control {
 .btn-sm .fa-trash {
   margin: 0;
 }
+
+/*Tabla*/
+.usuario-table-container {
+  margin-left: 5px;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  width: 100%;
+}
+.usuario-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  margin-bottom: 0;
+  background-color: white;
+  table-layout: auto;
+}
+
+.usuario-table-header-row {
+  background-color: #000000;
+  color: white;
+}
+
+.usuario-table-header-row th {
+  padding: 15px 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
+  vertical-align: middle;
+  border-bottom: 3px solid #9fc45a;
+}
+
+.usuario-table-row:nth-child(odd) {
+  background-color: #f2f2f2;
+}
+
+.usuario-table-row:nth-child(even) {
+  background-color: #ffffff;
+}
+
+.usuario-table-row {
+  transition: all 0.2s ease;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.usuario-table-row:hover {
+  background-color: rgba(159, 196, 90, 0.15);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.usuario-table-row td {
+  padding: 12px 10px;
+  vertical-align: middle;
+  border-bottom: 1px solid #e9f2dd;
+}
+
+.usuario-action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.usuario-edit-button,
+.usuario-delete-button {
+  font-size: 1.25rem;
+  color: #000 !important;
+  margin: 0 8px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 6px;
+}
+
+.usuario-edit-button:hover,
+.usuario-delete-button:hover {
+  color: #333 !important;
+  transform: scale(1.15);
+}
+
+.usuario-status-button {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  font-size: 0.8rem;
+  padding: 8px 12px;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.usuario-status-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.usuario-status-active {
+  background-color: #ebf5e0 !important;
+  color: #2a5c19 !important;
+  border: 1px solid #9fc45a !important;
+}
+
+.usuario-status-active:before {
+  content: "•";
+  display: inline-block;
+  color: #387623;
+  font-size: 1.5rem;
+  margin-right: 5px;
+  line-height: 0;
+  position: relative;
+  top: 2px;
+}
+
+.usuario-status-inactive {
+  background-color: #f5ebe0 !important;
+  color: #875725 !important;
+  border: 1px solid #d4a76a !important;
+}
+
+.usuario-status-inactive:before {
+  content: "•";
+  display: inline-block;
+  color: #875725;
+  font-size: 1.5rem;
+  margin-right: 5px;
+  line-height: 0;
+  position: relative;
+  top: 2px;
+}
+
+.usuario-no-results {
+  background-color: #fff9e6 !important;
+}
+
+.usuario-no-results td {
+  padding: 20px !important;
+  text-align: center;
+}
+
+.usuario-warning-icon {
+  color: #958933 !important;
+  margin-right: 10px;
+}
+
+.usuario-letraNegrita {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.usuario-roll {
+  font-weight: 700; /* Aumentado de 600 a 700 para hacerlo más negrita */
+  color: #000000; /* Cambiado a negro como solicitaste */
+}
+
+.usuario-letraComun {
+  max-height: 100px;
+  overflow-y: auto;
+  padding-right: 5px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: #444;
+  word-wrap: break-word; /* Permitir que el texto se envuelva */
+}
+
+.usuario-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  position: relative;
+}
+
+.usuario-actions-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.usuario-main-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 30px;
+  overflow-y: auto;
+  padding-bottom: 80px; /* Aumentar el espacio para el footer */
+  margin-left: 220px; /* Ajustar según el ancho de tu sidebar */
+  width: calc(100% - 220px); /* Ajustar el ancho para dejar espacio para el sidebar */
+}
+
+
+/*Buscador*/
+.usuario-search-container {
+  margin-bottom: 25px;
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: 15px 20px;
+  border-radius: 10px;
+  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.12);
+  border: 1px solid #e0e8d7;
+}
+
+.usuario-search-input {
+  width: 100%;
+  padding: 10px 15px;
+  border: 1px solid #d1e7b7;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.usuario-search-input:focus {
+  border-color: #9fc45a;
+  box-shadow: 0 0 0 0.2rem rgba(159, 196, 90, 0.25);
+  outline: none;
+}
+
+/*Botón de agregar*/
+.usuario-add-button {
+  background-color: #387623 !important;
+  border-color: #387623 !important;
+  color: white !important;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  margin-bottom: 20px;
+  max-width: 250px; /* Limitar el ancho del botón */
+  width: 100%;
+}
