@@ -1,10 +1,20 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { FaUsers, FaListAlt, FaComments, FaBoxOpen, FaPercentage, FaCreditCard, FaShoppingCart, FaChartLine, FaUserCircle } from 'react-icons/fa';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './SideBar.css';
 
 const SideBar = ({ usuario }) => {
+    // Añadir clase 'admin-page' al body cuando el componente se monta
+    useEffect(() => {
+        document.body.classList.add('admin-page');
+        
+        // Limpiar cuando el componente se desmonte
+        return () => {
+            document.body.classList.remove('admin-page');
+        };
+    }, []);
+
     return (
         <div className="sidebar-container">
             <div className="sidebar-inner">
@@ -49,7 +59,6 @@ const SideBar = ({ usuario }) => {
                 </div>
                 
                 <div className="sidebar-footer">
-                    {/* Cambiado a NavLink para que use el estado "active" igual que los demás links */}
                     <NavLink to="/principal" className={({ isActive }) => isActive ? "profile-button active" : "profile-button"}>
                         <div className="user-avatar">
                             <FaUserCircle className="avatar-icon" />
