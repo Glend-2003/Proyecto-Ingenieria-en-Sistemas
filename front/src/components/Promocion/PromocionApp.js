@@ -370,22 +370,24 @@ const PromocionApp = () => {
   };
 
   return (
-    <div className="content-container">
+    <div className="promocion-container">
       <SideBar usuario={usuario} />
-      <div className="container mt-5">
+      <div className="promocion-main-container">
         <h1>Gestión de promociones</h1>
-        <Button className="custom-button" onClick={() => handleShowModal()}>
+        <Button className="promocion-add-button" onClick={() => handleShowModal()}>
           Agregar promoción nueva
         </Button>
-        <div className="mb-2"></div>
-        <label>Buscar promoción</label>
-        <input
-          type="text"
-          className="form-control my-3"
-          placeholder="Buscar promoción por descripción"
-          value={search}
-          onChange={handleSearchChange}
-        />
+
+        <div className="promocion-search-container">
+          <label>Buscar promoción</label>
+          <input
+            type="text"
+            className="producto-search-input"
+            placeholder="Buscar promoción por descripción."
+            value={search}
+            onChange={handleSearchChange}
+          />
+        </div>
 
         <Modal show={showModal} onHide={handleCloseModal}>
           <Modal.Header closeButton>
@@ -470,63 +472,83 @@ const PromocionApp = () => {
             </form>
           </Modal.Body>
         </Modal>
-
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Descripción</th>
-              <th>Producto</th>
-              <th>Fecha Inicio</th>
-              <th>Fecha Fin</th>
-              <th>Monto</th>
-              <th>Estado</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentPromociones.map((promocion, index) => (
-              <tr key={promocion.idPromocion}>
-                <td>{promocion.descripcionPromocion}</td>
-                <td>{promocion.nombreProducto || "Sin producto"}</td>
-                <td>{new Date(promocion.fechaInicioPromocion).toLocaleDateString()}</td>
-                <td>{new Date(promocion.fechaFinPromocion).toLocaleDateString()}</td>
-                <td>{promocion.montoPromocion}</td>
-                <td>
-                  <button
-                    className={`btn btn-sm ${
-                      promocion.estadoPromocion ? "btn-success" : "btn-danger"
-                    }`}
-                    onClick={() => activarDesactivarPromocion(promocion.idPromocion)}
                   >
-                    {promocion.estadoPromocion ? "Activo" : "Inactivo"}
-                  </button>
-                </td>
-                <td>
-                  <button
-                    className="btn btn-warning btn-sm mx-1"
-                    onClick={() => handleShowModal(promocion)}
-                  >
-                    <FontAwesomeIcon icon={faEdit} />
-                  </button>
-                  <button
-                    className="btn btn-danger btn-sm"
-                    onClick={() => eliminarPromocion(promocion.idPromocion)}
-                  >
-                    <FontAwesomeIcon icon={faTrash} />
-                  </button>
-                  <button
-                    className="btn btn-primary btn-sm mx-1"
-                    onClick={() => enviarMensaje(promocion)}
-                    disabled={isPromocionVencida(promocion.fechaFinPromocion)}
-                    title={isPromocionVencida(promocion.fechaFinPromocion) ? "No se puede enviar mensaje de una promoción vencida" : "Enviar mensaje de promoción"}
-                  >
-                    <FontAwesomeIcon icon={faEnvelope} />
-                  </button>
-                </td>
+        
+        <div className="promocion-table-container">
+          <table className="promocion-table">
+            <thead>
+              <tr className="promocion-table-header-row">
+                <th>No.</th>
+                <th>Descripción</th>
+                <th>Producto</th>
+                <th>Fecha Inicio</th>
+                <th>Fecha Fin</th>
+                <th>Monto</th>
+                <th>Acciones</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {currentPromociones.length === 0 ? (
+                <tr className="promocion-no-results">
+                  <td colSpan="7">
+                    <FontAwesomeIcon icon={faExclamationTriangle} className="promocion-warning-icon" size="lg" />
+                    <span>No hay productos disponibles</span>
+                  </td>
+                </tr>
+              ) : (
+                currentPromociones.map((promocion, index) => (
+                  <tr key={promocion.idPromocion} className="promocion-table-row">
+                    <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
+                    <td className="promocion-descripcion">{promocion.descripcionPromocion}</td>
+                    <td className="promocion-nombreProducto">{promocion.nombreProducto || "Sin producto"}</td>
+                    <td>{new Date(promocion.fechaInicioPromocion).toLocaleDateString()}</td>
+                    <td>{new Date(promocion.fechaFinPromocion).toLocaleDateString()}</td>
+                    <td className="promocion-precio">₡{promocion.montoPromocion}</td>
+                    <td>
+                      <div className="promocion-actions-container">
+                        <button
+                          className={`promocion-status-button ${
+                            promocion.estadoPromocion ? "promocion-status-active" : "promocion-status-inactive"
+                          }`}
+                          onClick={() => activarDesactivarPromocion(promocion.idPromocion)}
+                        >
+                          {promocion.estadoPromocion ? "Activo" : "Inactivo"}
+                        </button>
+                        <div className="promocion-action-buttons">
+                          <button
+                            className="promocion-edit-button"
+                            type="button"
+                            onClick={() => handleShowModal(promocion)}
+                            title="Editar promoción"
+                          >
+                            <FontAwesomeIcon icon={faEdit} />
+                          </button>
+                          <button
+                            className="promocion-delete-button"
+                            type="button"
+                            onClick={() => eliminarPromocion(promocion.idPromocion)}
+                            title="Eliminar promoción"
+                          >
+                            <FontAwesomeIcon icon={faTrash} />
+                          </button>
+                          <button
+                            className="promocion-sendMessage-button"
+                            onClick={() => enviarMensaje(promocion)}
+                            disabled={isPromocionVencida(promocion.fechaFinPromocion)}
+                            title={isPromocionVencida(promocion.fechaFinPromocion) ? "No se puede enviar mensaje de una promoción vencida" : "Enviar mensaje de promoción"}
+                          >
+                            <FontAwesomeIcon icon={faEnvelope} />
+                          </button>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+        
 
         {filteredPromociones.length > itemsPerPage && (
           <PaginacionApp
