@@ -72,6 +72,9 @@ public class CarritoController {
         producto.setCarrito(carrito);
         
         CarritoProducto nuevoProducto = carritoProductoService.addProductoAlCarrito(producto);
+        CarritoProducto actualizarStock = carritoProductoService.updateStock(producto);
         return ResponseEntity.ok(nuevoProducto);
     }
+    
+    
 }

@@ -217,7 +217,49 @@
   font-weight: bold;
   color: #103f1b;
   display: inline-block;
-  margin-bottom: 5px;
+  margin: 0;
+}
+
+td.precio-celda {
+  vertical-align: middle;
+  text-align: center;
+  padding: 15px 10px;
+}
+
+.fecha-columna {
+  font-family: sans-serif;
+  background-color: transparent;
+  padding: 8px 12px;
+  font-size: 14px;
+  text-align: center;
+  position: relative;
+  font-weight: 500;
+}
+
+.fecha-inicio {
+  color: #2e7d32;
+}
+
+.fecha-inicio::after {
+  /*content: "Inicio";*/
+  display: block;
+  font-size: 10px;
+  color: #6c757d;
+  font-weight: normal;
+  margin-top: 2px;
+}
+
+.fecha-fin {
+  color: #d35400;
+}
+
+.fecha-fin::after {
+  /*content: "Fin";*/
+  display: block;
+  font-size: 10px;
+  color: #6c757d;
+  font-weight: normal;
+  margin-top: 2px;
 }
 
 /*No hay promociones*/
