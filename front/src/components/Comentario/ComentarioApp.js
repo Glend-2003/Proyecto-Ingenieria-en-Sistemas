@@ -247,7 +247,7 @@ const ComentarioApp = () => {
           <table className="table table-hover table-bordered">
             <thead>
               <tr>
-                <th>No.</th>
+                <th>No</th>
                 <th>Usuario</th>
                 <th>Comentario</th>
                 <th>Calificación</th>
