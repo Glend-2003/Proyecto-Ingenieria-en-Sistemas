@@ -55,28 +55,10 @@ const PromocionApp = () => {
       const response = await axios.get("http://localhost:8080/promocion/");
       console.log("Promociones recibidas del backend:", response.data);
       
-      const promocionesActualizadas = response.data.map(promocion => {
-        if (isPromocionVencida(promocion.fechaFinPromocion) && promocion.estadoPromocion) {
-          
-          desactivarPromocionVencida(promocion.idPromocion);
-          return { ...promocion, estadoPromocion: 0 };
-        }
-        return promocion;
-      });
-      
-      setPromociones(promocionesActualizadas);
+      setPromociones(response.data);
     } catch (error) {
       console.error("Error al cargar promociones:", error);
       toast.error("Ocurrió un error al cargar las promociones");
-    }
-  };
-
-  const desactivarPromocionVencida = async (idPromocion) => {
-    try {
-      await axios.put(`http://localhost:8080/promocion/desactivar/${idPromocion}`);
-      console.log(`Promoción ${idPromocion} desactivada automáticamente por vencimiento`);
-    } catch (error) {
-      console.error(`Error al desactivar promoción vencida ${idPromocion}:`, error);
     }
   };
 
@@ -131,6 +113,16 @@ const PromocionApp = () => {
   
     if (!idProducto || isNaN(Number(idProducto)) || Number(idProducto) <= 0 || !Number.isInteger(Number(idProducto))) {
       toast.error("Debe seleccionar un producto válido");
+      return false;
+    }
+
+    if (!descripcionPromocion || descripcionPromocion.trim() === "") {
+      toast.error("La descripción de la promoción no puede estar vacía");
+      return false;
+    }
+
+    if (/^\d+$/.test(descripcionPromocion.trim())) {
+      toast.error("La descripción no puede contener solo números");
       return false;
     }
   
@@ -388,14 +380,6 @@ const PromocionApp = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
 
-  const showAlertaInactivo = () => {
-      Swal.fire({
-        title: "Promoción inactiva",
-        text: "No puedes editar una promoción inactiva.",
-        icon: "warning",
-        confirmButtonText: "Aceptar",
-      });
-    }
 
   return (
     <div className="promocion-container">
@@ -547,13 +531,7 @@ const PromocionApp = () => {
                           <button
                             className="promocion-edit-button"
                             type="button"
-                            onClick={() => {
-                              if (!promocion.estadoPromocion) {
-                                showAlertaInactivo();
-                              } else {
-                                handleShowModal(promocion);
-                              }
-                            }}
+                            onClick={() => handleShowModal(promocion)}
                             title="Editar promoción"
                           >
                             <FontAwesomeIcon icon={faEdit} />

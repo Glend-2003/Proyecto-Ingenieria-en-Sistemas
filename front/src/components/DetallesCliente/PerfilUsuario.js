@@ -18,10 +18,14 @@ const PerfilUsuario = () => {
   const { usuario } = useAuth();
   const navigate = useNavigate();
   const [userEdit, setUserEdit] = useState(null);
-  
+  const [cedulaValidation, setCedulaValidation] = useState({
+      isValid: false,
+      isChecking: false,
+      wasChecked: false,
+      message: ''
+  });
 
   const [formData, setFormData] = useState({
-
     cedulaUsuario: "",
     nombreUsuario: "",
     primerApellido: "",
@@ -30,9 +34,8 @@ const PerfilUsuario = () => {
     fechaNacimiento: "",
    
   });
-const { handleLogout
-      } = useAppContext();
 
+  const { handleLogout} = useAppContext();
   const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
@@ -43,40 +46,123 @@ const { handleLogout
         const fecha = new Date(usuario.fechaNacimiento);
         const formattedDate = fecha.toISOString().split('T')[0];
         setFormData(prev => ({ ...prev, fechaNacimiento: formattedDate }));
+      
+        if (usuario.cedulaUsuario) {
+          validarCedula(usuario.cedulaUsuario);
+        }
       }
     }
   }, [usuario]);
 
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (formData.cedulaUsuario && formData.cedulaUsuario.trim() !== '' && isEditing) {
+        validarCedula(formData.cedulaUsuario);
+      }
+    }, 1000);
+    return () => clearTimeout(delayDebounceFn);
+  }, [formData.cedulaUsuario, isEditing]);
+
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    
+    if (name === 'cedulaUsuario') {
+      setCedulaValidation({
+        isValid: false,
+        isChecking: false,
+        wasChecked: false,
+        message: ''
+      });
+    }
+    
+    setFormData({ ...formData, [name]: value });
   };
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
+  const validarCedula = async (cedula) => {
+    const cedulaRegex = /^\d{9}$/;
+    if (!cedulaRegex.test(cedula)) {
+      setCedulaValidation({
+        isValid: false,
+        isChecking: false,
+        wasChecked: true,
+        message: 'La cédula debe contener exactamente 9 dígitos numéricos'
+      });
+      return;
+    }
+    
+    if (!cedula || cedula.trim().length === 0) {
+      setCedulaValidation({
+        isValid: false,
+        isChecking: false,
+        wasChecked: true,
+        message: 'Ingrese un número de cédula válido'
+      });
+      return;
+    }
+    
+    setCedulaValidation({
+      ...cedulaValidation,
+      isChecking: true,
+      message: 'Verificando cédula...'
+    });
 
-  
-  const userData = { 
-    ...formData, 
-    idUsuario: usuario.idUsuario 
+    try {
+      const response = await axios.get(`https://api.hacienda.go.cr/fe/ae?identificacion=${cedula}`);
+      
+      if (response.data && response.status === 200) {
+        setCedulaValidation({
+          isValid: true,
+          isChecking: false,
+          wasChecked: true,
+          message: 'Cédula verificada correctamente'
+        });
+      } else {
+        setCedulaValidation({
+          isValid: false,
+          isChecking: false,
+          wasChecked: true,
+          message: 'La cédula no está registrada en Hacienda'
+        });
+      }
+    } catch (error) {
+      setCedulaValidation({
+        isValid: false,
+        isChecking: false,
+        wasChecked: true,
+        message: 'La cédula no está registrada o hubo un error de verificación'
+      });
+    }
   };
 
-  console.log("Datos enviados al backend:", userData);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  try {
-    await axios.put("http://localhost:8080/usuario/actualizarCredenciales", userData);
-    toast.success("Tus datos se han actualizado correctamente");
-    setIsEditing(false);
-  } catch (error) {
-    toast.error("Error al actualizar tus datos. Por favor intenta nuevamente.");
-  }
-};  
+    if (isEditing && !cedulaValidation.isValid) {
+      toast.error("La cédula no es válida. Por favor, verifique e intente nuevamente.");
+      return;
+    }
 
+    const userData = { 
+      ...formData, 
+      idUsuario: usuario.idUsuario 
+    };
+
+    console.log("Datos enviados al backend:", userData);
+
+    try {
+      await axios.put("http://localhost:8080/usuario/actualizarCredenciales", userData);
+      toast.success("Tus datos se han actualizado correctamente");
+      setIsEditing(false);
+    } catch (error) {
+      toast.error("Error al actualizar tus datos. Por favor intenta nuevamente.");
+    }
+  };  
   return (
-    <div className="profile-page">
+    <div className="page-container">
       <NavbarApp />
    
-      <div className="perfil-usuario-container">
-      <SideBarUsuario usuario={usuario} handleLogout={handleLogout} />
+      <div className="main-container ">
+        <SideBarUsuario usuario={usuario} handleLogout={handleLogout} />
 
         {/* Contenido principal con nuevo diseño */}
         <div className="profile-content">
@@ -100,7 +186,17 @@ const { handleLogout
                   className="cancel-btn"
                   onClick={() => {
                     setIsEditing(false);
-                    if (usuario) setFormData({ ...usuario });
+                    if (usuario) {
+                      setFormData({ ...usuario });
+                      if (usuario.fechaNacimiento) {
+                        const fecha = new Date(usuario.fechaNacimiento);
+                        const formattedDate = fecha.toISOString().split('T')[0];
+                        setFormData(prev => ({ ...prev, fechaNacimiento: formattedDate }));
+                      }
+                      if (usuario.cedulaUsuario) {
+                        validarCedula(usuario.cedulaUsuario);
+                      }
+                    }
                   }}
                 >
                   Cancelar
@@ -116,14 +212,16 @@ const { handleLogout
                     <FontAwesomeIcon icon={faIdCard} className="input-icon" /> Cédula
                   </label>
                   <input
-                    type="text"
-                    className="form-input"
-                    name="cedulaUsuario"
-                    value={formData.cedulaUsuario}
-                    onChange={handleChange}
-                    required
-                    disabled={!isEditing}
-                  />
+                      type="text"
+                      className={`form-input ${cedulaValidation.wasChecked ? (cedulaValidation.isValid ? 'valid' : 'invalid') : ''}`}
+                      name="cedulaUsuario"
+                      value={formData.cedulaUsuario}
+                      onChange={handleChange}
+                      required
+                      disabled={!isEditing}
+                      maxLength={9}
+                      placeholder="Ej: 101110111"
+                    />
                 </div>
 
                 <div className="form-group">
@@ -197,8 +295,6 @@ const { handleLogout
                     disabled={!isEditing}
                   />
                 </div>
-
-            
               </div>
 
               {isEditing && (
