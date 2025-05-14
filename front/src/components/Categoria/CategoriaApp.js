@@ -225,152 +225,149 @@ const CategoriaApp = () => {
   };
 
   return (
-    <div className="content-container">
+    <div className="categoria-container">
       <SideBar usuario={usuario} />
-      <div className="container mt-5">
+      <div className="categoria-main-container">
         <h1>Gestión de categorías</h1>
-        <Button className="custom-button" onClick={() => handleShowModal()}>
+        <Button className="categoria-add-button" onClick={() => handleShowModal()}>
           Agregar nueva categoría
         </Button>
         <div className="mb-2"></div>
-        <label>Buscar categoría</label>
-        <input
-          type="text"
-          className="form-control my-3"
-          placeholder="Buscar categoría por nombre"
-          value={search}
-          onChange={handleSearchChange}
-        />
+          <div className="categoria-search-container">
+            <label>Buscar categoría</label>
+            <input
+              type="text"
+              className="categoria-search-input"
+              placeholder="Buscar categoría por nombre"
+              value={search}
+              onChange={handleSearchChange}
+            />
+          </div>
 
-        <Modal show={showModal} onHide={handleCloseModal}>
-          <Modal.Header closeButton>
-            <Modal.Title>
-              {categoriaEdit ? "Actualizar Categoría" : "Agregar Categoría"}
-            </Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                categoriaEdit ? actualizarCategoria() : agregarCategoria();
-              }}
-            >
-              <div className="mb-3">
-                <label>Nombre de la categoria</label>
-                <input
-                  className="form-control"
-                  type="text"
-                  placeholder="Nombre de la Categoría"
-                  required
-                  value={nombreCategoria}
-                  onChange={(e) => setNombreCategoria(e.target.value)}
-                />
-              </div>
-              <div className="mb-3">
-                <label>Descripción</label>
-                <input
-                  className="form-control"
-                  type="text"
-                  placeholder="Descripción de la Categoría"
-                  required
-                  value={descripcionCategoria}
-                  onChange={(e) => setDescripcionCategoria(e.target.value)}
-                />
-              </div>
-              <Button variant="primary" type="submit">
-                {categoriaEdit ? "Actualizar" : "Agregar"}
+          <Modal show={showModal} onHide={handleCloseModal}>
+            <Modal.Header closeButton>
+              <Modal.Title>
+                {categoriaEdit ? "Actualizar Categoría" : "Agregar Categoría"}
+              </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  categoriaEdit ? actualizarCategoria() : agregarCategoria();
+                }}
+              >
+                <div className="mb-3">
+                  <label>Nombre de la categoria</label>
+                  <input
+                    className="form-control"
+                    type="text"
+                    placeholder="Nombre de la Categoría"
+                    required
+                    value={nombreCategoria}
+                    onChange={(e) => setNombreCategoria(e.target.value)}
+                  />
+                </div>
+                <div className="mb-3">
+                  <label>Descripción</label>
+                  <input
+                    className="form-control"
+                    type="text"
+                    placeholder="Descripción de la Categoría"
+                    required
+                    value={descripcionCategoria}
+                    onChange={(e) => setDescripcionCategoria(e.target.value)}
+                  />
+                </div>
+                <Button variant="primary" type="submit">
+                  {categoriaEdit ? "Actualizar" : "Agregar"}
+                </Button>
+              </form>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={handleCloseModal}>
+                Cerrar
               </Button>
-            </form>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={handleCloseModal}>
-              Cerrar
-            </Button>
-          </Modal.Footer>
-        </Modal>
+            </Modal.Footer>
+          </Modal>
 
-        <ToastContainer />
+          <ToastContainer />
 
-        <div className="table-responsive mt-5">
-          <table className="table table-hover table-bordered">
-            <thead>
-              <tr>
-                <th>No</th>
-                <th>Nombre</th>
-                <th>Descripción</th>
-                <th>Estado</th>
-                <th>Acción</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentCategorias.length === 0 ? (
-                <tr className="warning no-result">
-                  <td colSpan="4" className="text-center">
-                    <FontAwesomeIcon icon={faExclamationTriangle} /> No hay registros.
-                    !!!
-                  </td>
+          <div className="categoria-table-container">
+            <table className="categoria-table">
+              <thead>
+                <tr className="categoria-table-header-row">
+                  <th>No</th>
+                  <th>Nombre</th>
+                  <th>Descripción</th>
+                  <th>Acciones</th>
                 </tr>
-              ) : (
-                currentCategorias.map((categoria, index) => (
-                  <tr key={categoria.idCategoria}>
-                    <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
-                    <td>{categoria.nombreCategoria}</td>
-                    <td>{categoria.descripcionCategoria}</td>
-                    <td>
-                      <button
-                        className={`btn btn-sm ${categoria.estadoCategoria
-                            ? "btn-success"
-                            : "btn-danger"
-                          }`}
-                        onClick={() => activarDesactivarCategoria(categoria.idCategoria)}
-                      >
-                        {categoria.estadoCategoria ? "Activo" : "Inactivo"}
-                      </button>
-                    </td>
-                    <td className="text-center">
-                      <button
-                        className={`btn btn-sm me-2 ${categoria.estadoCategoria ? "btn-warning" : "btn-secondary"
-                          }`}
-                        type="button"
-                        onClick={() => {
-                          if (!categoria.estadoCategoria) {
-                            showAlertaInactivo();
-                          } else {
-                            handleShowModal(categoria);
-                          }
-                        }}
-                        title="Editar producto"
-                      >
-                        <FontAwesomeIcon
-                          icon={faEdit}
-                          style={{ fontSize: "15px" }}
-                        />
-                      </button>
-                      <button
-                        className="btn btn-danger btn-sm"
-                        type="button"
-                        onClick={() => eliminarCategoria(categoria.idCategoria)}
-                      >
-                        <FontAwesomeIcon
-                          icon={faTrash}
-                          style={{ fontSize: "15px" }}
-                        />
-                      </button>
-                    </td>
+              </thead>
+              <tbody>
+                {currentCategorias.length === 0 ? (
+                  <tr className="categoria-no-results">
+                    <td colSpan="7">
+                      <FontAwesomeIcon icon={faExclamationTriangle} className="categoria-warning-icon" size="lg" />
+                      <span>No hay categorias disponibles</span>
+                      </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  currentCategorias.map((categoria, index) => (
+                    <tr key={categoria.idCategoria} className="categoria-table-row">
+                      <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
+                      <td className="categoria-letraNegrita">{categoria.nombreCategoria}</td>
+                      <td className="categoria-letraComun">{categoria.descripcionCategoria}</td>
+                      <td className="categoria-actions-cell">
+                        <div className="categoria-actions-container">
+                            <button
+                            className={`categoria-status-button ${categoria.estadoCategoria
+                                ? "categoria-status-active"
+                                : "categoria-status-inactive"
+                              }`}
+                            type="button"
+                            onClick={() => activarDesactivarCategoria(categoria.idCategoria)}
+                          >
+                            {categoria.estadoCategoria ? "Activo" : "Inactivo"}
+                          </button>
+                          <div className="categoria-action-buttons">
+                            <button
+                              className="categoria-edit-button"
+                              type="button"
+                              onClick={() => {
+                                if (!categoria.estadoCategoria) {
+                                  showAlertaInactivo();
+                                } else {
+                                  handleShowModal(categoria);
+                                }
+                              }}
+                              title="Editar categoria"
+                            >
+                              <FontAwesomeIcon icon={faEdit}/>
+                            </button>
+                            <button
+                              className="categoria-delete-button"
+                              type="button"
+                              onClick={() => eliminarCategoria(categoria.idCategoria)}
+                            >
+                              <FontAwesomeIcon icon={faTrash} />
+                            </button>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+          <PaginacionApp
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            onNextPage={handleNextPage}
+            onPreviousPage={handlePreviousPage}
+          />
         </div>
-        <PaginacionApp
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-          onNextPage={handleNextPage}
-          onPreviousPage={handlePreviousPage}
-        />
-      </div>
       <FooterApp />
     </div>
   );

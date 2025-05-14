@@ -178,22 +178,25 @@ const ComentarioApp = () => {
   };
 
   return (
-   <div className="content-container">
+   <div className="comentario-container">
       <SideBar usuario={usuario} />
-      <div className="container mt-5">
+      <div className="comentario-main-container">
         <h1>Gestión de comentarios</h1>
-         <Button className="custom-button" onClick={() => handleShowModal()}>
+         <Button className="comentario-add-button" onClick={() => handleShowModal()}>
           Agregar comentario nuevo
         </Button>
         <div className="mb-2"></div>
-        <label>Buscar comentario</label>
-        <input
-          type="text"
-          className="form-control my-3"
-          placeholder="Buscar comentario"
-          value={search}
-          onChange={handleSearchChange}
-        />
+        
+        <div className="comentario-search-container">
+          <label>Buscar comentario</label>
+          <input
+            type="text"
+            className="comentario-search-input"
+            placeholder="Buscar comentario"
+            value={search}
+            onChange={handleSearchChange}
+          />
+        </div>
 
         <Modal show={showModal} onHide={handleCloseModal}>
           <Modal.Header closeButton>
@@ -243,10 +246,10 @@ const ComentarioApp = () => {
 
         <ToastContainer />
 
-        <div className="table-responsive mt-5">
-          <table className="table table-hover table-bordered">
+        <div className="comentario-table-container">
+          <table className="comentario-table">
             <thead>
-              <tr>
+              <tr className="comentario-table-header-row">
                 <th>No</th>
                 <th>Usuario</th>
                 <th>Comentario</th>
@@ -258,36 +261,36 @@ const ComentarioApp = () => {
             </thead>
             <tbody>
               {currentComentarios.length === 0 ? (
-                <tr className="warning no-result">
-                  <td colSpan="7" className="text-center">
-                    <FontAwesomeIcon icon={faExclamationTriangle} /> No hay registros.
+                <tr className="comentario-no-results">
+                  <td colSpan="7">
+                    <FontAwesomeIcon icon={faExclamationTriangle} /> No hay comentarios.
                   </td>
                 </tr>
               ) : (
                 currentComentarios.map((comentario, index) => (
-                  <tr key={comentario.idComentario}>
+                  <tr key={comentario.idComentario} className="comentario-table-row">
                     <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
-                    <td>{comentario.correoUsuario || "Correo no disponible"}</td> {/* Accede directamente al correo */}
-                    <td>{comentario.descripcionComentario}</td>
-                    <td>{comentario.numCalificacion}</td>
-                    <td>{comentario.fechaComentario || "Fecha no disponible"}</td>
+                    <td className="comentario-letraNegrita">{comentario.correoUsuario || "Correo no disponible"}</td> {/* Accede directamente al correo */}
+                    <td className="comentario-letraComun">{comentario.descripcionComentario}</td>
+                    <td className="comentario-letraNegrita">{comentario.numCalificacion}</td>
+                    <td className="fecha-columna fecha">{new Date(comentario.fechaComentario).toLocaleDateString() || "Fecha no disponible"}</td>
                     <td>
                       <button
-                        className={`btn btn-sm ${comentario.verificacion ? "btn-success" : "btn-danger"
+                        className={`comentario-status-button ${comentario.verificacion ? "comentario-status-active" : "comentario-status-inactive"
                           }`}
                         onClick={() => verificacionEstado(comentario.idComentario)}
                       >
                         {comentario.verificacion ? "Visible" : "Oculto"}
                       </button>
                     </td>
-                    <td className="text-center">
-                      <Button
-                        variant="danger"
-                        className="btn-sm"
+                    <td >
+                      <button
+                        className="comentario-delete-button"
+                        type="button"
                         onClick={() => eliminarComentario(comentario.idComentario)}
                       >
-                        <FontAwesomeIcon icon={faTrash} style={{ fontSize: "15px" }} />
-                      </Button>
+                        <FontAwesomeIcon icon={faTrash}/>
+                      </button>
                     </td>
                   </tr>
                 ))

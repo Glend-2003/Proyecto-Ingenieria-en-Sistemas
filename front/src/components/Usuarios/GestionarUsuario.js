@@ -790,7 +790,7 @@ const GestionarUsuario = () => {
                 <tr className="usuario-no-results">
                   <td colSpan="7">
                     <FontAwesomeIcon icon={faExclamationTriangle} className="usuario-warning-icon" size="lg" />
-                    <span>No hay productos disponibles</span>
+                    <span>No hay usuarios disponibles</span>
                   </td>
                 </tr>
               ) : (
@@ -823,7 +823,7 @@ const GestionarUsuario = () => {
                                 handleShowModal(user);
                               }
                             }}
-                            title="Editar producto"
+                            title="Editar usuario"
                           >
                             <FontAwesomeIcon icon={faEdit} />
                           </button>
