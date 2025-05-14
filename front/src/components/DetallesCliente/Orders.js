@@ -76,17 +76,6 @@ const Orders = () => {
     const pedidosSlice = pedidos.slice(startIndex, endIndex);
     setPedidosPaginados(pedidosSlice);
   };
-  const formatearFechaHora = (fechaPedido, horaRetiro) => {
-    if (!fechaPedido) return 'Fecha no disponible';
-    
-    const fecha = new Date(fechaPedido).toLocaleDateString();
-
-    if (horaRetiro) {
-      return `${fecha} - Retiro: ${horaRetiro}`;
-    }
-    
-    return fecha;
-  };
   
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -95,65 +84,6 @@ const Orders = () => {
   const handleNextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
-    }
-  };
-  // Función para formatear fecha y hora desde un objeto LocalDateTime serializado
-  const formatearFechaCompleta = (fechaString) => {
-    if (!fechaString) return 'Fecha no disponible';
-    
-    try {
-      // Primero verificamos si es un string válido
-      if (typeof fechaString !== 'string') {
-        fechaString = String(fechaString);
-      }
-  
-      // Crear un objeto Date a partir del string de fecha
-      const fecha = new Date(fechaString);
-      
-      // Verificar que la fecha sea válida
-      if (isNaN(fecha.getTime())) {
-        console.log("Fecha inválida:", fechaString);
-        
-        // Intento de parseo manual si el formato automático falla
-        if (fechaString.includes(' ')) {
-          const [datePart, timePart] = fechaString.split(' ');
-          const [year, month, day] = datePart.split('-');
-          let [hours, minutes] = ['00', '00'];
-          
-          if (timePart && timePart.includes(':')) {
-            [hours, minutes] = timePart.split(':');
-          }
-          
-          return `${day}/${month}/${year} - Retiro: ${hours}:${minutes}`;
-        }
-        
-        return 'Fecha inválida';
-      }
-      
-      // Formatear la fecha en formato día/mes/año
-      const dia = fecha.getDate().toString().padStart(2, '0');
-      const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
-      const anio = fecha.getFullYear();
-      const fechaFormateada = `${dia}/${mes}/${anio}`;
-      
-      // Formatear la hora
-      const horas = fecha.getHours().toString().padStart(2, '0');
-      const minutos = fecha.getMinutes().toString().padStart(2, '0');
-      const horaFormateada = `${horas}:${minutos}`;
-      
-      // Retornar fecha y hora formateadas
-      return `${fechaFormateada} - Retiro: ${horaFormateada}`;
-      
-    } catch (error) {
-      // Método alternativo en caso de error
-      if (typeof fechaString === 'string' && fechaString.includes(' ')) {
-        const partes = fechaString.split(' ');
-        if (partes.length >= 2) {
-          return `${partes[0]} - Retiro: ${partes[1].substring(0, 5)}`;
-        }
-      }
-      
-      return 'Error de formato de fecha';
     }
   };
   
@@ -178,6 +108,28 @@ const Orders = () => {
     } catch (error) {
       console.error("Error formateando fecha:", error);
       return null;
+    }
+  };
+  
+  const formatearFechaCompleta = (fechaString) => {
+    if (!fechaString) return 'Fecha no disponible';
+    
+    try {
+      const fecha = new Date(fechaString);
+      
+      if (isNaN(fecha.getTime())) {
+        return 'Fecha inválida';
+      }
+      
+      const dia = fecha.getDate().toString().padStart(2, '0');
+      const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
+      const anio = fecha.getFullYear();
+      const horas = fecha.getHours().toString().padStart(2, '0');
+      const minutos = fecha.getMinutes().toString().padStart(2, '0');
+      
+      return `${dia}/${mes}/${anio} - Retiro: ${horas}:${minutos}`;
+    } catch (error) {
+      return 'Error de formato de fecha';
     }
   };
   
@@ -213,8 +165,6 @@ const Orders = () => {
         setFiltrosAplicados(false);
       }
       
-      console.log("URL de búsqueda: ", url);
-      
       const response = await axios.get(url);
       
       if (!response.data || response.data.length === 0) {
@@ -223,42 +173,26 @@ const Orders = () => {
         return;
       }
 
-      const pedidosMap = new Map();
+      const pedidosFormateados = response.data.map(pedido => ({
+        idPedido: pedido.idPedido,
+        montoTotalPedido: pedido.montoTotalPedido || 0,
+        fechaPedido: pedido.fechaPedido,
+        fechaFormateada: formatearFechaCompleta(pedido.fechaPedido),
+        estadoPedido: pedido.estadoPedido,
+        estadoPedidoTexto: pedido.estadoPedidoTexto || 'Estado desconocido',
+        estadoEntregaPedido: pedido.estadoEntregaPedido || "Pendiente",
+        descripcionTipoPago: pedido.tipoPago?.descripcionTipoPago || 'Pago no especificado',
+        productos: pedido.carrito?.productos?.map(producto => ({
+          idProducto: producto.idProducto,
+          nombreProducto: producto.nombreProducto || 'Producto sin nombre',
+          imgProducto: producto.imgProducto || '',
+          montoPrecioProducto: producto.montoPrecioProducto || 0,
+          cantidadProducto: producto.cantidadProducto || 1,
+          tipoPesoProducto: producto.tipoPesoProducto || 'unidad'
+        })) || []
+      }));
 
-      response.data.forEach(item => {
-        if (!item.idPedido) {
-          return;
-        }
-
-        if (!pedidosMap.has(item.idPedido)) {
-          pedidosMap.set(item.idPedido, {
-            idPedido: item.idPedido,
-            montoTotalPedido: item.montoTotalPedido || 0,
-            fechaPedidoRaw: item.fechaPedido || null,
-            fechaFormateada: formatearFechaCompleta(item.fechaPedido),
-            horaRetiro: item.horaRetiro || 'No especificada',
-            estadoPedido: item.estadoPedido,
-            estadoPedidoTexto: item.estadoPedidoTexto || 'Estado desconocido',
-            estadoEntregaPedido: item.estadoEntregaPedido || "Pendiente",
-            descripcionTipoPago: item.descripcionTipoPago || 'Pago no especificado',
-            productos: []
-          });
-        }
-
-        if (item.idProducto) {
-          pedidosMap.get(item.idPedido).productos.push({
-            idProducto: item.idProducto,
-            nombreProducto: item.nombreProducto || 'Producto sin nombre',
-            imgProducto: item.imgProducto || '',
-            montoPrecioProducto: item.montoPrecioProducto || 0,
-            cantidadProducto: item.cantidadProducto || 1,
-            tipoPesoProducto: item.tipoPesoProducto || 'unidad'
-          });
-        }
-      });
-
-      const pedidosArray = Array.from(pedidosMap.values());
-      setPedidos(pedidosArray);
+      setPedidos(pedidosFormateados);
       setCurrentPage(1);
       setError(null);
       setLoading(false);
@@ -318,7 +252,30 @@ const Orders = () => {
     window.location.href = '/';
   };
 
-  const handleCancelarPedido = async (idPedido) => {
+  const crearNotificacion = async (idUsuario) => {
+    try {
+      const response = await axios.post("http://localhost:8080/notificacion/agregar", {
+        idUsuario: {
+          idUsuario: idUsuario
+        }
+      }, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      toast.success("Notificación creada exitosamente.");
+      return response.data;
+
+    } catch (error) {
+      const errorMsg = error.response?.data?.error || error.message;
+      console.error("Error al crear notificación:", errorMsg);
+      toast.error(errorMsg);
+      throw new Error(errorMsg);
+    }
+  };
+
+  const cancelarPedidoYNotificar = async (idPedido) => {
     const { isConfirmed } = await Swal.fire({
       title: "¿Estás seguro que quieres cancelar el pedido?",
       text: "No podrás revertir esto.",
@@ -333,40 +290,18 @@ const Orders = () => {
     if (!isConfirmed) return;
 
     try {
-      const result = await Swal.fire({
-        title: '¿Está seguro?',
-        text: "¿Desea cancelar este pedido?",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Sí, cancelar',
-        cancelButtonText: 'No, mantener'
-      });
-      
-      if (result.isConfirmed) {
-        await axios.put(
-          `http://localhost:8080/pedido/actualizarEstadoPedido/${idPedido}?estado=Cancelado`
-        );
-        
-        Swal.fire(
-          'Cancelado',
-          'Tu pedido ha sido cancelado correctamente.',
-          'success'
-        );
-        
-        fetchPedidos(usuario.idUsuario);
-      }
+      await axios.delete(`http://localhost:8080/pedido/eliminar/${idPedido}`);
+      toast.success("Pedido cancelado con éxito.\nSe notificará a la carnicería.");
+
+      await crearNotificacion(usuario.idUsuario);
+      fetchPedidos(usuario.idUsuario);
+
     } catch (error) {
-      console.error("Error cancelando pedido:", error);
-      Swal.fire(
-        'Error',
-        'No se pudo cancelar el pedido. Intente nuevamente.',
-        'error'
-      );
+      console.error("Error al cancelar el pedido:", error);
+      toast.error("Ocurrió un error al cancelar el pedido.");
     }
   };
-  
+
   const handleEditarPedido = async (idPedido) => {
     try {
       const result = await Swal.fire({
@@ -396,71 +331,13 @@ const Orders = () => {
     }
   };
 
-  const crearNotificacion = async (idUsuario) => {
-    try {
-      const response = await axios.post("http://localhost:8080/notificacion/agregar", {
-        idUsuario: {
-          idUsuario: idUsuario
-        }
-      }, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-
-      toast.success("Notificación creada exitosamente.");
-      console.log("Notificación creada:", response.data);
-      return response.data;
-
-    } catch (error) {
-      const errorMsg = error.response?.data?.error || error.message;
-      console.error("Error al crear notificación:", errorMsg);
-      toast.error(errorMsg);
-      throw new Error(errorMsg);
-    }
-  };
-
-  const cancelarPedidoYNotificar = async (idPedido, idUsuario) => {
-    const { isConfirmed } = await Swal.fire({
-      title: "¿Estás seguro que quieres cancelar el pedido?",
-      text: "No podrás revertir esto.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      cancelButtonText: "No, cancelar",
-      confirmButtonText: "Sí, eliminar",
-    });
-
-    if (!isConfirmed) return;
-
-    try {
-      await axios.delete(`http://localhost:8080/pedido/eliminar/${idPedido}`);
-      toast.success("Pedido cancelado con éxito.\nSe notificará a la carnicería.");
-
-      await crearNotificacion(usuario.idUsuario);
-      fetchPedidos(usuario.idUsuario);
-
-    } catch (error) {
-      console.error("Error al cancelar el pedido:", error);
-      toast.error("Ocurrió un error al cancelar el pedido.");
-    }
-  };
-
-  const getEstadoEntregaTexto = (estado) => {
-    if (estado && typeof estado === 'string') {
-      return estado;
-    }
-    
-    return "Desconocido";
-  };
-
   const getEstadoEntregaIcon = (estado) => {
     switch(estado) {
       case "Pendiente":
         return <FaClock className="estado-icon pending" />;
       case "En Proceso":
         return <FaCog className="estado-icon processing" />;
+      case "Listo":
       case "Entregado":
         return <FaCheck className="estado-icon delivered" />;
       case "Cancelado":
@@ -478,6 +355,7 @@ const Orders = () => {
     switch(estado) {
       case "Pendiente": return "status-pending";
       case "En Proceso": return "status-processing";
+      case "Listo":
       case "Entregado": return "status-delivered";
       case "Cancelado": return "status-cancelled";
       default: return "status-unknown";
@@ -509,11 +387,10 @@ const Orders = () => {
 
   return (
     <div className="orders-page">
-    <NavbarApp />
+      <NavbarApp />
       <Carrito />
       <div className="perfil-usuario-container">
-      {/* Sidebar Component */}
-      <SideBarUsuario usuario={usuario} handleLogout={handleLogout} />
+        <SideBarUsuario usuario={usuario} handleLogout={handleLogout} />
 
         <div className="orders-content">
           <div className="orders-header">
@@ -549,6 +426,7 @@ const Orders = () => {
                     <option value="">Todos</option>
                     <option value="Pendiente">Pendiente</option>
                     <option value="En Proceso">En Proceso</option>
+                    <option value="Listo">Listo</option>
                     <option value="Entregado">Entregado</option>
                     <option value="Cancelado">Cancelado</option>
                   </select>
@@ -647,7 +525,7 @@ const Orders = () => {
                         Pedido #{pedido.idPedido}
                       </div>
                       <div className="order-date">
-                      {pedido.fechaFormateada}
+                        {pedido.fechaFormateada}
                       </div>
                     </div>
                     
@@ -655,7 +533,7 @@ const Orders = () => {
                       <div className="status-indicator">
                         {getEstadoEntregaIcon(pedido.estadoEntregaPedido)}
                         <span className={`status-text ${getEstadoClass(pedido.estadoEntregaPedido)}`}>
-                          {getEstadoEntregaTexto(pedido.estadoEntregaPedido)}
+                          {pedido.estadoEntregaPedido}
                         </span>
                       </div>
                       <div className="payment-method">
@@ -666,7 +544,6 @@ const Orders = () => {
                     <div className="order-products">
                       {pedido.productos && pedido.productos.map(producto => (
                         <div key={`${pedido.idPedido}-${producto.idProducto}`} className="product-item">
-                          
                           <div className="product-details">
                             <div className="product-name">{producto.nombreProducto}</div>
                             <div className="product-quantity">
@@ -696,7 +573,7 @@ const Orders = () => {
                             </button>
                             <button 
                               className="cancel-button" 
-                              onClick={() => cancelarPedidoYNotificar(pedido.idPedido, usuario.idUsuario)}
+                              onClick={() => cancelarPedidoYNotificar(pedido.idPedido)}
                             >
                               Cancelar
                             </button>
@@ -720,6 +597,7 @@ const Orders = () => {
             </>
           )}
         </div>
+        <Carrito />
       </div>
       <FooterApp />
       <ToastContainer />

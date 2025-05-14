@@ -517,6 +517,18 @@ public class PedidoController {
             );
         }
     }
+    @GetMapping("/reporteVentas")
+public ResponseEntity<?> getReporteVentas() {
+    try {
+        Map<String, Map<String, Object>> reporte = pedidoService.getReporteVentasCompleto();
+        System.out.println("Reporte de ventas generado: " + reporte);
+        return ResponseEntity.ok(reporte);
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Collections.singletonMap("error", "Error al generar el reporte: " + e.getMessage()));
+    }
+}
     
 
 }

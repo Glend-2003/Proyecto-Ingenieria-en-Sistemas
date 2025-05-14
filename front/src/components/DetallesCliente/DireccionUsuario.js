@@ -221,7 +221,7 @@ const DireccionUsuario = () => {
         <div className="profile-content">
           <div className="profile-header">
             <h2>Mi Dirección</h2>
-            <p>Administra y actualiza tu información de dirección</p>
+
           </div>
 
           <div className="profile-card">
