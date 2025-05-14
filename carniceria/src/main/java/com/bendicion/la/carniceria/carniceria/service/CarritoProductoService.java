@@ -7,7 +7,9 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import com.bendicion.la.carniceria.carniceria.domain.CarritoProducto;
+import com.bendicion.la.carniceria.carniceria.domain.Producto;
 import com.bendicion.la.carniceria.carniceria.jpa.CarritoProductoRepository;
+import com.bendicion.la.carniceria.carniceria.jpa.ProductoRepository;
 
 import jakarta.transaction.Transactional;
 
@@ -17,6 +19,7 @@ public class CarritoProductoService implements ICarritoProductoService {
     
     @Autowired
     private CarritoProductoRepository carritoProductoRepo;
+    private ProductoRepository productoRepo;
 
     @Override
     @Transactional
@@ -42,6 +45,26 @@ public class CarritoProductoService implements ICarritoProductoService {
         return carritoProducto;
     }
 
+     @Override
+    @Transactional
+    public CarritoProducto updateStock(CarritoProducto carritoProducto) {
+      
+        
+        if (carritoProducto.getIdProducto() <= 0) {
+            throw new IllegalArgumentException("ID de producto inválido");
+        }
+        if (carritoProducto.getCantidadProducto() <= 0) {
+            throw new IllegalArgumentException("La cantidad debe ser mayor a cero");
+        }
+       
+        carritoProductoRepo.updateStock(
+            carritoProducto.getIdProducto(),
+            carritoProducto.getCantidadProducto()
+        );
+        
+        return carritoProducto;
+    }
+    
     @Override
     @Transactional
     public CarritoProducto updateProductoEnCarrito(CarritoProducto carritoProducto) {

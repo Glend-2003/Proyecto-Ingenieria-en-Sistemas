@@ -522,7 +522,7 @@ const ProductoApp = () => {
           <table className="producto-table">
             <thead>
               <tr className="producto-table-header-row">
-                <th>No.</th>
+                <th>No</th>
                 <th>Información Producto</th>
                 <th>Imagen</th>
                 <th>Precio / Stock</th>

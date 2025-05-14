@@ -28,7 +28,11 @@ const PromocionApp = () => {
   const [estadoPromocion, setEstadoPromocion] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
-  
+
+  // Estados para el filtro de fechas
+  const [fechaDesde, setFechaDesde] = useState("");
+  const [fechaHasta, setFechaHasta] = useState("");
+
   useEffect(() => {
     cargarPromociones();
     cargarProductos();
@@ -40,7 +44,7 @@ const PromocionApp = () => {
       console.log("Estado actual:");
       console.log("ID de producto seleccionado:", idProducto);
       console.log("Productos disponibles:", productos);
-      
+
       const productoSeleccionado = productos.find(p => p.idProducto.toString() === idProducto);
       if (productoSeleccionado) {
         console.log("Producto seleccionado encontrado:", productoSeleccionado.nombreProducto);
@@ -87,30 +91,30 @@ const PromocionApp = () => {
   const validarCamposPromocion = () => {
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
-    
+
     const fechaInicio = new Date(fechaInicioPromocion);
     const fechaFin = new Date(fechaFinPromocion);
-  
+
     if (!fechaFinPromocion || isNaN(fechaFin)) {
       toast.error("La fecha de fin es inválida o está vacía");
       return false;
     }
-  
-    if (fechaInicio < hoy-2) {
+
+    if (fechaInicio < hoy - 2) {
       toast.error("La fecha de inicio no puede ser menor a la actual");
       return false;
     }
-  
+
     if (fechaFin < fechaInicio) {
       toast.error("La fecha de fin debe ser mayor o igual a la fecha de inicio");
       return false;
     }
-  
+
     if (!montoPromocion || isNaN(montoPromocion) || Number(montoPromocion) <= 0) {
       toast.error("El monto de la promoción debe ser un número mayor a cero");
       return false;
     }
-  
+
     if (!idProducto || isNaN(Number(idProducto)) || Number(idProducto) <= 0 || !Number.isInteger(Number(idProducto))) {
       toast.error("Debe seleccionar un producto válido");
       return false;
@@ -128,7 +132,7 @@ const PromocionApp = () => {
   
     return true;
   };
-  
+
   const agregarPromocion = async () => {
     if (!validarCamposPromocion()) {
       return;
@@ -137,10 +141,10 @@ const PromocionApp = () => {
 
     const ajustarFechaSumandoUnDia = (fechaStr) => {
       const fecha = new Date(fechaStr);
-      fecha.setDate(fecha.getDate() + 1); 
-      return fecha.toISOString().split('T')[0]; 
+      fecha.setDate(fecha.getDate() + 1);
+      return fecha.toISOString().split('T')[0];
     };
-  
+
     const promocionData = {
       descripcionPromocion: descripcionPromocion.trim(),
       fechaInicioPromocion: ajustarFechaSumandoUnDia(fechaInicioPromocion),
@@ -150,15 +154,15 @@ const PromocionApp = () => {
         idProducto,
       },
     };
-  
+
     console.log("Datos enviados al backend (con fecha ajustada):", promocionData);
-  
+
     console.log(" Datos enviados al backend:", promocionData);
-    
+
     try {
       await axios.post("http://localhost:8080/promocion/agregarPromocion", promocionData);
       toast.success("Promoción agregada con éxito");
-      
+
     } catch (error) {
       console.error("Error al agregar promoción:", error.response?.data || error.message);
       toast.error(error.response?.data?.mensaje || "Ocurrió un error al agregar la promoción");
@@ -174,8 +178,8 @@ const PromocionApp = () => {
 
     const ajustarFechaSumandoUnDia = (fechaStr) => {
       const fecha = new Date(fechaStr);
-      fecha.setDate(fecha.getDate() + 1); 
-      return fecha.toISOString().split('T')[0]; 
+      fecha.setDate(fecha.getDate() + 1);
+      return fecha.toISOString().split('T')[0];
     };
 
     const promocionData = {
@@ -188,7 +192,7 @@ const PromocionApp = () => {
         idProducto,
       },
     };
-    
+
     console.log("Datos enviados al backend (con fecha ajustada):", promocionData);
 
     try {
@@ -229,13 +233,13 @@ const PromocionApp = () => {
 
   const enviarMensaje = async (promocion) => {
     const { isConfirmed } = await Swal.fire({
-        title: "¿Estás seguro?",
-        text: "No podrás revertir esto.",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Sí, enviar",
-        cancelButtonText: "No, cancelar",
-        reverseButtons: true,
+      title: "¿Estás seguro?",
+      text: "No podrás revertir esto.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sí, enviar",
+      cancelButtonText: "No, cancelar",
+      reverseButtons: true,
     });
 
     if (!isConfirmed) return;
@@ -246,48 +250,48 @@ const PromocionApp = () => {
     const loadingToast = toast.loading("Enviando mensaje...");
 
     try {
-   
-        const response = await axios.post(`http://localhost:8080/promocion/mensaje?nombreProducto=${encodeURIComponent(promocion.nombreProducto)}`, promocion);
+
+      const response = await axios.post(`http://localhost:8080/promocion/mensaje?nombreProducto=${encodeURIComponent(promocion.nombreProducto)}`, promocion);
 
 
-        if (response.status === 200) {
+      if (response.status === 200) {
 
-            toast.update(loadingToast, {
-                render: "Mensaje enviado con éxito",
-                type: "success",
-                isLoading: false,
-                autoClose: 5000,
-            });
-            cargarPromociones(); 
-        } else {
-
-            toast.update(loadingToast, {
-                render: "Ocurrió un error al enviar el mensaje",
-                type: "error",
-                isLoading: false,
-                autoClose: 5000,
-            });
-        }
-    } catch (error) {
-        console.error("Error al enviar mensaje:", error);
         toast.update(loadingToast, {
-            render: error.response?.data?.error || "Ocurrió un error al enviar el mensaje",
-            type: "error",
-            isLoading: false,
-            autoClose: 5000,
+          render: "Mensaje enviado con éxito",
+          type: "success",
+          isLoading: false,
+          autoClose: 5000,
         });
+        cargarPromociones();
+      } else {
+
+        toast.update(loadingToast, {
+          render: "Ocurrió un error al enviar el mensaje",
+          type: "error",
+          isLoading: false,
+          autoClose: 5000,
+        });
+      }
+    } catch (error) {
+      console.error("Error al enviar mensaje:", error);
+      toast.update(loadingToast, {
+        render: error.response?.data?.error || "Ocurrió un error al enviar el mensaje",
+        type: "error",
+        isLoading: false,
+        autoClose: 5000,
+      });
     }
   };
 
   const activarDesactivarPromocion = async (id) => {
-  
+
     const promocion = promociones.find(p => p.idPromocion === id);
 
     if (!promocion.estadoPromocion && isPromocionVencida(promocion.fechaFinPromocion)) {
       toast.error("No se puede activar esta promoción porque su fecha de fin ya pasó");
       return;
     }
-    
+
     try {
       await axios.put(`http://localhost:8080/promocion/activar/${id}`);
       toast.success("Cambio realizado con éxito.");
@@ -302,33 +306,33 @@ const PromocionApp = () => {
     if (promocion) {
       setPromocionEdit(promocion);
       setDescripcionPromocion(promocion.descripcionPromocion);
-      
+
       const formatearFechaParaInput = (fechaStr) => {
         const fecha = new Date(fechaStr);
-        return fecha.toISOString().split('T')[0]; 
+        return fecha.toISOString().split('T')[0];
       };
-      
+
       setFechaInicioPromocion(formatearFechaParaInput(promocion.fechaInicioPromocion));
       setFechaFinPromocion(formatearFechaParaInput(promocion.fechaFinPromocion));
       setMontoPromocion(promocion.montoPromocion);
-      
+
 
       if (promocion.producto && promocion.producto.idProducto) {
         console.log("Caso 1: Producto encontrado como objeto:", promocion.producto.idProducto);
         setIdProducto(promocion.producto.idProducto.toString());
-      } 
+      }
 
       else if (promocion.idProducto) {
         console.log("Caso 2: Producto encontrado como ID directo:", promocion.idProducto);
         setIdProducto(promocion.idProducto.toString());
       }
- 
+
       else if (promocion.nombreProducto && productos.length > 0) {
         console.log("Caso 3: Buscando producto por nombre:", promocion.nombreProducto);
         const productoEncontrado = productos.find(
           p => p.nombreProducto === promocion.nombreProducto
         );
-        
+
         if (productoEncontrado) {
           console.log("Producto encontrado por nombre. ID:", productoEncontrado.idProducto);
           setIdProducto(productoEncontrado.idProducto.toString());
@@ -363,9 +367,32 @@ const PromocionApp = () => {
 
   const handleSearchChange = (e) => setSearch(e.target.value);
 
-  const filteredPromociones = promociones.filter((promocion) =>
-    promocion.descripcionPromocion.toLowerCase().includes(search.toLowerCase())
-  );
+  // Función para limpiar filtros de fecha
+  const limpiarFiltros = () => {
+    setFechaDesde("");
+    setFechaHasta("");
+  };
+
+  const filteredPromociones = promociones.filter((promocion) => {
+    // Filtro por descripción
+    const matchesSearch = promocion.descripcionPromocion.toLowerCase().includes(search.toLowerCase());
+
+    // Filtro por fecha
+    let matchesDate = true;
+    if (fechaDesde || fechaHasta) {
+      const fechaInicio = new Date(promocion.fechaInicioPromocion);
+      if (fechaDesde) {
+        const desde = new Date(fechaDesde);
+        matchesDate = matchesDate && fechaInicio >= desde;
+      }
+      if (fechaHasta) {
+        const hasta = new Date(fechaHasta);
+        matchesDate = matchesDate && fechaInicio <= hasta;
+      }
+    }
+
+    return matchesSearch && matchesDate;
+  });
 
   const totalPages = Math.ceil(filteredPromociones.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -394,11 +421,46 @@ const PromocionApp = () => {
           <label>Buscar promoción</label>
           <input
             type="text"
-            className="producto-search-input"
+            className="promocion-search-input"
             placeholder="Buscar promoción por descripción."
             value={search}
             onChange={handleSearchChange}
           />
+        </div>
+
+        {/* Filtro de fechas sin botón "Aplicar" */}
+        <div className="promocion-date-filter-container">
+          <div className="promocion-filter-container">
+            <div className="promocion-filter-row">
+              <div className="promocion-filter-group">
+                <label className="promocion-filter-label">Fecha inicio:</label>
+                <input
+                  type="date"
+                  className="promocion-filter-input"
+                  value={fechaDesde}
+                  onChange={(e) => setFechaDesde(e.target.value)}
+                />
+              </div>
+              <div className="promocion-filter-group">
+                <label className="promocion-filter-label">Fecha fin:</label>
+                <input
+                  type="date"
+                  className="promocion-filter-input"
+                  value={fechaHasta}
+                  onChange={(e) => setFechaHasta(e.target.value)}
+                />
+              </div>
+              <div className="promocion-filter-buttons">
+                <button
+                  className="promocion-filter-button promocion-filter-clear"
+                  onClick={limpiarFiltros}
+                  title="Limpiar filtros"
+                >
+                  Limpiar
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <Modal show={showModal} onHide={handleCloseModal}>
@@ -473,23 +535,20 @@ const PromocionApp = () => {
               </div>
 
               <div className="modal-footer">
-                <Button variant="secondary" onClick={handleCloseModal}>
-                  Cerrar
-                </Button>
                 <Button type="submit" variant="primary">
                   {promocionEdit ? "Actualizar" : "Agregar"}
                 </Button>
-                
+
               </div>
             </form>
           </Modal.Body>
         </Modal>
-        
+
         <div className="promocion-table-container">
           <table className="promocion-table">
             <thead>
               <tr className="promocion-table-header-row">
-                <th>No.</th>
+                <th>No</th>
                 <th>Descripción</th>
                 <th>Producto</th>
                 <th>Fecha Inicio</th>
@@ -520,9 +579,8 @@ const PromocionApp = () => {
                     <td>
                       <div className="promocion-actions-container">
                         <button
-                          className={`promocion-status-button ${
-                            promocion.estadoPromocion ? "promocion-status-active" : "promocion-status-inactive"
-                          }`}
+                          className={`promocion-status-button ${promocion.estadoPromocion ? "promocion-status-active" : "promocion-status-inactive"
+                            }`}
                           onClick={() => activarDesactivarPromocion(promocion.idPromocion)}
                         >
                           {promocion.estadoPromocion ? "Activo" : "Inactivo"}
@@ -561,7 +619,7 @@ const PromocionApp = () => {
             </tbody>
           </table>
         </div>
-        
+
 
         {filteredPromociones.length > itemsPerPage && (
           <PaginacionApp

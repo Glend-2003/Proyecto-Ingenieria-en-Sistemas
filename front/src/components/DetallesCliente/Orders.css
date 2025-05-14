@@ -2,91 +2,30 @@
    Paleta: #103f1b, #387623, #9fc45a, #958933, #875725
 */
 .orders-page {
-  min-height: 100vh;
+  min-height: calc(100vh - 200px); /* Ajuste para el navbar y footer */
   display: flex;
   flex-direction: column;
   background-color: #f9f9f5; /* Fondo ligeramente beige para complementar la paleta */
 }
 
+/* Ajustes para integrarse con el Dashboard */
 .perfil-usuario-container {
   display: flex;
-  margin: 2rem auto;
   max-width: 1200px;
-  width: 95%;
-  min-height: calc(100vh - 200px);
-  padding-bottom: 2rem;
-}
-
-/* Sidebar Styles */
-.sidebar-container {
-  width: 250px;
-  background-color: #103f1b; /* Color verde oscuro de la paleta */
-  border-radius: 8px;
-  padding: 1.5rem;
-  height: fit-content;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
-
-.sidebar-title {
-  margin-bottom: 1.5rem;
-  font-size: 1.3rem;
-  color: #fff; /* Texto blanco para contrastar con el fondo verde oscuro */
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid #387623; /* Borde en verde medio */
-}
-
-.sidebar-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-}
-
-.sidebar-link {
-  display: flex;
-  align-items: center;
-  padding: 0.75rem 1rem;
-  color: #e0e0e0; /* Gris claro para mejor legibilidad */
-  text-decoration: none;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-}
-
-.sidebar-link:hover {
-  background-color: #387623; /* Verde medio */
-  color: white;
-}
-
-.sidebar-link.active {
-  background-color: #9fc45a; /* Verde claro */
-  color: #103f1b; /* Texto en verde oscuro para contraste */
-  font-weight: 600;
-}
-
-.sidebar-link .icon {
-  margin-right: 10px;
-  font-size: 1.1rem;
-}
-
-.sidebar-link.logout {
-  margin-top: 2rem;
-  border-top: 1px solid #387623; /* Borde en verde medio */
-  padding-top: 1rem;
-  color: #9fc45a; /* Verde claro */
-}
-
-.sidebar-link.logout:hover {
-  background-color: #875725; /* Marrón de la paleta para destacar */
-  color: white;
+  width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 /* Orders Content Styles */
 .orders-content {
   flex: 1;
-  margin-left: 2rem;
   border-radius: 8px;
   background-color: white;
-  padding: 2rem;
+  padding: 1.5rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin: 0 1rem;
+  overflow: auto;
 }
 
 .orders-header {
@@ -176,7 +115,7 @@
 
 .filters-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 1rem;
   margin-bottom: 1.5rem;
 }
@@ -381,21 +320,6 @@
   border-bottom: none;
 }
 
-.product-image {
-  width: 60px;
-  height: 60px;
-  border-radius: 4px;
-  overflow: hidden;
-  margin-right: 1rem;
-  border: 1px solid #e0e0e0;
-}
-
-.product-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
 .product-details {
   flex: 1;
   display: flex;
@@ -456,7 +380,7 @@
 }
 
 .cancel-button {
-  background-color: #875725; /* Verde medio */
+  background-color: #875725; /* Marrón */
   color: white;
   border: none;
   padding: 0.5rem 1.2rem;
@@ -466,9 +390,8 @@
 }
 
 .cancel-button:hover {
-  
-  background-color: #387623 ; /* Verde oscuro */
-}#103f1b
+  background-color: #103f1b; /* Verde oscuro */
+}
 
 /* Estados específicos y otros elementos */
 .loading-spinner {
@@ -527,37 +450,53 @@
   background-color: #103f1b; /* Verde oscuro */
 }
 
-/* Responsive */
-@media (max-width: 768px) {
+/* Responsive para Orders dentro del Dashboard */
+@media (max-width: 992px) {
   .perfil-usuario-container {
     flex-direction: column;
   }
   
-  .sidebar-container {
-    width: 100%;
-    margin-bottom: 1.5rem;
-  }
-  
   .orders-content {
-    margin-left: 0;
+    margin: 1rem 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .orders-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .filter-button {
+    width: 100%;
+    justify-content: center;
   }
   
   .filter-actions {
     flex-direction: column;
+    width: 100%;
   }
   
   .apply-filters, .clear-filters {
     width: 100%;
+    justify-content: center;
   }
   
   .filters-grid {
     grid-template-columns: 1fr;
   }
   
-  .order-status, .order-footer {
+  .order-status {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
+  }
+  
+  .order-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
   }
   
   .order-actions {
@@ -570,6 +509,21 @@
     text-align: center;
     justify-content: center;
   }
+}
 
+@media (max-width: 480px) {
+  .order-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
   
+  .orders-content {
+    padding: 1rem;
+  }
+  
+  .product-item {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
 }

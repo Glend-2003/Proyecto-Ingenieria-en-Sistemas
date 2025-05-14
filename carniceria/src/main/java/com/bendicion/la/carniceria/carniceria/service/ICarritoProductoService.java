@@ -9,6 +9,9 @@ public interface ICarritoProductoService {
     public CarritoProducto addProductoAlCarrito(CarritoProducto carritoProducto);
     
     @Transactional
+    public CarritoProducto updateStock(CarritoProducto carritoProducto);
+    
+    @Transactional
     public CarritoProducto updateProductoEnCarrito(CarritoProducto carritoProducto);
     
     public List<CarritoProducto> getProductosEnCarrito(int idCarrito);

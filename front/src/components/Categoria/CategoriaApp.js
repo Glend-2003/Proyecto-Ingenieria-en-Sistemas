@@ -295,7 +295,7 @@ const CategoriaApp = () => {
           <table className="table table-hover table-bordered">
             <thead>
               <tr>
-                <th>No.</th>
+                <th>No</th>
                 <th>Nombre</th>
                 <th>Descripción</th>
                 <th>Estado</th>

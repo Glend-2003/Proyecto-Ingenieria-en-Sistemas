@@ -25,6 +25,13 @@ public interface PedidoRepository extends JpaRepository<Pedido, Integer> {
         @Param("idTipoPago") Integer idTipoPago
     );
 
+      @Modifying
+    @Query(value = "{call spActualizarStock(:idProducto, :cantidadProducto)}", nativeQuery = true)
+    void updateStock(
+        @Param("idProducto") Integer idProducto,
+        @Param("cantidadProducto") Integer cantidadProducto      
+    );
+    
     @Query(value = "CALL spLeerPedidoDetallado()", nativeQuery = true)
     List<Map<String, Object>> listaPedido();
     

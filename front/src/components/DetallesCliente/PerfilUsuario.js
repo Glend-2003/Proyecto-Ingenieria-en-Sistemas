@@ -168,7 +168,6 @@ const PerfilUsuario = () => {
         <div className="profile-content">
           <div className="profile-header">
             <h2>Mi Perfil</h2>
-            <p>Administra y actualiza tu información personal</p>
           </div>
 
           <div className="profile-card">
