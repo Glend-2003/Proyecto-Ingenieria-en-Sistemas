@@ -88,7 +88,7 @@ const Principal = () => {
         <div className="principal-container">
             <SideBar usuario={usuario} />
 
-            <main className="page">
+            
                 <div className="welcome-banner">
                   
                 </div>
@@ -173,7 +173,7 @@ const Principal = () => {
                         </div>
                     </div>
                 </div>
-            </main>
+          
             <FooterApp />
         </div>
     );

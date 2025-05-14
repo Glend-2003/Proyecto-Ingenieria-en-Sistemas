@@ -393,8 +393,8 @@ const PedidosApp = () => {
 
   // Renderizado de la UI
   return (
-    <div className="pedidos-app">
-      <div className="app-container">
+    <div className="page-container">
+        <div className="main-container ">
         <SideBar usuario={usuario} />
         
         <div className="main-content">
