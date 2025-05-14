@@ -57,35 +57,35 @@ const GestionarUsuario = () => {
       setPasswordStrength(0);
       return;
     }
-    
+
     // Inicializar fortaleza
     let strength = 0;
-    
+
     // Verificar longitud mínima (8 caracteres)
     const hasMinLength = password.length >= 8;
-    
+
     // Verificar si contiene letras
     const hasLetters = /[a-zA-Z]/.test(password);
-    
+
     // Verificar si contiene números
     const hasNumbers = /[0-9]/.test(password);
-    
+
     // Verificar si contiene caracteres especiales
     const hasSpecialChars = /[^A-Za-z0-9]/.test(password);
-    
+
     // Si tiene menos de 8 caracteres o solo letras o solo números, es débil (33%)
     if (!hasMinLength || (!hasLetters && hasNumbers) || (hasLetters && !hasNumbers)) {
       strength = 33;
-    } 
+    }
     // Si tiene letras Y números con longitud adecuada, es buena (66%)
     else if (hasLetters && hasNumbers && !hasSpecialChars) {
       strength = 66;
-    } 
+    }
     // Si tiene letras, números Y caracteres especiales, es excelente (100%)
     else if (hasLetters && hasNumbers && hasSpecialChars) {
       strength = 100;
     }
-    
+
     setPasswordStrength(strength);
   }, [password]);
 
@@ -504,13 +504,13 @@ const GestionarUsuario = () => {
   );
 
   const showAlertaInactivo = () => {
-      Swal.fire({
-        title: "Usuario inactivo",
-        text: "No puedes editar un usuario inactivo.",
-        icon: "warning",
-        confirmButtonText: "Aceptar",
-      });
-    }
+    Swal.fire({
+      title: "Usuario inactivo",
+      text: "No puedes editar un usuario inactivo.",
+      icon: "warning",
+      confirmButtonText: "Aceptar",
+    });
+  }
 
   return (
     <div className="usuario-container">
@@ -520,26 +520,26 @@ const GestionarUsuario = () => {
         <Button className="usuario-add-button" onClick={() => handleShowModal()}>
           Agregar usuario nuevo
         </Button>
-        
+
         <div className="usuario-search-container">
           <label>Buscar por rol</label>
-            <select
-              id="roleFilter"
-              value={selectedRole}
-              onChange={(e) => {
-                setSelectedRole(e.target.value);
-                setCurrentPage(1); // Reset to first page on filter change
-              }}
-              className="form-control mb-3"
-            >
-              {uniqueRoles.map((rol) => (
-                <option key={rol} value={rol}>
-                  {rol}
-                </option>
-              ))}
+          <select
+            id="roleFilter"
+            value={selectedRole}
+            onChange={(e) => {
+              setSelectedRole(e.target.value);
+              setCurrentPage(1); // Reset to first page on filter change
+            }}
+            className="form-control mb-3"
+          >
+            {uniqueRoles.map((rol) => (
+              <option key={rol} value={rol}>
+                {rol}
+              </option>
+            ))}
           </select>
         </div>
-            
+
         <div className="usuario-search-container">
           <label>Buscar usuario</label>
           <input
@@ -549,7 +549,7 @@ const GestionarUsuario = () => {
             value={search}
             onChange={(e) => {
               handleSearchChange(e);
-              setCurrentPage(1); 
+              setCurrentPage(1);
             }}
           />
         </div>
@@ -763,9 +763,6 @@ const GestionarUsuario = () => {
               </div>
               {/* Moved Buttons outside the column structure, but still within the form */}
               <div className="d-flex justify-content-end gap-2 mt-4">
-                <Button variant="outline-secondary" onClick={handleCloseModal}>
-                  Cancelar
-                </Button>
                 <Button className="btn-submit" type="submit">
                   {userEdit ? "Actualizar" : "Agregar"}
                 </Button>
@@ -816,28 +813,28 @@ const GestionarUsuario = () => {
                           {user.estadoUsuario ? "Activo" : "Inactivo"}
                         </button>
                         <div className="usuario-action-buttons">
-                            <button
-                              className="usuario-edit-button"
-                              type="button"
-                              onClick={() => {
-                                if (!user.estadoUsuario) {
-                                  showAlertaInactivo();
-                                } else {
-                                  handleShowModal(user);
-                                }
-                              }}
-                              title="Editar producto"
-                            >
-                              <FontAwesomeIcon icon={faEdit} />
-                            </button>
-                            <button
-                              className="usuario-delete-button"
-                              type="button"
-                              onClick={() => handleDelete(user.idUsuario)}
-                              title="Eliminar usuario"
-                            >
-                              <FontAwesomeIcon icon={faTrash} />
-                            </button>
+                          <button
+                            className="usuario-edit-button"
+                            type="button"
+                            onClick={() => {
+                              if (!user.estadoUsuario) {
+                                showAlertaInactivo();
+                              } else {
+                                handleShowModal(user);
+                              }
+                            }}
+                            title="Editar producto"
+                          >
+                            <FontAwesomeIcon icon={faEdit} />
+                          </button>
+                          <button
+                            className="usuario-delete-button"
+                            type="button"
+                            onClick={() => handleDelete(user.idUsuario)}
+                            title="Eliminar usuario"
+                          >
+                            <FontAwesomeIcon icon={faTrash} />
+                          </button>
                         </div>
                       </div>
                     </td>

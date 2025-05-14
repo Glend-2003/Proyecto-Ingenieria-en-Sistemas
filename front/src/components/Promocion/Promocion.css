@@ -423,13 +423,132 @@ td.precio-celda {
   .btn-success, .btn-danger {
     transition: all 0.3s ease;
   }
-  
-  /* Estilos para el modal */
-  .modal-header {
-    background-color: #003366;
-    color: white;
-  }
-  
-  .modal-title {
-    color: white;
-  }
+/* Encabezado del modal */
+.modal-header {
+  background-color: #a5c463 !important; /* Verde claro similar al de la imagen */
+  color: #000 !important; /* Texto negro para mejor legibilidad */
+  border-bottom: none;
+  padding: 15px 20px;
+}
+
+.modal-title {
+  color: #000 !important; /* Texto negro en el título */
+  font-weight: 600;
+}
+
+/* Cuerpo del modal */
+.modal-body {
+  padding: 20px;
+  background-color: #fff;
+}
+
+/* Pie del modal */
+.modal-footer {
+  background-color: #fff;
+  border-top: none;
+  padding: 15px 20px;
+}
+
+/* Estilo para el botón de cerrar (X) */
+.modal-header .close {
+  color: #333;
+  opacity: 0.8;
+}
+
+.modal-header .close:hover {
+  opacity: 1;
+}
+
+/* Estilos para los botones del modal */
+.modal-footer .btn-primary {
+  background-color: #387623 !important; /* Verde oscuro para el botón principal */
+  border-color: #387623 !important;
+  color: white !important;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 4px;
+}
+
+.modal-footer .btn-primary:hover {
+  background-color: #2a5c19 !important;
+  border-color: #2a5c19 !important;
+}
+
+.modal-footer .btn-secondary {
+  background-color: #f5ebe0 !important; /* Fondo marrón claro para el botón secundario */
+  color: #875725 !important; /* Color de texto marrón */
+  border: 1px solid #d4a76a !important; /* Borde marrón */
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 4px;
+}
+
+.modal-footer .btn-secondary:hover {
+  background-color: #f0e6db !important;
+  color: #6b4419 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos para los campos de formulario */
+.modal-body .form-control {
+  border: 1px solid #d1e7b7;
+  border-radius: 4px;
+  padding: 8px 12px;
+}
+
+.modal-body .form-control:focus {
+  border-color: #9fc45a;
+  box-shadow: 0 0 0 0.2rem rgba(159, 196, 90, 0.25);
+  outline: none;
+}
+
+/* Estilos para las etiquetas */
+.modal-body label {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 5px;
+  display: block;
+}
+
+/* Estilo para el modal completo */
+.modal-content {
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilo para el fondo del modal */
+.modal-backdrop.show {
+  opacity: 0.5;
+}
+
+/* Estilo para el botón Agregar */
+.btn-agregar {
+  float: right;
+  margin-top: 10px;
+  margin-right: 0;
+  background-color: #387623 !important;
+  border-color: #387623 !important;
+  color: white !important;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 4px;
+}
+
+/* Contenedor para el campo de selección de producto y botón agregar */
+.producto-container {
+  position: relative;
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.producto-container .form-control {
+  width: 100%;
+  margin-bottom: 5px;
+}
+
+.producto-container .btn-agregar {
+  position: relative;
+  float: right;
+}

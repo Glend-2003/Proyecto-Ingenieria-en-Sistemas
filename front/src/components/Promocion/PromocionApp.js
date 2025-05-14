@@ -551,9 +551,6 @@ const PromocionApp = () => {
               </div>
 
               <div className="modal-footer">
-                <Button variant="secondary" onClick={handleCloseModal}>
-                  Cerrar
-                </Button>
                 <Button type="submit" variant="primary">
                   {promocionEdit ? "Actualizar" : "Agregar"}
                 </Button>
