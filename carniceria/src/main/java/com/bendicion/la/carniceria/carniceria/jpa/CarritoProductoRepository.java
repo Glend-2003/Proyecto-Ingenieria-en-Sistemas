@@ -30,6 +30,13 @@ public interface CarritoProductoRepository extends JpaRepository<CarritoProducto
         @Param("cantidadProducto") Integer cantidadProducto
     );
 
+    @Modifying
+    @Query(value = "{call spActualizarStock(:idProducto, :cantidadProducto)}", nativeQuery = true)
+    void updateStock(
+        @Param("idProducto") Integer idProducto,
+        @Param("cantidadProducto") Integer cantidadProducto
+    );
+    
     @Query(value = "{call spEliminarCarritoProducto(:idCarritoProducto)}", nativeQuery = true)
     void deleteProcedureCarritoProducto(@Param("idCarritoProducto") Integer idCarritoProducto);
 

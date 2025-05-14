@@ -1,17 +1,281 @@
-/* Estilos generales */
-.content-container {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    position: relative;
-  }
+/* Contenedor principal*/
+.promocion-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  position: relative;
+}
   
-  /* Estilos para el contenedor principal */
-  .container.mt-5 {
-    margin-top: 1rem !important;
-    position: relative;
-  }
-  
+/* Estilos para el contenedor principal */
+.promocion-main-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 30px;
+  overflow-y: auto;
+  padding-bottom: 80px; /* Aumentar el espacio para el footer */
+  margin-left: 220px; /* Ajustar según el ancho de tu sidebar */
+  width: calc(100% - 220px); /* Ajustar el ancho para dejar espacio para el sidebar */
+}
+
+/* Para el buscador*/
+.promocion-search-container {
+  margin-bottom: 25px;
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: 15px 20px;
+  border-radius: 10px;
+  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.12);
+  border: 1px solid #e0e8d7;
+}
+
+.promocion-search-input {
+  width: 100%;
+  padding: 10px 15px;
+  border: 1px solid #d1e7b7;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.promocion-search-input:focus {
+  border-color: #9fc45a;
+  box-shadow: 0 0 0 0.2rem rgba(159, 196, 90, 0.25);
+  outline: none;
+}
+
+/*Botón de agregar*/
+.promocion-add-button {
+  background-color: #387623 !important;
+  border-color: #387623 !important;
+  color: white !important;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  margin-bottom: 20px;
+  max-width: 250px; /* Limitar el ancho del botón */
+  width: 100%;
+}
+
+/* Para la tabla*/
+.promocion-table-container {
+  margin-left: 5px;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  width: 100%;
+}
+
+.promocion-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  margin-bottom: 0;
+  background-color: white;
+  table-layout: auto;
+}
+
+.promocion-table-header-row {
+  background-color: #000000;
+  color: white;
+}
+
+.promocion-table-header-row th {
+  padding: 15px 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
+  vertical-align: middle;
+  border-bottom: 3px solid #9fc45a;
+}
+
+.promocion-table-row {
+  transition: all 0.2s ease;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.promocion-table-row:hover {
+  background-color: rgba(159, 196, 90, 0.15);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.promocion-table-row td {
+  padding: 12px 10px;
+  vertical-align: middle;
+  border-bottom: 1px solid #e9f2dd;
+}
+
+.promocion-actions-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.promocion-status-button {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  font-size: 0.8rem;
+  padding: 8px 12px;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.promocion-status-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.promocion-status-active {
+  background-color: #ebf5e0 !important;
+  color: #2a5c19 !important;
+  border: 1px solid #9fc45a !important;
+}
+
+.promocion-status-active:before {
+  content: "•";
+  display: inline-block;
+  color: #387623;
+  font-size: 1.5rem;
+  margin-right: 5px;
+  line-height: 0;
+  position: relative;
+  top: 2px;
+}
+
+.promocion-status-inactive {
+  background-color: #f5ebe0 !important;
+  color: #875725 !important;
+  border: 1px solid #d4a76a !important;
+}
+
+.promocion-status-inactive:before {
+  content: "•";
+  display: inline-block;
+  color: #875725;
+  font-size: 1.5rem;
+  margin-right: 5px;
+  line-height: 0;
+  position: relative;
+  top: 2px;
+}
+
+.promocion-edit-button,
+.promocion-sendMessage-button,
+.promocion-delete-button {
+  font-size: 1.25rem;
+  color: #000 !important;
+  margin: 0 8px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 6px;
+}
+
+.promocion-edit-button:hover,
+.promocion-sendMessage-button:hover,
+.promocion-delete-button:hover {
+  color: #333 !important;
+  transform: scale(1.15);
+}
+
+.promocion-action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.promocion-descripcion {
+  font-weight: 700; /* Aumentado de 600 a 700 para hacerlo más negrita */
+  color: #000000; /* Cambiado a negro como solicitaste */
+}
+
+.promocion-nombreProducto {
+  max-height: 100px;
+  overflow-y: auto;
+  padding-right: 5px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: #444;
+  word-wrap: break-word; 
+}
+
+.promocion-precio {
+  background-color: #f0f8e6;
+  border: 1px solid #d1e7b7;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-weight: bold;
+  color: #103f1b;
+  display: inline-block;
+  margin: 0;
+}
+
+td.precio-celda {
+  vertical-align: middle;
+  text-align: center;
+  padding: 15px 10px;
+}
+
+.fecha-columna {
+  font-family: sans-serif;
+  background-color: transparent;
+  padding: 8px 12px;
+  font-size: 14px;
+  text-align: center;
+  position: relative;
+  font-weight: 500;
+}
+
+.fecha-inicio {
+  color: #2e7d32;
+}
+
+.fecha-inicio::after {
+  /*content: "Inicio";*/
+  display: block;
+  font-size: 10px;
+  color: #6c757d;
+  font-weight: normal;
+  margin-top: 2px;
+}
+
+.fecha-fin {
+  color: #d35400;
+}
+
+.fecha-fin::after {
+  /*content: "Fin";*/
+  display: block;
+  font-size: 10px;
+  color: #6c757d;
+  font-weight: normal;
+  margin-top: 2px;
+}
+
+/*No hay promociones*/
+.promocion-no-results td {
+  padding: 20px !important;
+  text-align: center;
+}
+
+.promocion-no-results {
+  background-color: #fff9e6 !important;
+}
+
+.promocion-warning-icon {
+  color: #958933 !important;
+  margin-right: 10px;
+}
   /* Eliminar el cuadro verde en la parte superior */
   .content-container:before,
   .content-container:after,
@@ -46,12 +310,7 @@
     border-color: #2980b9;
   }
   
-  /* Estilos para la tabla */
-  .table {
-    margin-top: 20px;
-    background-color: #fff;
-    border-radius: 5px;
-  }
+
   
   /* Estilo para el botón personalizado */
   .custom-button {
