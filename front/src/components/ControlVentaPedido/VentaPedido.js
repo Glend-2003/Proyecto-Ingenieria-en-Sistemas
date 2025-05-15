@@ -1,85 +1,144 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Bar, Pie } from "react-chartjs-2";
-import { Chart, ArcElement, CategoryScale, LinearScale, BarElement, PointElement, LineElement, Legend, Tooltip } from 'chart.js';
-import { Snackbar, Alert as MuiAlert } from "@mui/material";
 import "./VentaPedido.css";
 import SideBar from "../SideBar/SideBar";
 import FooterApp from "../Footer/FooterApp";
 import useAuth from "../../hooks/useAuth";
 
-// Registrar componentes necesarios de Chart.js
-Chart.register(
-  ArcElement,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  PointElement,
-  LineElement,
-  Legend,
-  Tooltip
-);
-
-const Alert = React.forwardRef(function Alert(props, ref) {
-  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
-});
-
-const PedidosCanceladosApp = () => {
+const PedidosCompletadosApp = () => {
   const [pedidos, setPedidos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedPedido, setSelectedPedido] = useState(null);
-  const [ventasData, setVentasData] = useState(null);
-  const [ventasLoading, setVentasLoading] = useState(false);
-  const [chartType, setChartType] = useState("bar");
+  const [expandedRows, setExpandedRows] = useState(new Set());
   const { usuario } = useAuth();
 
-  // Estado para paginación
+  // Estados para filtros
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
-  const [filterDate, setFilterDate] = useState("");
-  const [filterRange, setFilterRange] = useState("dia");
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [filters, setFilters] = useState({
+    startDate: "",
+    endDate: "",
+    cliente: "",
+    metodoPago: ""
+  });
   const [filteredPedidos, setFilteredPedidos] = useState([]);
 
-  // Fetch pedidos cancelados y datos de ventas
+  // Estados para reportes
+  const [reportesData, setReportesData] = useState({
+    total: { count: 0, sum: 0 },
+    hoy: { count: 0, sum: 0 },
+    semana: { count: 0, sum: 0 },
+    mes: { count: 0, sum: 0 },
+    anio: { count: 0, sum: 0 }
+  });
+
+  // Cargar datos iniciales
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-
-        const pedidosResponse = await axios.get("http://localhost:8080/pedido/Entregado");
-        setPedidos(pedidosResponse.data);
-
-        setVentasLoading(true);
-        const ventasResponse = await axios.get("http://localhost:8080/pedido/reporteVentas");
-        setVentasData(ventasResponse.data);
-
+        const response = await axios.get("http://localhost:8080/pedido/Entregado");
+        setPedidos(response.data);
+        setFilteredPedidos(response.data);
+        calcularEstadisticas(response.data);
         setLoading(false);
-        setVentasLoading(false);
       } catch (err) {
+        console.error("Error fetching data:", err);
         setError("Error al cargar los datos. Por favor, intente de nuevo más tarde.");
         setLoading(false);
-        setVentasLoading(false);
-        console.error("Error fetching data:", err);
       }
     };
 
     fetchData();
   }, []);
 
-  // Lógica de paginación
+  // Calcular estadísticas para las tarjetas
+  const calcularEstadisticas = (pedidosData) => {
+    const hoy = new Date();
+    const inicioSemana = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() - hoy.getDay());
+    const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+    const inicioAnio = new Date(hoy.getFullYear(), 0, 1);
+
+    const stats = {
+      total: { count: pedidosData.length, sum: 0 },
+      hoy: { count: 0, sum: 0 },
+      semana: { count: 0, sum: 0 },
+      mes: { count: 0, sum: 0 },
+      anio: { count: 0, sum: 0 }
+    };
+
+    pedidosData.forEach(pedido => {
+      const fechaPedido = new Date(pedido.fechaPedido);
+      const monto = pedido.montoTotalPedido || 0;
+
+      stats.total.sum += monto;
+
+      if (fechaPedido.toDateString() === hoy.toDateString()) {
+        stats.hoy.count++;
+        stats.hoy.sum += monto;
+      }
+
+      if (fechaPedido >= inicioSemana) {
+        stats.semana.count++;
+        stats.semana.sum += monto;
+      }
+
+      if (fechaPedido >= inicioMes) {
+        stats.mes.count++;
+        stats.mes.sum += monto;
+      }
+
+      if (fechaPedido >= inicioAnio) {
+        stats.anio.count++;
+        stats.anio.sum += monto;
+      }
+    });
+
+    setReportesData(stats);
+  };
+
+  // Aplicar filtros
+  useEffect(() => {
+    let filtered = [...pedidos];
+
+    if (filters.startDate) {
+      filtered = filtered.filter(pedido => 
+        new Date(pedido.fechaPedido) >= new Date(filters.startDate)
+      );
+    }
+
+    if (filters.endDate) {
+      filtered = filtered.filter(pedido => 
+        new Date(pedido.fechaPedido) <= new Date(filters.endDate + 'T23:59:59')
+      );
+    }
+
+    if (filters.cliente) {
+      filtered = filtered.filter(pedido => {
+        const nombreCompleto = pedido.carrito?.usuario 
+          ? `${pedido.carrito.usuario.nombreUsuario} ${pedido.carrito.usuario.primerApellido} ${pedido.carrito.usuario.segundoApellido}`.toLowerCase()
+          : '';
+        return nombreCompleto.includes(filters.cliente.toLowerCase());
+      });
+    }
+
+    setFilteredPedidos(filtered);
+    setCurrentPage(1);
+  }, [filters, pedidos]);
+
+  // Paginación
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = pedidos.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(pedidos.length / itemsPerPage);
+  const currentItems = filteredPedidos.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredPedidos.length / itemsPerPage);
 
-
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
+  // Funciones auxiliares
   const formatDate = (dateString) => {
-    if (!dateString) return "";
+    if (!dateString) return "N/A";
     const date = new Date(dateString);
-    return date.toLocaleString("es-ES", {
+    return date.toLocaleDateString("es-ES", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
@@ -87,65 +146,6 @@ const PedidosCanceladosApp = () => {
       minute: "2-digit",
     });
   };
-
-  const getStatusBadgeColor = (status) => {
-    switch (status) {
-      case "Cancelado":
-        return "status-badge-red";
-      default:
-        return "status-badge-gray";
-    }
-  };
-
-  const renderStatusBadge = (status) => (
-    <span className={`status-badge ${getStatusBadgeColor(status)}`}>
-      {status}
-    </span>
-  );
-
-  const handleSelectPedido = (pedido) => {
-    setSelectedPedido(pedido);
-  };
-
-  const handleCloseDetails = () => {
-    setSelectedPedido(null);
-  };
-
-  useEffect(() => {
-    if (!filterDate) {
-      setFilteredPedidos(pedidos);
-      return;
-    }
-  
-    const baseDate = new Date(filterDate);
-  
-    const filtered = pedidos.filter((pedido) => {
-      const pedidoDate = new Date(pedido.fechaPedido);
-  
-      if (filterRange === "dia") {
-        return pedidoDate.toDateString() === baseDate.toDateString();
-      }
-  
-      if (filterRange === "semana") {
-        const endOfWeek = new Date(baseDate);
-        endOfWeek.setDate(baseDate.getDate() + 6);
-  
-        return pedidoDate >= baseDate && pedidoDate <= endOfWeek;
-      }
-  
-      if (filterRange === "mes") {
-        const endOfMonth = new Date(baseDate);
-        endOfMonth.setMonth(baseDate.getMonth() + 1);
-  
-        return pedidoDate >= baseDate && pedidoDate < endOfMonth;
-      }
-  
-      return true;
-    });
-  
-    setFilteredPedidos(filtered);
-  }, [filterDate, filterRange, pedidos]);
-  
 
   const formatCurrency = (value) => {
     return new Intl.NumberFormat("es-CR", {
@@ -155,429 +155,648 @@ const PedidosCanceladosApp = () => {
     }).format(value || 0);
   };
 
-  // Preparar datos para los gráficos
-  const prepareChartData = () => {
-    if (!ventasData) return { barData: null, pieData: null };
+  const toggleExpandRow = (pedidoId) => {
+    const newExpanded = new Set(expandedRows);
+    if (newExpanded.has(pedidoId)) {
+      newExpanded.delete(pedidoId);
+    } else {
+      newExpanded.add(pedidoId);
+    }
+    setExpandedRows(newExpanded);
+  };
 
-    const labels = ["Diario", "Semanal", "Mensual", "Anual", "Total"];
-    const ventasValues = [
-      ventasData.diario?.totalVentas || 0,
-      ventasData.semanal?.totalVentas || 0,
-      ventasData.mensual?.totalVentas || 0,
-      ventasData.anual?.totalVentas || 0,
-      ventasData.total?.totalVentas || 0,
-    ];
+  const handleFilterChange = (field, value) => {
+    setFilters(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
 
-    // Datos para gráfico de barras
-    const barData = {
-      labels,
-      datasets: [
-        {
-          label: "Ventas Totales (₡)",
-          data: ventasValues,
-          backgroundColor: "rgba(54, 162, 235, 0.7)",
-          borderColor: "rgba(54, 162, 235, 1)",
-          borderWidth: 1,
-        },
-        {
-          label: "Cantidad de Pedidos",
-          data: [
-            ventasData.diario?.cantidadPedidos || 0,
-            ventasData.semanal?.cantidadPedidos || 0,
-            ventasData.mensual?.cantidadPedidos || 0,
-            ventasData.anual?.cantidadPedidos || 0,
-            ventasData.total?.cantidadPedidos || 0,
-          ],
-          backgroundColor: "rgba(255, 99, 132, 0.7)",
-          borderColor: "rgba(255, 99, 132, 1)",
-          borderWidth: 1,
-          type: "bar",
-        },
-      ],
+  const clearFilters = () => {
+    setFilters({
+      startDate: "",
+      endDate: "",
+      cliente: "",
+      metodoPago: ""
+    });
+  };
+
+  const generarReporte = (tipo) => {
+    const reporte = {
+      tipo,
+      fecha: new Date().toLocaleDateString(),
+      datos: reportesData[tipo],
+      pedidos: obtenerPedidosParaReporte(tipo)
     };
 
-    // Datos para gráfico circular
-    const pieData = {
-      labels,
-      datasets: [
-        {
-          data: ventasValues,
-          backgroundColor: [
-            "rgba(255, 99, 132, 0.7)",
-            "rgba(54, 162, 235, 0.7)",
-            "rgba(255, 206, 86, 0.7)",
-            "rgba(75, 192, 192, 0.7)",
-            "rgba(153, 102, 255, 0.7)",
-          ],
-          borderColor: "#fff",
-          borderWidth: 1,
-        },
-      ],
-    };
-
-    return { barData, pieData };
+    // Crear contenido para impresión
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Reporte ${tipo.charAt(0).toUpperCase() + tipo.slice(1)}</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            .header { text-align: center; border-bottom: 2px solid #387623; padding-bottom: 20px; margin-bottom: 30px; }
+            .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
+            .stat-card { background: #f9fcf5; padding: 15px; border-radius: 8px; text-align: center; }
+            .stat-value { font-size: 24px; font-weight: bold; color: #387623; }
+            .table { width: 100%; border-collapse: collapse; }
+            .table th, .table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            .table th { background-color: #9fc45a; color: #103f1b; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>Reporte de Pedidos Completados - ${tipo.charAt(0).toUpperCase() + tipo.slice(1)}</h1>
+            <p>Generado el ${reporte.fecha}</p>
+          </div>
+          
+          <div class="stats">
+            <div class="stat-card">
+              <h3>Total de Pedidos</h3>
+              <div class="stat-value">${reporte.datos.count}</div>
+            </div>
+            <div class="stat-card">
+              <h3>Monto Total</h3>
+              <div class="stat-value">${formatCurrency(reporte.datos.sum)}</div>
+            </div>
+            <div class="stat-card">
+              <h3>Promedio por Pedido</h3>
+              <div class="stat-value">${formatCurrency(reporte.datos.count > 0 ? reporte.datos.sum / reporte.datos.count : 0)}</div>
+            </div>
+          </div>
+          
+          <table class="table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Fecha</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${reporte.pedidos.map(pedido => `
+                <tr>
+                  <td>#${pedido.idPedido.toString().padStart(4, '0')}</td>
+                  <td>${pedido.carrito?.usuario 
+                    ? `${pedido.carrito.usuario.nombreUsuario} ${pedido.carrito.usuario.primerApellido}`
+                    : 'N/A'}</td>
+                  <td>${formatDate(pedido.fechaPedido)}</td>
+                  <td>${formatCurrency(pedido.montoTotalPedido)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          
+          <script>
+            window.onload = function() { window.print(); }
+          </script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
   };
 
-  const { barData, pieData } = prepareChartData();
+  const obtenerPedidosParaReporte = (tipo) => {
+    const hoy = new Date();
+    const inicioSemana = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() - hoy.getDay());
+    const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+    const inicioAnio = new Date(hoy.getFullYear(), 0, 1);
 
-  // Opciones para gráfico de barras
-  const barOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: "top",
-      },
-      tooltip: {
-        callbacks: {
-          label: function (context) {
-            let label = context.dataset.label || "";
-            if (label) {
-              label += ": ";
-            }
-            if (context.datasetIndex === 0) {
-              label += formatCurrency(context.raw);
-            } else {
-              label += context.raw;
-            }
-            return label;
-          },
-        },
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        title: {
-          display: true,
-          text: "Ventas Totales (₡)",
-        },
-      },
-    },
+    switch (tipo) {
+      case 'hoy':
+        return pedidos.filter(p => new Date(p.fechaPedido).toDateString() === hoy.toDateString());
+      case 'semana':
+        return pedidos.filter(p => new Date(p.fechaPedido) >= inicioSemana);
+      case 'mes':
+        return pedidos.filter(p => new Date(p.fechaPedido) >= inicioMes);
+      case 'anio':
+        return pedidos.filter(p => new Date(p.fechaPedido) >= inicioAnio);
+      case 'total':
+      default:
+        return pedidos;
+    }
   };
 
-  // Opciones para gráfico circular
-  const pieOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: "top",
-      },
-      tooltip: {
-        callbacks: {
-          label: function (context) {
-            const label = context.label || '';
-            const value = context.raw || 0;
-            return `${label}: ${formatCurrency(value)}`;
-          },
-        },
-      },
-    },
-  };
+  if (loading) {
+    return (
+      <div className="vp-pedidos-completados-app">
+        <div className="vp-page-container">
+          <div className="vp-main-container">
+            <div className="vp-loading-container">
+              <div className="vp-loading-spinner"></div>
+            </div>
+          </div>
+          <div className="vp-app-container">
+            <SideBar usuario={usuario} />
+          </div>
+        </div>
+        <FooterApp />
+      </div>
+    );
+  }
 
-  if (loading) return (
-    <div className="content-container">
-      <SideBar usuario={usuario} />
-      <div className="loading">Cargando datos...</div>
-    </div>
-  );
-
-  if (error) return (
-    <div className="content-container">
-      <SideBar usuario={usuario} />
-      <div className="error">{error}</div>
-    </div>
-  );
+  if (error) {
+    return (
+      <div className="vp-pedidos-completados-app">
+        <div className="vp-page-container">
+          <div className="vp-main-container">
+            <div className="vp-error-message">{error}</div>
+          </div>
+          <div className="vp-app-container">
+            <SideBar usuario={usuario} />
+          </div>
+        </div>
+        <FooterApp />
+      </div>
+    );
+  }
 
   return (
-    <div className="pedidos-app">
-      <div className="content-container">
-        <SideBar usuario={usuario} />
+    <div className="vp-pedidos-completados-app">
+      <div className="vp-page-container">
+        <div className="vp-app-container">
+          <SideBar usuario={usuario} />
+          
+          <div className="vp-main-container">
+            {/* Header */}
+            <div className="vp-header-container">
+              <h1 className="vp-header-title">Pedidos Completados</h1>
+              <div className="vp-header-actions">
+                <button 
+                  className="vp-refresh-button"
+                  onClick={() => window.location.reload()}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Actualizar
+                </button>
+              </div>
+            </div>
 
-        <div className="main-content">
-          <h1>Pedidos completados</h1>
-
-          <div className="filters">
-            <label>Filtrar por fecha: </label>
-            <input
-              type="date"
-              value={filterDate}
-              onChange={(e) => setFilterDate(e.target.value)}
-            />
-
-            <select
-              value={filterRange}
-              onChange={(e) => setFilterRange(e.target.value)}
-            >
-              <option value="dia">Día</option>
-              <option value="semana">Semana</option>
-              <option value="mes">Mes</option>
-            </select>
-          </div>
-
-          <div className="pedidos-container">
-            {pedidos.length === 0 ? (
-              <div className="no-results">No se encontraron pedidos completados</div>
-            ) : (
-              <>
-                <table className="pedidos-table">
-                  <thead>
-                    <tr>
-
-                      <th>Cliente</th>
-                      <th>Fecha</th>
-                      <th>Monto</th>
-                      <th>Estado Entrega</th>
-                      <th>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                  {filteredPedidos.map((pedido) => (
-                    <tr key={pedido.idPedido}>
-                      <td>
-                        {pedido.carrito && pedido.carrito.usuario
-                          ? `${pedido.carrito.usuario.nombreUsuario} ${pedido.carrito.usuario.primerApellido}`
-                          : "N/A"}
-                      </td>
-                      <td>{formatDate(pedido.fechaPedido)}</td>
-                      <td>
-                        ₡
-                        {pedido.montoTotalPedido
-                          ? pedido.montoTotalPedido.toLocaleString()
-                          : "0"}
-                      </td>
-                      <td>{renderStatusBadge(pedido.estadoEntregaPedido)}</td>
-                      <td>
-                        <button
-                          className="view-btn"
-                          onClick={() => handleSelectPedido(pedido)}
-                        >
-                          Ver detalles
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-                </table>
-
-                {/* Paginación */}
-                <div className="pagination">
-                  <button
-                    onClick={() => paginate(currentPage - 1)}
-                    disabled={currentPage === 1}
-                    className="page-btn"
-                  >
-                    Anterior
-                  </button>
-
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(number => (
-                    <button
-                      key={number}
-                      onClick={() => paginate(number)}
-                      className={`page-btn ${currentPage === number ? 'active' : ''}`}
-                    >
-                      {number}
-                    </button>
-                  ))}
-
-                  <button
-                    onClick={() => paginate(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                    className="page-btn"
-                  >
-                    Siguiente
-                  </button>
+            {/* Tarjetas de estadísticas */}
+            <div className="vp-stats-cards">
+              <div className="vp-stat-card vp-total-card">
+                <div className="vp-stat-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
                 </div>
-              </>
-            )}
+                <div className="vp-stat-content">
+                  <p className="vp-stat-title">Total</p>
+                  <p className="vp-stat-value">{reportesData.total.count}</p>
+                  <p className="vp-stat-amount">{formatCurrency(reportesData.total.sum)}</p>
+                </div>
+              </div>
 
-            {/* Detalles del Pedido Modal */}
-            {selectedPedido && (
-              <div className="pedido-details-modal">
-                <div className="pedido-details-content">
-                  <button className="close-btn" onClick={handleCloseDetails}>×</button>
+              <div className="vp-stat-card vp-hoy-card">
+                <div className="vp-stat-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                    <polyline points="12,6 12,12 16,14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                <div className="vp-stat-content">
+                  <p className="vp-stat-title">Hoy</p>
+                  <p className="vp-stat-value">{reportesData.hoy.count}</p>
+                  <p className="vp-stat-amount">{formatCurrency(reportesData.hoy.sum)}</p>
+                </div>
+              </div>
 
-                  <h2>Detalles del Pedido </h2>
+              <div className="vp-stat-card vp-semana-card">
+                <div className="vp-stat-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" strokeWidth="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                    <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                    <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" strokeWidth="2"/>
+                  </svg>
+                </div>
+                <div className="vp-stat-content">
+                  <p className="vp-stat-title">Esta Semana</p>
+                  <p className="vp-stat-value">{reportesData.semana.count}</p>
+                  <p className="vp-stat-amount">{formatCurrency(reportesData.semana.sum)}</p>
+                </div>
+              </div>
 
-                  <div className="pedido-info">
-                    <div className="info-section">
-                      <h3>Información del Pedido</h3>
-                      <p><strong>Fecha del pedido:</strong> {formatDate(selectedPedido.fechaPedido)}</p>
-                      {selectedPedido.montoTotalPedido && (
-                        <>
-                          <p><strong>IVA (13%):</strong> ₡{(selectedPedido.montoTotalPedido * (13 / 113)).toFixed(2).toLocaleString()}</p>
-                          <p><strong>Subtotal:</strong> ₡{(selectedPedido.montoTotalPedido / 1.13).toFixed(2).toLocaleString()}</p>
-                        </>
-                      )}
-                      <p><strong>Monto Total:</strong> ₡{selectedPedido.montoTotalPedido ? selectedPedido.montoTotalPedido.toLocaleString() : '0'}</p>
+              <div className="vp-stat-card vp-mes-card">
+                <div className="vp-stat-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M7 10l5 5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M12 15V3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                <div className="vp-stat-content">
+                  <p className="vp-stat-title">Este Mes</p>
+                  <p className="vp-stat-value">{reportesData.mes.count}</p>
+                  <p className="vp-stat-amount">{formatCurrency(reportesData.mes.sum)}</p>
+                </div>
+              </div>
 
-                      <p>
-                        <strong>Estado de Entrega: </strong>
-                        {renderStatusBadge(selectedPedido.estadoEntregaPedido)}
-                      </p>
+              <div className="vp-stat-card vp-anio-card">
+                <div className="vp-stat-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                <div className="vp-stat-content">
+                  <p className="vp-stat-title">Este Año</p>
+                  <p className="vp-stat-value">{reportesData.anio.count}</p>
+                  <p className="vp-stat-amount">{formatCurrency(reportesData.anio.sum)}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Panel de filtros y reportes */}
+            <div className="vp-filter-reports-panel">
+              <div className="vp-filter-panel">
+                <div className="vp-filter-controls">
+                  <div className="vp-search-filter-row">
+                    <div className="vp-filter-select">
+                      <label className="vp-filter-label">Cliente</label>
+                      <input
+                        type="text"
+                        placeholder="Buscar por nombre del cliente..."
+                        value={filters.cliente}
+                        onChange={(e) => handleFilterChange('cliente', e.target.value)}
+                        className="vp-filter-select-input"
+                      />
                     </div>
-
-                    {selectedPedido.carrito && selectedPedido.carrito.usuario && (
-                      <div className="info-section">
-                        <h3>Información del Cliente</h3>
-                        <p><strong>Nombre:</strong> {selectedPedido.carrito.usuario.nombreUsuario} {selectedPedido.carrito.usuario.primerApellido} {selectedPedido.carrito.usuario.segundoApellido}</p>
-                        <p
-                          style={{
-                            color: selectedPedido.carrito.usuario.cedulaUsuario ? 'black' : '#aaa'
-
-                          }}
-                        >
-                          <strong>Cédula:</strong> {selectedPedido.carrito.usuario.cedulaUsuario || 'Sin cédula'}
-                        </p>
-                        <p><strong>Correo:</strong> {selectedPedido.carrito.usuario.correoUsuario}</p>
-
-                        <p
-                          style={{
-                            color: selectedPedido.carrito.usuario.telefonoUsuario ? 'black' : '#aaa'
-
-                          }}
-                        >
-                          <strong>Teléfono:</strong> {selectedPedido.carrito.usuario.telefonoUsuario || 'Sin numero de celular registrado'}</p>
-                        {selectedPedido.carrito.usuario.direccion && (
-                          <p><strong>Dirección:</strong> {selectedPedido.carrito.usuario.direccion.detalleExactoDireccion}</p>
-                        )}
-                      </div>
-                    )}
+                    
+                    <button 
+                      className="vp-filter-button"
+                      onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      Filtros Avanzados
+                    </button>
                   </div>
 
-                  {selectedPedido.carrito && selectedPedido.carrito.productos && (
-                    <div className="info-section">
-                      <h3>Productos</h3>
-                      <table className="productos-table">
-                        <thead>
-                          <tr>
-                            <th>Producto</th>
-                            <th>Cantidad</th>
-                            <th>Precio Unitario</th>
-                            <th>Subtotal</th>
-                            <th>Código</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {selectedPedido.carrito.productos.map((producto, index) => {
-                            const cantidad = producto.cantidadProducto || 1;
-                            const precio = producto.montoPrecioProducto || 0;
-                            const subtotal = cantidad * precio;
-
-                            return (
-                              <tr key={index}>
-                                <td>
-                                  <div className="product-info">
-                                    {producto.imgProducto && (
-                                      <img
-                                        src={producto.imgProducto}
-                                        alt={producto.nombreProducto}
-                                        className="product-image-small"
-                                      />
-                                    )}
-                                    <span>{producto.nombreProducto}</span>
-                                  </div>
-                                </td>
-                                <td>{cantidad}</td>
-                                <td>{formatCurrency(precio)}</td>
-                                <td>{formatCurrency(subtotal)}</td>
-                                <td>{producto.codigoProducto || 'N/A'}</td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                        <tfoot>
-                          <tr>
-                            <td colSpan="3" className="text-right"><strong>Total:</strong></td>
-                            <td>{formatCurrency(selectedPedido.montoTotalPedido)}</td>
-                            <td></td>
-                          </tr>
-                        </tfoot>
-                      </table>
+                  {showAdvancedFilters && (
+                    <div className="vp-advanced-filters">
+                      <h3 className="vp-filter-title">Filtros Avanzados</h3>
+                      <div className="vp-date-filters">
+                        <div className="vp-date-filter-group">
+                          <label className="vp-date-filter-label">Fecha Inicio</label>
+                          <input
+                            type="date"
+                            value={filters.startDate}
+                            onChange={(e) => handleFilterChange('startDate', e.target.value)}
+                            className="vp-date-input"
+                          />
+                        </div>
+                        <div className="vp-date-filter-group">
+                          <label className="vp-date-filter-label">Fecha Fin</label>
+                          <input
+                            type="date"
+                            value={filters.endDate}
+                            onChange={(e) => handleFilterChange('endDate', e.target.value)}
+                            className="vp-date-input"
+                          />
+                        </div>
+                      </div>
+                      <div className="vp-filter-actions">
+                        <button className="vp-clear-filter-button" onClick={clearFilters}>
+                          Limpiar Filtros
+                        </button>
+                        <button className="vp-apply-filter-button" onClick={() => setShowAdvancedFilters(false)}>
+                          Aplicar Filtros
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
               </div>
-            )}
-          </div>
 
-          {/* Sección de gráficos */}
-          <div className="graficos-section">
-            <h2>Reporte de Ventas Completadas</h2>
-
-            <div className="chart-type-selector">
-              <button
-                className={`chart-type-btn ${chartType === "bar" ? "active" : ""}`}
-                onClick={() => setChartType("bar")}
-              >
-                Gráfico de Barras
-              </button>
-              <button
-                className={`chart-type-btn ${chartType === "pie" ? "active" : ""}`}
-                onClick={() => setChartType("pie")}
-              >
-                Gráfico Circular
-              </button>
+              <div className="vp-reports-panel">
+                <h3 className="vp-reports-title">Generar Reportes</h3>
+                <div className="vp-reports-actions">
+                  <button 
+                    className="vp-report-button"
+                    onClick={() => generarReporte('total')}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M6 9V2h12v7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M6 14h12v8H6v-8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    Reporte Total
+                  </button>
+                  <button 
+                    className="vp-report-button"
+                    onClick={() => generarReporte('hoy')}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                      <polyline points="12,6 12,12 16,14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    Reporte Diario
+                  </button>
+                  <button 
+                    className="vp-report-button"
+                    onClick={() => generarReporte('semana')}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" strokeWidth="2"/>
+                      <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                      <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                      <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" strokeWidth="2"/>
+                    </svg>
+                    Reporte Semanal
+                  </button>
+                  <button 
+                    className="vp-report-button"
+                    onClick={() => generarReporte('mes')}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" strokeWidth="2"/>
+                      <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                      <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                      <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" strokeWidth="2"/>
+                    </svg>
+                    Reporte Mensual
+                  </button>
+                  <button 
+                    className="vp-report-button"
+                    onClick={() => generarReporte('anio')}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" strokeWidth="2"/>
+                      <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                      <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                      <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" strokeWidth="2"/>
+                    </svg>
+                    Reporte Anual
+                  </button>
+                </div>
+              </div>
             </div>
 
-            {ventasLoading ? (
-              <div className="loading-chart">Cargando gráficos...</div>
-            ) : (
-              <>
-                <div className="chart-container">
-                  {chartType === "bar" && barData ? (
-                    <Bar data={barData} options={barOptions} />
-                  ) : pieData ? (
-                    <Pie data={pieData} options={pieOptions} />
-                  ) : null}
+            {/* Tabla de pedidos */}
+            <div className="vp-pedidos-container">
+              {filteredPedidos.length === 0 ? (
+                <div className="vp-no-results">
+                  No se encontraron pedidos completados
                 </div>
+              ) : (
+                <>
+                  <table className="vp-pedidos-table">
+                    <thead>
+                      <tr>
+                        <th className="vp-table-header">ID</th>
+                        <th className="vp-table-header">Cliente</th>
+                        <th className="vp-table-header">Fecha</th>
+                        <th className="vp-table-header">Método de Pago</th>
+                        <th className="vp-table-header">Total</th>
+                        <th className="vp-table-header">Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {currentItems.map((pedido) => (
+                        <React.Fragment key={pedido.idPedido}>
+                          <tr 
+                            className={`vp-pedido-row ${expandedRows.has(pedido.idPedido) ? 'vp-expanded-row' : ''}`}
+                            onClick={() => toggleExpandRow(pedido.idPedido)}
+                          >
+                            <td className="vp-pedido-cell" data-label="ID">
+                              <span className="vp-pedido-id">#{pedido.idPedido.toString().padStart(4, '0')}</span>
+                            </td>
+                            <td className="vp-pedido-cell" data-label="Cliente">
+                              <span className="vp-pedido-cliente">
+                                {pedido.carrito?.usuario 
+                                  ? `${pedido.carrito.usuario.nombreUsuario} ${pedido.carrito.usuario.primerApellido}`
+                                  : 'N/A'}
+                              </span>
+                            </td>
+                            <td className="vp-pedido-cell" data-label="Fecha">
+                              <span className="vp-pedido-fecha">{formatDate(pedido.fechaPedido)}</span>
+                            </td>
+                            <td className="vp-pedido-cell" data-label="Método Pago">
+                              <span className="vp-pedido-metodo-pago">Efectivo</span>
+                            </td>
+                            <td className="vp-pedido-cell" data-label="Total">
+                              <span className="vp-pedido-total">{formatCurrency(pedido.montoTotalPedido)}</span>
+                            </td>
+                            <td className="vp-pedido-cell" data-label="Acciones">
+                              <div className="vp-pedido-actions">
+                                <div className="vp-actions-container">
+                                  <button 
+                                    className="vp-view-btn"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setSelectedPedido(pedido);
+                                    }}
+                                  >
+                                    Ver
+                                  </button>
+                                  <span 
+                                    className={`vp-expand-icon ${expandedRows.has(pedido.idPedido) ? 'rotated' : ''}`}
+                                  >
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                      <path d="M19 9l-7 7-7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    </svg>
+                                  </span>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                          
+                          {expandedRows.has(pedido.idPedido) && (
+                            <tr className="vp-expanded-content">
+                              <td colSpan="6">
+                                <div className="vp-expanded-grid">
+                                  <div className="vp-expanded-card">
+                                    <h4 className="vp-expanded-card-title">Información del Cliente</h4>
+                                    <div className="vp-info-row">
+                                      <span className="vp-info-label">Cédula:</span>
+                                      <span className="vp-info-value">{pedido.carrito?.usuario?.cedulaUsuario || 'N/A'}</span>
+                                    </div>
+                                    <div className="vp-info-row">
+                                      <span className="vp-info-label">Teléfono:</span>
+                                      <span className="vp-info-value">{pedido.carrito?.usuario?.telefonoUsuario || 'N/A'}</span>
+                                    </div>
+                                    <div className="vp-info-row">
+                                      <span className="vp-info-label">Correo:</span>
+                                      <span className="vp-info-value">{pedido.carrito?.usuario?.correoUsuario || 'N/A'}</span>
+                                    </div>
+                                  </div>
 
-                <div className="ventas-resumen">
-                  <div className="resumen-card">
-                    <h3>Ventas Diarias</h3>
-                    <p className="ventas-total">{formatCurrency(ventasData?.diario?.totalVentas)}</p>
-                    <p>{ventasData?.diario?.cantidadPedidos || 0} pedidos</p>
-                    <p>Promedio: {formatCurrency(ventasData?.diario?.promedio)}</p>
-                  </div>
+                                  <div className="vp-expanded-card">
+                                    <h4 className="vp-expanded-card-title">Información del Pedido</h4>
+                                    <div className="vp-info-row">
+                                      <span className="vp-info-label">Estado:</span>
+                                      <span className="vp-info-value">Entregado</span>
+                                    </div>
+                                    <div className="vp-info-row">
+                                      <span className="vp-info-label">Fecha Entrega:</span>
+                                      <span className="vp-info-value vp-fecha-entrega">{formatDate(pedido.fechaPedido)}</span>
+                                    </div>
+                                    <div className="vp-info-row">
+                                      <span className="vp-info-label">Monto Total:</span>
+                                      <span className="vp-info-value vp-monto-total">{formatCurrency(pedido.montoTotalPedido)}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </React.Fragment>
+                      ))}
+                    </tbody>
+                  </table>
 
-                  <div className="resumen-card">
-                    <h3>Ventas Semanales</h3>
-                    <p className="ventas-total">{formatCurrency(ventasData?.semanal?.totalVentas)}</p>
-                    <p>{ventasData?.semanal?.cantidadPedidos || 0} pedidos</p>
-                    <p>Promedio: {formatCurrency(ventasData?.semanal?.promedio)}</p>
+                  {/* Paginación */}
+                  <div className="vp-pagination-container">
+                    <div className="vp-pagination-info">
+                      Mostrando {indexOfFirstItem + 1} a {Math.min(indexOfLastItem, filteredPedidos.length)} de {filteredPedidos.length} pedidos
+                    </div>
+                    <div className="vp-pagination-buttons">
+                      <button 
+                        className={`vp-pagination-btn ${currentPage === 1 ? 'disabled' : ''}`}
+                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                        disabled={currentPage === 1}
+                      >
+                        Anterior
+                      </button>
+                      <button 
+                        className={`vp-pagination-btn ${currentPage === totalPages || filteredPedidos.length <= itemsPerPage ? 'disabled' : ''}`}
+                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                        disabled={currentPage === totalPages || filteredPedidos.length <= itemsPerPage}
+                      >
+                        Siguiente
+                      </button>
+                    </div>
                   </div>
-
-                  <div className="resumen-card">
-                    <h3>Ventas Mensuales</h3>
-                    <p className="ventas-total">{formatCurrency(ventasData?.mensual?.totalVentas)}</p>
-                    <p>{ventasData?.mensual?.cantidadPedidos || 0} pedidos</p>
-                    <p>Promedio: {formatCurrency(ventasData?.mensual?.promedio)}</p>
-                  </div>
-
-                  <div className="resumen-card">
-                    <h3>Ventas Anuales</h3>
-                    <p className="ventas-total">{formatCurrency(ventasData?.anual?.totalVentas)}</p>
-                    <p>{ventasData?.anual?.cantidadPedidos || 0} pedidos</p>
-                    <p>Promedio: {formatCurrency(ventasData?.anual?.promedio)}</p>
-                  </div>
-
-                  <div className="resumen-card total">
-                    <h3>Total General</h3>
-                    <p className="ventas-total">{formatCurrency(ventasData?.total?.totalVentas)}</p>
-                    <p>{ventasData?.total?.cantidadPedidos || 0} pedidos</p>
-                    <p>Promedio: {formatCurrency(ventasData?.total?.promedio)}</p>
-                  </div>
-                </div>
-              </>
-            )}
+                </>
+              )}
+            </div>
           </div>
         </div>
+        <FooterApp />
       </div>
 
-      <FooterApp />
+      {/* Modal de detalles del pedido */}
+      {selectedPedido && (
+        <div className="vp-pedido-details-modal">
+          <div className="vp-pedido-details-content">
+            <div className="vp-modal-header">
+              <h2 className="vp-modal-title">Detalles del Pedido #{selectedPedido.idPedido.toString().padStart(4, '0')}</h2>
+              <button className="vp-close-btn" onClick={() => setSelectedPedido(null)}>×</button>
+            </div>
+            <div className="vp-modal-body">
+              <div className="vp-modal-sections">
+                <div className="vp-modal-section">
+                  <div className="vp-info-card">
+                    <div className="vp-info-header">
+                      <h3 className="vp-info-title">Información del Cliente</h3>
+                    </div>
+                    <div className="vp-info-body">
+                      <div className="vp-info-row">
+                        <span className="vp-info-label">Nombre:</span>
+                        <span className="vp-info-value">
+                          {selectedPedido.carrito?.usuario 
+                            ? `${selectedPedido.carrito.usuario.nombreUsuario} ${selectedPedido.carrito.usuario.primerApellido} ${selectedPedido.carrito.usuario.segundoApellido}`
+                            : 'N/A'}
+                        </span>
+                      </div>
+                      <div className="vp-info-row">
+                        <span className="vp-info-label">Cédula:</span>
+                        <span className="vp-info-value">{selectedPedido.carrito?.usuario?.cedulaUsuario || 'N/A'}</span>
+                      </div>
+                      <div className="vp-info-row">
+                        <span className="vp-info-label">Teléfono:</span>
+                        <span className="vp-info-value">{selectedPedido.carrito?.usuario?.telefonoUsuario || 'N/A'}</span>
+                      </div>
+                      <div className="vp-info-row">
+                        <span className="vp-info-label">Correo:</span>
+                        <span className="vp-info-value">{selectedPedido.carrito?.usuario?.correoUsuario || 'N/A'}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="vp-modal-section">
+                  <div className="vp-info-card">
+                    <div className="vp-info-header">
+                      <h3 className="vp-info-title">Información del Pedido</h3>
+                    </div>
+                    <div className="vp-info-body">
+                      <div className="vp-info-row">
+                        <span className="vp-info-label">Fecha:</span>
+                        <span className="vp-info-value">{formatDate(selectedPedido.fechaPedido)}</span>
+                      </div>
+                      <div className="vp-info-row">
+                        <span className="vp-info-label">Estado:</span>
+                        <span className="vp-info-value">Entregado</span>
+                      </div>
+                      <div className="vp-info-row">
+                        <span className="vp-info-label">Método Pago:</span>
+                        <span className="vp-info-value">Efectivo</span>
+                      </div>
+                      <div className="vp-info-row">
+                        <span className="vp-info-label">Total:</span>
+                        <span className="vp-info-value vp-monto-total">{formatCurrency(selectedPedido.montoTotalPedido)}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="vp-modal-section vp-modal-section-full-width">
+                  <div className="vp-productos-card">
+                    <div className="vp-info-header">
+                      <h3 className="vp-info-title">Productos <span className="vp-product-count">({selectedPedido.carrito?.productosCarrito?.length || 0})</span></h3>
+                    </div>
+                    <div className="vp-info-body">
+                      {selectedPedido.carrito?.productosCarrito?.length > 0 ? (
+                        <div className="vp-products-grid">
+                          {selectedPedido.carrito.productosCarrito.map((producto, index) => (
+                            <div className="vp-product-item-card" key={index}>
+                              <div className="vp-product-item-image">
+                                {producto.producto?.imagenProducto ? (
+                                  <img src={producto.producto.imagenProducto} alt={producto.producto.nombreProducto} className="vp-product-img" />
+                                ) : (
+                                  <div className="vp-no-image-product">Sin imagen</div>
+                                )}
+                              </div>
+                              <div className="vp-product-item-details">
+                                <h4 className="vp-product-item-name">{producto.producto?.nombreProducto || 'Producto desconocido'}</h4>
+                                <p className="vp-product-item-description">
+                                  {producto.producto?.descripcionProducto || 'Sin descripción disponible'}
+                                </p>
+                                <div className="vp-product-item-meta">
+                                  <div>
+                                    <span className="vp-meta-label">Cantidad:</span> {producto.cantidadProducto}
+                                  </div>
+                                  <div>
+                                    <span className="vp-meta-label">Precio unitario:</span> {formatCurrency(producto.producto?.precioProducto || 0)}
+                                  </div>
+                                </div>
+                                <div className="vp-product-item-price">
+                                  {formatCurrency((producto.producto?.precioProducto || 0) * producto.cantidadProducto)}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="vp-no-products-message">No hay productos en este pedido</div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
-export default PedidosCanceladosApp;
+export default PedidosCompletadosApp;
