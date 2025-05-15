@@ -694,7 +694,7 @@ function LoginApp({ initialPage = "home" }) {
         </Offcanvas.Body>
       </Offcanvas>
       {/* Contenido principal */}
-      <main className="flex-grow-2" style={{ marginTop: "-30px" }}>
+      <main className="flex-grow-2" style={{ marginTop: "-20px" }}>
         {renderMainContent()}
         <Carrito />
       </main>
