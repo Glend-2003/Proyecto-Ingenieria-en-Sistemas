@@ -7,7 +7,6 @@ import { FaFileAlt, FaDownload, FaMapMarkerAlt, FaUser, FaSignOutAlt, FaHome } f
 import FooterApp from '../Footer/FooterApp';
 import NavbarApp from '../Navbar/NavbarApp';
 import { AppProvider } from "../Navbar/AppContext"
-import Carrito from '../Carrito/CarritoApp';
 import SideBarUsuario from '../DetallesCliente/SideBarUsuario';
 import { useAppContext } from "../Navbar/AppContext";
 
@@ -51,7 +50,6 @@ const Dashboard = () => {
                             </NavLink>
                         </div>
                     </div>
-                    <Carrito />
                 </div>
                 <FooterApp />
             </div>

@@ -10,7 +10,6 @@ import { faSave, faPhone, faIdCard, faCalendarAlt } from "@fortawesome/free-soli
 import useAuth from "../../hooks/useAuth";
 import FooterApp from '../Footer/FooterApp';
 import NavbarApp from "../Navbar/NavbarApp";
-import Carrito from "../Carrito/CarritoApp";
 import SideBarUsuario from '../DetallesCliente/SideBarUsuario';
 import { useAppContext } from "../Navbar/AppContext";
 
@@ -306,7 +305,6 @@ const PerfilUsuario = () => {
             </form>
           </div>
         </div>
-        <Carrito />
         <ToastContainer position="bottom-right" autoClose={3000} />
       </div>
       <FooterApp />
