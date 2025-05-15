@@ -7,7 +7,6 @@ const ProductosVariosPagina = () => {
   return (
     <div>
       <NavbarApp />
-      <h1>Productos Varios</h1>
       <ListaProductosApp categoria="Varios" />
       <FooterApp />
     </div>

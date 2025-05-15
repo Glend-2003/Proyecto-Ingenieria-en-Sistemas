@@ -7,7 +7,6 @@ const PolloPagina = () => {
   return (
     <div>
       <NavbarApp />
-      <h1>Cortes de Pollo</h1>
       <ListaProductosApp categoria="Pollo" />
       <FooterApp />
     </div>

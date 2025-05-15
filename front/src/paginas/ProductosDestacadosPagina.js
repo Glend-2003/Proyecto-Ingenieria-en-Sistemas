@@ -7,7 +7,6 @@ const ProductosDestacadosPagina = () => {
   return (
     <div>
       <NavbarApp />
-      <h1>Productos Destacados</h1>
       <ListaProductosApp categoria="Destacados" />
       <FooterApp />
     </div>
