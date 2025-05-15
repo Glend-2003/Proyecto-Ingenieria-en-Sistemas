@@ -54,9 +54,9 @@ function ListaProductosApp({ categoria }) {
         cantidad: cantidadValida,
       };
       addToCart(productoConCantidad, cantidadValida);
-      toast.success(
+      /*toast.success(
         `${selectedProduct.nombreProducto} agregado al carrito (${cantidadValida} unidad${cantidadValida > 1 ? "es" : ""})`,
-      );
+      );*/
       handleCloseModal();
     }
   };
@@ -245,10 +245,11 @@ function ListaProductosApp({ categoria }) {
   }}
 >
   <div className="hero-content text-white">
-    <h1 
-      className="display-5 fw-bold mb-3" 
+    <h1
+      className="display-5 fw-bold mb-3"
       style={{
         fontSize: '2.5rem',
+        textAlign: 'center',
         textShadow: '1px 1px 3px rgb(249, 243, 243)',
         position: 'relative',
         zIndex: 2
@@ -260,6 +261,7 @@ function ListaProductosApp({ categoria }) {
       className="lead mb-0" 
       style={{
         fontSize: '1.2rem',
+        textAlign: 'center',
         opacity: 0.9,
         position: 'relative',
         zIndex: 2
@@ -462,7 +464,7 @@ function ListaProductosApp({ categoria }) {
               cantidad: 1,
             };
             addToCart(productoConCantidad, 1);
-            toast.success(`${product.nombreProducto} agregado al carrito`);
+            //toast.success(`${product.nombreProducto} agregado al carrito`);
           }
         }}
         style={{ display: product.stockProducto <= 0 ? 'none' : 'flex' }}
@@ -510,7 +512,7 @@ function ListaProductosApp({ categoria }) {
                 cantidad: 1,
               };
               addToCart(productoConCantidad, 1);
-              toast.success(`${product.nombreProducto} agregado al carrito`);
+              //toast.success(`${product.nombreProducto} agregado al carrito`);
             }
           }}
           disabled={product.stockProducto <= 0}
