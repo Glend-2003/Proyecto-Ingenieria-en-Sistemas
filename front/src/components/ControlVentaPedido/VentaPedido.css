@@ -93,7 +93,7 @@ button.vp-refresh-button:disabled {
   cursor: wait;
 }
 
-/* Tarjetas de estadísticas */
+/* Tarjetas de estadísticas - Más delgadas y estilizadas */
 div.vp-stats-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -106,9 +106,10 @@ div.vp-stat-card {
   align-items: center;
   background-color: white;
   border-radius: 8px;
-  padding: 1rem;
+  padding: 0.5rem 0.75rem; /* Más delgado que antes */
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   transition: transform 0.3s, box-shadow 0.3s;
+  min-height: 50px; /* Más bajo que antes */
 }
 
 div.vp-stat-card:hover {
@@ -139,16 +140,18 @@ div.vp-stat-card.vp-mes-card div.vp-stat-icon {
 div.vp-stat-card.vp-anio-card div.vp-stat-icon {
   background-color: rgba(66, 102, 178, 0.1);
   color: #4266b2;
+  /* Nuevo icono con colores de la paleta */
+  background: linear-gradient(135deg, rgba(16, 63, 27, 0.1), rgba(56, 118, 35, 0.1));
 }
 
 div.vp-stat-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 30px; /* Más pequeño que antes */
+  height: 30px; /* Más pequeño que antes */
   border-radius: 50%;
-  margin-right: 1rem;
+  margin-right: 0.5rem; /* Menor margen */
 }
 
 div.vp-stat-content {
@@ -156,25 +159,25 @@ div.vp-stat-content {
 }
 
 div.vp-stat-content p.vp-stat-title {
-  font-size: 0.875rem;
+  font-size: 0.7rem; /* Más pequeño */
   font-weight: 500;
   color: #666666;
-  margin: 0 0 0.25rem;
+  margin: 0 0 0.1rem; /* Menor margen */
 }
 
 div.vp-stat-content p.vp-stat-value {
-  font-size: 1.5rem;
+  font-size: 1.1rem; /* Más pequeño */
   font-weight: 700;
   color: #103f1b;
   margin: 0;
 }
 
 div.vp-stat-content p.vp-stat-amount {
-  font-size: 0.875rem;
+  font-size: 0.7rem; /* Más pequeño */
   color: #666666;
 }
 
-/* Panel de filtros */
+/* Panel de filtros - Ajuste en la disposición */
 div.vp-filter-panel {
   background-color: white;
   border-radius: 8px;
@@ -194,10 +197,13 @@ div.vp-search-filter-row {
   flex-wrap: wrap;
   gap: 1rem;
   align-items: center;
+  justify-content: space-between; /* Cambio principal */
 }
 
 div.vp-filter-select {
-  flex: 0 0 200px;
+  flex: 1; /* Permite que se expanda */
+  min-width: 200px; /* Ancho mínimo */
+  max-width: 450px; /* Ancho máximo para no ser demasiado ancho */
 }
 
 div.vp-filter-select label.vp-filter-label {
@@ -209,7 +215,7 @@ div.vp-filter-select label.vp-filter-label {
 }
 
 div.vp-filter-select input.vp-filter-select-input {
-  width: 100%;
+  width: 100%; /* Cambio de 250% a 100% */
   padding: 0.625rem;
   border: 1px solid #dddddd;
   border-radius: 4px;
@@ -229,17 +235,23 @@ button.vp-filter-button {
   align-items: center;
   gap: 0.5rem;
   padding: 0.625rem 1rem;
-  background-color: white;
-  color: #387623;
+  background-color: #387623; /* Cambiado a verde */
+  color: white; /* Texto blanco */
   border: 1px solid #387623;
   border-radius: 4px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s;
+  flex-shrink: 0; /* No se encoge */
 }
 
 button.vp-filter-button:hover {
-  background-color: #f0f8eb;
+  background-color: #103f1b; /* Verde más oscuro al hover */
+  border-color: #103f1b;
+}
+
+button.vp-filter-button i {
+  font-size: 1rem;
 }
 
 div.vp-advanced-filters {
@@ -496,17 +508,19 @@ div.vp-actions-container {
 }
 
 button.vp-view-btn {
-  padding: 0.375rem 0.75rem;
+  padding: 0.5rem 1rem; /* Más grande que el original */
   background-color: #387623;
   color: white;
   border: none;
   border-radius: 4px;
-  font-size: 0.75rem;
+  font-size: 0.875rem; /* Tamaño de fuente aumentado */
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
-
 button.vp-view-btn:hover {
   background-color: #103f1b;
   transform: translateY(-2px);
@@ -861,6 +875,19 @@ div.vp-no-products-message {
   
   div.vp-products-grid {
     grid-template-columns: 1fr;
+  }
+  
+  /* Ajuste para filtros en tablets */
+  div.vp-search-filter-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  div.vp-filter-select {
+    flex: 1;
+    width: 100%;
+    min-width: unset;
+    max-width: unset;
   }
 }
 

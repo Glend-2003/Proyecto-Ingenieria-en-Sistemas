@@ -593,7 +593,7 @@ const PedidosCompletadosApp = () => {
                                       setSelectedPedido(pedido);
                                     }}
                                   >
-                                    Ver
+                                    Ver detalles
                                   </button>
                                   <span 
                                     className={`vp-expand-icon ${expandedRows.has(pedido.idPedido) ? 'rotated' : ''}`}
