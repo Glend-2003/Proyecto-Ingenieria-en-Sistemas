@@ -15,8 +15,8 @@
   padding: 30px;
   overflow-y: auto;
   padding-bottom: 80px; /* Aumentar el espacio para el footer */
-  margin-left: 220px; /* Ajustar según el ancho de tu sidebar */
-  width: calc(100% - 220px); /* Ajustar el ancho para dejar espacio para el sidebar */
+  margin-left: 240px; /* Ajustar según el ancho de tu sidebar */
+  width: calc(100% - 240px); /* Ajustar el ancho para dejar espacio para el sidebar */
 }
 
 /* Para el buscador*/

@@ -22,7 +22,7 @@ html, body {
 
 /* Container structure */
 .principal-container {
-  margin-left: 250px; /* Alineado con el ancho del sidebar */
+  margin-left: 260px; /* Alineado con el ancho del sidebar */
   min-height: 100vh;
   display: flex;
   flex-direction: column;

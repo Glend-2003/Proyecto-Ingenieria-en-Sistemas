@@ -16,7 +16,6 @@ function ResetPassword() {
   const navigate = useNavigate();
   const { correoUsuario } = location.state || { correoUsuario: '' };
   
-  // Crear los refs fuera del callback
   const inputRef0 = useRef(null);
   const inputRef1 = useRef(null);
   const inputRef2 = useRef(null);
@@ -24,7 +23,6 @@ function ResetPassword() {
   const inputRef4 = useRef(null);
   const inputRef5 = useRef(null);
   
-  // Agrupar los refs en un array para facilitar su acceso
   const inputRefs = [inputRef0, inputRef1, inputRef2, inputRef3, inputRef4, inputRef5];
 
   const [form, setForm] = useState({
@@ -51,7 +49,6 @@ function ResetPassword() {
 
   const handleCodigoChange = (index, value) => {
     if (value.length <= 1) {
-      // Para entrada de un solo carácter
       const newCodigo = [...form.codigoVerificacion];
       newCodigo[index] = value.replace(/\D/, '');
       
@@ -60,12 +57,10 @@ function ResetPassword() {
         codigoVerificacion: newCodigo,
       });
       
-      // Si hay un valor y no es el último campo, avanzar al siguiente
       if (value && index < 5) {
         inputRefs[index + 1].current.focus();
       }
     } else {
-      // Para pegar múltiples caracteres
       const digits = value.split('').filter(char => /\d/.test(char)).slice(0, 6);
       const newCodigo = [...form.codigoVerificacion];
       
@@ -80,7 +75,6 @@ function ResetPassword() {
         codigoVerificacion: newCodigo,
       });
       
-      // Enfocar el campo después del último dígito ingresado
       const nextIndex = Math.min(index + digits.length, 5);
       if (nextIndex < 6) {
         inputRefs[nextIndex].current.focus();
@@ -114,7 +108,6 @@ function ResetPassword() {
       codigoVerificacion: newCodigo,
     });
     
-    // Enfocar el campo después del último dígito pegado
     const focusIndex = Math.min(pasteData.length, 5);
     if (focusIndex < 6) {
       inputRefs[focusIndex].current.focus();
@@ -134,27 +127,22 @@ function ResetPassword() {
   };
 
   const checkPasswordStrength = (password) => {
-    // Iniciar con puntaje 0
     let score = 0;
     let message = 'Muy débil';
     
-    // Si está vacía
     if (password.length === 0) {
       setPasswordStrength({ score: 0, message: 'Ingrese una contraseña' });
       return;
     }
     
-    // Verificar longitud
     if (password.length >= 8) score += 1;
     if (password.length >= 12) score += 1;
     
-    // Verificar caracteres
     if (/[a-z]/.test(password)) score += 1;
     if (/[A-Z]/.test(password)) score += 1;
     if (/[0-9]/.test(password)) score += 1;
     if (/[^a-zA-Z0-9]/.test(password)) score += 1;
     
-    // Asignar mensaje según puntaje
     if (score >= 6) message = 'Muy fuerte';
     else if (score >= 4) message = 'Fuerte';
     else if (score >= 3) message = 'Media';
@@ -165,11 +153,11 @@ function ResetPassword() {
 
   const getStrengthColor = () => {
     const { score } = passwordStrength;
-    if (score >= 6) return '#0f3e1a'; // Verde oscuro para muy fuerte
-    if (score >= 4) return '#377622'; // Verde medio para fuerte
-    if (score >= 3) return '#9fc45a'; // Verde claro para medio
-    if (score >= 2) return '#958932'; // Amarillo para débil
-    return '#875725';                 // Marrón para muy débil
+    if (score >= 6) return '#0f3e1a';
+    if (score >= 4) return '#377622';
+    if (score >= 3) return '#9fc45a';
+    if (score >= 2) return '#958932';
+    return '#875725';
   };
 
   const togglePasswordVisibility = (field) => {
@@ -180,13 +168,8 @@ function ResetPassword() {
   };
 
   const validatePassword = (password) => {
-    // Verifica que la contraseña tenga al menos 8 caracteres
     const minLength = password.length >= 8;
-
-    // Verifica que la contraseña tenga al menos 2 letras (mayúsculas o minúsculas)
     const hasTwoLetters = (password.match(/[a-zA-Z]/g) || []).length >= 2;
-
-    // Retorna true si se cumplen ambas condiciones
     return minLength && hasTwoLetters;
   };
 
@@ -252,7 +235,6 @@ function ResetPassword() {
       if (response.status === 200) {
         handleOpenSnackbar('Código de verificación enviado con éxito', 'success');
         
-        // Limpiar campos del código de verificación
         setForm(prev => ({
           ...prev,
           codigoVerificacion: Array(6).fill('')
