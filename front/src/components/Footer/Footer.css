@@ -9,28 +9,28 @@
 
 /* Estilos del footer */
 .page-footer {
-    background-color: #103f1b !important; /* Verde oscuro como color principal */
-    color: #fff;
-    padding: 1rem 0;
-    border-top: 3px solid #9fc45a; /* Borde superior con el verde claro */
-    box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
-    position: relative;
-    z-index: 800;
-    width: 100%;
-    margin-left: 0;
-    margin-top: 2rem;
+  background-color: #103f1b !important;
+  color: #fff;
+  padding: 1rem 0;
+  border-top: 3px solid #9fc45a;
+  box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
+  position: relative; 
+  z-index: 800;
+  width: 100%;
+
+  margin-top: auto; 
 }
 
 /* Contenedor del footer */
 .footer-container {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    position: relative;
-    padding: 0.5rem 2rem; /* Padding horizontal aumentado */
-    margin-left: 250px; /* Mismo ancho que el sidebar */
-    width: calc(100% - 250px);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  padding: 0.5rem 2rem;
+  margin-left: 250px; 
+  width: calc(100% - 250px);
 }
 
 /* Ajustamos el tamaño y estilo del texto para la información de contacto */
@@ -74,16 +74,16 @@
     color: white;
 }
 
-/* Sección de copyright */
+
 .copyright {
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    text-align: center;
-    font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.7);
-    padding: 0.5rem 0;
-    margin-top: 0;
-    margin-left: 250px; /* Mismo ancho que el sidebar */
-    width: calc(100% - 250px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+  padding: 0.5rem 0;
+  margin-top: 0;
+  margin-left: 100px; 
+  width: calc(100% - 250px); 
 }
 
 /* Adaptaciones responsivas */

@@ -22,9 +22,9 @@ const DireccionUsuario = () => {
   const [provincias, setProvincia] = useState([]);
   const [cantones, setCantones] = useState([]);
   const [distritos, setDistritos] = useState([]);
-  const [isValidatingPostalCode, setIsValidatingPostalCode] = useState(false);
+  const [direccionCompleta, setDireccionCompleta] = useState(null);
+  const [loading, setLoading] = useState(true);
   
-
   // Estado para el formulario
   const [formData, setFormData] = useState({
     codigoPostalDireccion: "",
@@ -33,76 +33,105 @@ const DireccionUsuario = () => {
     idCanton: "",
     idDistrito: "",
   });
-   const {handleLogout
-        } = useAppContext();
 
+  const { handleLogout } = useAppContext();
   const [isEditing, setIsEditing] = useState(false);
 
   const isValidPostalCodeFormat = (code) => {
     return /^\d{5}$/.test(code);
   };
 
-  const validatePostalCodeWithAPI = async (postalCode, country = "CR") => {
-    try {
-      setIsValidatingPostalCode(true);
-      
-      const username = "CarniceriaLaBendi"; 
-      const response = await fetch(
-        `https://secure.geonames.org/postalCodeLookupJSON?postalcode=${postalCode}&country=${country}&username=${username}`
-      );
-      
-      const data = await response.json();
-      return data.postalcodes && data.postalcodes.length > 0;
-      
-    } catch (error) {
-      console.error("Error validando código postal:", error);
-      toast.warning("No se pudo verificar el código postal. Se aceptará pero no está validado.");
-      return true; 
-    } finally {
-      setIsValidatingPostalCode(false);
-    }
-  };
-
-  // Validación específica para Costa Rica
-  const validateCostaRicaPostalCode = async (postalCode) => {
-    // Primero validamos el formato
-    if (!isValidPostalCodeFormat(postalCode)) {
-      toast.error("El código postal debe tener exactamente 5 dígitos");
-      return false;
-    }
-
-    return await validatePostalCodeWithAPI(postalCode);
-  };
-
+  // Cargar los datos de dirección completa al iniciar
   useEffect(() => {
-    if (usuario) {
-      setFormData({
-        codigoPostalDireccion: usuario.codigoPostalDireccion || "",
-        descripcionDireccion: usuario.descripcionDireccion || "",
-        idDistrito: usuario.idDistrito || ""
-      });
+    if (usuario?.correoUsuario) {
+      cargarDireccionUsuario();
       cargarProvincias();
     }
   }, [usuario]);
 
+  // Cargar la dirección completa desde el backend
+const cargarDireccionUsuario = async () => {
+  try {
+    setLoading(true);
+    console.log("Iniciando carga de dirección del usuario:", usuario.correoUsuario);
+    
+    const response = await axios.get(
+      `http://localhost:8080/direccion/buscar-por-correo`, 
+      {
+        params: { correoUsuario: usuario.correoUsuario },
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      }
+    );
+
+    console.log("Respuesta de dirección recibida:", response.data);
+
+    if (response.data) {
+      setDireccionCompleta(response.data);
+      
+      // Configurar el formulario con los datos recibidos
+      setFormData({
+        codigoPostalDireccion: response.data.codigoPostalDireccion || "",
+        descripcionDireccion: response.data.descripcionDireccion || "",
+        idProvincia: response.data.idProvincia || "",
+        idCanton: response.data.idCanton || "",
+        idDistrito: response.data.idDistrito || ""
+      });
+      
+      console.log("Formulario configurado con datos:", {
+        codigoPostalDireccion: response.data.codigoPostalDireccion || "",
+        descripcionDireccion: response.data.descripcionDireccion || "",
+        idProvincia: response.data.idProvincia || "",
+        idCanton: response.data.idCanton || "",
+        idDistrito: response.data.idDistrito || ""
+      });
+      
+      // Si hay provincia y cantón, cargar los datos correspondientes
+      if (response.data.idProvincia) {
+        const cantones = await cargarCantonesPorProvincia(response.data.idProvincia);
+        console.log("Cantones cargados:", cantones);
+      }
+      
+      if (response.data.idCanton) {
+        const distritos = await cargarDistritosPorCanton(response.data.idCanton);
+        console.log("Distritos cargados:", distritos);
+      }
+    }
+  } catch (error) {
+    console.error("Error al cargar la dirección del usuario:", error);
+    console.error("Detalles del error:", error.response?.data);
+    console.error("Estado HTTP:", error.response?.status);
+    
+    if (error.response?.status !== 404) { // No mostrar error si simplemente no hay dirección
+      toast.error("No se pudo cargar la información de dirección");
+    }
+  } finally {
+    setLoading(false);
+  }
+};
   // Cargar combos dependientes
   useEffect(() => {
-    if (formData.idProvincia) {
+    if (formData.idProvincia && !loading) {
       cargarCantones();
-    } else {
+    } else if (!loading) {
       setCantones([]);
-      setFormData(prev => ({ ...prev, idCanton: "", idDistrito: "" }));
+      if (!direccionCompleta) {
+        setFormData(prev => ({ ...prev, idCanton: "", idDistrito: "" }));
+      }
     }
-  }, [formData.idProvincia]);
+  }, [formData.idProvincia, loading]);
 
   useEffect(() => {
-    if (formData.idCanton) {
+    if (formData.idCanton && !loading) {
       cargarDistritos();
-    } else {
+    } else if (!loading) {
       setDistritos([]);
-      setFormData(prev => ({ ...prev, idDistrito: "" }));
+      if (!direccionCompleta) {
+        setFormData(prev => ({ ...prev, idDistrito: "" }));
+      }
     }
-  }, [formData.idCanton]);
+  }, [formData.idCanton, loading]);
 
   const cargarProvincias = async () => {
     try {
@@ -111,6 +140,44 @@ const DireccionUsuario = () => {
     } catch (error) {
       console.error("Error al cargar las provincias:", error);
       toast.error("Ocurrió un error al cargar las provincias");
+    }
+  };
+
+  // Función específica para cargar cantones durante la inicialización
+  const cargarCantonesPorProvincia = async (idProvincia) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8080/canton/leerPorProvincia/${idProvincia}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
+      setCantones(response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error al cargar los cantones:", error);
+      return [];
+    }
+  };
+
+  // Función específica para cargar distritos durante la inicialización
+  const cargarDistritosPorCanton = async (idCanton) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8080/distrito/leerPorCanton/${idCanton}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
+      setDistritos(response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error al cargar los distritos:", error);
+      return [];
     }
   };
 
@@ -150,15 +217,20 @@ const DireccionUsuario = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    
+    // Validación especial para código postal (solo números)
+    if (name === "codigoPostalDireccion") {
+      if (value === "" || /^\d+$/.test(value)) {
+        setFormData({ ...formData, [name]: value });
+      }
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
-  const handleBlurPostalCode = async () => {
-    if (formData.codigoPostalDireccion && formData.codigoPostalDireccion.length === 5) {
-      const isValid = await validateCostaRicaPostalCode(formData.codigoPostalDireccion);
-      if (!isValid) {
-        toast.info("Si el código es correcto pero no se valida, puedes continuar igual");
-      }
+  const handleBlurPostalCode = () => {
+    if (formData.codigoPostalDireccion && !isValidPostalCodeFormat(formData.codigoPostalDireccion)) {
+      toast.warning("El código postal debe tener exactamente 5 dígitos");
     }
   };
 
@@ -170,9 +242,9 @@ const DireccionUsuario = () => {
       return;
     }
 
-    // Validación de formato pero no bloqueamos si la API falla
+    // Validación de formato del código postal
     if (formData.codigoPostalDireccion && !isValidPostalCodeFormat(formData.codigoPostalDireccion)) {
-      toast.error("El código postal debe tener 5 dígitos");
+      toast.error("El código postal debe tener exactamente 5 dígitos");
       return;
     }
 
@@ -195,6 +267,9 @@ const DireccionUsuario = () => {
 
       toast.success(response.data);
       setIsEditing(false);
+      
+      // Recargar los datos de dirección después de guardar
+      cargarDireccionUsuario();
     } catch (error) {
       if (error.response?.status === 401) {
         handleLogout();
@@ -207,8 +282,8 @@ const DireccionUsuario = () => {
   };
 
 
+
   return (
-    
     <div className="profile-page">
       <NavbarApp />
       <div className="perfil-usuario-container">
@@ -219,7 +294,6 @@ const DireccionUsuario = () => {
         <div className="profile-content">
           <div className="profile-header">
             <h2>Mi Dirección</h2>
-
           </div>
 
           <div className="profile-card">
@@ -237,11 +311,14 @@ const DireccionUsuario = () => {
                   className="cancel-btn"
                   onClick={() => {
                     setIsEditing(false);
-                    if (usuario) {
+                    // Restaurar los datos originales al cancelar
+                    if (direccionCompleta) {
                       setFormData({
-                        codigoPostalDireccion: usuario.codigoPostalDireccion || "",
-                        descripcionDireccion: usuario.descripcionDireccion || "",
-                        idDistrito: usuario.idDistrito || ""
+                        codigoPostalDireccion: direccionCompleta.codigoPostalDireccion || "",
+                        descripcionDireccion: direccionCompleta.descripcionDireccion || "",
+                        idProvincia: direccionCompleta.idProvincia || "",
+                        idCanton: direccionCompleta.idCanton || "",
+                        idDistrito: direccionCompleta.idDistrito || ""
                       });
                     }
                   }}
@@ -250,6 +327,21 @@ const DireccionUsuario = () => {
                 </button>
               )}
             </div>
+
+            {direccionCompleta && !isEditing && (
+              <div className="direccion-display">
+                <div className="direccion-completa">
+                  <h4>Dirección actual:</h4>
+                  <p>
+                    {direccionCompleta.descripcionDireccion}, 
+                    {direccionCompleta.nombreDistrito && ` ${direccionCompleta.nombreDistrito},`} 
+                    {direccionCompleta.nombreCanton && ` ${direccionCompleta.nombreCanton},`}
+                    {direccionCompleta.nombreProvincia && ` ${direccionCompleta.nombreProvincia}`}
+                    {direccionCompleta.codigoPostalDireccion && ` - C.P: ${direccionCompleta.codigoPostalDireccion}`}
+                  </p>
+                </div>
+              </div>
+            )}
 
             <form onSubmit={handleSubmit} className="profile-form">
               <div className="form-grid">
@@ -269,10 +361,7 @@ const DireccionUsuario = () => {
                     disabled={!isEditing}
                     maxLength="5"
                   />
-                  {isValidatingPostalCode && (
-                    <small className="text-muted">Validando código postal...</small>
-                  )}
-                  <small className="text-muted">Ejemplos válidos: 10101 (San José), 20101 (Alajuela)</small>
+                  <small className="text-muted">Debe contener exactamente 5 dígitos</small>
                 </div>
 
                 {/* Descripción */}
@@ -369,7 +458,6 @@ const DireccionUsuario = () => {
                   <button 
                     type="submit" 
                     className="save-btn"
-                    disabled={isValidatingPostalCode}
                   >
                     <FontAwesomeIcon icon={faSave} /> Guardar Cambios
                   </button>

@@ -16,7 +16,7 @@ import jakarta.transaction.Transactional;
 @Service
 @Primary
 public class CarritoProductoService implements ICarritoProductoService {
-    
+
     @Autowired
     private CarritoProductoRepository carritoProductoRepo;
     private ProductoRepository productoRepo;
@@ -35,36 +35,35 @@ public class CarritoProductoService implements ICarritoProductoService {
         }
 
         carritoProductoRepo.saveProcedureCarritoProducto(
-            carritoProducto.getCarrito().getIdCarrito(),
-            carritoProducto.getIdProducto(),
-            carritoProducto.getCantidadProducto()
+                carritoProducto.getCarrito().getIdCarrito(),
+                carritoProducto.getIdProducto(),
+                carritoProducto.getCantidadProducto()
         );
-        
+
         actualizarTotalesCarrito(carritoProducto.getCarrito().getIdCarrito());
-        
+
         return carritoProducto;
     }
 
-     @Override
+    @Override
     @Transactional
     public CarritoProducto updateStock(CarritoProducto carritoProducto) {
-      
-        
+
         if (carritoProducto.getIdProducto() <= 0) {
             throw new IllegalArgumentException("ID de producto inválido");
         }
         if (carritoProducto.getCantidadProducto() <= 0) {
             throw new IllegalArgumentException("La cantidad debe ser mayor a cero");
         }
-       
+
         carritoProductoRepo.updateStock(
-            carritoProducto.getIdProducto(),
-            carritoProducto.getCantidadProducto()
+                carritoProducto.getIdProducto(),
+                carritoProducto.getCantidadProducto()
         );
-        
+
         return carritoProducto;
     }
-    
+
     @Override
     @Transactional
     public CarritoProducto updateProductoEnCarrito(CarritoProducto carritoProducto) {
@@ -79,14 +78,14 @@ public class CarritoProductoService implements ICarritoProductoService {
         }
 
         carritoProductoRepo.updateProcedureCarritoProducto(
-            carritoProducto.getIdCarritoProducto(),
-            carritoProducto.getCarrito().getIdCarrito(),
-            carritoProducto.getIdProducto(),
-            carritoProducto.getCantidadProducto()
+                carritoProducto.getIdCarritoProducto(),
+                carritoProducto.getCarrito().getIdCarrito(),
+                carritoProducto.getIdProducto(),
+                carritoProducto.getCantidadProducto()
         );
-        
+
         actualizarTotalesCarrito(carritoProducto.getCarrito().getIdCarrito());
-        
+
         return carritoProducto;
     }
 
@@ -100,21 +99,23 @@ public class CarritoProductoService implements ICarritoProductoService {
     public boolean removeProductoDeCarrito(int idCarritoProducto) {
         try {
             CarritoProducto cp = carritoProductoRepo.findById(idCarritoProducto).orElse(null);
-            if (cp == null) return false;
-            
+            if (cp == null) {
+                return false;
+            }
+
             int idCarrito = cp.getCarrito().getIdCarrito();
-            
+
             carritoProductoRepo.deleteProcedureCarritoProducto(idCarritoProducto);
-            
+
             actualizarTotalesCarrito(idCarrito);
-            
+
             return true;
         } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
     }
-    
+
     private void actualizarTotalesCarrito(int idCarrito) {
         // Implementar lógica para recalcular montoTotalCarrito y cantidadCarrito
         // basado en los productos actuales del carrito

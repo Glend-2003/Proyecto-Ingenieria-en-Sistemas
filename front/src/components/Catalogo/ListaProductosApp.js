@@ -584,21 +584,7 @@ function ListaProductosApp({ categoria }) {
           </div>
         </div>
         <div className="col-md-6">
-          <div className="d-flex align-items-center mb-3">
-            <div className="rating-stars me-2">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <FiStar 
-                  key={star} 
-                  className={star <= 4 ? "filled-star" : "empty-star"} // Assuming 4/5 stars
-                  style={{ 
-                    color: star <= 4 ? colors.lightBrown : '#ddd',
-                    fontSize: '1.2rem'
-                  }}
-                />
-              ))}
-            </div>
-            <small className="text-muted">(24 reseñas)</small>
-          </div>
+          
 
           <div className="price-section mb-3" style={{ 
             display: 'flex',

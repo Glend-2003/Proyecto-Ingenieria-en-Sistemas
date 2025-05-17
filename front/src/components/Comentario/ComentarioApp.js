@@ -232,15 +232,13 @@ const ComentarioApp = () => {
                   onChange={(e) => setNumCalificacion(e.target.value)}
                 />
               </div>
-              <Button variant="primary" type="submit">
-                {comentarioEdit ? "Actualizar" : "Agregar"}
-              </Button>
+             
             </form>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={handleCloseModal}>
-              Cerrar
-            </Button>
+             <Button variant="primary" type="submit">
+                {comentarioEdit ? "Actualizar" : "Agregar"}
+              </Button>
           </Modal.Footer>
         </Modal>
 

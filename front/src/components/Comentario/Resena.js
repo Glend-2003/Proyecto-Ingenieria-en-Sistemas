@@ -242,13 +242,15 @@ const Resena = () => {
               <div className="resena-header">
                 <div className="resena-user">
                   <div className="resena-avatar">
-                    {comentario.usuario && comentario.usuario.nombreUsuario 
-                      ? comentario.usuario.nombreUsuario.charAt(0).toUpperCase() 
-                      : "C"}
+                    {comentario.nombre 
+                      ? comentario.nombre.charAt(0).toUpperCase() 
+                      : (comentario.usuario && comentario.usuario.nombre 
+                          ? comentario.usuario.nombre.charAt(0).toUpperCase() 
+                          : "C")}
                   </div>
                   <div className="resena-user-info">
                     <h4 className="resena-name">
-                      {comentario.usuario ? comentario.usuario.nombreUsuario : "Cliente"}
+                      {comentario.nombre || (comentario.usuario ? comentario.usuario.nombre : "Cliente")}
                     </h4>
                     <div className="resena-date">
                       {formatDate(comentario.fechaComentario)}
