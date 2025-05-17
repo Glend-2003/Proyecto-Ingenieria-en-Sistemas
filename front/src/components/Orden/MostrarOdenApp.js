@@ -70,7 +70,7 @@ function MostrarOrdenApp() {
       <div className="orden-hero">
         <div className="orden-hero-content">
           <h1>Su Carrito de Compras</h1>
-          <p>Revise sus productos y proceda al pago cuando esté listo</p>
+          <p>Revise sus productos y proceda al pedido cuando esté listo</p>
         </div>
       </div>
       

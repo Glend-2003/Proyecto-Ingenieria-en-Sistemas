@@ -63,7 +63,7 @@ function LoginApp({ initialPage = "home" }) {
 
       {/* YA NO SE RENDERIZA EL OFFCANVAS DE LOGIN AQUÍ */}
 
-      <main className="flex-grow-2" style={{ marginTop: "0px" }}> {/* Ajusta el marginTop si es necesario */}
+      <main className="flex-grow-1" style={{ marginTop: "0px" }}> {/* Ajusta el marginTop si es necesario */}
         {renderMainContent()}
         {/* CarritoApp también será global, así que no se renderiza aquí tampoco */}
       </main>
