@@ -14,7 +14,7 @@ import {
 import SideBar from "../SideBar/SideBar";
 import useAuth from "../../hooks/useAuth";
 import { Button, Modal } from "react-bootstrap";
-import "./Categoria.css";
+import "./Categoria.css"; // Asegúrate de que este archivo exista en la misma carpeta
 import FooterApp from '../Footer/FooterApp';
 import PaginacionApp from "../Paginacion/PaginacionApp";
 
@@ -138,6 +138,7 @@ const CategoriaApp = () => {
       }
     }
   };
+  
   const showAlertaInactivo = () => {
     Swal.fire({
       title: "Categoria inactiva",
@@ -146,6 +147,7 @@ const CategoriaApp = () => {
       confirmButtonText: "Aceptar",
     });
   }
+  
   const eliminarCategoria = async (id) => {
     const { isConfirmed } = await Swal.fire({
       title: "¿Estás seguro?",
@@ -181,8 +183,6 @@ const CategoriaApp = () => {
   };
 
   const handleShowModal = (categoria = null) => {
-
-
     if (categoria) {
       setCategoriaEdit(categoria);
       setNombreCategoria(categoria.nombreCategoria);
@@ -229,145 +229,146 @@ const CategoriaApp = () => {
       <SideBar usuario={usuario} />
       <div className="categoria-main-container">
         <h1>Gestión de categorías</h1>
-        <Button className="categoria-add-button" onClick={() => handleShowModal()}>
+        <Button 
+          className="categoria-add-button" 
+          onClick={() => handleShowModal()}
+        >
           Agregar nueva categoría
         </Button>
         <div className="mb-2"></div>
-          <div className="categoria-search-container">
-            <label>Buscar categoría</label>
-            <input
-              type="text"
-              className="categoria-search-input"
-              placeholder="Buscar categoría por nombre"
-              value={search}
-              onChange={handleSearchChange}
-            />
-          </div>
-
-          <Modal show={showModal} onHide={handleCloseModal}>
-            <Modal.Header closeButton>
-              <Modal.Title>
-                {categoriaEdit ? "Actualizar Categoría" : "Agregar Categoría"}
-              </Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  categoriaEdit ? actualizarCategoria() : agregarCategoria();
-                }}
-              >
-                <div className="mb-3">
-                  <label>Nombre de la categoria</label>
-                  <input
-                    className="form-control"
-                    type="text"
-                    placeholder="Nombre de la Categoría"
-                    required
-                    value={nombreCategoria}
-                    onChange={(e) => setNombreCategoria(e.target.value)}
-                  />
-                </div>
-                <div className="mb-3">
-                  <label>Descripción</label>
-                  <input
-                    className="form-control"
-                    type="text"
-                    placeholder="Descripción de la Categoría"
-                    required
-                    value={descripcionCategoria}
-                    onChange={(e) => setDescripcionCategoria(e.target.value)}
-                  />
-                </div>
-                <Button variant="primary" type="submit">
-                  {categoriaEdit ? "Actualizar" : "Agregar"}
-                </Button>
-              </form>
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant="secondary" onClick={handleCloseModal}>
-                Cerrar
-              </Button>
-            </Modal.Footer>
-          </Modal>
-
-          <ToastContainer />
-
-          <div className="categoria-table-container">
-            <table className="categoria-table">
-              <thead>
-                <tr className="categoria-table-header-row">
-                  <th>No</th>
-                  <th>Nombre</th>
-                  <th>Descripción</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentCategorias.length === 0 ? (
-                  <tr className="categoria-no-results">
-                    <td colSpan="7">
-                      <FontAwesomeIcon icon={faExclamationTriangle} className="categoria-warning-icon" size="lg" />
-                      <span>No hay categorias disponibles</span>
-                      </td>
-                  </tr>
-                ) : (
-                  currentCategorias.map((categoria, index) => (
-                    <tr key={categoria.idCategoria} className="categoria-table-row">
-                      <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
-                      <td className="categoria-letraNegrita">{categoria.nombreCategoria}</td>
-                      <td className="categoria-letraComun">{categoria.descripcionCategoria}</td>
-                      <td className="categoria-actions-cell">
-                        <div className="categoria-actions-container">
-                            <button
-                            className={`categoria-status-button ${categoria.estadoCategoria
-                                ? "categoria-status-active"
-                                : "categoria-status-inactive"
-                              }`}
-                            type="button"
-                            onClick={() => activarDesactivarCategoria(categoria.idCategoria)}
-                          >
-                            {categoria.estadoCategoria ? "Activo" : "Inactivo"}
-                          </button>
-                          <div className="categoria-action-buttons">
-                            <button
-                              className="categoria-edit-button"
-                              type="button"
-                              onClick={() => {
-                                if (!categoria.estadoCategoria) {
-                                  showAlertaInactivo();
-                                } else {
-                                  handleShowModal(categoria);
-                                }
-                              }}
-                              title="Editar categoria"
-                            >
-                              <FontAwesomeIcon icon={faEdit}/>
-                            </button>
-                            <button
-                              className="categoria-delete-button"
-                              type="button"
-                              onClick={() => eliminarCategoria(categoria.idCategoria)}
-                            >
-                              <FontAwesomeIcon icon={faTrash} />
-                            </button>
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-          <PaginacionApp
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-            onNextPage={handleNextPage}
-            onPreviousPage={handlePreviousPage}
+        <div className="categoria-search-container">
+          <label>Buscar categoría</label>
+          <input
+            type="text"
+            className="categoria-search-input"
+            placeholder="Buscar categoría por nombre"
+            value={search}
+            onChange={handleSearchChange}
           />
         </div>
+
+        <Modal show={showModal} onHide={handleCloseModal}>
+          <Modal.Header closeButton>
+            <Modal.Title className="categoria-modal">
+              {categoriaEdit ? "Actualizar Categoría" : "Agregar Categoría"}
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                categoriaEdit ? actualizarCategoria() : agregarCategoria();
+              }}
+            >
+              <div className="mb-3">
+                <label>Nombre de la categoria</label>
+                <input
+                  className="form-control"
+                  type="text"
+                  placeholder="Nombre de la Categoría"
+                  required
+                  value={nombreCategoria}
+                  onChange={(e) => setNombreCategoria(e.target.value)}
+                />
+              </div>
+              <div className="mb-3">
+                <label>Descripción</label>
+                <input
+                  className="form-control"
+                  type="text"
+                  placeholder="Descripción de la Categoría"
+                  required
+                  value={descripcionCategoria}
+                  onChange={(e) => setDescripcionCategoria(e.target.value)}
+                />
+              </div>
+
+            </form>
+          </Modal.Body>
+          <Modal.Footer>
+                            <Button variant="primary" type="submit">
+                {categoriaEdit ? "Actualizar" : "Agregar"}
+              </Button>
+          </Modal.Footer>
+        </Modal>
+
+        <ToastContainer />
+
+        <div className="categoria-table-container">
+          <table className="categoria-table">
+            <thead>
+              <tr className="categoria-table-header-row">
+                <th>No</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentCategorias.length === 0 ? (
+                <tr className="categoria-no-results">
+                  <td colSpan="7">
+                    <FontAwesomeIcon icon={faExclamationTriangle} className="categoria-warning-icon" size="lg" />
+                    <span>No hay categorias disponibles</span>
+                  </td>
+                </tr>
+              ) : (
+                currentCategorias.map((categoria, index) => (
+                  <tr key={categoria.idCategoria} className="categoria-table-row">
+                    <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
+                    <td className="categoria-letraNegrita">{categoria.nombreCategoria}</td>
+                    <td className="categoria-letraComun">{categoria.descripcionCategoria}</td>
+                    <td className="categoria-actions-cell">
+                      <div className="categoria-actions-container">
+                        <button
+                          className={`categoria-status-button ${categoria.estadoCategoria
+                            ? "categoria-status-active"
+                            : "categoria-status-inactive"
+                          }`}
+                          type="button"
+                          onClick={() => activarDesactivarCategoria(categoria.idCategoria)}
+                        >
+                          {categoria.estadoCategoria ? "Activo" : "Inactivo"}
+                        </button>
+                        <div className="categoria-action-buttons">
+                          <button
+                            className="categoria-edit-button"
+                            type="button"
+                            onClick={() => {
+                              if (!categoria.estadoCategoria) {
+                                showAlertaInactivo();
+                              } else {
+                                handleShowModal(categoria);
+                              }
+                            }}
+                            title="Editar categoria"
+                          >
+                            <FontAwesomeIcon icon={faEdit}/>
+                          </button>
+                          <button
+                            className="categoria-delete-button"
+                            type="button"
+                            onClick={() => eliminarCategoria(categoria.idCategoria)}
+                          >
+                            <FontAwesomeIcon icon={faTrash} />
+                          </button>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+        <PaginacionApp
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          onNextPage={handleNextPage}
+          onPreviousPage={handlePreviousPage}
+        />
+      </div>
       <FooterApp />
     </div>
   );

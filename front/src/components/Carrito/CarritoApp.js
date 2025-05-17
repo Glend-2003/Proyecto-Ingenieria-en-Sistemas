@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import './Carrito.css';
 import useAuth from '../../hooks/userInfo'; 
 import axios from 'axios'; 
-import { useAppContext } from "../Navbar/AppContext"
+import { useAppContext } from "../Navbar/AppContext";
 
 function CarritoApp() {
   const {
@@ -16,8 +16,7 @@ function CarritoApp() {
     setShowCartMenu,
   } = useCart();
 
-  const {idUsuario} = useAppContext();
-
+  const { idUsuario } = useAppContext();
   const { usuario } = useAuth();
   const navigate = useNavigate();
 
@@ -98,6 +97,7 @@ function CarritoApp() {
     }
   };
 
+  // Agrupar productos con el mismo ID
   const groupedCart = cart.reduce((acc, item) => {
     const existingItem = acc.find((i) => i.idProducto === item.idProducto);
     if (existingItem) {
@@ -109,22 +109,27 @@ function CarritoApp() {
   }, []);
 
   return (
-    <Offcanvas show={showCartMenu} onHide={() => setShowCartMenu(false)} placement="end"
-    style={{
-      position: 'fixed',
-      top: '0',
-      zIndex: 1200, // Mayor que el zIndex del navbar (1100)
-      height: '100vh'
-    }}>
+    <Offcanvas 
+      show={showCartMenu} 
+      onHide={() => setShowCartMenu(false)} 
+      placement="end"
+      className="carrito-offcanvas"
+      style={{
+        position: 'fixed',
+        top: '0',
+        zIndex: 1200,
+        height: '100vh'
+      }}
+    >
       <Offcanvas.Header closeButton>
         <Offcanvas.Title>Tu carrito de compras</Offcanvas.Title>
       </Offcanvas.Header>
       <Offcanvas.Body className="d-flex flex-column p-0" style={{ minHeight: 0 }}>
         {groupedCart.length > 0 ? (
           <>
-            <div className="cart-products-container px-3 pt-3">
+            <div className="carrito-productos-container px-3 pt-3">
               {groupedCart.map((item, index) => (
-                <div key={index} className="cart-product mb-3 position-relative">
+                <div key={index} className="carrito-producto mb-3 position-relative">
                   <div className="d-flex gap-3">
                     {item.imgProducto && (
                       <img
@@ -136,13 +141,13 @@ function CarritoApp() {
                         alt={item.nombreProducto}
                         width="60"
                         height="60"
-                        className="item-img rounded"
+                        className="carrito-producto-img"
                         style={{ objectFit: 'cover' }}
                       />
                     )}
                     <div>
-                      <div className="fw-bold">{item.nombreProducto}</div>
-                      <div className="text-muted small">
+                      <div className="carrito-producto-nombre">{item.nombreProducto}</div>
+                      <div className="carrito-producto-precio">
                         {item.cantidad} × ₡{item.montoPrecioProducto.toLocaleString()}
                       </div>
                     </div>
@@ -150,7 +155,7 @@ function CarritoApp() {
                   <Button
                     variant="link"
                     size="sm"
-                    className="text-danger p-0 position-absolute end-0 top-0"
+                    className="carrito-btn-eliminar p-0 position-absolute end-0 top-0"
                     onClick={() => removeFromCart(item.idProducto)}
                     style={{ transform: 'translateY(25%)' }}
                   >
@@ -160,10 +165,10 @@ function CarritoApp() {
               ))}
             </div>
   
-            <div className="cart-footer border-top px-3 py-3 mt-auto">
+            <div className="carrito-footer mt-auto">
               <div className="d-flex justify-content-between mb-3">
-                <span className="fw-bold">Subtotal:</span>
-                <span className="fw-bold">
+                <span className="carrito-subtotal-texto">Subtotal:</span>
+                <span className="carrito-subtotal-valor">
                   ₡{groupedCart.reduce(
                     (total, item) => total + item.montoPrecioProducto * item.cantidad,
                     0
@@ -172,25 +177,17 @@ function CarritoApp() {
               </div>
               
               <Button 
-                variant="outline-dark" 
-                className="w-100 mb-2 fw-bold"
+                variant="primary" 
+                className="carrito-btn-ver w-100 mb-2"
                 onClick={handleVerOrden}
               >
                 VER CARRITO
               </Button>
-              
-              <Button 
-                variant="success" 
-                className="w-100 fw-bold"
-                onClick={handlePagar2}
-              >
-                FINALIZAR COMPRA
-              </Button>
             </div>
           </>
         ) : (
-          <div className="text-center p-4">
-            <p className="text-muted">No hay productos en el carrito.</p>
+          <div className="carrito-vacio p-4">
+            <p>No hay productos en el carrito.</p>
           </div>
         )}
       </Offcanvas.Body>
