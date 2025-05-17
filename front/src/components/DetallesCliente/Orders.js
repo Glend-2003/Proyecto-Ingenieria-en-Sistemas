@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-import { FaHome, FaFileAlt, FaDownload, FaMapMarkerAlt, FaUser, FaSignOutAlt, FaSpinner, FaCheck, FaClock, FaFilter, FaSearch, FaTimes, FaCog, FaExclamationTriangle } from 'react-icons/fa';
+import { FaHome, FaFileAlt, FaDownload, FaMapMarkerAlt, FaUser, FaSignOutAlt, FaCheck, FaClock, FaFilter, FaSearch, FaTimes, FaCog, FaExclamationTriangle } from 'react-icons/fa';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import DatePicker from 'react-datepicker';
@@ -470,8 +470,7 @@ const Orders = () => {
           )}
           
           {loading ? (
-            <div className="loading-spinner">
-              <FaSpinner className="spinner" />
+            <div className="loading-container">
               <p>Cargando pedidos...</p>
             </div>
           ) : error ? (

@@ -23,6 +23,8 @@ const DireccionUsuario = () => {
   const [provincias, setProvincia] = useState([]);
   const [cantones, setCantones] = useState([]);
   const [distritos, setDistritos] = useState([]);
+  const [direccionCompleta, setDireccionCompleta] = useState(null);
+  const [loading, setLoading] = useState(true);
   
   // Estado para el formulario
   const [formData, setFormData] = useState({
@@ -40,35 +42,97 @@ const DireccionUsuario = () => {
     return /^\d{5}$/.test(code);
   };
 
+  // Cargar los datos de dirección completa al iniciar
   useEffect(() => {
-    if (usuario) {
-      setFormData({
-        codigoPostalDireccion: usuario.codigoPostalDireccion || "",
-        descripcionDireccion: usuario.descripcionDireccion || "",
-        idDistrito: usuario.idDistrito || ""
-      });
+    if (usuario?.correoUsuario) {
+      cargarDireccionUsuario();
       cargarProvincias();
     }
   }, [usuario]);
 
+  // Cargar la dirección completa desde el backend
+const cargarDireccionUsuario = async () => {
+  try {
+    setLoading(true);
+    console.log("Iniciando carga de dirección del usuario:", usuario.correoUsuario);
+    
+    const response = await axios.get(
+      `http://localhost:8080/direccion/buscar-por-correo`, 
+      {
+        params: { correoUsuario: usuario.correoUsuario },
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      }
+    );
+
+    console.log("Respuesta de dirección recibida:", response.data);
+
+    if (response.data) {
+      setDireccionCompleta(response.data);
+      
+      // Configurar el formulario con los datos recibidos
+      setFormData({
+        codigoPostalDireccion: response.data.codigoPostalDireccion || "",
+        descripcionDireccion: response.data.descripcionDireccion || "",
+        idProvincia: response.data.idProvincia || "",
+        idCanton: response.data.idCanton || "",
+        idDistrito: response.data.idDistrito || ""
+      });
+      
+      console.log("Formulario configurado con datos:", {
+        codigoPostalDireccion: response.data.codigoPostalDireccion || "",
+        descripcionDireccion: response.data.descripcionDireccion || "",
+        idProvincia: response.data.idProvincia || "",
+        idCanton: response.data.idCanton || "",
+        idDistrito: response.data.idDistrito || ""
+      });
+      
+      // Si hay provincia y cantón, cargar los datos correspondientes
+      if (response.data.idProvincia) {
+        const cantones = await cargarCantonesPorProvincia(response.data.idProvincia);
+        console.log("Cantones cargados:", cantones);
+      }
+      
+      if (response.data.idCanton) {
+        const distritos = await cargarDistritosPorCanton(response.data.idCanton);
+        console.log("Distritos cargados:", distritos);
+      }
+    }
+  } catch (error) {
+    console.error("Error al cargar la dirección del usuario:", error);
+    console.error("Detalles del error:", error.response?.data);
+    console.error("Estado HTTP:", error.response?.status);
+    
+    if (error.response?.status !== 404) { // No mostrar error si simplemente no hay dirección
+      toast.error("No se pudo cargar la información de dirección");
+    }
+  } finally {
+    setLoading(false);
+  }
+};
   // Cargar combos dependientes
   useEffect(() => {
-    if (formData.idProvincia) {
+    if (formData.idProvincia && !loading) {
       cargarCantones();
-    } else {
+    } else if (!loading) {
       setCantones([]);
-      setFormData(prev => ({ ...prev, idCanton: "", idDistrito: "" }));
+      if (!direccionCompleta) {
+        setFormData(prev => ({ ...prev, idCanton: "", idDistrito: "" }));
+      }
     }
-  }, [formData.idProvincia]);
+  }, [formData.idProvincia, loading]);
 
   useEffect(() => {
-    if (formData.idCanton) {
+    if (formData.idCanton && !loading) {
       cargarDistritos();
-    } else {
+    } else if (!loading) {
       setDistritos([]);
-      setFormData(prev => ({ ...prev, idDistrito: "" }));
+      if (!direccionCompleta) {
+        setFormData(prev => ({ ...prev, idDistrito: "" }));
+      }
     }
-  }, [formData.idCanton]);
+  }, [formData.idCanton, loading]);
 
   const cargarProvincias = async () => {
     try {
@@ -77,6 +141,44 @@ const DireccionUsuario = () => {
     } catch (error) {
       console.error("Error al cargar las provincias:", error);
       toast.error("Ocurrió un error al cargar las provincias");
+    }
+  };
+
+  // Función específica para cargar cantones durante la inicialización
+  const cargarCantonesPorProvincia = async (idProvincia) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8080/canton/leerPorProvincia/${idProvincia}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
+      setCantones(response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error al cargar los cantones:", error);
+      return [];
+    }
+  };
+
+  // Función específica para cargar distritos durante la inicialización
+  const cargarDistritosPorCanton = async (idCanton) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8080/distrito/leerPorCanton/${idCanton}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
+      setDistritos(response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error al cargar los distritos:", error);
+      return [];
     }
   };
 
@@ -166,6 +268,9 @@ const DireccionUsuario = () => {
 
       toast.success(response.data);
       setIsEditing(false);
+      
+      // Recargar los datos de dirección después de guardar
+      cargarDireccionUsuario();
     } catch (error) {
       if (error.response?.status === 401) {
         handleLogout();
@@ -176,6 +281,8 @@ const DireccionUsuario = () => {
       }
     }
   };
+
+
 
   return (
     <div className="profile-page">
@@ -206,11 +313,14 @@ const DireccionUsuario = () => {
                   className="cancel-btn"
                   onClick={() => {
                     setIsEditing(false);
-                    if (usuario) {
+                    // Restaurar los datos originales al cancelar
+                    if (direccionCompleta) {
                       setFormData({
-                        codigoPostalDireccion: usuario.codigoPostalDireccion || "",
-                        descripcionDireccion: usuario.descripcionDireccion || "",
-                        idDistrito: usuario.idDistrito || ""
+                        codigoPostalDireccion: direccionCompleta.codigoPostalDireccion || "",
+                        descripcionDireccion: direccionCompleta.descripcionDireccion || "",
+                        idProvincia: direccionCompleta.idProvincia || "",
+                        idCanton: direccionCompleta.idCanton || "",
+                        idDistrito: direccionCompleta.idDistrito || ""
                       });
                     }
                   }}
@@ -219,6 +329,21 @@ const DireccionUsuario = () => {
                 </button>
               )}
             </div>
+
+            {direccionCompleta && !isEditing && (
+              <div className="direccion-display">
+                <div className="direccion-completa">
+                  <h4>Dirección actual:</h4>
+                  <p>
+                    {direccionCompleta.descripcionDireccion}, 
+                    {direccionCompleta.nombreDistrito && ` ${direccionCompleta.nombreDistrito},`} 
+                    {direccionCompleta.nombreCanton && ` ${direccionCompleta.nombreCanton},`}
+                    {direccionCompleta.nombreProvincia && ` ${direccionCompleta.nombreProvincia}`}
+                    {direccionCompleta.codigoPostalDireccion && ` - C.P: ${direccionCompleta.codigoPostalDireccion}`}
+                  </p>
+                </div>
+              </div>
+            )}
 
             <form onSubmit={handleSubmit} className="profile-form">
               <div className="form-grid">

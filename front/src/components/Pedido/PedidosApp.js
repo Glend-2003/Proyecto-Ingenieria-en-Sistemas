@@ -94,32 +94,43 @@ const PedidosApp = () => {
   useEffect(() => {
     aplicarFiltros();
   }, [filterStatus, pedidos, filtroFechaInicio, filtroFechaFin]);
-
+  
+  const [allPedidos, setAllPedidos] = useState([]);
   // Función para obtener pedidos
-  const fetchPedidos = async () => {
-    try {
-      setLoading(true);
-      setRefreshing(true);
-      const response = await axios.get("http://localhost:8080/pedido/");
-      // Ordenar pedidos por fecha (más recientes primero)
-      const sortedPedidos = response.data.sort((a, b) => 
-        new Date(b.fechaPedido) - new Date(a.fechaPedido)
-      );
-      setPedidos(sortedPedidos);
-      setFilteredPedidos(sortedPedidos);
-      setLoading(false);
-      showSnackbar("Pedidos actualizados correctamente", "success");
-    } catch (err) {
-      setError(
-        "Error al cargar los pedidos. Por favor, intente de nuevo más tarde."
-      );
-      setLoading(false);
-      console.error("Error fetching pedidos:", err);
-      showSnackbar("Error al cargar los pedidos", "error");
-    } finally {
-      setRefreshing(false);
-    }
-  };
+const fetchPedidos = async () => {
+  try {
+    setLoading(true);
+    setRefreshing(true);
+    const response = await axios.get("http://localhost:8080/pedido/");
+    
+    // Ordenar pedidos por fecha (más recientes primero)
+    const sortedPedidos = response.data.sort((a, b) => 
+      new Date(b.fechaPedido) - new Date(a.fechaPedido)
+    );
+    
+    // Guardar todos los pedidos para estadísticas
+    setAllPedidos(sortedPedidos);
+    
+    // Filtrar para excluir los pedidos entregados
+    const pedidosActivos = sortedPedidos.filter(pedido => 
+      pedido.estadoEntregaPedido !== "Entregado"
+    );
+    
+    setPedidos(pedidosActivos);
+    setFilteredPedidos(pedidosActivos);
+    setLoading(false);
+    showSnackbar("Pedidos actualizados correctamente", "success");
+  } catch (err) {
+    setError(
+      "Error al cargar los pedidos. Por favor, intente de nuevo más tarde."
+    );
+    setLoading(false);
+    console.error("Error fetching pedidos:", err);
+    showSnackbar("Error al cargar los pedidos", "error");
+  } finally {
+    setRefreshing(false);
+  }
+};
   
   // Función para obtener tipos de pago
   const fetchTiposPago = async () => {
@@ -132,80 +143,95 @@ const PedidosApp = () => {
   };
 
   // Función para aplicar filtros
-  const aplicarFiltros = () => {
-    let result = [...pedidos];
+const aplicarFiltros = () => {
+  let result = [...pedidos];
+  const filtrandoEntregados = filterStatus === "Entregado";
 
-    // Filtrar por estado
-    if (filterStatus !== "todos") {
-      if (filterStatus === "activo") {
-        result = result.filter((pedido) => pedido.estadoPedido);
-      } else if (filterStatus === "inactivo") {
-        result = result.filter((pedido) => !pedido.estadoPedido);
-      } else {
-        result = result.filter(
-          (pedido) => pedido.estadoEntregaPedido === filterStatus
-        );
-      }
+  // Filtrar por estado
+  if (filterStatus !== "todos") {
+    if (filterStatus === "activo") {
+      result = result.filter((pedido) => pedido.estadoPedido);
+    } else if (filterStatus === "inactivo") {
+      result = result.filter((pedido) => !pedido.estadoPedido);
+    } else {
+      result = result.filter(
+        (pedido) => pedido.estadoEntregaPedido === filterStatus
+      );
     }
+  } else if (!filtrandoEntregados) {
+    // Si no se está filtrando por ningún estado específico, excluir los entregados
+    result = result.filter(pedido => pedido.estadoEntregaPedido !== "Entregado");
+  }
 
-    // Filtrar por rango de fechas
-    if (filtroFechaInicio && filtroFechaFin) {
-      const fechaInicio = new Date(filtroFechaInicio);
-      fechaInicio.setHours(0, 0, 0, 0);
-      
-      const fechaFin = new Date(filtroFechaFin);
-      fechaFin.setHours(23, 59, 59, 999);
-      
-      result = result.filter((pedido) => {
-        const fechaPedido = new Date(pedido.fechaPedido);
-        return fechaPedido >= fechaInicio && fechaPedido <= fechaFin;
-      });
-    }
+  // Filtrar por rango de fechas
+  if (filtroFechaInicio && filtroFechaFin) {
+    const fechaInicio = new Date(filtroFechaInicio);
+    fechaInicio.setHours(0, 0, 0, 0);
+    
+    const fechaFin = new Date(filtroFechaFin);
+    fechaFin.setHours(23, 59, 59, 999);
+    
+    result = result.filter((pedido) => {
+      const fechaPedido = new Date(pedido.fechaPedido);
+      return fechaPedido >= fechaInicio && fechaPedido <= fechaFin;
+    });
+  }
 
-    setFilteredPedidos(result);
-    setCurrentPage(1); // Reset a la primera página cuando cambian los filtros
-  };
+  setFilteredPedidos(result);
+  setCurrentPage(1); // Reset a la primera página cuando cambian los filtros
+};
 
   // Función para filtros avanzados usando el endpoint del backend
-  const aplicarFiltrosAvanzados = async () => {
-    try {
-      setLoading(true);
-      
-      // Construir URL para filtrar
-      let url = `http://localhost:8080/pedido/filtrar?idUsuario=0`;
-      
-      if (filterStatus !== "todos" && filterStatus !== "activo" && filterStatus !== "inactivo") {
-        url += `&estadoEntrega=${encodeURIComponent(filterStatus)}`;
-      }
-      
-      if (filtroFechaInicio) {
-        const fechaInicio = new Date(filtroFechaInicio);
-        fechaInicio.setHours(0, 0, 0);
-        url += `&fechaInicio=${encodeURIComponent(fechaInicio.toISOString().replace('T', ' ').substring(0, 19))}`;
-      }
-      
-      if (filtroFechaFin) {
-        const fechaFin = new Date(filtroFechaFin);
-        fechaFin.setHours(23, 59, 59);
-        url += `&fechaFin=${encodeURIComponent(fechaFin.toISOString().replace('T', ' ').substring(0, 19))}`;
-      }
-      
-      const response = await axios.get(url);
-      
-      // Ordenar pedidos por fecha (más recientes primero)
-      const sortedPedidos = response.data.sort((a, b) => 
-        new Date(b.fechaPedido) - new Date(a.fechaPedido)
-      );
-      
-      setFilteredPedidos(sortedPedidos);
-      showSnackbar("Filtros aplicados correctamente", "success");
-    } catch (err) {
-      console.error("Error al aplicar filtros:", err);
-      showSnackbar("Error al aplicar filtros", "error");
-    } finally {
-      setLoading(false);
+const aplicarFiltrosAvanzados = async () => {
+  try {
+    setLoading(true);
+    
+    // Construir URL para filtrar
+    let url = `http://localhost:8080/pedido/filtrar?idUsuario=0`;
+    
+    // Variable para saber si se está filtrando explícitamente por estado "Entregado"
+    const filtrandoEntregados = filterStatus === "Entregado";
+    
+    if (filterStatus !== "todos" && filterStatus !== "activo" && filterStatus !== "inactivo") {
+      url += `&estadoEntrega=${encodeURIComponent(filterStatus)}`;
     }
-  };
+    
+    if (filtroFechaInicio) {
+      const fechaInicio = new Date(filtroFechaInicio);
+      fechaInicio.setHours(0, 0, 0);
+      url += `&fechaInicio=${encodeURIComponent(fechaInicio.toISOString().replace('T', ' ').substring(0, 19))}`;
+    }
+    
+    if (filtroFechaFin) {
+      const fechaFin = new Date(filtroFechaFin);
+      fechaFin.setHours(23, 59, 59);
+      url += `&fechaFin=${encodeURIComponent(fechaFin.toISOString().replace('T', ' ').substring(0, 19))}`;
+    }
+    
+    const response = await axios.get(url);
+    
+    // Ordenar pedidos por fecha (más recientes primero)
+    const sortedPedidos = response.data.sort((a, b) => 
+      new Date(b.fechaPedido) - new Date(a.fechaPedido)
+    );
+    
+    // Si no se está filtrando explícitamente por "Entregado", excluirlos
+    let filteredResults = sortedPedidos;
+    if (!filtrandoEntregados) {
+      filteredResults = sortedPedidos.filter(pedido => 
+        pedido.estadoEntregaPedido !== "Entregado"
+      );
+    }
+    
+    setFilteredPedidos(filteredResults);
+    showSnackbar("Filtros aplicados correctamente", "success");
+  } catch (err) {
+    console.error("Error al aplicar filtros:", err);
+    showSnackbar("Error al aplicar filtros", "error");
+  } finally {
+    setLoading(false);
+  }
+};
 
   // Funciones de paginación
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -311,39 +337,76 @@ const PedidosApp = () => {
   };
 
   // Funciones para actualizar estados de pedido
-  const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
-    if (nuevoEstado === 'Cancelado' &&
-      !window.confirm('¿Está seguro que desea cancelar este pedido?')) {
-      return;
-    }
-  
-    setUpdatingStatus(pedidoId);
-    try {
-      // Obtener el pedido actual para extraer el correo del cliente
-      const pedidoActual = pedidos.find(p => p.idPedido === pedidoId);
-      const correoCliente = pedidoActual?.carrito?.usuario?.correoUsuario || '';
-      
-      // Enviar tanto el estado como el correo como parámetros query
-      await axios.put(
-        `http://localhost:8080/pedido/actualizarEstadoPedido/${pedidoId}`,
-        null,
-        {
-          params: {
-            correoCliente: correoCliente,
-            nuevoEstado: nuevoEstado
-          }
+const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
+  if (nuevoEstado === 'Cancelado' &&
+    !window.confirm('¿Está seguro que desea cancelar este pedido?')) {
+    return;
+  }
+
+  if (nuevoEstado === 'Entregado' &&
+    !window.confirm('¿Está seguro que desea marcar este pedido como entregado? El pedido ya no aparecerá en esta pantalla.')) {
+    return;
+  }
+
+  setUpdatingStatus(pedidoId);
+  try {
+    // Obtener el pedido actual para extraer el correo del cliente
+    const pedidoActual = pedidos.find(p => p.idPedido === pedidoId);
+    const correoCliente = pedidoActual?.carrito?.usuario?.correoUsuario || '';
+    
+    // Enviar tanto el estado como el correo como parámetros query
+    await axios.put(
+      `http://localhost:8080/pedido/actualizarEstadoPedido/${pedidoId}`,
+      null,
+      {
+        params: {
+          correoCliente: correoCliente,
+          nuevoEstado: nuevoEstado
         }
-      );
-  
+      }
+    );
+
+    if (nuevoEstado === "Entregado") {
+      // Si el pedido cambia a entregado, eliminarlo de la lista actual
+      const updatedPedidos = pedidos.filter(pedido => pedido.idPedido !== pedidoId);
+      setPedidos(updatedPedidos);
+      
+      // También actualizar pedidos filtrados
+      const updatedFiltered = filteredPedidos.filter(pedido => pedido.idPedido !== pedidoId);
+      setFilteredPedidos(updatedFiltered);
+      
+      // Si es el pedido seleccionado actualmente, cerrarlo
+      if (selectedPedido && selectedPedido.idPedido === pedidoId) {
+        setSelectedPedido(null);
+      }
+      
+      // Si es el pedido expandido actualmente, cerrarlo
+      if (expandedPedido === pedidoId) {
+        setExpandedPedido(null);
+      }
+      
+      showSnackbar("Pedido marcado como entregado y movido a historial", "success");
+    } else {
+      // Para otros estados, solo actualizar el estado
       const updatedPedidos = pedidos.map((pedido) => {
         if (pedido.idPedido === pedidoId) {
           return { ...pedido, estadoEntregaPedido: nuevoEstado };
         }
         return pedido;
       });
-  
+      
       setPedidos(updatedPedidos);
-  
+      
+      // Actualizar pedidos filtrados
+      const updatedFiltered = filteredPedidos.map((pedido) => {
+        if (pedido.idPedido === pedidoId) {
+          return { ...pedido, estadoEntregaPedido: nuevoEstado };
+        }
+        return pedido;
+      });
+      
+      setFilteredPedidos(updatedFiltered);
+
       if (selectedPedido && selectedPedido.idPedido === pedidoId) {
         setSelectedPedido({
           ...selectedPedido,
@@ -352,13 +415,14 @@ const PedidosApp = () => {
       }
       
       showSnackbar(`Estado de entrega actualizado a: ${nuevoEstado}`, "success");
-    } catch (err) {
-      console.error("Error updating pedido status:", err);
-      showSnackbar("Error al actualizar el estado de entrega", "error");
-    } finally {
-      setUpdatingStatus(null);
     }
-  };
+  } catch (err) {
+    console.error("Error updating pedido status:", err);
+    showSnackbar("Error al actualizar el estado de entrega", "error");
+  } finally {
+    setUpdatingStatus(null);
+  }
+};
 
   // Funciones de utilidad
   const formatDate = (dateString) => {
@@ -440,64 +504,64 @@ const PedidosApp = () => {
           <div className="main-panel">
             {/* Tarjetas de estadísticas */}
             <div className="stats-cards">
-              <div className="stat-card total-card">
-                <div className="stat-icon">
-                  <DollarSign size={20} />
-                </div>
-                <div className="stat-content">
-                  <h3 className="stat-title">Total de Pedidos</h3>
-                  <p className="stat-value">{pedidos.length}</p>
-                </div>
-              </div>
-              
-              <div className="stat-card pending-card">
-                <div className="stat-icon">
-                  <Clock size={20} />
-                </div>
-                <div className="stat-content">
-                  <h3 className="stat-title">Pendientes</h3>
-                  <p className="stat-value">
-                    {pedidos.filter(p => p.estadoEntregaPedido === "Pendiente").length}
-                  </p>
-                </div>
-              </div>
-              
-              <div className="stat-card process-card">
-                <div className="stat-icon">
-                  <Package size={20} />
-                </div>
-                <div className="stat-content">
-                  <h3 className="stat-title">En Proceso</h3>
-                  <p className="stat-value">
-                    {pedidos.filter(p => p.estadoEntregaPedido === "En Proceso").length}
-                  </p>
-                </div>
-              </div>
-              
-              <div className="stat-card ready-card">
-                <div className="stat-icon">
-                  <CheckCircle size={20} />
-                </div>
-                <div className="stat-content">
-                  <h3 className="stat-title">Listos</h3>
-                  <p className="stat-value">
-                    {pedidos.filter(p => p.estadoEntregaPedido === "Listo").length}
-                  </p>
-                </div>
-              </div>
-              
-              <div className="stat-card delivered-card">
-                <div className="stat-icon">
-                  <Truck size={20} />
-                </div>
-                <div className="stat-content">
-                  <h3 className="stat-title">Entregados</h3>
-                  <p className="stat-value">
-                    {pedidos.filter(p => p.estadoEntregaPedido === "Entregado").length}
-                  </p>
-                </div>
-              </div>
-            </div>
+  <div className="stat-card total-card">
+    <div className="stat-icon">
+      <DollarSign size={20} />
+    </div>
+    <div className="stat-content">
+      <h3 className="stat-title">Total de Pedidos</h3>
+      <p className="stat-value">{allPedidos.length}</p>
+    </div>
+  </div>
+  
+  <div className="stat-card pending-card">
+    <div className="stat-icon">
+      <Clock size={20} />
+    </div>
+    <div className="stat-content">
+      <h3 className="stat-title">Pendientes</h3>
+      <p className="stat-value">
+        {allPedidos.filter(p => p.estadoEntregaPedido === "Pendiente").length}
+      </p>
+    </div>
+  </div>
+  
+  <div className="stat-card process-card">
+    <div className="stat-icon">
+      <Package size={20} />
+    </div>
+    <div className="stat-content">
+      <h3 className="stat-title">En Proceso</h3>
+      <p className="stat-value">
+        {allPedidos.filter(p => p.estadoEntregaPedido === "En Proceso").length}
+      </p>
+    </div>
+  </div>
+  
+  <div className="stat-card ready-card">
+    <div className="stat-icon">
+      <CheckCircle size={20} />
+    </div>
+    <div className="stat-content">
+      <h3 className="stat-title">Listos</h3>
+      <p className="stat-value">
+        {allPedidos.filter(p => p.estadoEntregaPedido === "Listo").length}
+      </p>
+    </div>
+  </div>
+  
+  <div className="stat-card delivered-card">
+    <div className="stat-icon">
+      <Truck size={20} />
+    </div>
+    <div className="stat-content">
+      <h3 className="stat-title">Entregados</h3>
+      <p className="stat-value">
+        {allPedidos.filter(p => p.estadoEntregaPedido === "Entregado").length}
+      </p>
+    </div>
+  </div>
+</div>
             
             {/* Panel de filtros */}
             <div className="filter-panel">
@@ -793,7 +857,7 @@ const PedidosApp = () => {
           {/* Modal de detalles del pedido */}
           {selectedPedido && (
             <div className="pedido-details-modal">
-              <div className="pedido-details-content">
+              <div className="pedido-details-content">  
                 <div className="modal-header">
                   <h2>Pedido {generarCodigoPedido(selectedPedido.idPedido, selectedPedido.fechaPedido)}</h2>
                   <button className="close-btn" onClick={handleCloseDetails}>
