@@ -90,7 +90,7 @@ System.out.println("Datos recibidos: " + comentario.toString());
     }
 
     @Override
-    public boolean deleComentario(int id) {
+    public boolean activarComentario(int id) {
         try {
             // Verificar si el comentario existe
             if (!comentarioRepo.existsById(id)) { // Verifica si el comentario existe
@@ -99,7 +99,7 @@ System.out.println("Datos recibidos: " + comentario.toString());
             }
 
             System.out.println("Eliminando Comentario con ID: " + id);
-            comentarioRepo.deleteProcedureComentario(id);
+            comentarioRepo.activarProcedureComentario(id);
             return true; // Retorna true si se eliminó exitosamente
         } catch (Exception e) {
             System.err.println("Error al eliminar el comentario con ID: " + id + ". Detalles: " + e.getMessage());

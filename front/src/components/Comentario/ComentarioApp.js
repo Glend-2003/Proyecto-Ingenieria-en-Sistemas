@@ -119,9 +119,9 @@ const ComentarioApp = () => {
     }
   };
 
-  const eliminarComentario = async (id) => {
+  const activarComentario = async (id) => {
     try {
-      await axios.delete(`http://localhost:8080/comentario/eliminar/${id}`);
+      await axios.delete(`http://localhost:8080/comentario/activar/${id}`);
       toast.success("Comentario eliminado con éxito");
       cargarComentarios();
     } catch (error) {
@@ -287,7 +287,7 @@ const ComentarioApp = () => {
                       <button
                         className="comentario-delete-button"
                         type="button"
-                        onClick={() => eliminarComentario(comentario.idComentario)}
+                        onClick={() => activarComentario(comentario.idComentario)}
                       >
                         <FontAwesomeIcon icon={faTrash}/>
                       </button>
