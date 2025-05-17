@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-import { FaHome, FaFileAlt, FaDownload, FaMapMarkerAlt, FaUser, FaSignOutAlt, FaSpinner, FaCheck, FaClock, FaEdit, FaFilter, FaSearch, FaTimes, FaCog, FaExclamationTriangle } from 'react-icons/fa';
+import { FaHome, FaFileAlt, FaDownload, FaMapMarkerAlt, FaUser, FaSignOutAlt, FaCheck, FaClock, FaFilter, FaSearch, FaTimes, FaCog, FaExclamationTriangle } from 'react-icons/fa';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import DatePicker from 'react-datepicker';
@@ -28,6 +28,20 @@ const Orders = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [filtrosAplicados, setFiltrosAplicados] = useState(false);
   const itemsPerPage = 5;
+  
+  // Función para generar un código amigable para pedidos - DEBE SER IDÉNTICA en todos los componentes
+  const generarCodigoPedido = (idPedido, fechaPedido) => {
+    // Extraer el año y mes de la fecha del pedido
+    const fecha = new Date(fechaPedido);
+    const año = fecha.getFullYear().toString().substring(2); // Últimos dos dígitos del año
+    const mes = (fecha.getMonth() + 1).toString().padStart(2, '0'); // Mes con 2 dígitos
+    
+    // Formatear el ID interno con ceros a la izquierda (5 dígitos)
+    const idFormateado = idPedido.toString().padStart(5, '0');
+    
+    // Formato: PED-AAMM-XXXXX (Año-Mes-ID)
+    return `PED-${año}${mes}-${idFormateado}`;
+  };
   
   useEffect(() => {
     const loadUserAndOrders = async () => {
@@ -175,6 +189,7 @@ const Orders = () => {
 
       const pedidosFormateados = response.data.map(pedido => ({
         idPedido: pedido.idPedido,
+        codigoPedido: generarCodigoPedido(pedido.idPedido, pedido.fechaPedido),
         montoTotalPedido: pedido.montoTotalPedido || 0,
         fechaPedido: pedido.fechaPedido,
         fechaFormateada: formatearFechaCompleta(pedido.fechaPedido),
@@ -299,35 +314,6 @@ const Orders = () => {
     } catch (error) {
       console.error("Error al cancelar el pedido:", error);
       toast.error("Ocurrió un error al cancelar el pedido.");
-    }
-  };
-
-  const handleEditarPedido = async (idPedido) => {
-    try {
-      const result = await Swal.fire({
-        title: 'Editar pedido',
-        text: "¿Desea modificar este pedido?",
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, editar',
-        cancelButtonText: 'Cancelar'
-      });
-      
-      if (result.isConfirmed) {
-        Swal.fire(
-          'Función en desarrollo',
-          'La función para editar pedidos estará disponible próximamente.',
-          'info'
-        );
-      }
-    } catch (error) {
-      Swal.fire(
-        'Error',
-        'No se pudo procesar la solicitud. Intente nuevamente.',
-        'error'
-      );
     }
   };
 
@@ -484,8 +470,7 @@ const Orders = () => {
           )}
           
           {loading ? (
-            <div className="loading-spinner">
-              <FaSpinner className="spinner" />
+            <div className="loading-container">
               <p>Cargando pedidos...</p>
             </div>
           ) : error ? (
@@ -522,7 +507,7 @@ const Orders = () => {
                   <div key={pedido.idPedido} className="order-card">
                     <div className="order-header">
                       <div className="order-id">
-                        Pedido #{pedido.idPedido}
+                        Pedido {pedido.codigoPedido}
                       </div>
                       <div className="order-date">
                         {pedido.fechaFormateada}
@@ -564,20 +549,12 @@ const Orders = () => {
                       
                       <div className="order-actions">
                         {isPendiente(pedido.estadoEntregaPedido) && (
-                          <>
-                            <button 
-                              className="edit-button" 
-                              onClick={() => handleEditarPedido(pedido.idPedido)}
-                            >
-                              <FaEdit /> Editar
-                            </button>
-                            <button 
-                              className="cancel-button" 
-                              onClick={() => cancelarPedidoYNotificar(pedido.idPedido)}
-                            >
-                              Cancelar
-                            </button>
-                          </>
+                          <button 
+                            className="cancel-button" 
+                            onClick={() => cancelarPedidoYNotificar(pedido.idPedido)}
+                          >
+                            Cancelar
+                          </button>
                         )}
                       </div>
                     </div>

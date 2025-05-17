@@ -1,12 +1,17 @@
 package com.bendicion.la.carniceria.carniceria.controller;
-import com.bendicion.la.carniceria.carniceria.service.IDireccionService;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.bendicion.la.carniceria.carniceria.service.IDireccionService;
 
 /**
  *
@@ -41,5 +46,29 @@ public class DireccionController {
             case 2 -> ResponseEntity.ok("Dirección creada");
             default -> ResponseEntity.internalServerError().body("Error desconocido");
         };
+    }
+    
+    /**
+     * Obtiene la dirección completa de un usuario por su correo electrónico
+     * 
+     * @param correoUsuario Correo electrónico del usuario
+     * @return Objeto con los datos de dirección o mensaje de error
+     */
+    @GetMapping("/buscar-por-correo")
+    public ResponseEntity<?> buscarDireccionPorCorreo(@RequestParam String correoUsuario) {
+        try {
+            Map<String, Object> direccion = iDireccionService.buscarDireccionPorCorreo(correoUsuario);
+            
+            if (direccion == null || direccion.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("No se encontró información de dirección para el usuario con correo: " + correoUsuario);
+            }
+            
+            return ResponseEntity.ok(direccion);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Error al obtener la dirección: " + e.getMessage());
+        }
     }
 }
