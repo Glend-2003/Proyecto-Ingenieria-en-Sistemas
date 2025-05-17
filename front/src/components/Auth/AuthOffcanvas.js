@@ -86,7 +86,7 @@ const AuthOffcanvas = () => {
           localStorage.removeItem("rememberedEmail");
         }
         updateUserStatus(); // Actualiza el estado global del usuario
-        toast.success(`Bienvenido ${response.data.nombreUsuario}`);
+        //toast.success(`Bienvenido ${response.data.nombreUsuario}`);
         handleShowSidebar(); // Cierra el sidebar al iniciar sesión
 
         // Redirección basada en rol
