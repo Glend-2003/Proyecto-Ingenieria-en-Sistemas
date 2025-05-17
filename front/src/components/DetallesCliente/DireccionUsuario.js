@@ -23,9 +23,7 @@ const DireccionUsuario = () => {
   const [provincias, setProvincia] = useState([]);
   const [cantones, setCantones] = useState([]);
   const [distritos, setDistritos] = useState([]);
-  const [isValidatingPostalCode, setIsValidatingPostalCode] = useState(false);
   
-
   // Estado para el formulario
   const [formData, setFormData] = useState({
     codigoPostalDireccion: "",
@@ -34,45 +32,12 @@ const DireccionUsuario = () => {
     idCanton: "",
     idDistrito: "",
   });
-   const {handleLogout
-        } = useAppContext();
 
+  const { handleLogout } = useAppContext();
   const [isEditing, setIsEditing] = useState(false);
 
   const isValidPostalCodeFormat = (code) => {
     return /^\d{5}$/.test(code);
-  };
-
-  const validatePostalCodeWithAPI = async (postalCode, country = "CR") => {
-    try {
-      setIsValidatingPostalCode(true);
-      
-      const username = "CarniceriaLaBendi"; 
-      const response = await fetch(
-        `https://secure.geonames.org/postalCodeLookupJSON?postalcode=${postalCode}&country=${country}&username=${username}`
-      );
-      
-      const data = await response.json();
-      return data.postalcodes && data.postalcodes.length > 0;
-      
-    } catch (error) {
-      console.error("Error validando código postal:", error);
-      toast.warning("No se pudo verificar el código postal. Se aceptará pero no está validado.");
-      return true; 
-    } finally {
-      setIsValidatingPostalCode(false);
-    }
-  };
-
-  // Validación específica para Costa Rica
-  const validateCostaRicaPostalCode = async (postalCode) => {
-    // Primero validamos el formato
-    if (!isValidPostalCodeFormat(postalCode)) {
-      toast.error("El código postal debe tener exactamente 5 dígitos");
-      return false;
-    }
-
-    return await validatePostalCodeWithAPI(postalCode);
   };
 
   useEffect(() => {
@@ -151,15 +116,20 @@ const DireccionUsuario = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    
+    // Validación especial para código postal (solo números)
+    if (name === "codigoPostalDireccion") {
+      if (value === "" || /^\d+$/.test(value)) {
+        setFormData({ ...formData, [name]: value });
+      }
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
-  const handleBlurPostalCode = async () => {
-    if (formData.codigoPostalDireccion && formData.codigoPostalDireccion.length === 5) {
-      const isValid = await validateCostaRicaPostalCode(formData.codigoPostalDireccion);
-      if (!isValid) {
-        toast.info("Si el código es correcto pero no se valida, puedes continuar igual");
-      }
+  const handleBlurPostalCode = () => {
+    if (formData.codigoPostalDireccion && !isValidPostalCodeFormat(formData.codigoPostalDireccion)) {
+      toast.warning("El código postal debe tener exactamente 5 dígitos");
     }
   };
 
@@ -171,9 +141,9 @@ const DireccionUsuario = () => {
       return;
     }
 
-    // Validación de formato pero no bloqueamos si la API falla
+    // Validación de formato del código postal
     if (formData.codigoPostalDireccion && !isValidPostalCodeFormat(formData.codigoPostalDireccion)) {
-      toast.error("El código postal debe tener 5 dígitos");
+      toast.error("El código postal debe tener exactamente 5 dígitos");
       return;
     }
 
@@ -207,9 +177,7 @@ const DireccionUsuario = () => {
     }
   };
 
-
   return (
-    
     <div className="profile-page">
       <NavbarApp />
       <Carrito />
@@ -221,7 +189,6 @@ const DireccionUsuario = () => {
         <div className="profile-content">
           <div className="profile-header">
             <h2>Mi Dirección</h2>
-
           </div>
 
           <div className="profile-card">
@@ -271,10 +238,7 @@ const DireccionUsuario = () => {
                     disabled={!isEditing}
                     maxLength="5"
                   />
-                  {isValidatingPostalCode && (
-                    <small className="text-muted">Validando código postal...</small>
-                  )}
-                  <small className="text-muted">Ejemplos válidos: 10101 (San José), 20101 (Alajuela)</small>
+                  <small className="text-muted">Debe contener exactamente 5 dígitos</small>
                 </div>
 
                 {/* Descripción */}
@@ -371,7 +335,6 @@ const DireccionUsuario = () => {
                   <button 
                     type="submit" 
                     className="save-btn"
-                    disabled={isValidatingPostalCode}
                   >
                     <FontAwesomeIcon icon={faSave} /> Guardar Cambios
                   </button>
