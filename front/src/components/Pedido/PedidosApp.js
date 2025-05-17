@@ -71,6 +71,19 @@ const PedidosApp = () => {
     setSnackbarOpen(true);
   };
 
+  const generarCodigoPedido = (idPedido, fechaPedido) => {
+    // Extraer el año y mes de la fecha del pedido
+    const fecha = new Date(fechaPedido);
+    const año = fecha.getFullYear().toString().substring(2); // Últimos dos dígitos del año
+    const mes = (fecha.getMonth() + 1).toString().padStart(2, '0'); // Mes con 2 dígitos
+    
+    // Formatear el ID interno con ceros a la izquierda (5 dígitos)
+    const idFormateado = idPedido.toString().padStart(5, '0');
+    
+    // Formato: PED-AAMM-XXXXX (Año-Mes-ID)
+    return `PED-${año}${mes}-${idFormateado}`;
+  };
+
   // Fetch de datos iniciales
   useEffect(() => {
     fetchPedidos();
@@ -203,6 +216,9 @@ const PedidosApp = () => {
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
+
+
+  
 
   // Funciones para edición de pedido
   const handleEditFormChange = (e) => {
@@ -581,7 +597,7 @@ const PedidosApp = () => {
                   <table className="pedidos-table">
                     <thead>
                       <tr>
-                        <th>ID</th>
+                        <th>Código</th>
                         <th>Cliente</th>
                         <th>Fecha</th>
                         <th>Estado</th>
@@ -597,7 +613,7 @@ const PedidosApp = () => {
                             onClick={() => toggleExpandPedido(pedido.idPedido)}
                           >
                             <td className="pedido-id">
-                              #{pedido.idPedido}
+                              {generarCodigoPedido(pedido.idPedido, pedido.fechaPedido)}
                             </td>
                             <td className="pedido-client">
                               {pedido.carrito?.usuario?.nombreUsuario
@@ -779,7 +795,7 @@ const PedidosApp = () => {
             <div className="pedido-details-modal">
               <div className="pedido-details-content">
                 <div className="modal-header">
-                  <h2>Pedido #{selectedPedido.idPedido}</h2>
+                  <h2>Pedido {generarCodigoPedido(selectedPedido.idPedido, selectedPedido.fechaPedido)}</h2>
                   <button className="close-btn" onClick={handleCloseDetails}>
                     <X size={24} />
                   </button>

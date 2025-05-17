@@ -34,6 +34,31 @@ const PedidosCompletadosApp = () => {
     anio: { count: 0, sum: 0 }
   });
 
+  const generarCodigoPedido = (idPedido, fechaPedido) => {
+    // Extraer el año y mes de la fecha del pedido
+    const fecha = new Date(fechaPedido);
+    const año = fecha.getFullYear().toString().substring(2); // Últimos dos dígitos del año
+    const mes = (fecha.getMonth() + 1).toString().padStart(2, '0'); // Mes con 2 dígitos
+    
+    // Formatear el ID interno con ceros a la izquierda (5 dígitos)
+    const idFormateado = idPedido.toString().padStart(5, '0');
+    
+    // Formato: PED-AAMM-XXXXX (Año-Mes-ID)
+    return `PED-${año}${mes}-${idFormateado}`;
+  };
+
+  const formatearCodigoPedido = (idPedido, fechaPedido) => {
+  if (!fechaPedido) return `PED-00000-${idPedido.toString().padStart(5, '0')}`;
+  
+  const fecha = new Date(fechaPedido);
+  const año = fecha.getFullYear().toString().substring(2);
+  const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
+  const idFormateado = idPedido.toString().padStart(5, '0');
+  
+  return `PED-${año}${mes}-${idFormateado}`;
+};
+
+
   // Cargar datos iniciales
   useEffect(() => {
     const fetchData = async () => {
@@ -190,74 +215,74 @@ const PedidosCompletadosApp = () => {
     };
 
     // Crear contenido para impresión
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write(`
-      <html>
-        <head>
-          <title>Reporte ${tipo.charAt(0).toUpperCase() + tipo.slice(1)}</title>
-          <style>
-            body { font-family: Arial, sans-serif; padding: 20px; }
-            .header { text-align: center; border-bottom: 2px solid #387623; padding-bottom: 20px; margin-bottom: 30px; }
-            .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
-            .stat-card { background: #f9fcf5; padding: 15px; border-radius: 8px; text-align: center; }
-            .stat-value { font-size: 24px; font-weight: bold; color: #387623; }
-            .table { width: 100%; border-collapse: collapse; }
-            .table th, .table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-            .table th { background-color: #9fc45a; color: #103f1b; }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <h1>Reporte de Pedidos Completados - ${tipo.charAt(0).toUpperCase() + tipo.slice(1)}</h1>
-            <p>Generado el ${reporte.fecha}</p>
+ const printWindow = window.open('', '_blank');
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>Reporte ${tipo.charAt(0).toUpperCase() + tipo.slice(1)}</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 20px; }
+          .header { text-align: center; border-bottom: 2px solid #387623; padding-bottom: 20px; margin-bottom: 30px; }
+          .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
+          .stat-card { background: #f9fcf5; padding: 15px; border-radius: 8px; text-align: center; }
+          .stat-value { font-size: 24px; font-weight: bold; color: #387623; }
+          .table { width: 100%; border-collapse: collapse; }
+          .table th, .table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+          .table th { background-color: #9fc45a; color: #103f1b; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>Reporte de Pedidos Completados - ${tipo.charAt(0).toUpperCase() + tipo.slice(1)}</h1>
+          <p>Generado el ${reporte.fecha}</p>
+        </div>
+        
+        <div class="stats">
+          <div class="stat-card">
+            <h3>Total de Pedidos</h3>
+            <div class="stat-value">${reporte.datos.count}</div>
           </div>
-          
-          <div class="stats">
-            <div class="stat-card">
-              <h3>Total de Pedidos</h3>
-              <div class="stat-value">${reporte.datos.count}</div>
-            </div>
-            <div class="stat-card">
-              <h3>Monto Total</h3>
-              <div class="stat-value">${formatCurrency(reporte.datos.sum)}</div>
-            </div>
-            <div class="stat-card">
-              <h3>Promedio por Pedido</h3>
-              <div class="stat-value">${formatCurrency(reporte.datos.count > 0 ? reporte.datos.sum / reporte.datos.count : 0)}</div>
-            </div>
+          <div class="stat-card">
+            <h3>Monto Total</h3>
+            <div class="stat-value">${formatCurrency(reporte.datos.sum)}</div>
           </div>
-          
-          <table class="table">
-            <thead>
+          <div class="stat-card">
+            <h3>Promedio por Pedido</h3>
+            <div class="stat-value">${formatCurrency(reporte.datos.count > 0 ? reporte.datos.sum / reporte.datos.count : 0)}</div>
+          </div>
+        </div>
+        
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Cliente</th>
+              <th>Fecha</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${reporte.pedidos.map(pedido => `
               <tr>
-                <th>ID</th>
-                <th>Cliente</th>
-                <th>Fecha</th>
-                <th>Total</th>
+                <td>${formatearCodigoPedido(pedido.idPedido, pedido.fechaPedido)}</td>
+                <td>${pedido.carrito?.usuario 
+                  ? `${pedido.carrito.usuario.nombreUsuario} ${pedido.carrito.usuario.primerApellido}`
+                  : 'N/A'}</td>
+                <td>${formatDate(pedido.fechaPedido)}</td>
+                <td>${formatCurrency(pedido.montoTotalPedido)}</td>
               </tr>
-            </thead>
-            <tbody>
-              ${reporte.pedidos.map(pedido => `
-                <tr>
-                  <td>#${pedido.idPedido.toString().padStart(4, '0')}</td>
-                  <td>${pedido.carrito?.usuario 
-                    ? `${pedido.carrito.usuario.nombreUsuario} ${pedido.carrito.usuario.primerApellido}`
-                    : 'N/A'}</td>
-                  <td>${formatDate(pedido.fechaPedido)}</td>
-                  <td>${formatCurrency(pedido.montoTotalPedido)}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-          
-          <script>
-            window.onload = function() { window.print(); }
-          </script>
-        </body>
-      </html>
-    `);
-    printWindow.document.close();
-  };
+            `).join('')}
+          </tbody>
+        </table>
+        
+        <script>
+          window.onload = function() { window.print(); }
+        </script>
+      </body>
+    </html>
+  `);
+  printWindow.document.close();
+};
 
   const obtenerPedidosParaReporte = (tipo) => {
     const hoy = new Date();
@@ -549,7 +574,7 @@ const PedidosCompletadosApp = () => {
                   <table className="vp-pedidos-table">
                     <thead>
                       <tr>
-                        <th className="vp-table-header">ID</th>
+                        <th className="vp-table-header">Código</th>
                         <th className="vp-table-header">Cliente</th>
                         <th className="vp-table-header">Fecha</th>
                         <th className="vp-table-header">Método de Pago</th>
@@ -564,8 +589,8 @@ const PedidosCompletadosApp = () => {
                             className={`vp-pedido-row ${expandedRows.has(pedido.idPedido) ? 'vp-expanded-row' : ''}`}
                             onClick={() => toggleExpandRow(pedido.idPedido)}
                           >
-                            <td className="vp-pedido-cell" data-label="ID">
-                              <span className="vp-pedido-id">#{pedido.idPedido.toString().padStart(4, '0')}</span>
+                            <td className="vp-pedido-cell" data-label="Código">
+                              <span className="vp-pedido-id">{generarCodigoPedido(pedido.idPedido, pedido.fechaPedido)}</span>
                             </td>
                             <td className="vp-pedido-cell" data-label="Cliente">
                               <span className="vp-pedido-cliente">
@@ -686,7 +711,8 @@ const PedidosCompletadosApp = () => {
         <div className="vp-pedido-details-modal">
           <div className="vp-pedido-details-content">
             <div className="vp-modal-header">
-              <h2 className="vp-modal-title">Detalles del Pedido #{selectedPedido.idPedido.toString().padStart(4, '0')}</h2>
+              <h2 className="vp-modal-title">Detalles del Pedido {generarCodigoPedido(selectedPedido.idPedido, selectedPedido.fechaPedido)}</h2>
+
               <button className="vp-close-btn" onClick={() => setSelectedPedido(null)}>×</button>
             </div>
             <div className="vp-modal-body">
