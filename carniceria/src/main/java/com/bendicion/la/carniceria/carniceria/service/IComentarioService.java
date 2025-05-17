@@ -20,7 +20,7 @@ public interface IComentarioService {
     public Comentario updateComentario(Comentario comentario);
     
     @Transactional
-    public boolean deleComentario(int id);
+    public boolean activarComentario(int id);
     
     @Transactional
     public boolean mostrarComentario(int id);
