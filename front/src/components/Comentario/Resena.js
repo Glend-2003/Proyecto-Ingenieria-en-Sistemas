@@ -20,21 +20,17 @@ const Resena = () => {
     descripcionComentario: "",
   });
   
-  // Estado para paginación
   const [currentPage, setCurrentPage] = useState(1);
   const comentariosPorPagina = 3;
   
-  // Estado para el Snackbar
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   
-  // Componente Alert personalizado
   const Alert = forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
   });
 
-  // Funciones para manejar el Snackbar
   const handleOpenSnackbar = (message, severity = "success") => {
     setSnackbarMessage(message);
     setSnackbarSeverity(severity);
@@ -53,11 +49,9 @@ const Resena = () => {
     fetchUsuarioActual();
   }, []);
 
-  // Obtener el usuario actual del localStorage
   const fetchUsuarioActual = async () => {
     try {
       setLoadingUsuario(true);
-      // Obtener el ID de usuario del localStorage
       const userId = localStorage.getItem("idUsuario");
       
       if (!userId) {
@@ -66,7 +60,6 @@ const Resena = () => {
         return;
       }
       
-      // Llamar al endpoint para obtener el usuario por ID
       const response = await fetch(`http://localhost:8080/usuario/obtenerPorId/${userId}`);
       
       if (!response.ok) {
@@ -76,7 +69,6 @@ const Resena = () => {
       const userData = await response.json();
       setUsuarioActual(userData);
       
-      // Pre-rellenar el formulario con los datos del usuario
       if (userData) {
         setNewComentario({
           ...newComentario,
@@ -127,7 +119,6 @@ const Resena = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Verificar si hay un usuario logueado
       const userId = localStorage.getItem("idUsuario");
       
       if (!userId && !usuarioActual) {
@@ -135,11 +126,10 @@ const Resena = () => {
         return;
       }
       
-      // Crear objeto de comentario para enviar al backend
       const comentarioData = {
         descripcionComentario: newComentario.descripcionComentario,
         numCalificacion: newComentario.numCalificacion,
-        verificacion: false, // Por defecto no se muestra hasta que sea aprobado
+        verificacion: false, 
         usuario: usuarioActual || { idUsuario: parseInt(userId) }
       };
 
@@ -155,17 +145,14 @@ const Resena = () => {
         throw new Error("Error al enviar el comentario");
       }
 
-      // Resetear el formulario
       setNewComentario({
         ...newComentario,
         numCalificacion: 5,
         descripcionComentario: "",
       });
 
-      // Mostrar mensaje de éxito
       handleOpenSnackbar("¡Gracias por tu comentario! Será revisado antes de publicarse.", "success");
       
-      // Recargar los comentarios después de enviar uno nuevo
       fetchComentarios();
     } catch (error) {
       console.error("Error:", error);
@@ -173,7 +160,6 @@ const Resena = () => {
     }
   };
 
-  // Función para renderizar estrellas según la calificación
   const renderStars = (rating) => {
     const stars = [];
     for (let i = 1; i <= 5; i++) {
@@ -188,7 +174,6 @@ const Resena = () => {
     return stars;
   };
 
-  // Función para formatear la fecha
   const formatDate = (dateString) => {
     if (!dateString) return "";
     const date = new Date(dateString);
@@ -199,7 +184,6 @@ const Resena = () => {
     });
   };
   
-  // Funciones para la paginación
   const handleNextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
@@ -216,19 +200,16 @@ const Resena = () => {
     setCurrentPage(pageNumber);
   };
 
-  // Obtener comentarios para la página actual
   const indexOfLastComentario = currentPage * comentariosPorPagina;
   const indexOfFirstComentario = indexOfLastComentario - comentariosPorPagina;
   const comentariosActuales = comentarios.slice(indexOfFirstComentario, indexOfLastComentario);
   
-  // Calcular el número total de páginas
   const totalPages = Math.ceil(comentarios.length / comentariosPorPagina);
 
   return (
     <div className="resena-container">
       <h3 className="resena-title">Lo que dicen nuestros clientes</h3>
 
-      {/* Comentarios existentes */}
       <div className="resena-list">
         {loading ? (
           <div className="resena-loading">Cargando comentarios...</div>
@@ -271,7 +252,6 @@ const Resena = () => {
         )}
       </div>
       
-      {/* Paginación */}
       {!loading && !error && comentarios.length > 0 && (
         <div className="resena-pagination">
           <PaginacionApp
@@ -284,7 +264,6 @@ const Resena = () => {
         </div>
       )}
 
-      {/* Formulario para nuevo comentario */}
       <div className="resena-form-container">
         <h4 className="resena-form-title">
           <MessageCircle size={20} />
@@ -343,7 +322,6 @@ const Resena = () => {
         </p>
       </div>
       
-      {/* Snackbar para notificaciones */}
       <Snackbar
         open={openSnackbar}
         autoHideDuration={6000}

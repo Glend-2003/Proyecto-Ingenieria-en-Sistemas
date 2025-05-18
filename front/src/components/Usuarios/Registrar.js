@@ -37,14 +37,11 @@ const Registrar = () => {
 
   const navigate = useNavigate();
 
-  // Alert component
   const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
   });
 
-  // Validar formato de email con dominios específicos
   const validateEmail = (email) => {
-    // Lista ampliada de dominios permitidos
     const allowedDomains = [
       "gmail.com", "yahoo.com", "icloud.com", "hotmail.com", "outlook.com", 
       "live.com", "aol.com", "protonmail.com", "mail.com", "zoho.com",
@@ -55,50 +52,42 @@ const Registrar = () => {
     
     if (!regex.test(email)) return false;
     
-    // Verificar que el dominio es uno de los permitidos
     const domain = email.split('@')[1];
     return allowedDomains.includes(domain);
   };
   
-  // Validar que solo contenga letras y espacios
   const validateLettersOnly = (text) => {
     return /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/.test(text);
   };
 
-  // Validación de formulario completo
   const validateForm = () => {
     const errors = {};
     const { correoUsuario, nombreUsuario, primerApellido, segundoApellido, contraseniaUsuario, verifyPassword } = formData;
     
-    // Validar correo
     if (!correoUsuario) {
       errors.correoUsuario = "El correo electrónico es obligatorio";
     } else if (!validateEmail(correoUsuario)) {
       errors.correoUsuario = "Por favor ingrese un correo electrónico válido";
     }
     
-    // Validar nombre (solo letras)
     if (!nombreUsuario) {
       errors.nombreUsuario = "El nombre es obligatorio";
     } else if (!validateLettersOnly(nombreUsuario)) {
       errors.nombreUsuario = "El nombre solo debe contener letras";
     }
     
-    // Validar primer apellido (solo letras)
     if (!primerApellido) {
       errors.primerApellido = "El primer apellido es obligatorio";
     } else if (!validateLettersOnly(primerApellido)) {
       errors.primerApellido = "El apellido solo debe contener letras";
     }
     
-    // Validar segundo apellido (solo letras)
     if (!segundoApellido) {
       errors.segundoApellido = "El segundo apellido es obligatorio";
     } else if (!validateLettersOnly(segundoApellido)) {
       errors.segundoApellido = "El apellido solo debe contener letras";
     }
     
-    // Validar contraseña
     if (!contraseniaUsuario) {
       errors.contraseniaUsuario = "La contraseña es obligatoria";
     } else if (contraseniaUsuario.length < 8) {
@@ -107,7 +96,6 @@ const Registrar = () => {
       errors.contraseniaUsuario = "La contraseña debe contener al menos 2 letras";
     }
     
-    // Validar confirmación de contraseña
     if (!verifyPassword) {
       errors.verifyPassword = "Por favor confirme la contraseña";
     } else if (verifyPassword !== contraseniaUsuario) {
@@ -118,10 +106,8 @@ const Registrar = () => {
   };
 
   const evaluatePasswordStrength = (password) => {
-    // Inicializar puntuación
     let score = 0;
     
-    // Si no hay contraseña, devolver la puntuación base
     if (!password) {
       return {
         score: 0,
@@ -132,7 +118,6 @@ const Registrar = () => {
       };
     }
     
-    // Criterios de evaluación
     if (password.length >= 8) score += 1;
     if (password.length >= 10) score += 1;
     if (/[A-Z]/.test(password)) score += 1;
@@ -140,32 +125,30 @@ const Registrar = () => {
     if (/[0-9]/.test(password)) score += 1;
     if (/[^A-Za-z0-9]/.test(password)) score += 1;
     
-    // Determinar etiqueta y color basados en la puntuación
     let label, color, width, strengthClass;
     
     switch (true) {
       case (score <= 2):
         label = "Débil";
-        color = "var(--color-brown)"; // Color café de la paleta
+        color = "var(--color-brown)"; 
         width = "33%";
         strengthClass = "strength-weak";
         break;
       case (score <= 4):
         label = "Media";
-        color = "var(--color-light-green)"; // Verde claro de la paleta
+        color = "var(--color-light-green)"; 
         width = "66%";
         strengthClass = "strength-medium";
         break;
       default:
         label = "Fuerte";
-        color = "var(--color-dark-green)"; // Verde oscuro de la paleta
+        color = "var(--color-dark-green)"; 
         width = "100%";
         strengthClass = "strength-strong";
     }
     
     return { score, label, color, width, strengthClass };
   };
-  // Manejar cambios en los campos
   const handleInputChange = (e) => {
     const { id, value } = e.target;
     
@@ -174,12 +157,10 @@ const Registrar = () => {
       [id]: value
     }));
     
-    // Evaluar la fortaleza de la contraseña si cambia el campo de contraseña
     if (id === "contraseniaUsuario") {
       setPasswordStrength(evaluatePasswordStrength(value));
     }
     
-    // Validación en tiempo real para campos específicos
     let error = "";
     
     if (id === "nombreUsuario" || id === "primerApellido" || id === "segundoApellido") {
@@ -194,10 +175,8 @@ const Registrar = () => {
       }
     }
     
-    // Actualizar errores
     if (error) {
       setFormErrors(prev => ({ ...prev, [id]: error }));
-      // Mostrar mensaje de error en Snackbar para validaciones importantes
       if (id === "correoUsuario" && value.includes("@") && !validateEmail(value)) {
         showSnackbar("Formato de correo inválido. Verifique el dominio.", "error");
       }
@@ -210,7 +189,6 @@ const Registrar = () => {
     }
   };
 
-  // Manejadores para mostrar/ocultar contraseña
   const togglePasswordVisibility = (field) => {
     setPasswordVisibility(prev => ({
       ...prev,
@@ -218,7 +196,6 @@ const Registrar = () => {
     }));
   };
 
-  // Manejadores de Snackbar
   const showSnackbar = (message, severity) => {
     setSnackbar({
       open: true,
@@ -234,26 +211,21 @@ const Registrar = () => {
     }));
   };
 
-  // Volver a la página de inicio de sesión
   const handleGoBack = () => {
     navigate("../");
   };
 
-  // Envío del formulario
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    // Validar formulario
     const errors = validateForm();
     
-    // Si hay errores, mostrarlos y no enviar el formulario
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
       showSnackbar("Por favor, complete correctamente todos los campos", "error");
       return;
     }
 
-    // Datos a enviar
     const { correoUsuario, nombreUsuario, primerApellido, segundoApellido, contraseniaUsuario } = formData;
     const registroData = {
       correoUsuario,
@@ -263,7 +235,6 @@ const Registrar = () => {
       contraseniaUsuario
     };
 
-    // Enviar datos al backend
     axios
       .post("http://localhost:8080/usuario/registrar", registroData)
       .then((response) => {
@@ -277,14 +248,11 @@ const Registrar = () => {
         console.error("Error al registrar usuario:", error);
         
         if (error.response) {
-          // El servidor respondió con un código de estado fuera del rango 2xx
           const errorMessage = error.response.data.message || "Error al registrar usuario";
           showSnackbar(errorMessage, "error");
         } else if (error.request) {
-          // La solicitud fue realizada pero no se recibió respuesta
           showSnackbar("No se pudo contactar con el servidor", "error");
         } else {
-          // Algo ocurrió en la configuración de la solicitud
           showSnackbar("Error en la solicitud", "error");
         }
       });
@@ -378,7 +346,6 @@ const Registrar = () => {
                 </div>
                 {formErrors.contraseniaUsuario && <div className="invalid-feedback">{formErrors.contraseniaUsuario}</div>}
                 
-                {/* Indicador de fortaleza de contraseña */}
                 {formData.contraseniaUsuario && (
                   <div style={{ marginTop: '8px' }}>
                     <div style={{ 
@@ -456,7 +423,6 @@ const Registrar = () => {
         </div>
       </div>
       
-      {/* Snackbar para alertas en la parte superior central */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={5000}

@@ -1,6 +1,4 @@
-/* VentaPedido.css - Vista Pedidos Completados - Versión ultra específica */
 
-/* Contenedor principal */
 div.vp-pedidos-completados-app {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: #333333;
@@ -10,7 +8,6 @@ div.vp-pedidos-completados-app {
   flex-direction: column;
 }
 
-/* Layout principal */
 div.vp-app-container {
   display: flex;
   flex: 1;
@@ -32,8 +29,8 @@ div.vp-main-container {
   padding: 25px 20px;
   overflow-y: auto;
   padding-bottom: 80px;
-  margin-left: 245px; /* Reducido de 220px */
-  width: calc(100% - 180px); /* Ajustado para coincidir */
+  margin-left: 245px; 
+  width: calc(100% - 180px); 
 }
 
 div.vp-main-panel {
@@ -42,20 +39,19 @@ div.vp-main-panel {
   flex: 1;
 }
 
-/* Header */
 div.vp-header-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 1.25rem; /* Reducido de 1.5rem */
+  padding: 1rem 1.25rem;
   background-color: #ffffff;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
   z-index: 10;
-  margin-bottom: 1rem; /* Añadido para separación */
+  margin-bottom: 1rem;
 }
 
 div.vp-header-container h1.vp-header-title {
-  font-size: 1.4rem; /* Reducido ligeramente */
+  font-size: 1.4rem;
   font-weight: 600;
   color: #103f1b;
   margin: 0;
@@ -93,7 +89,6 @@ button.vp-refresh-button:disabled {
   cursor: wait;
 }
 
-/* Tarjetas de estadísticas - Más delgadas y estilizadas */
 div.vp-stats-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -106,10 +101,10 @@ div.vp-stat-card {
   align-items: center;
   background-color: white;
   border-radius: 8px;
-  padding: 0.5rem 0.75rem; /* Más delgado que antes */
+  padding: 0.5rem 0.75rem;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   transition: transform 0.3s, box-shadow 0.3s;
-  min-height: 50px; /* Más bajo que antes */
+  min-height: 50px; 
 }
 
 div.vp-stat-card:hover {
@@ -140,7 +135,6 @@ div.vp-stat-card.vp-mes-card div.vp-stat-icon {
 div.vp-stat-card.vp-anio-card div.vp-stat-icon {
   background-color: rgba(66, 102, 178, 0.1);
   color: #4266b2;
-  /* Nuevo icono con colores de la paleta */
   background: linear-gradient(135deg, rgba(16, 63, 27, 0.1), rgba(56, 118, 35, 0.1));
 }
 
@@ -148,10 +142,10 @@ div.vp-stat-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 30px; /* Más pequeño que antes */
-  height: 30px; /* Más pequeño que antes */
+  width: 30px; 
+  height: 30px; 
   border-radius: 50%;
-  margin-right: 0.5rem; /* Menor margen */
+  margin-right: 0.5rem;
 }
 
 div.vp-stat-content {
@@ -159,25 +153,24 @@ div.vp-stat-content {
 }
 
 div.vp-stat-content p.vp-stat-title {
-  font-size: 0.7rem; /* Más pequeño */
+  font-size: 0.7rem;
   font-weight: 500;
   color: #666666;
-  margin: 0 0 0.1rem; /* Menor margen */
+  margin: 0 0 0.1rem; 
 }
 
 div.vp-stat-content p.vp-stat-value {
-  font-size: 1.1rem; /* Más pequeño */
+  font-size: 1.1rem;
   font-weight: 700;
   color: #103f1b;
   margin: 0;
 }
 
 div.vp-stat-content p.vp-stat-amount {
-  font-size: 0.7rem; /* Más pequeño */
+  font-size: 0.7rem;
   color: #666666;
 }
 
-/* Panel de filtros - Ajuste en la disposición */
 div.vp-filter-panel {
   background-color: white;
   border-radius: 8px;
@@ -197,13 +190,13 @@ div.vp-search-filter-row {
   flex-wrap: wrap;
   gap: 1rem;
   align-items: center;
-  justify-content: space-between; /* Cambio principal */
+  justify-content: space-between;
 }
 
 div.vp-filter-select {
-  flex: 1; /* Permite que se expanda */
-  min-width: 200px; /* Ancho mínimo */
-  max-width: 450px; /* Ancho máximo para no ser demasiado ancho */
+  flex: 1; 
+  min-width: 200px;
+  max-width: 450px; 
 }
 
 div.vp-filter-select label.vp-filter-label {
@@ -215,7 +208,7 @@ div.vp-filter-select label.vp-filter-label {
 }
 
 div.vp-filter-select input.vp-filter-select-input {
-  width: 100%; /* Cambio de 250% a 100% */
+  width: 100%; 
   padding: 0.625rem;
   border: 1px solid #dddddd;
   border-radius: 4px;
@@ -235,18 +228,18 @@ button.vp-filter-button {
   align-items: center;
   gap: 0.5rem;
   padding: 0.625rem 1rem;
-  background-color: #387623; /* Cambiado a verde */
-  color: white; /* Texto blanco */
+  background-color: #387623;
+  color: white; 
   border: 1px solid #387623;
   border-radius: 4px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s;
-  flex-shrink: 0; /* No se encoge */
+  flex-shrink: 0; 
 }
 
 button.vp-filter-button:hover {
-  background-color: #103f1b; /* Verde más oscuro al hover */
+  background-color: #103f1b; 
   border-color: #103f1b;
 }
 
@@ -338,7 +331,6 @@ button.vp-apply-filter-button:hover {
   background-color: #103f1b;
 }
 
-/* Panel de reportes */
 div.vp-reports-panel {
   background-color: white;
   border-radius: 8px;
@@ -385,7 +377,6 @@ button.vp-report-button:active {
   color: white;
 }
 
-/* Estados de carga y error */
 div.vp-error-message {
   padding: 1rem;
   background-color: #f8d7da;
@@ -425,7 +416,6 @@ div.vp-no-results {
   font-weight: 500;
 }
 
-/* Tabla de pedidos completados */
 div.vp-pedidos-container {
   background-color: white;
   border-radius: 8px;
@@ -508,12 +498,12 @@ div.vp-actions-container {
 }
 
 button.vp-view-btn {
-  padding: 0.5rem 1rem; /* Más grande que el original */
+  padding: 0.5rem 1rem;
   background-color: #387623;
   color: white;
   border: none;
   border-radius: 4px;
-  font-size: 0.875rem; /* Tamaño de fuente aumentado */
+  font-size: 0.875rem; 
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
@@ -537,7 +527,6 @@ span.vp-expand-icon.rotated {
   transform: rotate(180deg);
 }
 
-/* Filas expandidas */
 tr.vp-expanded-row {
   background-color: #f9fcf5;
 }
@@ -601,7 +590,6 @@ span.vp-fecha-entrega {
   color: #103f1b;
 }
 
-/* Paginación */
 div.vp-pagination-container {
   display: flex;
   justify-content: space-between;
@@ -640,7 +628,6 @@ div.vp-pagination-info {
   color: #666666;
 }
 
-/* Modal */
 div.vp-pedido-details-modal {
   position: fixed;
   top: 0;
@@ -707,7 +694,6 @@ div.vp-modal-body {
   overflow-y: auto;
 }
 
-/* Diseño mejorado para el modal */
 div.vp-modal-sections {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -867,7 +853,6 @@ div.vp-no-products-message {
   color: #666666;
 }
 
-/* Responsive */
 @media (max-width: 992px) {
   div.vp-modal-sections {
     grid-template-columns: 1fr;
@@ -877,7 +862,6 @@ div.vp-no-products-message {
     grid-template-columns: 1fr;
   }
   
-  /* Ajuste para filtros en tablets */
   div.vp-search-filter-row {
     flex-direction: column;
     align-items: stretch;

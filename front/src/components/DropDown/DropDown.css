@@ -1,30 +1,26 @@
-/* DropDown.css */
+
 .custom-dropdown {
   position: relative !important;
-  display: inline-block !important; /* Asegura que el dropdown esté contenido en su propio espacio */
+  display: inline-block !important; 
 }
 
-/* Estilos para que el cursor parezca clickeable */
 .cursor-pointer {
   cursor: pointer;
 }
 
-/* Asegurar que el menú dropdown esté por encima de todo */
 .dropdown-menu-custom {
   z-index: 1050 !important;
   border-radius: 4px !important;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
   border: 1px solid rgba(0, 0, 0, 0.1) !important;
   margin-top: 0.5rem !important;
-  /* Posición clave para alinearlo con el icono de usuario */
   position: absolute !important;
-  right: auto !important; /* Quita alineación derecha automática */
-  left: 50% !important; /* Centra el dropdown horizontalmente */
-  transform: translateX(-50%) !important; /* Ajusta para centrar exactamente */
+  right: auto !important; 
+  left: 50% !important; 
+  transform: translateX(-50%) !important; 
   min-width: 200px !important;
 }
 
-/* Estilo para los items del dropdown */
 .dropdown-item-custom {
   padding: 0.5rem 1rem !important;
   color: #212529 !important;
@@ -36,7 +32,6 @@
   color: #103f1b !important;
 }
 
-/* Estilo para el botón de cerrar sesión */
 .dropdown-item-logout {
   color: #dc3545 !important;
   font-weight: 500 !important;
@@ -46,39 +41,35 @@
   background-color: #f8d7da !important;
 }
 
-/* Asegurar que el dropdown permanezca encima cuando está abierto */
 .dropdown-menu.show {
   display: block !important;
   z-index: 1050 !important;
 }
 
-/* Agregar una flecha arriba del menú desplegable */
 .dropdown-menu-custom::before {
   content: '';
   position: absolute;
   top: -10px;
-  left: 50%; /* Centrar la flecha */
-  transform: translateX(-50%); /* Ajustar perfectamente al centro */
+  left: 50%;
+  transform: translateX(-50%);
   border-left: 10px solid transparent;
   border-right: 10px solid transparent;
   border-bottom: 10px solid white;
   filter: drop-shadow(0px -3px 2px rgba(0, 0, 0, 0.05));
 }
 
-/* Agregar una sombra sutil para la flecha */
 .dropdown-menu-custom::after {
   content: '';
   position: absolute;
   top: -11px;
-  left: 50%; /* Centrar la sombra */
-  transform: translateX(-50%); /* Ajustar perfectamente al centro */
+  left: 50%; 
+  transform: translateX(-50%); 
   border-left: 10px solid transparent;
   border-right: 10px solid transparent;
   border-bottom: 10px solid rgba(0, 0, 0, 0.05);
   z-index: -1;
 }
 
-/* Forzar que los componentes del catálogo tengan z-index bajo */
 .product-slider-container,
 .product-card,
 .card,
@@ -87,13 +78,10 @@
   z-index: 1 !important;
 }
 
-/* Asegurar que todo lo demás tenga z-index bajo */
 main {
   z-index: auto !important;
 }
 
-/* En Bootstrap, por defecto los dropdowns se renderizarán en un portal
-   fuera del contenedor, esta modificación asegura que se comporte como queremos */
 body > .dropdown-menu-custom {
   margin-top: 0.5rem !important;
   display: block !important;

@@ -5,11 +5,9 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './SideBar.css';
 
 const SideBar = ({ usuario }) => {
-    // Añadir clase 'admin-page' al body cuando el componente se monta
     useEffect(() => {
         document.body.classList.add('admin-page');
         
-        // Limpiar cuando el componente se desmonte
         return () => {
             document.body.classList.remove('admin-page');
         };

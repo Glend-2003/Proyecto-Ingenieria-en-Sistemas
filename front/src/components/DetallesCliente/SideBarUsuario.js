@@ -1,4 +1,3 @@
-// SideBarUsuario.js
 import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { 
@@ -20,7 +19,6 @@ const SideBarUsuario = ({ usuario, handleLogout }) => {
     
     const [menuColapsado, setMenuColapsado] = useState(false);
     
-    // Actualizar datos si cambian las props
     useEffect(() => {
         if (usuario) {
             setDatosUsuario({
@@ -31,14 +29,12 @@ const SideBarUsuario = ({ usuario, handleLogout }) => {
         }
     }, [usuario]);
     
-    // Alternar el estado del menú en pantallas pequeñas
     const toggleMenu = () => {
         setMenuColapsado(!menuColapsado);
     };
 
     return (
         <>
-            {/* Botón para alternar la visibilidad del menú en dispositivos móviles */}
             <button className="sidebar-toggle" onClick={toggleMenu}>
                 <FaAngleRight className={`toggle-icon ${menuColapsado ? 'rotated' : ''}`} />
             </button>

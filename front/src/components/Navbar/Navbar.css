@@ -1,13 +1,4 @@
-/* Navbar.css */
-/* Paleta de colores: 
-   - Verde oscuro: #103f1b
-   - Verde medio: #387623
-   - Verde claro: #9fc45a
-   - Mostaza: #958933
-   - Café: #875725
-*/
 
-/* Ajuste del container para mejor espaciado */
 .navbar > .container-lg {
   display: flex;
   justify-content: space-between;
@@ -16,34 +7,29 @@
   width: 100%;
 }
 
-/* Estilos base para el navbar */
 .navbar-transition {
   transition: all 0.3s ease-in-out;
-  background: #103f1b !important; /* Verde oscuro sólido */
+  background: #103f1b !important; 
   border-bottom: 3px solid #9fc45a;
 }
 
-/* Estilo cuando está en la parte superior */
 .navbar-top {
   padding: 0.8rem 0;
   box-shadow: none;
 }
 
-/* Estilo cuando se ha hecho scroll */
 .navbar-scrolled {
   padding: 0.4rem 0;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   background: #103f1b !important;
 }
 
-/* Container del logo y el brand */
 .navbar-brand-container {
   display: flex;
   align-items: center;
-  margin-right: 30px; /* Separación del menú */
+  margin-right: 30px; 
 }
 
-/* Estilos para el logo */
 .navbar-logo {
   height: 48px;
   margin-right: 15px;
@@ -54,7 +40,6 @@
   height: 40px;
 }
 
-/* Estilo para el texto del brand */
 .brand-text {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   font-weight: 700;
@@ -74,7 +59,6 @@
   color: #9fc45a !important;
 }
 
-/* Estilos para los links de navegación */
 .main-nav {
   display: flex;
   justify-content: center;
@@ -118,7 +102,6 @@
   transform: translateY(1px);
 }
 
-/* Estilos para los iconos */
 .icons-nav {
   display: flex;
   align-items: center;
@@ -145,15 +128,13 @@
   transform: translateY(0);
 }
 
-/* Usuario dropdown container */
 .user-dropdown-container {
   position: relative;
-  z-index: 1100; /* Mayor que el z-index del search-container */
+  z-index: 1100; 
 }
 
-/* Asegúrate que el dropdown aparezca sobre el buscador */
 .dropdown-menu {
-  z-index: 1102 !important; /* Mayor que el search-container y user-dropdown-container */
+  z-index: 1102 !important; 
   position: absolute;
   right: 0;
   left: auto;
@@ -164,7 +145,6 @@
   box-shadow: 0 0.5rem 1rem rgba(0,0,0,.175);
 }
 
-/* Cuando el buscador está abierto, ajustamos el dropdown */
 .search-container-open ~ .navbar-collapse .user-dropdown-container .dropdown-menu {
   margin-top: 0;
   border-top: none;
@@ -172,7 +152,6 @@
   border-top-right-radius: 0;
 }
 
-/* Estilos específicos para el carrito */
 .cart-icon {
   position: relative;
 }
@@ -191,7 +170,6 @@
   border: 2px solid #103f1b;
 }
 
-/* Contenedor de búsqueda */
 .search-container {
   position: absolute;
   top: 100%;
@@ -200,7 +178,7 @@
   padding: 1rem;
   background-color: rgba(16, 63, 27, 0.95);
   border-bottom: 3px solid #9fc45a;
-  z-index: 1100; /* Asegúrate que sea menor que el dropdown (1102) */
+  z-index: 1100; 
   animation: slideDown 0.3s ease-out;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
@@ -248,9 +226,6 @@
   color: #103f1b;
 }
 
-
-
-/* Estilos para dispositivos móviles */
 @media (max-width: 991px) {
   .navbar-brand-container {
     margin-right: auto;
@@ -300,7 +275,6 @@
   }
 }
 
-/* Media queries adicionales para mejor responsividad */
 @media (max-width: 576px) {
   .brand-text {
     font-size: 0.9rem !important;
@@ -321,7 +295,6 @@
   }
 }
 
-/* Para pantallas extra pequeñas */
 @media (max-width: 400px) {
   .navbar-brand-container {
     max-width: 180px;

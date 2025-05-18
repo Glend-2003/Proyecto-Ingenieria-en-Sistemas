@@ -53,24 +53,20 @@ function CarritoApp() {
         return;
       }
   
-      // Calcular totales
       const total = carritoLocal.reduce((sum, item) => sum + (item.montoPrecioProducto || 0) * item.cantidad, 0);
       const cantidadTotal = carritoLocal.reduce((sum, item) => sum + item.cantidad, 0);
   
-      // Crear objeto carrito como lo espera el backend
       const carritoData = {
-        usuario: { idUsuario: usuario.idUsuario }, // Esto es lo más importante
+        usuario: { idUsuario: usuario.idUsuario },
         montoTotalCarrito: total,
         estadoCarrito: true,
         cantidadCarrito: cantidadTotal
       };
   
-      // Primero crear el carrito
       const { data: carritoCreado } = await axios.post('http://localhost:8080/carrito', carritoData, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
   
-      // Luego agregar productos
       await Promise.all(
         carritoLocal.map(item => 
           axios.post(`http://localhost:8080/carrito/${carritoCreado.idCarrito}/productos`, {
@@ -97,7 +93,6 @@ function CarritoApp() {
     }
   };
 
-  // Agrupar productos con el mismo ID
   const groupedCart = cart.reduce((acc, item) => {
     const existingItem = acc.find((i) => i.idProducto === item.idProducto);
     if (existingItem) {

@@ -1,10 +1,9 @@
-// src/hooks/useAuth.js
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useAppContext } from '../components/Navbar/AppContext'; // Ajusta la ruta
+import { useAppContext } from '../components/Navbar/AppContext'; 
 
-const useAuth = (redirectIfNoToken = false) => { // Parámetro para controlar redirección
+const useAuth = (redirectIfNoToken = false) => { 
   const [usuario, setUsuario] = useState(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
   const navigate = useNavigate();
@@ -42,16 +41,15 @@ const useAuth = (redirectIfNoToken = false) => { // Parámetro para controlar re
       })
       .catch(() => {
         clearUserSession();
-        if (redirectIfNoToken) { navigate('/'); } // Redirige solo si se especifica
+        if (redirectIfNoToken) { navigate('/'); } 
       })
       .finally(() => setLoadingAuth(false));
     } else {
-      clearUserSession(); // Limpia cualquier dato de sesión residual
-      if (redirectIfNoToken) { navigate('/'); } // Redirige solo si se especifica
+      clearUserSession();
+      if (redirectIfNoToken) { navigate('/'); } 
       setLoadingAuth(false);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [redirectIfNoToken, clearUserSession]); // `Maps` se puede quitar si solo se usa en handleLogout o si su cambio no debe disparar esto.
+  }, [redirectIfNoToken, clearUserSession]);
 
   return { usuario, loadingAuth, handleLogout };
 };

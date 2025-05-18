@@ -24,7 +24,6 @@ const Principal = () => {
     const { usuario } = useAuth();
     const { handleLogout } = useAppContext();
 
-    // Array de accesos rápidos basado en las opciones del sidebar
     const quickAccess = [
         { 
             path: '/GestionarUsuario', 

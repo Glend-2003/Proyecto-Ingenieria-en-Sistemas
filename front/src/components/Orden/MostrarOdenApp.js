@@ -22,9 +22,6 @@ function MostrarOrdenApp() {
 
   const subtotal = calcularSubtotal();
 
-  // Elimina las funciones updateQuantity y removeItem locales
-  // Ya que estamos usando las del contexto
-
   useEffect(() => {
     if (!imagesLoaded && cart.length > 0) {
       Promise.all(

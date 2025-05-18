@@ -1,14 +1,12 @@
-/* Historia.css - Estilos para la página de Historia de Carnicería la Bendición */
 
-/* Variables de colores - Nueva paleta */
 :root {
-  --color-primary: #103f1b;       /* Verde oscuro - Color principal */
-  --color-primary-light: #387623; /* Verde medio */
-  --color-primary-lighter: #9fc45a; /* Verde claro */
-  --color-primary-dark: #0a2911;  /* Verde muy oscuro */
-  --color-accent: #958933;        /* Dorado/mostaza */
-  --color-accent-dark: #875725;   /* Marrón */
-  --color-primary-bg: #f1f7e9;    /* Fondo verde muy claro */
+  --color-primary: #103f1b;      
+  --color-primary-light: #387623; 
+  --color-primary-lighter: #9fc45a; 
+  --color-primary-dark: #0a2911;  
+  --color-accent: #958933;       
+  --color-accent-dark: #875725;  
+  --color-primary-bg: #f1f7e9;    
   --color-white: #ffffff;
   --color-black: #000000;
   --color-gray-50: #f8fafc;
@@ -18,25 +16,23 @@
   --color-gray-700: #334155;
 }
 
-/* Estilos generales */
 .historia-container {
   font-family: 'Georgia', serif;
   background-color: var(--color-gray-50);
   color: var(--color-gray-700);
 }
 
-/* Hero Section */
 .historia-hero {
   position: relative;
   height: 16rem;
-  background-image: url('../../assets/images/backgroundTitulo.png'); /* Ruta de la imagen */
+  background-image: url('../../assets/images/backgroundTitulo.png');
   overflow: hidden;
 }
 
 .historia-hero-overlay {
   position: absolute;
   inset: 0;
-  background-color: rgba(16, 63, 27, 0.7); /* Verde oscuro con transparencia */
+  background-color: rgba(16, 63, 27, 0.7); 
   display: flex;
   align-items: center;
   justify-content: center;
@@ -50,7 +46,6 @@
   padding: 0 1rem;
 }
 
-/* Sección de introducción */
 .historia-intro {
   max-width: 48rem;
   margin: 0 auto;
@@ -70,7 +65,6 @@
   margin-bottom: 2rem;
 }
 
-/* Iconos circulares */
 .historia-icon-container {
   display: flex;
   justify-content: center;
@@ -94,7 +88,6 @@
   color: var(--color-primary-dark);
 }
 
-/* Timeline */
 .historia-timeline {
   max-width: 64rem;
   margin: 0 auto;
@@ -194,7 +187,6 @@
   height: 100%;
 }
 
-/* Valores */
 .historia-values {
   background-color: var(--color-primary-bg);
   border-radius: 0.75rem;
@@ -266,7 +258,6 @@
   color: var(--color-gray-700);
 }
 
-/* Testimonial */
 .historia-testimonial {
   max-width: 48rem;
   margin: 0 auto 4rem auto;
@@ -300,7 +291,6 @@
   color: var(--color-gray-700);
 }
 
-/* Location Info */
 .historia-location-info {
   background-color: var(--color-primary);
   color: var(--color-white);
@@ -337,7 +327,6 @@
   background-color: var(--color-accent-dark);
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
   .historia-icon-container {
     flex-direction: column;

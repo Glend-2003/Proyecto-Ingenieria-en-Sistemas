@@ -1,14 +1,10 @@
-/* Estilos generales con nueva paleta de colores 
-   Paleta: #103f1b, #387623, #9fc45a, #958933, #875725
-*/
 .orders-page {
-  min-height: calc(100vh - 200px); /* Ajuste para el navbar y footer */
+  min-height: calc(100vh - 200px);
   display: flex;
   flex-direction: column;
-  background-color: #f9f9f5; /* Fondo ligeramente beige para complementar la paleta */
+  background-color: #f9f9f5; 
 }
 
-/* Ajustes para integrarse con el Dashboard */
 .perfil-usuario-container {
   display: flex;
   max-width: 1200px;
@@ -17,7 +13,6 @@
   padding: 0;
 }
 
-/* Orders Content Styles */
 .orders-content {
   flex: 1;
   border-radius: 8px;
@@ -33,22 +28,21 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
-  border-bottom: 2px solid #9fc45a; /* Borde en verde claro */
+  border-bottom: 2px solid #9fc45a; 
   padding-bottom: 1rem;
 }
 
 .orders-title {
   margin-bottom: 0;
   font-size: 1.8rem;
-  color: #103f1b; /* Verde oscuro */
+  color: #103f1b;
 }
 
-/* Estilos mejorados para el botón de filtros */
 .filter-button {
   display: flex;
   align-items: center;
   gap: 8px;
-  background-color: #387623; /* Verde medio */
+  background-color: #387623; 
   border: none;
   border-radius: 4px;
   padding: 8px 16px;
@@ -59,11 +53,11 @@
 }
 
 .filter-button:hover {
-  background-color: #103f1b; /* Verde oscuro */
+  background-color: #103f1b;
 }
 
 .filter-button.active {
-  background-color: #875725; /* Marrón */
+  background-color: #875725;
   color: white;
 }
 
@@ -71,10 +65,9 @@
   margin-right: 8px;
 }
 
-/* Estilos para el panel de filtros */
 .filters-panel {
-  background-color: #f5f8f0; /* Verde muy claro */
-  border: 1px solid #9fc45a; /* Borde en verde claro */
+  background-color: #f5f8f0;
+  border: 1px solid #9fc45a; 
   border-radius: 8px;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
@@ -86,13 +79,13 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
-  border-bottom: 1px solid #9fc45a; /* Borde en verde claro */
+  border-bottom: 1px solid #9fc45a;
   padding-bottom: 0.8rem;
 }
 
 .filters-header h3 {
   font-size: 1.1rem;
-  color: #103f1b; /* Verde oscuro */
+  color: #103f1b;
   margin: 0;
   font-weight: 600;
 }
@@ -100,7 +93,7 @@
 .close-filters {
   background: none;
   border: none;
-  color: #387623; /* Verde medio */
+  color: #387623;
   cursor: pointer;
   font-size: 1rem;
   padding: 5px;
@@ -110,7 +103,7 @@
 }
 
 .close-filters:hover {
-  color: #875725; /* Marrón */
+  color: #875725; 
 }
 
 .filters-grid {
@@ -128,14 +121,14 @@
   display: block;
   margin-bottom: 5px;
   font-weight: 500;
-  color: #387623; /* Verde medio */
+  color: #387623; 
   font-size: 0.9rem;
 }
 
 .filter-select, .date-picker, .react-datepicker-wrapper {
   width: 100%;
   padding: 8px 12px;
-  border: 1px solid #9fc45a; /* Verde claro */
+  border: 1px solid #9fc45a;
   border-radius: 4px;
   font-size: 0.9rem;
   color: #333;
@@ -144,7 +137,7 @@
 }
 
 .filter-select:focus, .date-picker:focus {
-  border-color: #387623; /* Verde medio */
+  border-color: #387623; 
   outline: none;
   box-shadow: 0 0 0 2px rgba(56, 118, 35, 0.1);
 }
@@ -160,7 +153,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background-color: #387623; /* Verde medio */
+  background-color: #387623; 
   color: white;
   border: none;
   border-radius: 4px;
@@ -175,13 +168,13 @@
 }
 
 .apply-filters:hover {
-  background-color: #103f1b; /* Verde oscuro */
+  background-color: #103f1b; 
 }
 
 .clear-filters {
   background-color: #f0f0f0;
-  color: #875725; /* Marrón */
-  border: 1px solid #875725; /* Borde en marrón */
+  color: #875725;
+  border: 1px solid #875725; 
   border-radius: 4px;
   padding: 10px 16px;
   font-weight: 500;
@@ -190,11 +183,10 @@
 }
 
 .clear-filters:hover {
-  background-color: #875725; /* Marrón */
+  background-color: #875725;
   color: white;
 }
 
-/* Estilos para el listado de pedidos */
 .orders-list {
   display: flex;
   flex-direction: column;
@@ -202,7 +194,7 @@
 }
 
 .order-card {
-  border: 1px solid #9fc45a; /* Verde claro */
+  border: 1px solid #9fc45a;
   border-radius: 10px;
   overflow: hidden;
   transition: transform 0.2s, box-shadow 0.2s;
@@ -218,9 +210,9 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem 1.5rem;
-  background-color: #103f1b; /* Verde oscuro */
+  background-color: #103f1b; 
   color: white;
-  border-bottom: 1px solid #387623; /* Verde medio */
+  border-bottom: 1px solid #387623;
 }
 
 .order-id {
@@ -238,7 +230,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.8rem 1.5rem;
-  background-color: #f5f8f0; /* Verde muy claro */
+  background-color: #f5f8f0;
 }
 
 .status-indicator {
@@ -252,20 +244,20 @@
 }
 
 .estado-icon.pending {
-  color: #958933; /* Amarillo de la paleta */
+  color: #958933;
 }
 
 .estado-icon.processing {
-  color: #387623; /* Verde medio */
+  color: #387623;
   animation: spin 2s linear infinite;
 }
 
 .estado-icon.delivered {
-  color: #9fc45a; /* Verde claro */
+  color: #9fc45a;
 }
 
 .estado-icon.cancelled {
-  color: #875725; /* Marrón */
+  color: #875725;
 }
 
 .estado-icon.unknown {
@@ -276,21 +268,20 @@
   font-weight: 500;
 }
 
-/* Nuevas clases para los estados de entrega */
 .status-pending {
-  color: #958933; /* Amarillo */
+  color: #958933;
 }
 
 .status-processing {
-  color: #387623; /* Verde medio */
+  color: #387623;
 }
 
 .status-delivered {
-  color: #9fc45a; /* Verde claro */
+  color: #9fc45a; 
 }
 
 .status-cancelled {
-  color: #875725; /* Marrón */
+  color: #875725;
 }
 
 .status-unknown {
@@ -298,10 +289,9 @@
 }
 
 .payment-method {
-  color: #103f1b; /* Verde oscuro */
+  color: #103f1b;
 }
 
-/* Productos dentro de pedidos */
 .order-products {
   padding: 1rem 1.5rem;
   border-bottom: 1px solid #f0f0f0;
@@ -311,7 +301,7 @@
   display: flex;
   margin-bottom: 1rem;
   padding-bottom: 1rem;
-  border-bottom: 1px dashed #9fc45a; /* Verde claro */
+  border-bottom: 1px dashed #9fc45a; 
 }
 
 .product-item:last-child {
@@ -329,7 +319,7 @@
 
 .product-name {
   font-weight: 500;
-  color: #103f1b; /* Verde oscuro */
+  color: #103f1b;
 }
 
 .product-quantity {
@@ -338,7 +328,7 @@
 }
 
 .product-price {
-  color: #387623; /* Verde medio */
+  color: #387623;
   font-weight: 500;
 }
 
@@ -347,14 +337,14 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem 1.5rem;
-  background-color: #f5f8f0; /* Verde muy claro */
-  border-top: 1px solid #9fc45a; /* Verde claro */
+  background-color: #f5f8f0; 
+  border-top: 1px solid #9fc45a; 
 }
 
 .order-total {
   font-weight: bold;
   font-size: 1.1rem;
-  color: #103f1b; /* Verde oscuro */
+  color: #103f1b; 
 }
 
 .order-actions {
@@ -366,7 +356,7 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  background-color: #958933; /* Amarillo */
+  background-color: #958933;
   color: white;
   border: none;
   padding: 0.5rem 1.2rem;
@@ -376,11 +366,11 @@
 }
 
 .edit-button:hover {
-  background-color: #875725; /* Marrón */
+  background-color: #875725;
 }
 
 .cancel-button {
-  background-color: #875725; /* Marrón */
+  background-color: #875725;
   color: white;
   border: none;
   padding: 0.5rem 1.2rem;
@@ -390,10 +380,9 @@
 }
 
 .cancel-button:hover {
-  background-color: #103f1b; /* Verde oscuro */
+  background-color: #103f1b; 
 }
 
-/* Estados específicos y otros elementos */
 .loading-spinner {
   display: flex;
   flex-direction: column;
@@ -404,7 +393,7 @@
 
 .spinner {
   font-size: 2.5rem;
-  color: #387623; /* Verde medio */
+  color: #387623; 
   animation: spin 1s linear infinite;
 }
 
@@ -415,12 +404,12 @@
 
 .error-message {
   text-align: center;
-  background-color: #f5f8f0; /* Verde muy claro */
-  color: #103f1b; /* Verde oscuro */
+  background-color: #f5f8f0; 
+  color: #103f1b; 
   padding: 1.5rem;
   border-radius: 6px;
   margin: 2rem 0;
-  border: 1px solid #9fc45a; /* Verde claro */
+  border: 1px solid #9fc45a;
 }
 
 .no-orders {
@@ -430,13 +419,13 @@
 
 .no-orders p {
   font-size: 1.2rem;
-  color: #387623; /* Verde medio */
+  color: #387623;
   margin-bottom: 1.5rem;
 }
 
 .shop-now-button {
   display: inline-block;
-  background-color: #387623; /* Verde medio */
+  background-color: #387623; 
   color: white;
   text-decoration: none;
   padding: 0.8rem 2rem;
@@ -447,10 +436,9 @@
 }
 
 .shop-now-button:hover {
-  background-color: #103f1b; /* Verde oscuro */
+  background-color: #103f1b;
 }
 
-/* Responsive para Orders dentro del Dashboard */
 @media (max-width: 992px) {
   .perfil-usuario-container {
     flex-direction: column;

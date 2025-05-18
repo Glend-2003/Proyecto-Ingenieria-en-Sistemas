@@ -13,7 +13,6 @@ const PedidosCompletadosApp = () => {
   const [expandedRows, setExpandedRows] = useState(new Set());
   const { usuario } = useAuth();
 
-  // Estados para filtros
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
@@ -25,7 +24,6 @@ const PedidosCompletadosApp = () => {
   });
   const [filteredPedidos, setFilteredPedidos] = useState([]);
 
-  // Estados para reportes
   const [reportesData, setReportesData] = useState({
     total: { count: 0, sum: 0 },
     hoy: { count: 0, sum: 0 },
@@ -35,15 +33,11 @@ const PedidosCompletadosApp = () => {
   });
 
   const generarCodigoPedido = (idPedido, fechaPedido) => {
-    // Extraer el año y mes de la fecha del pedido
     const fecha = new Date(fechaPedido);
-    const año = fecha.getFullYear().toString().substring(2); // Últimos dos dígitos del año
-    const mes = (fecha.getMonth() + 1).toString().padStart(2, '0'); // Mes con 2 dígitos
-
-    // Formatear el ID interno con ceros a la izquierda (5 dígitos)
+    const año = fecha.getFullYear().toString().substring(2);
+    const mes = (fecha.getMonth() + 1).toString().padStart(2, '0'); 
     const idFormateado = idPedido.toString().padStart(5, '0');
 
-    // Formato: PED-AAMM-XXXXX (Año-Mes-ID)
     return `PED-${año}${mes}-${idFormateado}`;
   };
 
@@ -58,8 +52,6 @@ const PedidosCompletadosApp = () => {
     return `PED-${año}${mes}-${idFormateado}`;
   };
 
-
-  // Cargar datos iniciales
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -79,7 +71,6 @@ const PedidosCompletadosApp = () => {
     fetchData();
   }, []);
 
-  // Calcular estadísticas para las tarjetas
   const calcularEstadisticas = (pedidosData) => {
     const hoy = new Date();
     const inicioSemana = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() - hoy.getDay());
@@ -124,7 +115,6 @@ const PedidosCompletadosApp = () => {
     setReportesData(stats);
   };
 
-  // Aplicar filtros
   useEffect(() => {
     let filtered = [...pedidos];
 
@@ -153,13 +143,11 @@ const PedidosCompletadosApp = () => {
     setCurrentPage(1);
   }, [filters, pedidos]);
 
-  // Paginación
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredPedidos.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filteredPedidos.length / itemsPerPage);
 
-  // Funciones auxiliares
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
     const date = new Date(dateString);
@@ -214,7 +202,6 @@ const PedidosCompletadosApp = () => {
       pedidos: obtenerPedidosParaReporte(tipo)
     };
 
-    // Crear contenido para impresión
     const printWindow = window.open('', '_blank');
     printWindow.document.write(`
     <html>
@@ -346,7 +333,6 @@ const PedidosCompletadosApp = () => {
           <SideBar usuario={usuario} />
 
           <div className="vp-main-container">
-            {/* Header */}
             <div className="vp-header-container">
               <h1 className="vp-header-title">Pedidos Completados</h1>
               <div className="vp-header-actions">
@@ -362,7 +348,6 @@ const PedidosCompletadosApp = () => {
               </div>
             </div>
 
-            {/* Tarjetas de estadísticas */}
             <div className="vp-stats-cards">
               <div className="vp-stat-card vp-total-card">
                 <div className="vp-stat-icon">
@@ -436,7 +421,6 @@ const PedidosCompletadosApp = () => {
               </div>
             </div>
 
-            {/* Panel de filtros y reportes */}
             <div className="vp-filter-reports-panel">
               <div className="vp-filter-panel">
                 <div className="vp-filter-controls">
@@ -563,7 +547,6 @@ const PedidosCompletadosApp = () => {
               </div>
             </div>
 
-            {/* Tabla de pedidos */}
             <div className="vp-pedidos-container">
               {filteredPedidos.length === 0 ? (
                 <div className="vp-no-results">
@@ -676,7 +659,6 @@ const PedidosCompletadosApp = () => {
                     </tbody>
                   </table>
 
-                  {/* Paginación */}
                   <div className="vp-pagination-container">
                     <div className="vp-pagination-info">
                       Mostrando {indexOfFirstItem + 1} a {Math.min(indexOfLastItem, filteredPedidos.length)} de {filteredPedidos.length} pedidos
@@ -706,7 +688,6 @@ const PedidosCompletadosApp = () => {
         <FooterApp />
       </div>
 
-      {/* Modal de detalles del pedido */}
       {selectedPedido && (
         <div className="vp-pedido-details-modal">
           <div className="vp-pedido-details-content">

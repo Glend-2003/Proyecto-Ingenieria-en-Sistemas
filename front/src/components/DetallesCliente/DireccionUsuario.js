@@ -17,15 +17,12 @@ import { useAppContext } from "../Navbar/AppContext";
 const DireccionUsuario = () => {
   const { usuario } = useAuth();
   const navigate = useNavigate();
-
-  // Estados para los combos
   const [provincias, setProvincia] = useState([]);
   const [cantones, setCantones] = useState([]);
   const [distritos, setDistritos] = useState([]);
   const [direccionCompleta, setDireccionCompleta] = useState(null);
   const [loading, setLoading] = useState(true);
   
-  // Estado para el formulario
   const [formData, setFormData] = useState({
     codigoPostalDireccion: "",
     descripcionDireccion: "",
@@ -41,7 +38,6 @@ const DireccionUsuario = () => {
     return /^\d{5}$/.test(code);
   };
 
-  // Cargar los datos de dirección completa al iniciar
   useEffect(() => {
     if (usuario?.correoUsuario) {
       cargarDireccionUsuario();
@@ -49,7 +45,6 @@ const DireccionUsuario = () => {
     }
   }, [usuario]);
 
-  // Cargar la dirección completa desde el backend
 const cargarDireccionUsuario = async () => {
   try {
     setLoading(true);
@@ -70,7 +65,6 @@ const cargarDireccionUsuario = async () => {
     if (response.data) {
       setDireccionCompleta(response.data);
       
-      // Configurar el formulario con los datos recibidos
       setFormData({
         codigoPostalDireccion: response.data.codigoPostalDireccion || "",
         descripcionDireccion: response.data.descripcionDireccion || "",
@@ -87,7 +81,6 @@ const cargarDireccionUsuario = async () => {
         idDistrito: response.data.idDistrito || ""
       });
       
-      // Si hay provincia y cantón, cargar los datos correspondientes
       if (response.data.idProvincia) {
         const cantones = await cargarCantonesPorProvincia(response.data.idProvincia);
         console.log("Cantones cargados:", cantones);
@@ -103,14 +96,13 @@ const cargarDireccionUsuario = async () => {
     console.error("Detalles del error:", error.response?.data);
     console.error("Estado HTTP:", error.response?.status);
     
-    if (error.response?.status !== 404) { // No mostrar error si simplemente no hay dirección
+    if (error.response?.status !== 404) {
       toast.error("No se pudo cargar la información de dirección");
     }
   } finally {
     setLoading(false);
   }
 };
-  // Cargar combos dependientes
   useEffect(() => {
     if (formData.idProvincia && !loading) {
       cargarCantones();
@@ -143,7 +135,6 @@ const cargarDireccionUsuario = async () => {
     }
   };
 
-  // Función específica para cargar cantones durante la inicialización
   const cargarCantonesPorProvincia = async (idProvincia) => {
     try {
       const response = await axios.get(
@@ -162,7 +153,6 @@ const cargarDireccionUsuario = async () => {
     }
   };
 
-  // Función específica para cargar distritos durante la inicialización
   const cargarDistritosPorCanton = async (idCanton) => {
     try {
       const response = await axios.get(
@@ -218,7 +208,6 @@ const cargarDireccionUsuario = async () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     
-    // Validación especial para código postal (solo números)
     if (name === "codigoPostalDireccion") {
       if (value === "" || /^\d+$/.test(value)) {
         setFormData({ ...formData, [name]: value });
@@ -242,7 +231,6 @@ const cargarDireccionUsuario = async () => {
       return;
     }
 
-    // Validación de formato del código postal
     if (formData.codigoPostalDireccion && !isValidPostalCodeFormat(formData.codigoPostalDireccion)) {
       toast.error("El código postal debe tener exactamente 5 dígitos");
       return;
@@ -268,7 +256,6 @@ const cargarDireccionUsuario = async () => {
       toast.success(response.data);
       setIsEditing(false);
       
-      // Recargar los datos de dirección después de guardar
       cargarDireccionUsuario();
     } catch (error) {
       if (error.response?.status === 401) {
@@ -287,10 +274,8 @@ const cargarDireccionUsuario = async () => {
     <div className="profile-page">
       <NavbarApp />
       <div className="perfil-usuario-container">
-        {/* Sidebar Component */}
         <SideBarUsuario usuario={usuario} handleLogout={handleLogout} />
 
-        {/* Contenido principal con nuevo diseño */}
         <div className="profile-content">
           <div className="profile-header">
             <h2>Mi Dirección</h2>
@@ -311,7 +296,6 @@ const cargarDireccionUsuario = async () => {
                   className="cancel-btn"
                   onClick={() => {
                     setIsEditing(false);
-                    // Restaurar los datos originales al cancelar
                     if (direccionCompleta) {
                       setFormData({
                         codigoPostalDireccion: direccionCompleta.codigoPostalDireccion || "",
@@ -345,7 +329,6 @@ const cargarDireccionUsuario = async () => {
 
             <form onSubmit={handleSubmit} className="profile-form">
               <div className="form-grid">
-                {/* Código Postal */}
                 <div className="form-group">
                   <label>
                     <FontAwesomeIcon icon={faMapMarkerAlt} className="input-icon" /> Código Postal
@@ -364,7 +347,6 @@ const cargarDireccionUsuario = async () => {
                   <small className="text-muted">Debe contener exactamente 5 dígitos</small>
                 </div>
 
-                {/* Descripción */}
                 <div className="form-group full-width">
                   <label>Descripción de la dirección</label>
                   <textarea
@@ -379,7 +361,6 @@ const cargarDireccionUsuario = async () => {
                   />
                 </div>
 
-                {/* Provincia */}
                 <div className="form-group">
                   <label>Provincia</label>
                   <select
@@ -406,7 +387,6 @@ const cargarDireccionUsuario = async () => {
                   </select>
                 </div>
 
-                {/* Cantón */}
                 <div className="form-group">
                   <label>Cantón</label>
                   <select
@@ -432,7 +412,6 @@ const cargarDireccionUsuario = async () => {
                   </select>
                 </div>
 
-                {/* Distrito */}
                 <div className="form-group">
                   <label>Distrito</label>
                   <select
