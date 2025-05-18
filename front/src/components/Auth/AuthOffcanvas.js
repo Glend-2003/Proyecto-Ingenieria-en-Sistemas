@@ -192,18 +192,7 @@ const AuthOffcanvas = () => {
                 </div>
               </div>
               <div className="options-container">
-                <div className="remember-me">
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    id="authOffcanvasRememberMe"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                  />
-                  <label className="form-check-label" htmlFor="authOffcanvasRememberMe">
-                    Acuérdate de mí
-                  </label>
-                </div>
+
                 <button
                   className="forgot-password-link"
                   onClick={() => setShowForgotPassword(true)}
