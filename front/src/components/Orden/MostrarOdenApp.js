@@ -3,9 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { X, ShoppingCart, ChevronLeft, Plus, Minus, Shield } from "lucide-react";
 import "./MostrarOrden.css";
 import { useCart } from "../../contexto/ContextoCarrito";
+import { useAppContext } from "../Navbar/AppContext";
 
 function MostrarOrdenApp() {
   const navigate = useNavigate();
+  const { handleShowSidebar } = useAppContext();
   const idUsuario = localStorage.getItem("idUsuario");
   const {
     cart,
@@ -167,7 +169,8 @@ function MostrarOrdenApp() {
                     <div className="mensaje-sesion">
                       <p>Inicie sesión para continuar con el pago</p>
                     </div>
-                    <button onClick={() => navigate("/login")} className="btn-sesion">INICIAR SESIÓN</button>
+                    <button onClick={handleShowSidebar} className="btn-sesion">INICIAR SESIÓN</button>
+         
                   </div>
                 ) : (
                   <button
