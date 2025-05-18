@@ -4,6 +4,7 @@ import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 import PaginacionApp from "../Paginacion/PaginacionApp";
 import "./Resena.css";
+import { useAppContext } from "../Navbar/AppContext";
 
 const Resena = () => {
   const [comentarios, setComentarios] = useState([]);
@@ -11,6 +12,7 @@ const Resena = () => {
   const [error, setError] = useState(null);
   const [usuarioActual, setUsuarioActual] = useState(null);
   const [loadingUsuario, setLoadingUsuario] = useState(false);
+  const { handleShowSidebar } = useAppContext();
   const [newComentario, setNewComentario] = useState({
     nombre: "",
     email: "",
@@ -293,7 +295,7 @@ const Resena = () => {
           <div className="resena-login-required">
             <AlertCircle size={24} />
             <p>Debes iniciar sesión para dejar un comentario</p>
-            <a href="/login" className="resena-login-link">Iniciar sesión</a>
+            <a onClick={handleShowSidebar}  className="resena-login-link">Iniciar sesión</a>
           </div>
         ) : (
           <form className="resena-form" onSubmit={handleSubmit}>
