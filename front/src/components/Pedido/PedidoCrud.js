@@ -14,8 +14,8 @@ function PedidoCrud() {
     segundoApellido: '',
     correoUsuario: '',
     cedulaUsuario: '',
-    sucursal: 'Cairo de Cariari',
-    provincia: 'Limón',
+    sucursal: 'Cairo de Siquirres',
+    provincia: 'Siquirres',
     localidad: 'SuperMercado en el Centro Comercial',
     fechaHoraRetiro: '',
     tipoPago: ''
