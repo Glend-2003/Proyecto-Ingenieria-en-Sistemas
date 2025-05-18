@@ -397,7 +397,7 @@
 }
 
 .pedidos-table th {
-  background-color: #9fc45a;
+  background-color: #f5f9f3;
   color: #103f1b;
   font-weight: 600;
   text-align: left;
@@ -707,6 +707,7 @@
 }
 
 .modal-header h2 {
+
   font-size: 1.25rem;
   font-weight: 600;
   margin: 0;
