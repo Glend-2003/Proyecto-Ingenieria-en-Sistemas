@@ -49,8 +49,8 @@ public interface ComentarioRepository extends JpaRepository<Comentario, Integer>
             @Param("numCalificacion") int numCalificacion);
 
     // SP Delete
-    @Query(value = "{call spEliminarComentario(:idComentario)}", nativeQuery = true)
-    void deleteProcedureComentario(@Param("idComentario") Integer idComentario);
+    @Query(value = "{call spActivarComentario(:idComentario)}", nativeQuery = true)
+    void activarProcedureComentario(@Param("idComentario") Integer idComentario);
     
      // SP Delete
     @Query(value = "{call spMostrarComentario(:idComentario)}", nativeQuery = true)

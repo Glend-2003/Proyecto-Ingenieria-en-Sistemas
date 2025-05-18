@@ -774,48 +774,75 @@ const PedidosCompletadosApp = () => {
                 </div>
                 
                 <div className="vp-modal-section vp-modal-section-full-width">
-                  <div className="vp-productos-card">
-                    <div className="vp-info-header">
-                      <h3 className="vp-info-title">Productos <span className="vp-product-count">({selectedPedido.carrito?.productosCarrito?.length || 0})</span></h3>
-                    </div>
-                    <div className="vp-info-body">
-                      {selectedPedido.carrito?.productosCarrito?.length > 0 ? (
-                        <div className="vp-products-grid">
-                          {selectedPedido.carrito.productosCarrito.map((producto, index) => (
-                            <div className="vp-product-item-card" key={index}>
-                              <div className="vp-product-item-image">
-                                {producto.producto?.imagenProducto ? (
-                                  <img src={producto.producto.imagenProducto} alt={producto.producto.nombreProducto} className="vp-product-img" />
-                                ) : (
-                                  <div className="vp-no-image-product">Sin imagen</div>
-                                )}
-                              </div>
-                              <div className="vp-product-item-details">
-                                <h4 className="vp-product-item-name">{producto.producto?.nombreProducto || 'Producto desconocido'}</h4>
-                                <p className="vp-product-item-description">
-                                  {producto.producto?.descripcionProducto || 'Sin descripción disponible'}
-                                </p>
-                                <div className="vp-product-item-meta">
-                                  <div>
-                                    <span className="vp-meta-label">Cantidad:</span> {producto.cantidadProducto}
-                                  </div>
-                                  <div>
-                                    <span className="vp-meta-label">Precio unitario:</span> {formatCurrency(producto.producto?.precioProducto || 0)}
-                                  </div>
-                                </div>
-                                <div className="vp-product-item-price">
-                                  {formatCurrency((producto.producto?.precioProducto || 0) * producto.cantidadProducto)}
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="vp-no-products-message">No hay productos en este pedido</div>
-                      )}
-                    </div>
+  <div className="vp-productos-card">
+    <div className="vp-info-header">
+      <h3 className="vp-info-title">Productos <span className="vp-product-count">({selectedPedido.carrito?.productos?.length || 0})</span></h3>
+    </div>
+    <div className="vp-info-body">
+      {selectedPedido.carrito?.productos?.length > 0 ? (
+        <div className="vp-products-grid">
+          {selectedPedido.carrito.productos.map((producto, index) => (
+            <div className="vp-product-item-card" key={index}>
+              <div className="vp-product-item-image">
+                {producto.imgProducto ? (
+                  <img 
+                    src={producto.imgProducto}
+                    alt={producto.nombreProducto}
+                    className="vp-product-img"
+                  />
+                ) : (
+                  <div className="vp-no-image-product">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <polyline points="3.27 6.96 12 12.01 20.73 6.96" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <line x1="12" y1="22.08" x2="12" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
                   </div>
+                )}
+              </div>
+              
+              <div className="vp-product-item-details">
+                <h4 className="vp-product-item-name">{producto.nombreProducto}</h4>
+                
+                {producto.descripcionProducto && (
+                  <p className="vp-product-item-description">{producto.descripcionProducto}</p>
+                )}
+                
+                <div className="vp-product-item-meta">
+                  {producto.codigoProducto && (
+                    <div className="vp-product-item-code">
+                      <span className="vp-meta-label">Código:</span> {producto.codigoProducto}
+                    </div>
+                  )}
+                  
+                  <div className="vp-product-item-quantity">
+                    <span className="vp-meta-label">Cantidad:</span> {producto.cantidadProducto} {producto.tipoPesoProducto || 'unidades'}
+                  </div>
+                  
+                  {producto.idCategoria && (
+                    <div className="vp-product-item-category">
+                      <span className="vp-meta-label">Categoría:</span> {producto.idCategoria}
+                    </div>
+                  )}
                 </div>
+                
+                <div className="vp-product-item-price">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <line x1="12" y1="1" x2="12" y2="23" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  ₡{producto.montoPrecioProducto ? producto.montoPrecioProducto.toLocaleString() : '0'}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="vp-no-products-message">No hay productos en este pedido</div>
+      )}
+    </div>
+  </div>
+</div>
               </div>
             </div>
           </div>

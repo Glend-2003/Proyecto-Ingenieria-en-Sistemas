@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -6,13 +5,14 @@ import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Swal from "sweetalert2";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faTrash, faExclamationTriangle } from "@fortawesome/free-solid-svg-icons";
+import { faEdit, faTrash, faExclamationTriangle, faImage, faUpload } from "@fortawesome/free-solid-svg-icons";
 import SideBar from "../SideBar/SideBar";
 import useAuth from "../../hooks/useAuth";
-import { Button, Modal } from "react-bootstrap";
+import { Button, Modal, Spinner } from "react-bootstrap";
 import FooterApp from '../Footer/FooterApp';
 import "./Producto.css";
 import PaginacionApp from "../Paginacion/PaginacionApp";
+import useImageUpload from "../../hooks/useImageUpload"; // Asegúrate de que la ruta sea correcta
 
 const ProductoApp = () => {
   const [productos, setProductos] = useState([]);
@@ -31,13 +31,36 @@ const ProductoApp = () => {
   const [idCategoria, setIdCategoria] = useState("");
   const [estadoProducto, setEstadoProducto] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
-  const [imgProductoFile, setImgProductoFile] = useState(null);
   const itemsPerPage = 5;
+
+  // Usar el hook de compresión de imágenes
+  const {
+    imageFile,
+    imagePreview,
+    isCompressing,
+    originalFileInfo,
+    handleFileChange,
+    clearImage,
+    maxSizeMB
+  } = useImageUpload({
+    maxSizeMB: 5, // 5MB máximo permitido
+    quality: 0.7, // Calidad de compresión (70%)
+    onImageSelected: (file, preview) => {
+      console.log(`Imagen seleccionada y procesada: ${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)`);
+    }
+  });
 
   // Opciones para el combobox de unidad de medida
   const unidadesMedida = ["Ud", "Kg", "Gr", "Lb", "Oz", "Lt", "Ml"];
 
-  const [imgPreview, setImgPreview] = useState(null);
+  // Limpiar recursos cuando el componente se desmonta
+  useEffect(() => {
+    return () => {
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
 
   useEffect(() => {
     cargarProductos();
@@ -93,16 +116,17 @@ const ProductoApp = () => {
       return false;
     }
 
-    if (imgProductoFile && !["image/jpeg", "image/png"].includes(imgProductoFile.type)) {
-      toast.error("Solo se permiten imágenes en formato JPG o PNG");
-      return false;
-    }
-
     return true;
   };
 
   const agregarProducto = async () => {
     if (!validarCamposProducto()) return;
+    
+    // Evitar envío si la imagen está comprimiéndose
+    if (isCompressing) {
+      toast.info("Por favor espere mientras la imagen se procesa...");
+      return;
+    }
 
     const formData = new FormData();
     formData.append("nombreProducto", nombreProducto.trim());
@@ -115,19 +139,41 @@ const ProductoApp = () => {
     formData.append("idCategoria", idCategoria);
     formData.append("estadoProducto", estadoProducto);
 
-
-    if (imgProductoFile) {
-      formData.append("file", imgProductoFile);
+    if (imageFile) {
+      formData.append("file", imageFile);
       try {
-        await axios.post("http://localhost:8080/producto/agregarConImagen", formData, {
+        console.log(`Enviando producto con imagen optimizada: ${imageFile.name} (${(imageFile.size / (1024 * 1024)).toFixed(2)} MB)`);
+        
+        const response = await axios.post("http://localhost:8080/producto/agregarConImagen", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
         });
+        
+        console.log("Respuesta del servidor:", response.data);
         toast.success("Producto agregado con éxito");
+        
+        // Limpiar la imagen
+        clearImage();
       } catch (error) {
         console.error("Error al agregar producto con imagen:", error);
-        toast.error("Ocurrió un error al agregar el producto");
+        
+        // Mostrar detalles del error si existe
+        if (error.response) {
+          console.error("Respuesta del servidor:", error.response.data);
+          console.error("Estado HTTP:", error.response.status);
+          
+          if (error.response.status === 413) {
+            // Error específico de tamaño máximo excedido
+            toast.error(`Error: La imagen es demasiado grande. El servidor acepta un máximo de 10MB.`);
+          } else {
+            // Otros errores de respuesta
+            const mensaje = error.response.data.message || "Ocurrió un error al agregar el producto";
+            toast.error(`Error: ${mensaje} (${error.response.status})`);
+          }
+        } else {
+          toast.error("Ocurrió un error al agregar el producto. Comprueba la conexión al servidor.");
+        }
         return;
       }
     } else {
@@ -143,6 +189,7 @@ const ProductoApp = () => {
           idCategoria,
           estadoProducto,
         };
+        console.log("Enviando producto sin imagen...");
         await axios.post("http://localhost:8080/producto/agregarProducto", productoData);
         toast.success("Producto agregado con éxito");
       } catch (error) {
@@ -158,6 +205,12 @@ const ProductoApp = () => {
 
   const actualizarProducto = async () => {
     if (!validarCamposProducto()) return;
+    
+    // Evitar envío si la imagen está comprimiéndose
+    if (isCompressing) {
+      toast.info("Por favor espere mientras la imagen se procesa...");
+      return;
+    }
 
     const formData = new FormData();
     formData.append("idProducto", productoEdit.idProducto);
@@ -171,20 +224,42 @@ const ProductoApp = () => {
     formData.append("idCategoria", idCategoria);
     formData.append("estadoProducto", estadoProducto ? 1 : 0);
 
-    if (imgProductoFile) {
-      formData.append("file", imgProductoFile);
+    if (imageFile) {
+      formData.append("file", imageFile);
+      console.log(`Actualizando producto con imagen optimizada: ${imageFile.name} (${(imageFile.size / (1024 * 1024)).toFixed(2)} MB)`);
+    } else {
+      console.log("Actualizando producto sin cambiar la imagen");
     }
 
     try {
-      await axios.put("http://localhost:8080/producto/actualizar", formData, {
+      const response = await axios.put("http://localhost:8080/producto/actualizar", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
+      
+      console.log("Respuesta de actualización:", response.data);
       toast.success("Producto actualizado con éxito");
+      
+      // Limpiar la imagen
+      clearImage();
+      
       cargarProductos();
       handleCloseModal();
     } catch (error) {
       console.error("Error al actualizar producto:", error);
-      toast.error("Ocurrió un error al actualizar el producto");
+      
+      if (error.response) {
+        console.error("Respuesta del servidor:", error.response.data);
+        console.error("Estado HTTP:", error.response.status);
+        
+        if (error.response.status === 413) {
+          toast.error(`Error: La imagen es demasiado grande. El servidor acepta un máximo de 10MB.`);
+        } else {
+          const mensaje = error.response.data.message || "Ocurrió un error al actualizar el producto";
+          toast.error(`Error: ${mensaje} (${error.response.status})`);
+        }
+      } else {
+        toast.error("Ocurrió un error al actualizar el producto");
+      }
     }
   };
 
@@ -232,6 +307,9 @@ const ProductoApp = () => {
   }
 
   const handleShowModal = (producto = null) => {
+    // Limpiar imagen previa al abrir modal
+    clearImage();
+    
     if (producto) {
       setProductoEdit(producto);
       setNombreProducto(producto.nombreProducto);
@@ -243,13 +321,15 @@ const ProductoApp = () => {
       setStockProducto(producto.stockProducto);
       setIdCategoria(producto.categoria?.idCategoria || "");
       setEstadoProducto(producto.estadoProducto);
-      setImgProductoFile(null);
 
-      // Si el producto tiene una imagen, mostrar la previsualización
+      // Si el producto tiene una imagen, establecer una URL de vista previa
       if (producto.imgProducto) {
-        setImgPreview(`http://localhost:8080/producto/images/${producto.imgProducto}`);
+        const previewURL = `http://localhost:8080/producto/images/${producto.imgProducto}`;
+        // No usamos useImageUpload para manejar la vista previa de imagen existente
+        // solo mostramos la URL como imagen
+        setExistingImagePreview(previewURL);
       } else {
-        setImgPreview(null);
+        setExistingImagePreview(null);
       }
     } else {
       setProductoEdit(null);
@@ -262,11 +342,13 @@ const ProductoApp = () => {
       setStockProducto(0);
       setIdCategoria("");
       setEstadoProducto(1);
-      setImgProductoFile(null);
-      setImgPreview(null);
+      setExistingImagePreview(null);
     }
     setShowModal(true);
   };
+
+  // Estado para manejar la previsualización de imágenes existentes
+  const [existingImagePreview, setExistingImagePreview] = useState(null);
 
   const handleCloseModal = () => {
     setShowModal(false);
@@ -280,21 +362,8 @@ const ProductoApp = () => {
     setStockProducto(0);
     setIdCategoria("");
     setEstadoProducto(1);
-    setImgProductoFile(null);
-    setImgPreview(null);
-  };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImgProductoFile(file);
-      // Crear URL para previsualización
-      const previewURL = URL.createObjectURL(file);
-      setImgPreview(previewURL);
-    } else {
-      setImgProductoFile(null);
-      setImgPreview(null);
-    }
+    setExistingImagePreview(null);
+    clearImage();  // Limpiar recurso de imagen
   };
 
   const handleSearchChange = (e) => setSearch(e.target.value);
@@ -322,6 +391,7 @@ const ProductoApp = () => {
       <div className="producto-main-container">
         <h1>Gestión de productos</h1>
         <Button className="producto-add-button" onClick={() => handleShowModal()}>
+          <FontAwesomeIcon icon={faUpload} className="me-2" />
           Agregar producto nuevo
         </Button>
         <div className="producto-search-container">
@@ -421,7 +491,11 @@ const ProductoApp = () => {
 
                 <div className="producto-form-column">
                   <div className="producto-form-group">
-                    <label htmlFor="imgProducto">Imagen del producto</label>
+                    <label htmlFor="imgProducto">
+                      Imagen del producto 
+                      <small className="ms-2 text-muted">(Máx. {maxSizeMB}MB)</small>
+                    </label>
+                    
                     <div className="file-input-container">
                       <input
                         id="imgProducto"
@@ -431,16 +505,63 @@ const ProductoApp = () => {
                         onChange={handleFileChange}
                       />
                       <span className="file-status">
-                        {imgProductoFile ? imgProductoFile.name : "Ningún archivo seleccionado"}
+                        {isCompressing ? (
+                          <span className="text-warning">Comprimiendo imagen...</span>
+                        ) : (
+                          imageFile ? 
+                            <span className="text-success">
+                              {imageFile.name} ({(imageFile.size / (1024 * 1024)).toFixed(2)} MB)
+                            </span> 
+                            : "Ningún archivo seleccionado"
+                        )}
                       </span>
+                      
+                      {originalFileInfo && (
+                        <div className="original-file-info">
+                          <small className="text-muted">
+                            Original: {originalFileInfo.name} ({originalFileInfo.sizeInMB} MB)
+                          </small>
+                        </div>
+                      )}
+                      
+                      <div className="formatos-soportados">
+                        <small>Formatos soportados: JPG, PNG, GIF, WebP, BMP, SVG</small>
+                      </div>
                     </div>
-                    {imgPreview && (
+                    
+                    {isCompressing && (
+                      <div className="compressing-indicator mt-2">
+                        <Spinner animation="border" variant="secondary" size="sm" className="me-2" />
+                        <small>Optimizando imagen para carga...</small>
+                      </div>
+                    )}
+                    
+                    {imagePreview && (
                       <div className="producto-img-preview-container">
                         <img
-                          src={imgPreview}
+                          src={imagePreview}
                           alt="Vista previa"
                           className="producto-img-preview"
                         />
+                        <button 
+                          type="button" 
+                          className="clear-image-btn"
+                          onClick={clearImage}
+                        >
+                          Eliminar
+                        </button>
+                      </div>
+                    )}
+                    
+                    {/* Previsualización para imágenes existentes (editando un producto) */}
+                    {!imagePreview && existingImagePreview && (
+                      <div className="producto-img-preview-container">
+                        <img
+                          src={existingImagePreview}
+                          alt="Imagen actual"
+                          className="producto-img-preview"
+                        />
+                        <div className="existing-image-label">Imagen actual</div>
                       </div>
                     )}
                   </div>
@@ -507,9 +628,19 @@ const ProductoApp = () => {
                 <Button variant="outline-secondary" onClick={handleCloseModal}>
                   Cancelar
                 </Button>
-                <Button className="producto-submit-button" type="submit">
-                  {productoEdit ? "Actualizar" : "Agregar"}
-
+                <Button 
+                  className="producto-submit-button" 
+                  type="submit"
+                  disabled={isCompressing}
+                >
+                  {isCompressing ? (
+                    <>
+                      <Spinner animation="border" size="sm" className="me-2" />
+                      Procesando imagen...
+                    </>
+                  ) : (
+                    productoEdit ? "Actualizar" : "Agregar"
+                  )}
                 </Button>
               </div>
             </form>
@@ -557,10 +688,18 @@ const ProductoApp = () => {
                             src={`http://localhost:8080/producto/images/${producto.imgProducto}`}
                             alt={producto.nombreProducto}
                             className="producto-image"
+                            onError={(e) => {
+                              console.error(`Error al cargar imagen: ${producto.imgProducto}`);
+                              e.target.onerror = null;
+                              e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23f0f0f0'/%3E%3Cpath d='M30 40 L70 40 L70 70 L30 70 Z' fill='%23cccccc'/%3E%3Cpath d='M40 30 L60 30 L60 40 L40 40 Z' fill='%23cccccc'/%3E%3C/svg%3E";
+                            }}
                           />
                         </div>
                       ) : (
-                        <div className="producto-no-image">No disponible</div>
+                        <div className="producto-no-image">
+                          <FontAwesomeIcon icon={faImage} className="me-2" />
+                          No disponible
+                        </div>
                       )}
                     </td>
                     <td className="producto-price-cell">
@@ -597,7 +736,6 @@ const ProductoApp = () => {
                             title="Editar producto"
                           >
                             <FontAwesomeIcon icon={faEdit} />
-
                           </button>
                           <button
                             className="producto-delete-button"
@@ -625,7 +763,6 @@ const ProductoApp = () => {
         />
       </div>
       <FooterApp />
-
     </div>
   );
 };

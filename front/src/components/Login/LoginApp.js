@@ -1,6 +1,9 @@
 // src/components/Login/LoginApp.js
 import React, { useState, useEffect } from "react";
 // ... (otros imports necesarios como NavbarApp, FooterApp, CarritoApp (si aún no es global), componentes de contenido)
+import axios from "axios";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Offcanvas } from "react-bootstrap";
 import ListaProductosApp from "../Catalogo/ListaProductosApp.js";
 import PedidoCrud from "../Pedido/PedidoCrud.js";
 import Historia from "../Home/Historia.js";
@@ -13,7 +16,7 @@ import ProductosDestacadosPagina from "../../paginas/ProductosDestacadosPagina.j
 import NavbarApp from "../Navbar/NavbarApp.js";
 import FooterApp from "../Footer/FooterApp.js";
 import { useAppContext } from "../Navbar/AppContext";
-import { useLocation } from "react-router-dom";
+
 // Remueve los imports de Offcanvas, FaEye, FaEyeSlash, etc., si solo se usaban para el Offcanvas de login
 
 function LoginApp({ initialPage = "home" }) {

@@ -189,9 +189,9 @@ public ResponseEntity<List<Map<String, Object>>> listComentariosAdmin() {
     }
 
     // Delete
-    @DeleteMapping("/eliminar/{id}")
-    public ResponseEntity<Boolean> deleteComentario(@PathVariable int id) {
-        boolean eliminado = iComentarioService.deleComentario(id);
+    @DeleteMapping("/activar/{id}")
+    public ResponseEntity<Boolean> activarComentario(@PathVariable int id) {
+        boolean eliminado = iComentarioService.activarComentario(id);
 
         if (eliminado) {
             System.out.println("comentario eliminado: ID -->" + id);
