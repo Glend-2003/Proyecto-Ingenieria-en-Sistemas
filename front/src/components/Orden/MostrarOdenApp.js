@@ -2,11 +2,18 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { X, ShoppingCart, ChevronLeft, Plus, Minus, Shield } from "lucide-react";
 import "./MostrarOrden.css";
+import { useCart } from "../../contexto/ContextoCarrito";
 
 function MostrarOrdenApp() {
   const navigate = useNavigate();
   const idUsuario = localStorage.getItem("idUsuario");
-  const [cart, setCart] = useState(JSON.parse(localStorage.getItem("carrito")) || []);
+  const {
+    cart,
+    increaseQuantity,
+    decreaseQuantity,
+    removeFromCart,
+    clearCart
+  } = useCart();
   const [imagesLoaded, setImagesLoaded] = useState(false);
 
   const calcularSubtotal = () => {
@@ -15,38 +22,10 @@ function MostrarOrdenApp() {
 
   const subtotal = calcularSubtotal();
 
-  const updateQuantity = (index, increment) => {
-    const newCart = [...cart];
-    if (increment) {
-      newCart[index].cantidad += 1;
-    } else {
-      if (newCart[index].cantidad > 1) {
-        newCart[index].cantidad -= 1;
-      }
-    }
-    setCart(newCart);
-    localStorage.setItem("carrito", JSON.stringify(newCart));
-  };
-
-  const removeItem = (index) => {
-    const newCart = cart.filter((_, i) => i !== index);
-    setCart(newCart);
-    localStorage.setItem("carrito", JSON.stringify(newCart));
-  };
+  // Elimina las funciones updateQuantity y removeItem locales
+  // Ya que estamos usando las del contexto
 
   useEffect(() => {
-    const cartWithImages = cart.map((item) => {
-      if (!item.imagenProducto) {
-        return { ...item, imagenProducto: "/images/placeholder-product.jpg" };
-      }
-      return item;
-    });
-
-    if (JSON.stringify(cartWithImages) !== JSON.stringify(cart)) {
-      setCart(cartWithImages);
-      localStorage.setItem("carrito", JSON.stringify(cartWithImages));
-    }
-
     if (!imagesLoaded && cart.length > 0) {
       Promise.all(
         cart.map((item) => {
@@ -104,7 +83,11 @@ function MostrarOrdenApp() {
                     {cart.map((item, index) => (
                       <tr key={index}>
                         <td>
-                          <button className="remove-btn" onClick={() => removeItem(index)} title="Eliminar producto">
+                          <button 
+                            className="remove-btn" 
+                            onClick={() => removeFromCart(item.idProducto)} 
+                            title="Eliminar producto"
+                          >
                             <X size={18} />
                           </button>
                         </td>
@@ -130,11 +113,19 @@ function MostrarOrdenApp() {
                         <td className="precio">₡{item.montoPrecioProducto.toLocaleString()}</td>
                         <td>
                           <div className="cantidad-control">
-                            <button className="cantidad-btn" onClick={() => updateQuantity(index, false)} title="Reducir cantidad">
+                            <button 
+                              className="cantidad-btn" 
+                              onClick={() => decreaseQuantity(item.idProducto)} 
+                              title="Reducir cantidad"
+                            >
                               <Minus size={14} />
                             </button>
                             <span className="cantidad-valor">{item.cantidad}</span>
-                            <button className="cantidad-btn" onClick={() => updateQuantity(index, true)} title="Aumentar cantidad">
+                            <button 
+                              className="cantidad-btn" 
+                              onClick={() => increaseQuantity(item.idProducto)} 
+                              title="Aumentar cantidad"
+                            >
                               <Plus size={14} />
                             </button>
                           </div>
