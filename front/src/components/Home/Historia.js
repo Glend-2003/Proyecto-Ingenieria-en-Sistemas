@@ -2,10 +2,13 @@ import React from "react";
 import { Calendar, Award, Clock, Users, MapPin } from "lucide-react";
 import './Historia.css';
 import Resena from "../Comentario/Resena";
+import NavbarApp from "../Navbar/NavbarApp.js";
+import FooterApp from "../Footer/FooterApp";
 
 const Historia = () => {
   return (
     <div className="historia-container">
+      <NavbarApp />
       {/* Hero Section */}
       <div className="historia-hero">
         <div className="historia-hero-overlay">
@@ -183,6 +186,7 @@ const Historia = () => {
           </a>
         </div>
       </div>
+      <FooterApp />
     </div>
   );
 };

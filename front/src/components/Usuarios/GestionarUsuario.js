@@ -421,6 +421,14 @@ const GestionarUsuario = () => {
     }
   };
 
+  const handleNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
+
   const handleDelete = async (idUsuario) => {
     const { isConfirmed } = await Swal.fire({
       title: "¿Estás seguro?",
@@ -808,6 +816,8 @@ const GestionarUsuario = () => {
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={setCurrentPage}
+          onNextPage={handleNextPage}
+          onPreviousPage={handlePreviousPage}
         />
       </div>
       <FooterApp />

@@ -10,7 +10,6 @@ import { faSave, faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
 import FooterApp from "../Footer/FooterApp";
 import { FaFileAlt, FaDownload, FaUser, FaSignOutAlt, FaHome, FaMapMarkerAlt } from "react-icons/fa";
 import NavbarApp from "../Navbar/NavbarApp";
-import Carrito from "../Carrito/CarritoApp";
 import useAuth from "../../hooks/useAuth";
 import SideBarUsuario from '../DetallesCliente/SideBarUsuario';
 import { useAppContext } from "../Navbar/AppContext";
@@ -287,7 +286,6 @@ const cargarDireccionUsuario = async () => {
   return (
     <div className="profile-page">
       <NavbarApp />
-      <Carrito />
       <div className="perfil-usuario-container">
         {/* Sidebar Component */}
         <SideBarUsuario usuario={usuario} handleLogout={handleLogout} />

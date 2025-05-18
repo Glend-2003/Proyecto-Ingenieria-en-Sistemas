@@ -6,7 +6,6 @@ import Swal from 'sweetalert2';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import NavbarApp from "../Navbar/NavbarApp";
-import Carrito from "../Carrito/CarritoApp";
 import FooterApp from '../Footer/FooterApp';
 import PaginacionApp from '../Paginacion/PaginacionApp';
 import { ToastContainer, toast } from 'react-toastify';
@@ -374,7 +373,6 @@ const Orders = () => {
   return (
     <div className="orders-page">
       <NavbarApp />
-      <Carrito />
       <div className="perfil-usuario-container">
         <SideBarUsuario usuario={usuario} handleLogout={handleLogout} />
 
@@ -574,7 +572,6 @@ const Orders = () => {
             </>
           )}
         </div>
-        <Carrito />
       </div>
       <FooterApp />
       <ToastContainer />
