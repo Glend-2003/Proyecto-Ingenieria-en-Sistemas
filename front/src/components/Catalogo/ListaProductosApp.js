@@ -22,11 +22,10 @@ function ListaProductosApp({ categoria }) {
   const [sortOrder, setSortOrder] = useState("default");
   const [showFilters, setShowFilters] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-    const {globalSearchTerm} = useAppContext();
+  const {globalSearchTerm} = useAppContext();
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [isBuscando, setIsBuscando] = useState(false);
 
-  // Colores de la paleta
   const colors = {
     darkGreen: '#103f1b',
     mediumGreen: '#387623',
@@ -54,9 +53,6 @@ function ListaProductosApp({ categoria }) {
         cantidad: cantidadValida,
       };
       addToCart(productoConCantidad, cantidadValida);
-      /*toast.success(
-        `${selectedProduct.nombreProducto} agregado al carrito (${cantidadValida} unidad${cantidadValida > 1 ? "es" : ""})`,
-      );*/
       handleCloseModal();
     }
   };
@@ -83,14 +79,13 @@ function ListaProductosApp({ categoria }) {
         const response = await axios.get('http://localhost:8080/producto/', { params: { estadoProducto: 1 } });
         setProductos(response.data);
         
-        // Calcular el rango de precios
         if (response.data.length > 0) {
           const prices = response.data.map(p => p.montoPrecioProducto);
           setPriceRange({
             min: Math.min(...prices),
             max: Math.max(...prices)
           });
-          setSelectedPrice(Math.max(...prices)); // Inicializar en el precio máximo
+          setSelectedPrice(Math.max(...prices));
         }
         
         setLoading(false);
@@ -112,7 +107,6 @@ function ListaProductosApp({ categoria }) {
 
   let resultadosFiltrados = [...productos];
 
-  // Filtrado por categoría
   if (categoria) {
     if (categoria.toLowerCase() === "varios") {
       const categoriasExcluidas = categorias
@@ -143,7 +137,6 @@ function ListaProductosApp({ categoria }) {
     }
   }
 
-  // Filtrado por búsqueda global (si existe)
   if (globalSearchTerm) {
     resultadosFiltrados = resultadosFiltrados.filter(producto =>
       producto.nombreProducto.toLowerCase().includes(globalSearchTerm.toLowerCase()) ||
@@ -152,13 +145,10 @@ function ListaProductosApp({ categoria }) {
     );
   }
 
-  // Actualizar ambos estados si los estás usando en diferentes partes
   setProductosFiltrados(resultadosFiltrados);
   setFilteredProducts(resultadosFiltrados);
 }, [productos, categorias, categoria, globalSearchTerm]);
 
-
-  // Efecto para sincronizar searchTerm local con globalSearchTerm
   useEffect(() => {
     if (globalSearchTerm) {
       setSearchTerm(globalSearchTerm);
@@ -233,48 +223,46 @@ function ListaProductosApp({ categoria }) {
     <Container fluid className="product-catalog-container px-md-5">
       <ToastContainer position="top-right" autoClose={3000} />
 
-      {/* Hero Banner */}
       <div 
-  className="hero-banner mb-4" 
-  style={{ 
-    background: `linear-gradient(135deg, ${colors.darkGreen} 0%, ${colors.mediumGreen} 100%)`,
-    borderRadius: '12px',
-    padding: '2rem',
-    position: 'relative',
-    overflow: 'hidden'
-  }}
->
-  <div className="hero-content text-white">
-    <h1
-      className="display-5 fw-bold mb-3"
-      style={{
-        color: 'white',
-        fontSize: '2.5rem',
-        textAlign: 'center',
-        textShadow: '1px 1px 3px rgb(249, 243, 243)',
-        position: 'relative',
-        zIndex: 2
-      }}
-    >
-      NUESTROS PRODUCTOS
-    </h1>
-    <p 
-      className="lead mb-0" 
-      style={{
-        fontSize: '1.2rem',
-        textAlign: 'center',
-        opacity: 0.9,
-        position: 'relative',
-        zIndex: 2
-      }}
-    >
-      Calidad premium directamente a tu mesa
-    </p>
-  </div>
-</div>
+        className="hero-banner mb-4" 
+        style={{ 
+          background: `linear-gradient(135deg, ${colors.darkGreen} 0%, ${colors.mediumGreen} 100%)`,
+          borderRadius: '12px',
+          padding: '2rem',
+          position: 'relative',
+          overflow: 'hidden'
+        }}
+      >
+      <div className="hero-content text-white">
+        <h1
+          className="display-5 fw-bold mb-3"
+          style={{
+            color: 'white',
+            fontSize: '2.5rem',
+            textAlign: 'center',
+            textShadow: '1px 1px 3px rgb(249, 243, 243)',
+            position: 'relative',
+            zIndex: 2
+          }}
+        >
+          NUESTROS PRODUCTOS
+        </h1>
+        <p 
+          className="lead mb-0" 
+          style={{
+            fontSize: '1.2rem',
+            textAlign: 'center',
+            opacity: 0.9,
+            position: 'relative',
+            zIndex: 2
+          }}
+        >
+          Calidad premium directamente a tu mesa
+        </p>
+      </div>
+    </div>
 
       <Row>
-        {/* Filtros - Sidebar */}
         <Col md={3} className="sidebar-filters mb-4">
           <div className="filter-card p-3 mb-3" style={{ backgroundColor: '#f8f9fa', borderRadius: '10px' }}>
             <div className="d-flex justify-content-between align-items-center mb-3">
@@ -355,8 +343,6 @@ function ListaProductosApp({ categoria }) {
               Aplicar Filtros
             </button>
           </div>
-
-          {/* Special Offer Card */}
           <div className="special-offer p-3 text-white" style={{ 
             backgroundColor: colors.darkBrown,
             borderRadius: '10px',
@@ -373,8 +359,6 @@ function ListaProductosApp({ categoria }) {
             </button>
           </div>
         </Col>
-
-        {/* Productos - Main Content */}
         <Col md={9}>
           <div className="d-flex justify-content-between align-items-center mb-4">
             <div className="results-count">
@@ -428,22 +412,17 @@ function ListaProductosApp({ categoria }) {
   {filteredProducts.map((product) => (
   <div className="product-card-wrapper" key={product.idProducto}>
     <div className="product-card">
-      {/* Icono de carrito flotante para agregar rápido */}
    
-      
-      {/* Badge de disponibilidad */}
       <div className="product-availability">
         <span className={`availability-badge ${product.stockProducto > 0 ? 'available' : 'sold-out'}`}>
           {product.stockProducto > 0 ? 'DISPONIBLE' : 'AGOTADO'}
         </span>
       </div>
       
-      {/* Categoría como etiqueta */}
       <div className="category-tag">
         {product.categoria?.nombreCategoria || 'CARNES'}
       </div>
       
-      {/* Imagen del producto con dimensiones fijas */}
       <div className="product-image-container">
     <img
         src={`http://localhost:8080/producto/images/${product.imgProducto}`}
@@ -465,7 +444,6 @@ function ListaProductosApp({ categoria }) {
               cantidad: 1,
             };
             addToCart(productoConCantidad, 1);
-            //toast.success(`${product.nombreProducto} agregado al carrito`);
           }
         }}
         style={{ display: product.stockProducto <= 0 ? 'none' : 'flex' }}
@@ -474,7 +452,6 @@ function ListaProductosApp({ categoria }) {
       </div>
 </div>
       
-      {/* Información del producto */}
       <div className="product-content">
         <h3 className="product-title">{product.nombreProducto}</h3>
         
@@ -495,7 +472,6 @@ function ListaProductosApp({ categoria }) {
         </div>
       </div>
       
-      {/* Acciones */}
       <div className="product-actions">
         <button 
           className="details-btn"
@@ -513,7 +489,6 @@ function ListaProductosApp({ categoria }) {
                 cantidad: 1,
               };
               addToCart(productoConCantidad, 1);
-              //toast.success(`${product.nombreProducto} agregado al carrito`);
             }
           }}
           disabled={product.stockProducto <= 0}
@@ -529,7 +504,6 @@ function ListaProductosApp({ categoria }) {
         </Col>
       </Row>
 
-      {/* Product Modal */}
       <Modal show={showModal} onHide={handleCloseModal} size="lg" centered>
   <Modal.Header closeButton style={{ 
     borderBottom: `2px solid ${colors.lightGreen}`,
@@ -551,7 +525,6 @@ function ListaProductosApp({ categoria }) {
             backgroundColor: '#f8f9fa',
             position: 'relative'
           }}>
-            {/* Badge de categoría */}
             <div style={{
               position: 'absolute',
               top: '15px',

@@ -25,7 +25,7 @@ const ComentarioApp = () => {
   const [numCalificacion, setNumCalificacion] = useState("");
   const [verificacion, setVerificacion] = useState("Activo");
   const [currentPage, setCurrentPage] = useState(1);
-  const [usuarioCorreos, setUsuarioCorreos] = useState({}); // Para almacenar correos de usuarios
+  const [usuarioCorreos, setUsuarioCorreos] = useState({});
   console.log("UsuarioCorreo" + usuarioCorreos);
   const itemsPerPage = 5;
 
@@ -39,7 +39,7 @@ const ComentarioApp = () => {
         "http://localhost:8080/comentario/admin"
       );
       console.log("Comentarios recibidos del backend:", response.data);
-      setComentarios(response.data); // Guarda directamente la lista de comentarios
+      setComentarios(response.data); 
     } catch (error) {
       console.error("Error al cargar comentarios:", error);
       toast.error("Ocurrió un error al cargar los comentarios");
@@ -53,7 +53,6 @@ const ComentarioApp = () => {
       );
       console.log("Usuario recibido del backend:", response.data);
 
-      // Actualizar el estado con el correo del usuario
       setUsuarioCorreos((prevCorreos) => ({
         ...prevCorreos,
         [id]: response.data.correoUsuario,

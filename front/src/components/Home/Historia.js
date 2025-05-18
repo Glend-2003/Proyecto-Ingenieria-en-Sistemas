@@ -9,16 +9,13 @@ const Historia = () => {
   return (
     <div className="historia-container">
       <NavbarApp />
-      {/* Hero Section */}
       <div className="historia-hero">
         <div className="historia-hero-overlay">
           <h1 className="historia-title">Nuestra Historia</h1>
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="container mx-auto px-4 py-12">
-        {/* Intro Section */}
         <div className="historia-intro">
           <h2 className="historia-intro-title">Tradición y Calidad desde 1982</h2>
           <p className="historia-intro-text">
@@ -46,15 +43,12 @@ const Historia = () => {
           </div>
         </div>
 
-        {/* Timeline */}
         <div className="historia-timeline">
           <h3 className="historia-timeline-title">Nuestro Camino</h3>
-          
+
           <div className="historia-timeline-container">
-            {/* Line */}
             <div className="historia-timeline-line"></div>
-            
-            {/* 1982 */}
+
             <div className="historia-event">
               <div className="historia-event-flex">
                 <div className="historia-event-left">
@@ -73,8 +67,7 @@ const Historia = () => {
                 </div>
               </div>
             </div>
-            
-            {/* 1995 */}
+
             <div className="historia-event">
               <div className="historia-event-flex">
                 <div className="historia-event-left">
@@ -93,8 +86,7 @@ const Historia = () => {
                 </div>
               </div>
             </div>
-            
-            {/* 2008 */}
+
             <div className="historia-event">
               <div className="historia-event-flex">
                 <div className="historia-event-left">
@@ -113,8 +105,7 @@ const Historia = () => {
                 </div>
               </div>
             </div>
-            
-            {/* Present */}
+
             <div className="historia-event">
               <div className="historia-event-flex">
                 <div className="historia-event-left">
@@ -136,7 +127,6 @@ const Historia = () => {
           </div>
         </div>
 
-        {/* Values */}
         <div className="historia-values">
           <h3 className="historia-values-title">Nuestros Valores</h3>
           <div className="historia-values-grid">
@@ -164,7 +154,6 @@ const Historia = () => {
           </div>
         </div>
 
-        {/* Testimonial */}
         <div className="historia-testimonial">
           <div className="historia-quote">"</div>
           <p className="historia-testimonial-text">
@@ -174,10 +163,8 @@ const Historia = () => {
           <div className="historia-testimonial-role">Director General, Segunda Generación</div>
         </div>
 
-        {/* Reseñas de Clientes */}
         <Resena />
-        
-        {/* Información de ubicación */}
+
         <div className="historia-location-info">
           <MapPin className="historia-location-icon" />
           <span>El cairo de Siquirres</span>

@@ -38,7 +38,6 @@ const GestionarUsuario = () => {
   });
   const [formErrors, setFormErrors] = useState({});
 
-  // Estados para datos de usuario
   const [correoUsuario, setCorreoUsuario] = useState("");
   const [nombreUsuario, setNombreUsuario] = useState("");
   const [primerApellido, setPrimerApellido] = useState("");
@@ -50,37 +49,24 @@ const GestionarUsuario = () => {
     cargarRoles();
   }, []);
 
-  // Evaluar la fortaleza de la contraseña
   useEffect(() => {
     if (!password) {
       setPasswordStrength(0);
       return;
     }
 
-    // Inicializar fortaleza
     let strength = 0;
-
-    // Verificar longitud mínima (8 caracteres)
     const hasMinLength = password.length >= 8;
-
-    // Verificar si contiene letras
     const hasLetters = /[a-zA-Z]/.test(password);
-
-    // Verificar si contiene números
     const hasNumbers = /[0-9]/.test(password);
-
-    // Verificar si contiene caracteres especiales
     const hasSpecialChars = /[^A-Za-z0-9]/.test(password);
 
-    // Si tiene menos de 8 caracteres o solo letras o solo números, es débil (33%)
     if (!hasMinLength || (!hasLetters && hasNumbers) || (hasLetters && !hasNumbers)) {
       strength = 33;
     }
-    // Si tiene letras Y números con longitud adecuada, es buena (66%)
     else if (hasLetters && hasNumbers && !hasSpecialChars) {
       strength = 66;
     }
-    // Si tiene letras, números Y caracteres especiales, es excelente (100%)
     else if (hasLetters && hasNumbers && hasSpecialChars) {
       strength = 100;
     }
@@ -189,7 +175,7 @@ const GestionarUsuario = () => {
       return false;
     }
 
-    if (!userEdit?.idUsuario) { // Only validate password for new users
+    if (!userEdit?.idUsuario) {
       if (!password) {
         errors.password = "La contraseña es obligatoria para nuevos usuarios";
         toast.error(errors.password);
@@ -210,7 +196,7 @@ const GestionarUsuario = () => {
         toast.error(errors.confirmPassword);
         return false;
       }
-    } else if (password) { // If editing and password is provided
+    } else if (password) {
       if (password.length < 8) {
         errors.password = "La contraseña debe tener al menos 8 caracteres";
         toast.error(errors.password);
@@ -401,8 +387,8 @@ const GestionarUsuario = () => {
 
     if (userEdit?.idUsuario) {
       userData.idUsuario = userEdit.idUsuario;
-      userData.estadoUsuario = userEdit.estadoUsuario; // Make sure to include existing state if needed
-      userData.telefonoUsuario = userEdit.telefonoUsuario; // Mantener el teléfono existente
+      userData.estadoUsuario = userEdit.estadoUsuario; 
+      userData.telefonoUsuario = userEdit.telefonoUsuario;
     }
 
     try {
@@ -438,8 +424,8 @@ const GestionarUsuario = () => {
       confirmButtonText: "Sí, eliminar",
       cancelButtonText: "No, cancelar",
       reverseButtons: true,
-      confirmButtonColor: "#387623", // Verde oscuro
-      cancelButtonColor: "#875725", // Café
+      confirmButtonColor: "#387623", 
+      cancelButtonColor: "#875725",
     });
 
     if (!isConfirmed) return;
@@ -511,7 +497,7 @@ const GestionarUsuario = () => {
             value={selectedRole}
             onChange={(e) => {
               setSelectedRole(e.target.value);
-              setCurrentPage(1); // Reset to first page on filter change
+              setCurrentPage(1); 
             }}
             className="form-control mb-3"
           >
@@ -642,14 +628,14 @@ const GestionarUsuario = () => {
                         className={`form-control ${formErrors.password ? "is-invalid" : ""}`}
                         type={passwordVisibility.password ? "text" : "password"}
                         placeholder="Contraseña"
-                        required={!userEdit} // Required only for new users
+                        required={!userEdit} 
                         value={password}
                         onChange={(e) => handleInputChange("password", e.target.value)}
                       />
                       <button
                         type="button"
                         className="btn btn-link position-absolute end-0 top-50 translate-middle-y text-decoration-none border-0"
-                        style={{ right: "10px", zIndex: 5 }} // Added zIndex
+                        style={{ right: "10px", zIndex: 5 }}
                         onClick={() => togglePasswordVisibility("password")}
                       >
                         <i className={`fa fa-${passwordVisibility.password ? "eye-slash" : "eye"}`}></i>
@@ -708,17 +694,17 @@ const GestionarUsuario = () => {
                         className={`form-control ${formErrors.confirmPassword ? "is-invalid" : ""}`}
                         type={passwordVisibility.confirm ? "text" : "password"}
                         placeholder="Confirmar contraseña"
-                        required={!userEdit || !!password} // Required if new user or if password is being changed
+                        required={!userEdit || !!password} 
                         value={confirmPassword}
                         onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
-                        disabled={!password && !!userEdit} // Disable if editing and no new password is typed
+                        disabled={!password && !!userEdit} 
                       />
                       <button
                         type="button"
                         className="btn btn-link position-absolute end-0 top-50 translate-middle-y text-decoration-none border-0"
-                        style={{ right: "10px", zIndex: 5 }} // Added zIndex
+                        style={{ right: "10px", zIndex: 5 }}
                         onClick={() => togglePasswordVisibility("confirm")}
-                        disabled={!password && !!userEdit} // Disable if editing and no new password is typed
+                        disabled={!password && !!userEdit}
                       >
                         <i className={`fa fa-${passwordVisibility.confirm ? "eye-slash" : "eye"}`}></i>
                       </button>
@@ -729,7 +715,6 @@ const GestionarUsuario = () => {
                   </div>
                 </div>
               </div>
-              {/* Moved Buttons outside the column structure, but still within the form */}
               <div className="d-flex justify-content-end gap-2 mt-4">
                 <Button className="btn-submit" type="submit">
                   {userEdit ? "Actualizar" : "Agregar"}

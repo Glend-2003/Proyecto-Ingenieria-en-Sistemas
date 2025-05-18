@@ -1,5 +1,3 @@
-/* SideBarUsuario.css */
-/* Estilos para el contenedor principal */
 .sidebar-container {
   width: 280px;
   background-color: #f4f9f0;
@@ -13,12 +11,10 @@
   border-right: 1px solid rgba(159, 196, 90, 0.3);
 }
 
-/* Estilos para modo colapsado en pantallas pequeñas */
 .sidebar-container.collapsed {
   transform: translateX(-100%);
 }
 
-/* Estilos para el botón de alternar en dispositivos móviles */
 .sidebar-toggle {
   display: none;
   position: fixed;
@@ -47,7 +43,6 @@
   transform: rotate(180deg);
 }
 
-/* Estilos para la información del usuario */
 .user-profile {
   display: flex;
   flex-direction: column;
@@ -99,14 +94,12 @@
   border-radius: 20px;
 }
 
-/* Divisor para secciones */
 .sidebar-divider {
   height: 1px;
   background-color: rgba(159, 196, 90, 0.5);
   margin: 0.5rem 1.5rem;
 }
 
-/* Navegación */
 .sidebar-nav {
   display: flex;
   flex-direction: column;
@@ -166,7 +159,6 @@
   font-size: 0.95rem;
 }
 
-/* Estilo para botón de cerrar sesión */
 .sidebar-link.logout {
   margin-top: auto;
   margin-bottom: 1.5rem;
@@ -179,14 +171,13 @@
   color: #875725;
 }
 
-/* Responsive */
 @media screen and (max-width: 992px) {
   .sidebar-container {
     position: fixed;
     left: 0;
     top: 0;
     height: 100vh;
-    padding-top: 60px; /* Espacio para la navbar */
+    padding-top: 60px; 
   }
   
   .sidebar-toggle {

@@ -28,8 +28,6 @@ const PromocionApp = () => {
   const [estadoPromocion, setEstadoPromocion] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
-
-  // Estados para el filtro de fechas
   const [fechaDesde, setFechaDesde] = useState("");
   const [fechaHasta, setFechaHasta] = useState("");
 
@@ -77,7 +75,6 @@ const PromocionApp = () => {
       toast.error("Ocurrió un error al cargar los productos");
     }
   };
-
 
   const isPromocionVencida = (fechaFin) => {
     const fechaFinDate = new Date(fechaFin);
@@ -243,12 +240,8 @@ const PromocionApp = () => {
     });
 
     if (!isConfirmed) return;
-
     console.log("Datos enviados al backend:", promocion);
-
-
     const loadingToast = toast.loading("Enviando mensaje...");
-
     try {
 
       const response = await axios.post(`http://localhost:8080/promocion/mensaje?nombreProducto=${encodeURIComponent(promocion.nombreProducto)}`, promocion);
@@ -366,18 +359,14 @@ const PromocionApp = () => {
   };
 
   const handleSearchChange = (e) => setSearch(e.target.value);
-
-  // Función para limpiar filtros de fecha
   const limpiarFiltros = () => {
     setFechaDesde("");
     setFechaHasta("");
   };
 
   const filteredPromociones = promociones.filter((promocion) => {
-    // Filtro por descripción
     const matchesSearch = promocion.descripcionPromocion.toLowerCase().includes(search.toLowerCase());
 
-    // Filtro por fecha
     let matchesDate = true;
     if (fechaDesde || fechaHasta) {
       const fechaInicio = new Date(promocion.fechaInicioPromocion);
@@ -428,7 +417,6 @@ const PromocionApp = () => {
           />
         </div>
 
-        {/* Filtro de fechas sin botón "Aplicar" */}
         <div className="promocion-date-filter-container">
           <div className="promocion-filter-container">
             <div className="promocion-filter-row">

@@ -1,13 +1,4 @@
-/* 
-   Paleta de colores de la carnicería:
-   - Verde oscuro: #103f1b
-   - Verde medio: #387623
-   - Verde claro: #9fc45a
-   - Mostaza: #958933
-   - Café: #875725
-*/
 
-/* Estilos del footer */
 .page-footer {
   background-color: #103f1b !important;
   color: #fff;
@@ -21,7 +12,6 @@
   margin-top: auto; 
 }
 
-/* Contenedor del footer */
 .footer-container {
   display: flex;
   flex-direction: row;
@@ -33,38 +23,36 @@
   width: calc(100% - 250px);
 }
 
-/* Ajustamos el tamaño y estilo del texto para la información de contacto */
 .contact-info {
     font-size: 0.9rem;
-    color: #9fc45a; /* Verde claro para mejor visibilidad */
+    color: #9fc45a; 
 }
 
-/* Iconos sociales */
 .social-icons {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 1rem; /* Espacio reducido entre iconos */
+    gap: 1rem; 
 }
 
 .social-icons a {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 35px; /* Tamaño reducido */
-    height: 35px; /* Tamaño reducido */
+    width: 35px; 
+    height: 35px; 
     border-radius: 50%;
-    background-color: #387623; /* Verde medio */
+    background-color: #387623; 
     color: white;
     transition: all 0.3s ease;
     text-decoration: none;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    border: 2px solid #9fc45a; /* Borde con verde claro */
+    border: 2px solid #9fc45a;
 }
 
 .social-icons a:hover {
     transform: translateY(-3px);
-    background-color: #9fc45a; /* Verde claro al hover */
+    background-color: #9fc45a;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
@@ -86,18 +74,17 @@
   width: calc(100% - 250px); 
 }
 
-/* Adaptaciones responsivas */
 @media (max-width: 768px) {
     .footer-container {
         flex-direction: column;
         gap: 10px;
         padding: 0.5rem;
-        margin-left: 65px; /* Ancho del sidebar responsive */
+        margin-left: 65px; 
         width: calc(100% - 65px);
     }
     
     .copyright {
-        margin-left: 65px; /* Ancho del sidebar responsive */
+        margin-left: 65px;
         width: calc(100% - 65px);
         font-size: 0.75rem;
     }
@@ -111,7 +98,6 @@
     }
 }
 
-/* Decoración adicional */
 .page-footer::before {
     content: '';
     position: absolute;

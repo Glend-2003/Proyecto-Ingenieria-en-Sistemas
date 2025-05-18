@@ -1,4 +1,3 @@
-// CategoriaApp.js
 import React, { useState, useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -14,7 +13,7 @@ import {
 import SideBar from "../SideBar/SideBar";
 import useAuth from "../../hooks/useAuth";
 import { Button, Modal } from "react-bootstrap";
-import "./Categoria.css"; // Asegúrate de que este archivo exista en la misma carpeta
+import "./Categoria.css"; 
 import FooterApp from '../Footer/FooterApp';
 import PaginacionApp from "../Paginacion/PaginacionApp";
 
@@ -91,8 +90,7 @@ const CategoriaApp = () => {
 
   const actualizarCategoria = async () => {
     if (!validarCamposCategoria()) return;
-
-    // Verificar si la categoría está activa antes de permitir la actualización
+    
     if (!categoriaEdit.estadoCategoria) {
       toast.error("No se puede actualizar una categoría inactiva");
       return;

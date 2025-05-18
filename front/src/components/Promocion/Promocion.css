@@ -1,4 +1,4 @@
-/* Contenedor principal*/
+
 .promocion-container {
   display: flex;
   flex-direction: column;
@@ -7,19 +7,17 @@
   position: relative;
 }
   
-/* Estilos para el contenedor principal */
 .promocion-main-container {
   flex: 1;
   display: flex;
   flex-direction: column;
   padding: 30px;
   overflow-y: auto;
-  padding-bottom: 80px; /* Aumentar el espacio para el footer */
-  margin-left: 240px; /* Ajustar según el ancho de tu sidebar */
-  width: calc(100% - 240px); /* Ajustar el ancho para dejar espacio para el sidebar */
+  padding-bottom: 80px; 
+  margin-left: 240px; 
+  width: calc(100% - 240px); 
 }
 
-/* Para el buscador*/
 .promocion-search-container {
   margin-bottom: 25px;
   background-color: rgba(255, 255, 255, 0.95);
@@ -43,7 +41,6 @@
   outline: none;
 }
 
-/* Filtro de fechas */
 .promocion-filter-container {
   margin-bottom: 25px;
   background-color: rgba(255, 255, 255, 0.95);
@@ -131,7 +128,6 @@
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
 }
 
-/*Botón de agregar*/
 .promocion-add-button {
   background-color: #387623 !important;
   border-color: #387623 !important;
@@ -139,11 +135,10 @@
   font-weight: bold;
   transition: all 0.3s ease;
   margin-bottom: 20px;
-  max-width: 250px; /* Limitar el ancho del botón */
+  max-width: 250px; 
   width: 100%;
 }
 
-/* Para la tabla*/
 .promocion-table-container {
   margin-left: 5px;
   border-radius: 10px;
@@ -291,8 +286,8 @@
 }
 
 .promocion-descripcion {
-  font-weight: 700; /* Aumentado de 600 a 700 para hacerlo más negrita */
-  color: #000000; /* Cambiado a negro como solicitaste */
+  font-weight: 700;
+  color: #000000;
 }
 
 .promocion-nombreProducto {
@@ -337,7 +332,6 @@ td.precio-celda {
 }
 
 .fecha-inicio::after {
-  /*content: "Inicio";*/
   display: block;
   font-size: 10px;
   color: #6c757d;
@@ -350,7 +344,6 @@ td.precio-celda {
 }
 
 .fecha-fin::after {
-  /*content: "Fin";*/
   display: block;
   font-size: 10px;
   color: #6c757d;
@@ -358,7 +351,6 @@ td.precio-celda {
   margin-top: 2px;
 }
 
-/*No hay promociones*/
 .promocion-no-results td {
   padding: 20px !important;
   text-align: center;
@@ -372,84 +364,73 @@ td.precio-celda {
   color: #958933 !important;
   margin-right: 10px;
 }
-  /* Eliminar el cuadro verde en la parte superior */
-  .content-container:before,
-  .content-container:after,
-  .container.mt-5:before,
-  .container.mt-5:after {
-    display: none !important;
-  }
-  
-  /* Ocultar todos los elementos que podrían ser el cuadro verde */
-  .content-container > div:first-of-type > div.green-box,
-  .content-container > div:first-of-type > div:empty,
-  .container.mt-5 > div:first-of-type:not(h1):not(.custom-button):not(.mb-2):not(label):not(input):not(table):not(form),
-  .container.mt-5 > div:empty {
-    display: none !important;
-  }
-  
-  /* Estilos para el sidebar */
-  .sidebar {
-    display: block !important;  /* Asegurar que el sidebar se muestre */
-  }
-  
-  /* Estilos para los botones de acción */
-  .btn-primary {
-    color: #fff;
-    background-color: #3498db;
-    border-color: #3498db;
-    margin-left: 5px;
-  }
-  
-  .btn-primary:hover {
-    background-color: #2980b9;
-    border-color: #2980b9;
-  }
-  
+.content-container:before,
+.content-container:after,
+.container.mt-5:before,
+.container.mt-5:after {
+  display: none !important;
+}
 
-  
-  /* Estilo para el botón personalizado */
-  .custom-button {
-    background-color: #003366;
-    border-color: #002244;
-  }
-  
-  .custom-button:hover {
-    background-color: #002244;
-    border-color: #001122;
-  }
-  
-  /* Estilos para los estados de promoción */
-  .btn-success, .btn-danger {
-    transition: all 0.3s ease;
-  }
-/* Encabezado del modal */
+.content-container > div:first-of-type > div.green-box,
+.content-container > div:first-of-type > div:empty,
+.container.mt-5 > div:first-of-type:not(h1):not(.custom-button):not(.mb-2):not(label):not(input):not(table):not(form),
+.container.mt-5 > div:empty {
+  display: none !important;
+}
+
+.sidebar {
+  display: block !important; 
+}
+
+.btn-primary {
+  color: #fff;
+  background-color: #3498db;
+  border-color: #3498db;
+  margin-left: 5px;
+}
+
+.btn-primary:hover {
+  background-color: #2980b9;
+  border-color: #2980b9;
+}
+
+.custom-button {
+  background-color: #003366;
+  border-color: #002244;
+}
+
+.custom-button:hover {
+  background-color: #002244;
+  border-color: #001122;
+}
+
+.btn-success, .btn-danger {
+  transition: all 0.3s ease;
+}
+
 .modal-header {
-  background-color: #a5c463 !important; /* Verde claro similar al de la imagen */
-  color: #000 !important; /* Texto negro para mejor legibilidad */
+  background-color: #a5c463 !important; 
+  color: #000 !important; 
   border-bottom: none;
   padding: 15px 20px;
 }
 
 .modal-title {
-  color: #000 !important; /* Texto negro en el título */
+  color: #000 !important; 
   font-weight: 600;
 }
 
-/* Cuerpo del modal */
 .modal-body {
   padding: 20px;
   background-color: #fff;
 }
 
-/* Pie del modal */
 .modal-footer {
   background-color: #fff;
   border-top: none;
   padding: 15px 20px;
 }
 
-/* Estilo para el botón de cerrar (X) */
 .modal-header .close {
   color: #333;
   opacity: 0.8;
@@ -459,9 +440,8 @@ td.precio-celda {
   opacity: 1;
 }
 
-/* Estilos para los botones del modal */
 .modal-footer .btn-primary {
-  background-color: #387623 !important; /* Verde oscuro para el botón principal */
+  background-color: #387623 !important; 
   border-color: #387623 !important;
   color: white !important;
   font-weight: 600;
@@ -475,9 +455,9 @@ td.precio-celda {
 }
 
 .modal-footer .btn-secondary {
-  background-color: #f5ebe0 !important; /* Fondo marrón claro para el botón secundario */
-  color: #875725 !important; /* Color de texto marrón */
-  border: 1px solid #d4a76a !important; /* Borde marrón */
+  background-color: #f5ebe0 !important; 
+  color: #875725 !important; 
+  border: 1px solid #d4a76a !important; 
   font-weight: 600;
   padding: 8px 16px;
   border-radius: 4px;
@@ -490,7 +470,6 @@ td.precio-celda {
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Estilos para los campos de formulario */
 .modal-body .form-control {
   border: 1px solid #d1e7b7;
   border-radius: 4px;
@@ -503,7 +482,6 @@ td.precio-celda {
   outline: none;
 }
 
-/* Estilos para las etiquetas */
 .modal-body label {
   font-weight: 600;
   color: #333;
@@ -511,19 +489,16 @@ td.precio-celda {
   display: block;
 }
 
-/* Estilo para el modal completo */
 .modal-content {
   border: none;
   border-radius: 8px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
-/* Estilo para el fondo del modal */
 .modal-backdrop.show {
   opacity: 0.5;
 }
 
-/* Estilo para el botón Agregar */
 .btn-agregar {
   float: right;
   margin-top: 10px;
@@ -536,7 +511,6 @@ td.precio-celda {
   border-radius: 4px;
 }
 
-/* Contenedor para el campo de selección de producto y botón agregar */
 .producto-container {
   position: relative;
   width: 100%;

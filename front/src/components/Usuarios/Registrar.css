@@ -1,4 +1,4 @@
-/* Variables de colores de la paleta */
+
 :root {
   --color-dark-green: #103f1b;
   --color-medium-green: #387623;
@@ -25,7 +25,6 @@
   position: relative;
 }
 
-/* Overlay para mejorar la legibilidad del contenido sobre la imagen */
 .registrar-page::before {
   content: '';
   position: absolute;
@@ -33,7 +32,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(16, 63, 27, 0.1); /* Reduced opacity */
+  background-color: rgba(16, 63, 27, 0.1); 
   z-index: 1;
 }
 
@@ -44,7 +43,7 @@
   align-items: center;
   padding: 15px;
   position: relative;
-  z-index: 2; /* Por encima del overlay */
+  z-index: 2; 
 }
 
 .registro-card {
@@ -253,7 +252,6 @@ label {
   background-position: center;
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
   .form-row {
     flex-direction: column;
@@ -273,7 +271,6 @@ label {
   }
 }
 
-/* Estilos para los Alerts de Material UI */
 .MuiAlert-root {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
   font-size: 15px !important;
@@ -288,7 +285,6 @@ label {
   background-color: var(--color-error) !important;
 }
 
-/* Animación para mensajes de error en inputs */
 @keyframes shake {
   0%, 100% {transform: translateX(0);}
   10%, 30%, 50%, 70%, 90% {transform: translateX(-5px);}
@@ -330,7 +326,6 @@ label {
   margin-bottom: 4px;
 }
 
-/* Colores específicos para cada nivel */
 .strength-weak {
   color: var(--color-error);
 }
@@ -343,7 +338,6 @@ label {
   color: var(--color-success);
 }
 
-/* Barra de fortaleza correspondiente */
 .strength-bar-weak {
   width: 33%;
   background-color: var(--color-error);
