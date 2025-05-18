@@ -198,7 +198,7 @@ h1 {
 .categoria-edit-button,
 .categoria-delete-button {
   font-size: 1.25rem;
-  color: #387623 !important;
+  color: #000000 !important;
   margin: 0 8px;
   transition: all 0.3s ease;
   cursor: pointer;
@@ -291,6 +291,7 @@ h1 {
 /* Modal */
 .modal .categoria-modal {
   width: 100%;
+  
 }
 
 .modal .modal-header {
@@ -350,3 +351,4 @@ h1 {
   background-color: #6c757d !important;
   border-color: #6c757d !important;
 }
+

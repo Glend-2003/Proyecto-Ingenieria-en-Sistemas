@@ -39,22 +39,20 @@ body {
     background-image: url('/images/actualmente.png');
     background-size: cover;
     background-position: center top;
-    background-color: var(--color-primary); /* Color de respaldo si la imagen no carga */
+    background-color: var(--color-primary);
     color: white;
     position: relative;
     padding: px 0;
     text-align: center;
     height: 250px;
-    /* Mejoras en la calidad de imagen */
+    margin-bottom: 40px;
     image-rendering: -webkit-optimize-contrast;
     image-rendering: crisp-edges;
     image-rendering: high-quality;
-    /* Overlay oscuro para mejor legibilidad */
     background-blend-mode: multiply;
     background-color: rgba(16, 63, 27, 0.3);
 }
 
-/* Overlay adicional para oscurecer */
 .orden-hero::before {
     content: '';
     position: absolute;
@@ -89,47 +87,18 @@ body {
     text-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
-/* Header y navegación */
-.orden-header {
-    width: 100%;
-    max-width: 1200px;
-    margin: -30px auto 20px;
-    padding: 0 20px;
-    position: relative;
-    z-index: 10;
-}
-
-/* Botón "Volver a la tienda" con color verde claro */
-.back-button {
-    background-color: var(--color-accent);
-    border: 2px solid var(--color-accent);
-    color: white;
-    padding: 12px 20px;
-    border-radius: var(--border-radius);
-    cursor: pointer;
-    font-weight: 600;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    box-shadow: var(--shadow-sm);
-    transition: all 0.3s ease;
-}
-
-.back-button:hover {
-    background-color: #8B4513; /* Color marrón oscuro suave */
-    border-color: #8B4513; /* Mismo color para el borde */
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-}
-
 /* Contenedor principal */
+.orden-main-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    width: 100%;
+}
+
 .orden-container {
     display: flex;
     justify-content: space-between;
-    padding: 0 20px 40px;
-    max-width: 1200px;
-    margin: 0 auto;
+    padding: 0 0 40px;
     width: 100%;
     flex: 1;
     gap: 30px;
@@ -148,6 +117,15 @@ body {
 /* Sección detalles del carrito */
 .carrito-detalles {
     width: 68%;
+    position: relative;
+    padding-bottom: 60px;
+}
+
+.bottom-back-button {
+    display: flex;
+    justify-content: flex-start; /* Botón a la izquierda */
+    width: 100%; /* Asegura que el contenedor ocupe todo el ancho */
+    margin-top: 20px; /* Espaciado superior (ajustable) */
 }
 
 .cart-section-title {
@@ -499,6 +477,28 @@ table tr:last-child td {
     color: var(--color-text-light);
 }
 
+/* Botón "Volver a la tienda" */
+.back-button {
+    display: flex;
+    align-items: center;
+    background-color: #875725;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.back-button:hover {
+    background-color: #734a20;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
 /* Adaptaciones para diferentes tamaños de pantalla */
 @media (max-width: 768px) {
     .orden-hero {
@@ -515,7 +515,7 @@ table tr:last-child td {
     }
     
     .orden-container {
-        padding: 0 15px 30px;
+        padding: 0 0 30px;
     }
     
     table th:nth-child(3), 
@@ -530,6 +530,17 @@ table tr:last-child td {
     
     .producto-nombre {
         max-width: 150px;
+    }
+
+    .bottom-back-button {
+        position: static;
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    .back-button {
+        width: 100%;
+        justify-content: center;
     }
 }
 

@@ -3,7 +3,7 @@ import { Offcanvas, ListGroup, Button } from 'react-bootstrap';
 import { useCart } from '../../contexto/ContextoCarrito';
 import { useNavigate } from 'react-router-dom';
 import './Carrito.css';
-import useAuth from '../../hooks/userInfo'; 
+import useAuth from '../../hooks/useAuth';
 import axios from 'axios'; 
 import { useAppContext } from "../Navbar/AppContext";
 

@@ -39,24 +39,24 @@ const PedidosCompletadosApp = () => {
     const fecha = new Date(fechaPedido);
     const año = fecha.getFullYear().toString().substring(2); // Últimos dos dígitos del año
     const mes = (fecha.getMonth() + 1).toString().padStart(2, '0'); // Mes con 2 dígitos
-    
+
     // Formatear el ID interno con ceros a la izquierda (5 dígitos)
     const idFormateado = idPedido.toString().padStart(5, '0');
-    
+
     // Formato: PED-AAMM-XXXXX (Año-Mes-ID)
     return `PED-${año}${mes}-${idFormateado}`;
   };
 
   const formatearCodigoPedido = (idPedido, fechaPedido) => {
-  if (!fechaPedido) return `PED-00000-${idPedido.toString().padStart(5, '0')}`;
-  
-  const fecha = new Date(fechaPedido);
-  const año = fecha.getFullYear().toString().substring(2);
-  const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
-  const idFormateado = idPedido.toString().padStart(5, '0');
-  
-  return `PED-${año}${mes}-${idFormateado}`;
-};
+    if (!fechaPedido) return `PED-00000-${idPedido.toString().padStart(5, '0')}`;
+
+    const fecha = new Date(fechaPedido);
+    const año = fecha.getFullYear().toString().substring(2);
+    const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
+    const idFormateado = idPedido.toString().padStart(5, '0');
+
+    return `PED-${año}${mes}-${idFormateado}`;
+  };
 
 
   // Cargar datos iniciales
@@ -129,20 +129,20 @@ const PedidosCompletadosApp = () => {
     let filtered = [...pedidos];
 
     if (filters.startDate) {
-      filtered = filtered.filter(pedido => 
+      filtered = filtered.filter(pedido =>
         new Date(pedido.fechaPedido) >= new Date(filters.startDate)
       );
     }
 
     if (filters.endDate) {
-      filtered = filtered.filter(pedido => 
+      filtered = filtered.filter(pedido =>
         new Date(pedido.fechaPedido) <= new Date(filters.endDate + 'T23:59:59')
       );
     }
 
     if (filters.cliente) {
       filtered = filtered.filter(pedido => {
-        const nombreCompleto = pedido.carrito?.usuario 
+        const nombreCompleto = pedido.carrito?.usuario
           ? `${pedido.carrito.usuario.nombreUsuario} ${pedido.carrito.usuario.primerApellido} ${pedido.carrito.usuario.segundoApellido}`.toLowerCase()
           : '';
         return nombreCompleto.includes(filters.cliente.toLowerCase());
@@ -215,8 +215,8 @@ const PedidosCompletadosApp = () => {
     };
 
     // Crear contenido para impresión
- const printWindow = window.open('', '_blank');
-  printWindow.document.write(`
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
     <html>
       <head>
         <title>Reporte ${tipo.charAt(0).toUpperCase() + tipo.slice(1)}</title>
@@ -265,9 +265,9 @@ const PedidosCompletadosApp = () => {
             ${reporte.pedidos.map(pedido => `
               <tr>
                 <td>${formatearCodigoPedido(pedido.idPedido, pedido.fechaPedido)}</td>
-                <td>${pedido.carrito?.usuario 
-                  ? `${pedido.carrito.usuario.nombreUsuario} ${pedido.carrito.usuario.primerApellido}`
-                  : 'N/A'}</td>
+                <td>${pedido.carrito?.usuario
+        ? `${pedido.carrito.usuario.nombreUsuario} ${pedido.carrito.usuario.primerApellido}`
+        : 'N/A'}</td>
                 <td>${formatDate(pedido.fechaPedido)}</td>
                 <td>${formatCurrency(pedido.montoTotalPedido)}</td>
               </tr>
@@ -281,8 +281,8 @@ const PedidosCompletadosApp = () => {
       </body>
     </html>
   `);
-  printWindow.document.close();
-};
+    printWindow.document.close();
+  };
 
   const obtenerPedidosParaReporte = (tipo) => {
     const hoy = new Date();
@@ -344,18 +344,18 @@ const PedidosCompletadosApp = () => {
       <div className="vp-page-container">
         <div className="vp-app-container">
           <SideBar usuario={usuario} />
-          
+
           <div className="vp-main-container">
             {/* Header */}
             <div className="vp-header-container">
               <h1 className="vp-header-title">Pedidos Completados</h1>
               <div className="vp-header-actions">
-                <button 
+                <button
                   className="vp-refresh-button"
                   onClick={() => window.location.reload()}
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                   Actualizar
                 </button>
@@ -367,7 +367,7 @@ const PedidosCompletadosApp = () => {
               <div className="vp-stat-card vp-total-card">
                 <div className="vp-stat-icon">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </div>
                 <div className="vp-stat-content">
@@ -380,8 +380,8 @@ const PedidosCompletadosApp = () => {
               <div className="vp-stat-card vp-hoy-card">
                 <div className="vp-stat-icon">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
-                    <polyline points="12,6 12,12 16,14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+                    <polyline points="12,6 12,12 16,14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </div>
                 <div className="vp-stat-content">
@@ -394,10 +394,10 @@ const PedidosCompletadosApp = () => {
               <div className="vp-stat-card vp-semana-card">
                 <div className="vp-stat-icon">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" strokeWidth="2"/>
-                    <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                    <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                    <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" strokeWidth="2"/>
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" strokeWidth="2" />
+                    <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                    <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                    <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" strokeWidth="2" />
                   </svg>
                 </div>
                 <div className="vp-stat-content">
@@ -410,9 +410,9 @@ const PedidosCompletadosApp = () => {
               <div className="vp-stat-card vp-mes-card">
                 <div className="vp-stat-icon">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M7 10l5 5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M12 15V3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M7 10l5 5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M12 15V3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </div>
                 <div className="vp-stat-content">
@@ -425,7 +425,7 @@ const PedidosCompletadosApp = () => {
               <div className="vp-stat-card vp-anio-card">
                 <div className="vp-stat-icon">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </div>
                 <div className="vp-stat-content">
@@ -451,13 +451,13 @@ const PedidosCompletadosApp = () => {
                         className="vp-filter-select-input"
                       />
                     </div>
-                    
-                    <button 
+
+                    <button
                       className="vp-filter-button"
                       onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
                     >
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                       Filtros Avanzados
                     </button>
@@ -502,60 +502,60 @@ const PedidosCompletadosApp = () => {
               <div className="vp-reports-panel">
                 <h3 className="vp-reports-title">Generar Reportes</h3>
                 <div className="vp-reports-actions">
-                  <button 
+                  <button
                     className="vp-report-button"
                     onClick={() => generarReporte('total')}
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M6 9V2h12v7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M6 14h12v8H6v-8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M6 9V2h12v7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      <path d="M6 14h12v8H6v-8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                     Reporte Total
                   </button>
-                  <button 
+                  <button
                     className="vp-report-button"
                     onClick={() => generarReporte('hoy')}
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
-                      <polyline points="12,6 12,12 16,14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+                      <polyline points="12,6 12,12 16,14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                     Reporte Diario
                   </button>
-                  <button 
+                  <button
                     className="vp-report-button"
                     onClick={() => generarReporte('semana')}
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" strokeWidth="2"/>
-                      <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                      <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                      <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" strokeWidth="2"/>
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" strokeWidth="2" />
+                      <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                      <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                      <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" strokeWidth="2" />
                     </svg>
                     Reporte Semanal
                   </button>
-                  <button 
+                  <button
                     className="vp-report-button"
                     onClick={() => generarReporte('mes')}
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" strokeWidth="2"/>
-                      <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                      <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                      <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" strokeWidth="2"/>
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" strokeWidth="2" />
+                      <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                      <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                      <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" strokeWidth="2" />
                     </svg>
                     Reporte Mensual
                   </button>
-                  <button 
+                  <button
                     className="vp-report-button"
                     onClick={() => generarReporte('anio')}
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" strokeWidth="2"/>
-                      <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                      <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                      <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" strokeWidth="2"/>
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" strokeWidth="2" />
+                      <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                      <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                      <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" strokeWidth="2" />
                     </svg>
                     Reporte Anual
                   </button>
@@ -585,7 +585,7 @@ const PedidosCompletadosApp = () => {
                     <tbody>
                       {currentItems.map((pedido) => (
                         <React.Fragment key={pedido.idPedido}>
-                          <tr 
+                          <tr
                             className={`vp-pedido-row ${expandedRows.has(pedido.idPedido) ? 'vp-expanded-row' : ''}`}
                             onClick={() => toggleExpandRow(pedido.idPedido)}
                           >
@@ -594,7 +594,7 @@ const PedidosCompletadosApp = () => {
                             </td>
                             <td className="vp-pedido-cell" data-label="Cliente">
                               <span className="vp-pedido-cliente">
-                                {pedido.carrito?.usuario 
+                                {pedido.carrito?.usuario
                                   ? `${pedido.carrito.usuario.nombreUsuario} ${pedido.carrito.usuario.primerApellido}`
                                   : 'N/A'}
                               </span>
@@ -611,7 +611,7 @@ const PedidosCompletadosApp = () => {
                             <td className="vp-pedido-cell" data-label="Acciones">
                               <div className="vp-pedido-actions">
                                 <div className="vp-actions-container">
-                                  <button 
+                                  <button
                                     className="vp-view-btn"
                                     onClick={(e) => {
                                       e.stopPropagation();
@@ -620,18 +620,18 @@ const PedidosCompletadosApp = () => {
                                   >
                                     Ver detalles
                                   </button>
-                                  <span 
+                                  <span
                                     className={`vp-expand-icon ${expandedRows.has(pedido.idPedido) ? 'rotated' : ''}`}
                                   >
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                      <path d="M19 9l-7 7-7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                      <path d="M19 9l-7 7-7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                     </svg>
                                   </span>
                                 </div>
                               </div>
                             </td>
                           </tr>
-                          
+
                           {expandedRows.has(pedido.idPedido) && (
                             <tr className="vp-expanded-content">
                               <td colSpan="6">
@@ -682,14 +682,14 @@ const PedidosCompletadosApp = () => {
                       Mostrando {indexOfFirstItem + 1} a {Math.min(indexOfLastItem, filteredPedidos.length)} de {filteredPedidos.length} pedidos
                     </div>
                     <div className="vp-pagination-buttons">
-                      <button 
+                      <button
                         className={`vp-pagination-btn ${currentPage === 1 ? 'disabled' : ''}`}
                         onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                         disabled={currentPage === 1}
                       >
                         Anterior
                       </button>
-                      <button 
+                      <button
                         className={`vp-pagination-btn ${currentPage === totalPages || filteredPedidos.length <= itemsPerPage ? 'disabled' : ''}`}
                         onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                         disabled={currentPage === totalPages || filteredPedidos.length <= itemsPerPage}
@@ -726,7 +726,7 @@ const PedidosCompletadosApp = () => {
                       <div className="vp-info-row">
                         <span className="vp-info-label">Nombre:</span>
                         <span className="vp-info-value">
-                          {selectedPedido.carrito?.usuario 
+                          {selectedPedido.carrito?.usuario
                             ? `${selectedPedido.carrito.usuario.nombreUsuario} ${selectedPedido.carrito.usuario.primerApellido} ${selectedPedido.carrito.usuario.segundoApellido}`
                             : 'N/A'}
                         </span>
@@ -746,7 +746,7 @@ const PedidosCompletadosApp = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="vp-modal-section">
                   <div className="vp-info-card">
                     <div className="vp-info-header">
@@ -772,77 +772,74 @@ const PedidosCompletadosApp = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="vp-modal-section vp-modal-section-full-width">
-  <div className="vp-productos-card">
-    <div className="vp-info-header">
-      <h3 className="vp-info-title">Productos <span className="vp-product-count">({selectedPedido.carrito?.productos?.length || 0})</span></h3>
-    </div>
-    <div className="vp-info-body">
-      {selectedPedido.carrito?.productos?.length > 0 ? (
-        <div className="vp-products-grid">
-          {selectedPedido.carrito.productos.map((producto, index) => (
-            <div className="vp-product-item-card" key={index}>
-              <div className="vp-product-item-image">
-                {producto.imgProducto ? (
-                  <img 
-                    src={producto.imgProducto}
-                    alt={producto.nombreProducto}
-                    className="vp-product-img"
-                  />
-                ) : (
-                  <div className="vp-no-image-product">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      <polyline points="3.27 6.96 12 12.01 20.73 6.96" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      <line x1="12" y1="22.08" x2="12" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </div>
-                )}
-              </div>
-              
-              <div className="vp-product-item-details">
-                <h4 className="vp-product-item-name">{producto.nombreProducto}</h4>
-                
-                {producto.descripcionProducto && (
-                  <p className="vp-product-item-description">{producto.descripcionProducto}</p>
-                )}
-                
-                <div className="vp-product-item-meta">
-                  {producto.codigoProducto && (
-                    <div className="vp-product-item-code">
-                      <span className="vp-meta-label">Código:</span> {producto.codigoProducto}
+                  <div className="vp-productos-card">
+                    <div className="vp-info-header">
+                      <h3 className="vp-info-title">Productos <span className="vp-product-count">({selectedPedido.carrito?.productos?.length || 0})</span></h3>
                     </div>
-                  )}
+                    <div className="vp-info-body">
+                      {selectedPedido.carrito?.productos?.length > 0 ? (
+                        <div className="vp-products-grid">
+                          {selectedPedido.carrito.productos.map((producto, index) => (
+                            <div className="vp-product-item-card" key={index}>
+                              <div className="vp-product-item-image">
+                                {producto.imgProducto ? (
+                                  <img
+                                    src={producto.imgProducto}
+                                    alt={producto.nombreProducto}
+                                    className="vp-product-img"
+                                  />
+                                ) : (
+                                  <div className="vp-no-image-product">
+                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                      <polyline points="3.27 6.96 12 12.01 20.73 6.96" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                      <line x1="12" y1="22.08" x2="12" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                    </svg>
+                                  </div>
+                                )}
+                              </div>
+
+                              <div className="vp-product-item-details">
+                                <h4 className="vp-product-item-name">{producto.nombreProducto}</h4>
+
+                                {producto.descripcionProducto && (
+                                  <p className="vp-product-item-description">{producto.descripcionProducto}</p>
+                                )}
+
+                                <div className="vp-product-item-meta">
+                                  {producto.codigoProducto && (
+                                    <div className="vp-product-item-code">
+                                      <span className="vp-meta-label">Código:</span> {producto.codigoProducto}
+                                    </div>
+                                  )}
+
+                                  <div className="vp-product-item-quantity">
+                                    <span className="vp-meta-label">Cantidad:</span> {producto.cantidadProducto} {producto.tipoPesoProducto || 'unidades'}
+                                  </div>
+
+                                  {producto.idCategoria && (
+                                    <div className="vp-product-item-category">
+                                      <span className="vp-meta-label">Categoría:</span> {producto.idCategoria}
+                                    </div>
+                                  )}
+                                </div>
+
+                                <div className="vp-product-item-price">
                   
-                  <div className="vp-product-item-quantity">
-                    <span className="vp-meta-label">Cantidad:</span> {producto.cantidadProducto} {producto.tipoPesoProducto || 'unidades'}
-                  </div>
-                  
-                  {producto.idCategoria && (
-                    <div className="vp-product-item-category">
-                      <span className="vp-meta-label">Categoría:</span> {producto.idCategoria}
+                                  ₡{producto.montoPrecioProducto ? producto.montoPrecioProducto.toLocaleString() : '0'}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="vp-no-products-message">No hay productos en este pedido</div>
+                      )}
                     </div>
-                  )}
+                  </div>
                 </div>
-                
-                <div className="vp-product-item-price">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <line x1="12" y1="1" x2="12" y2="23" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                  ₡{producto.montoPrecioProducto ? producto.montoPrecioProducto.toLocaleString() : '0'}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="vp-no-products-message">No hay productos en este pedido</div>
-      )}
-    </div>
-  </div>
-</div>
               </div>
             </div>
           </div>
