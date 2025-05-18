@@ -13,29 +13,24 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 
-/**
- *
- * @author Jamel Sandí
- */
-
-@Entity (name = "tbpedido")
+@Entity(name = "tbpedido")
 public class Pedido {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idPedido")
     private int idPedido;
-    
+
     @Column(name = "montoTotalPedido")
     private BigDecimal montoTotalPedido;
-    
+
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm", timezone = "GMT")
     @Column(name = "fechaPedido")
     private LocalDateTime fechaPedido;
-    
+
     @Column(name = "estadoPedido")
     private boolean estadoPedido;
-    
+
     @Column(name = "estadoEntregaPedido")
     private String estadoEntregaPedido;
 
@@ -115,6 +110,5 @@ public class Pedido {
     public void setCarrito(Carrito carrito) {
         this.carrito = carrito;
     }
-    
-    
+
 }

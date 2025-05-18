@@ -7,6 +7,7 @@ import { FaEye, FaEyeSlash, FaSpinner, FaArrowLeft } from 'react-icons/fa';
 import '../Login/Login.css'; 
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
+import { setEncryptedLocalStorage } from '../Utils/StorageUtils';
 
 const AuthOffcanvas = () => {
   const { showSidebar, handleShowSidebar, updateUserStatus } = useAppContext();
@@ -98,7 +99,8 @@ const AuthOffcanvas = () => {
         localStorage.setItem("token", response.data.token);
         localStorage.setItem("correoUsuario", response.data.correoUsuario);
         localStorage.setItem("nombreUsuario", response.data.nombreUsuario);
-        localStorage.setItem("nombreRol", response.data.rol.nombreRol);
+        // Se encripta
+        setEncryptedLocalStorage("nombreRol", response.data.rol.nombreRol); 
         localStorage.setItem("idUsuario", response.data.idUsuario);
 
         if (rememberMe) {
@@ -163,7 +165,6 @@ const AuthOffcanvas = () => {
        setLoginData(prev => ({ ...prev, contraseniaUsuario: "" }));
     }
   }, [showSidebar, showForgotPassword]);
-
 
   return (
     <Offcanvas show={showSidebar} onHide={handleShowSidebar} placement="end" className="login-sidebar">

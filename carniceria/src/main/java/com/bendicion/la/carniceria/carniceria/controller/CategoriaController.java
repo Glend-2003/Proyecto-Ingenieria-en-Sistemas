@@ -1,4 +1,5 @@
 package com.bendicion.la.carniceria.carniceria.controller;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -20,20 +21,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bendicion.la.carniceria.carniceria.domain.Categoria;
 import com.bendicion.la.carniceria.carniceria.service.ICategoriaService;
 
-/**
- *
- * @author Jamel Sandí
- */
-
 @RestController
 @CrossOrigin(origins = "*")
 @RequestMapping("/categoria")
 public class CategoriaController {
-    
+
     @Autowired
     ICategoriaService iCategoriaService;
-    
-    // Read
+
     @GetMapping("/")
     public ResponseEntity<List<Categoria>> listCategoria(Boolean estadoCategoria) {
         List<Categoria> categorias = iCategoriaService.getCategoria(estadoCategoria);
@@ -41,7 +36,6 @@ public class CategoriaController {
         return ResponseEntity.ok(iCategoriaService.getCategoria(estadoCategoria));
     }
 
-    // Read by ID
     @GetMapping("obtenerPorId/{id}")
     public ResponseEntity<Categoria> listCategoriaById(@PathVariable int id) {
         Categoria categoria = iCategoriaService.getCategoriaById(id);
@@ -54,7 +48,6 @@ public class CategoriaController {
         }
     }
 
-    // Add
     @PostMapping("/agregar")
     public ResponseEntity<?> addCategoria(@RequestBody Categoria categoria) {
         try {
@@ -72,12 +65,11 @@ public class CategoriaController {
         }
     }
 
-    // Update
     @PutMapping("/actualizar")
     public ResponseEntity<?> updateCategoria(@RequestBody Categoria categoria) {
         try {
             Categoria categoriaActualizada = iCategoriaService.updateCategoria(categoria);
-            System.out.println("Categoria actualizada: ID -->" + categoria.getIdCategoria() + ", Nombre -->" + categoria.getNombreCategoria() + ", Descripcion -->" + categoria.getDescripcionCategoria()+ categoria.isEstadoCategoria());
+            System.out.println("Categoria actualizada: ID -->" + categoria.getIdCategoria() + ", Nombre -->" + categoria.getNombreCategoria() + ", Descripcion -->" + categoria.getDescripcionCategoria() + categoria.isEstadoCategoria());
 
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Categoria actualizada con exito con ID: " + categoriaActualizada.getIdCategoria());
@@ -90,11 +82,10 @@ public class CategoriaController {
         }
     }
 
-    // Delete
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<Boolean> deleteCategoria(@PathVariable int id) {
         boolean eliminado = iCategoriaService.deleteCategoria(id);
-        
+
         if (eliminado) {
             System.out.println("Categoria eliminada: ID -->" + id);
             return ResponseEntity.ok(true);
@@ -116,5 +107,5 @@ public class CategoriaController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
         }
     }
-     
+
 }

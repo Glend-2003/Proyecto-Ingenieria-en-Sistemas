@@ -9,6 +9,7 @@ import {
   FaAngleRight
 } from 'react-icons/fa';
 import './SideBarUsuario.css';
+import { getDecryptedLocalStorage } from '../Utils/StorageUtils';
 
 const SideBarUsuario = ({ usuario, handleLogout }) => {
     const [datosUsuario, setDatosUsuario] = useState({
@@ -24,7 +25,14 @@ const SideBarUsuario = ({ usuario, handleLogout }) => {
             setDatosUsuario({
                 nombreUsuario: usuario.nombreUsuario || localStorage.getItem('nombreUsuario') || "Usuario",
                 correoUsuario: usuario.correoUsuario || localStorage.getItem('correoUsuario') || "",
-                nombreRol: usuario.nombreRol || localStorage.getItem('nombreRol') || ""
+                nombreRol: usuario.nombreRol || getDecryptedLocalStorage('nombreRol') || "" 
+            });
+        } else {
+            // Si no hay usuario en props, cargar desde localStorage
+            setDatosUsuario({
+                nombreUsuario: localStorage.getItem('nombreUsuario') || "Usuario",
+                correoUsuario: localStorage.getItem('correoUsuario') || "",
+                nombreRol: getDecryptedLocalStorage('nombreRol') || "" // Cambiado aquí
             });
         }
     }, [usuario]);

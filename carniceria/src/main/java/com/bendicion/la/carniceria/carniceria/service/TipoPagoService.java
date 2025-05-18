@@ -1,24 +1,23 @@
 package com.bendicion.la.carniceria.carniceria.service;
-import com.bendicion.la.carniceria.carniceria.domain.TipoPago;
-import com.bendicion.la.carniceria.carniceria.jpa.TipoPagoRepository;
-import jakarta.transaction.Transactional;
+
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
-/**
- *
- * @author Jamel Sandí
- */
+import com.bendicion.la.carniceria.carniceria.domain.TipoPago;
+import com.bendicion.la.carniceria.carniceria.jpa.TipoPagoRepository;
+
+import jakarta.transaction.Transactional;
 
 @Service
 @Primary
-public class TipoPagoService implements ITipoPagoService{
-        
+public class TipoPagoService implements ITipoPagoService {
+
     @Autowired
     private TipoPagoRepository tipoPagoRep;
-    
+
     @Override
     @Transactional
     public TipoPago addTipoPago(TipoPago tipoPago) {
@@ -29,7 +28,7 @@ public class TipoPagoService implements ITipoPagoService{
     }
 
     @Override
-    @Transactional // Asegura que la actualización se maneje dentro de una transacción
+    @Transactional
     public TipoPago updateTipoPago(TipoPago tipoPago) {
         System.out.println("Actualizando tipo de pago con ID: " + tipoPago.getIdTipoPago());
         tipoPago.setEstadoTipoPago(true);
@@ -38,7 +37,7 @@ public class TipoPagoService implements ITipoPagoService{
     }
 
     @Override
-    @Transactional 
+    @Transactional
     public List<TipoPago> getTipoPago() {
         return tipoPagoRep.listProcedureTipoPago();
     }
@@ -48,23 +47,23 @@ public class TipoPagoService implements ITipoPagoService{
     public TipoPago getTipoPagoById(int id) {
         return tipoPagoRep.listProcedureTipoPagoById(id);
     }
- 
+
     @Override
-    @Transactional 
+    @Transactional
     public boolean activarTipoPago(int id) {
         try {
-          
-            if (!tipoPagoRep.existsById(id)) { 
+
+            if (!tipoPagoRep.existsById(id)) {
                 System.err.println("El tipo pago con ID: " + id + " no existe.");
                 return false;
             }
 
             System.out.println("activando tipo pago con ID: " + id);
             tipoPagoRep.activarTipoPago(id);
-            return true; 
+            return true;
         } catch (Exception e) {
             System.err.println("Error al activar el tipo pago con ID: " + id + ". Detalles: " + e.getMessage());
-            return false; // Retorna false en caso de error
+            return false;
         }
     }
 

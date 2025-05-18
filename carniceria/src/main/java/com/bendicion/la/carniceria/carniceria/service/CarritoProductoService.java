@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import com.bendicion.la.carniceria.carniceria.domain.CarritoProducto;
-import com.bendicion.la.carniceria.carniceria.domain.Producto;
 import com.bendicion.la.carniceria.carniceria.jpa.CarritoProductoRepository;
 import com.bendicion.la.carniceria.carniceria.jpa.ProductoRepository;
 
@@ -117,8 +116,6 @@ public class CarritoProductoService implements ICarritoProductoService {
     }
 
     private void actualizarTotalesCarrito(int idCarrito) {
-        // Implementar lógica para recalcular montoTotalCarrito y cantidadCarrito
-        // basado en los productos actuales del carrito
-        // Esto podría requerir un procedimiento almacenado adicional
+
     }
 }
