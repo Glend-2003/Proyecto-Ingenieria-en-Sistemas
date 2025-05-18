@@ -11,6 +11,17 @@ body {
     color: #333;
 }
 
+.orden-header {
+    width: 100%;
+    max-width: 1200px;
+    margin: 20px auto 0;
+    margin: -30px auto 20px;
+    padding: 0 20px;
+    position: relative;
+    z-index: 10;
+    transform: translateY(-33px);
+}
+
 /* Variables de color basadas en la paleta existente */
 :root {
     --color-primary: #387623; /* Verde principal */

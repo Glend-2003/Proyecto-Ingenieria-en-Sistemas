@@ -50,7 +50,15 @@ function MostrarOrdenApp() {
           <p>Revise sus productos y proceda al pedido cuando esté listo</p>
         </div>
       </div>
-
+       <div className="orden-header">
+        <button 
+          onClick={() => navigate("/")} 
+          className="back-button"
+        >
+          <ChevronLeft size={18} />
+          Volver a la tienda
+        </button>
+      </div>
       <div className="orden-main-content">
         <div className="orden-container">
           <div className="carrito-detalles">
@@ -135,16 +143,6 @@ function MostrarOrdenApp() {
                     ))}
                   </tbody>
                 </table>
-
-                <div className="bottom-back-button">
-                  <button
-                    onClick={() => navigate("/")}
-                    className="back-button"
-                  >
-                    <ChevronLeft size={18} />
-                    Volver a la tienda
-                  </button>
-                </div>
               </>
             )}
           </div>
