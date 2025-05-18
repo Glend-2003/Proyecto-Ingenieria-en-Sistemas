@@ -17,6 +17,7 @@
     "bootstrap": "^5.3.3",
     "chart.js": "^4.4.8",
     "compressorjs": "^1.2.1",
+    "crypto-js": "^4.2.0",
     "front": "file:",
     "lucide-react": "^0.482.0",
     "rc-slider": "^11.1.8",
