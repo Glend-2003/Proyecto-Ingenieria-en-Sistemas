@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "../styles.min.css";
 import { Offcanvas } from "react-bootstrap";
 import ListaProductosApp from "../Catalogo/ListaProductosApp.js";
 import PedidoCrud from "../Pedido/PedidoCrud.js";

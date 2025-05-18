@@ -21,7 +21,6 @@ const GestionarUsuario = () => {
   const [showModal, setShowModal] = useState(false);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [telefono, setTelefono] = useState("");
   const { usuario } = useAuth();
   const [roles, setRoles] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -113,7 +112,7 @@ const GestionarUsuario = () => {
     const allowedDomains = [
       "gmail.com", "yahoo.com", "icloud.com", "hotmail.com", "outlook.com",
       "live.com", "aol.com", "protonmail.com", "mail.com", "zoho.com",
-      "yandex.com", "msn.com", "me.com", "gmx.com" // icloud.com was duplicated, removed one
+      "yandex.com", "msn.com", "me.com", "gmx.com"
     ];
     const regex = /^[a-zA-Z0-9._-]+@([a-zA-Z0-9.-]+)\.([a-zA-Z]{2,})$/;
     if (!regex.test(email)) return false;
@@ -189,11 +188,6 @@ const GestionarUsuario = () => {
       toast.error(errors.segundoApellido);
       return false;
     }
-    if (telefono && !/^\d{8,15}$/.test(telefono)) {
-      errors.telefono = "El número de teléfono debe tener entre 8 y 15 dígitos";
-      toast.error(errors.telefono);
-      return false;
-    }
 
     if (!userEdit?.idUsuario) { // Only validate password for new users
       if (!password) {
@@ -252,7 +246,6 @@ const GestionarUsuario = () => {
       setNombreUsuario(user.nombreUsuario);
       setPrimerApellido(user.primerApellido);
       setSegundoApellido(user.segundoApellido);
-      setTelefono(user.telefonoUsuario || "");
       setIdRol(user.rol.idRol);
       setPassword("");
       setConfirmPassword("");
@@ -263,7 +256,6 @@ const GestionarUsuario = () => {
       setNombreUsuario("");
       setPrimerApellido("");
       setSegundoApellido("");
-      setTelefono("");
       setIdRol("");
       setPassword("");
       setConfirmPassword("");
@@ -279,7 +271,6 @@ const GestionarUsuario = () => {
     setNombreUsuario("");
     setPrimerApellido("");
     setSegundoApellido("");
-    setTelefono("");
     setIdRol("");
     setPassword("");
     setConfirmPassword("");
@@ -333,22 +324,6 @@ const GestionarUsuario = () => {
           setFormErrors(prev => {
             const newErrors = { ...prev };
             delete newErrors.segundoApellido;
-            return newErrors;
-          });
-        }
-        break;
-      case "telefono":
-        setTelefono(value);
-        if (value && !/^\d{0,15}$/.test(value)) {
-          setFormErrors(prev => ({ ...prev, telefono: "El teléfono solo debe contener números" }));
-        } else if (value && value.length > 0 && value.length < 8) { // check length only if not empty
-          setFormErrors(prev => ({ ...prev, telefono: "El teléfono debe tener al menos 8 dígitos" }));
-        } else if (value && value.length > 15) {
-          setFormErrors(prev => ({ ...prev, telefono: "El teléfono no debe exceder 15 dígitos" }));
-        } else {
-          setFormErrors(prev => {
-            const newErrors = { ...prev };
-            delete newErrors.telefono;
             return newErrors;
           });
         }
@@ -415,7 +390,6 @@ const GestionarUsuario = () => {
       nombreUsuario,
       primerApellido,
       segundoApellido,
-      telefonoUsuario: telefono || null,
       rol: {
         idRol: parseInt(idRol)
       }
@@ -428,10 +402,11 @@ const GestionarUsuario = () => {
     if (userEdit?.idUsuario) {
       userData.idUsuario = userEdit.idUsuario;
       userData.estadoUsuario = userEdit.estadoUsuario; // Make sure to include existing state if needed
+      userData.telefonoUsuario = userEdit.telefonoUsuario; // Mantener el teléfono existente
     }
 
     try {
-      if (userEdit.idUsuario) {
+      if (userEdit?.idUsuario) {
         await axios.put("http://localhost:8080/usuario/actualizar", userData);
         toast.success("Usuario actualizado con éxito");
       } else {
@@ -649,21 +624,6 @@ const GestionarUsuario = () => {
                   </div>
 
                   <div className="form-group mb-3">
-                    <label htmlFor="telefonoUsuario">Teléfono</label>
-                    <input
-                      id="telefonoUsuario"
-                      className={`form-control ${formErrors.telefono ? "is-invalid" : ""}`}
-                      type="tel"
-                      placeholder="Número de teléfono"
-                      value={telefono}
-                      onChange={(e) => handleInputChange("telefono", e.target.value)}
-                    />
-                    {formErrors.telefono && (
-                      <div className="invalid-feedback">{formErrors.telefono}</div>
-                    )}
-                  </div>
-
-                  <div className="form-group mb-3">
                     <label htmlFor="contraseniaUsuario">
                       {userEdit ? "Nueva Contraseña (Dejar en blanco para mantener la actual)" : "Contraseña"}
                       {!userEdit && <span className="text-danger">*</span>}
@@ -788,7 +748,7 @@ const GestionarUsuario = () => {
             <tbody>
               {currentUsers.length === 0 ? (
                 <tr className="usuario-no-results">
-                  <td colSpan="7">
+                  <td colSpan="6">
                     <FontAwesomeIcon icon={faExclamationTriangle} className="usuario-warning-icon" size="lg" />
                     <span>No hay usuarios disponibles</span>
                   </td>

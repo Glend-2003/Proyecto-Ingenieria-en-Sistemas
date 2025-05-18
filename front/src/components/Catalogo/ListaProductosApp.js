@@ -248,6 +248,7 @@ function ListaProductosApp({ categoria }) {
     <h1
       className="display-5 fw-bold mb-3"
       style={{
+        color: 'white',
         fontSize: '2.5rem',
         textAlign: 'center',
         textShadow: '1px 1px 3px rgb(249, 243, 243)',
