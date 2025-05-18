@@ -291,6 +291,7 @@ h1 {
 /* Modal */
 .modal .categoria-modal {
   width: 100%;
+  
 }
 
 .modal .modal-header {
@@ -350,3 +351,4 @@ h1 {
   background-color: #6c757d !important;
   border-color: #6c757d !important;
 }
+

@@ -58,9 +58,6 @@ const DropDown = ({ icon, idUsuario, onLogout }) => {
                 <DropdownItem onClick={() => handleNavigation('/')} className="dropdown-item-custom">
                     Pedidos
                 </DropdownItem>
-                <DropdownItem onClick={() => handleNavigation('/')} className="dropdown-item-custom">
-                    Comprobantes
-                </DropdownItem>
                 <DropdownItem onClick={() => handleNavigation('/DireccionUsuario')} className="dropdown-item-custom">
                     Dirección
                 </DropdownItem>

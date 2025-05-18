@@ -32,10 +32,6 @@ const Dashboard = () => {
                                 <FaFileAlt className="icon" />
                                 <span>Pedidos</span>
                             </NavLink>
-                            <NavLink to="/downloads" className="card">
-                                <FaDownload className="icon" />
-                                <span>Comprobantes</span>
-                            </NavLink>
                             <NavLink to="/DireccionUsuario" className="card">
                                 <FaMapMarkerAlt className="icon" />
                                 <span>Dirección</span>

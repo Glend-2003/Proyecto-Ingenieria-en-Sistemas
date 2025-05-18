@@ -16,9 +16,6 @@ const SideBarUsuario = ({ usuario, handleLogout }) => {
                 <NavLink to="/orders" className="sidebar-link">
                     <FaFileAlt className="icon" /> Pedidos
                 </NavLink>
-                <NavLink to="/downloads" className="sidebar-link">
-                    <FaDownload className="icon" /> Comprobantes
-                </NavLink>
                 <NavLink to="/DireccionUsuario" className="sidebar-link">
                     <FaMapMarkerAlt className="icon" /> Dirección
                 </NavLink>
