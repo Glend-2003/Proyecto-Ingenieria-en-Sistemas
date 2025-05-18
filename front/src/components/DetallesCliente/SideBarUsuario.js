@@ -1,35 +1,110 @@
-import React from 'react';
+// SideBarUsuario.js
+import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { FaHome, FaFileAlt, FaDownload, FaMapMarkerAlt, FaUser, FaSignOutAlt } from 'react-icons/fa';
-import NavbarApp from '../Navbar/NavbarApp';
-import FooterApp from '../Footer/FooterApp';
-import './SideBarUsuario.css'; // Agregaremos estilos aquí
+import { 
+  FaHome, 
+  FaFileAlt, 
+  FaMapMarkerAlt, 
+  FaUser, 
+  FaSignOutAlt,
+  FaAngleRight
+} from 'react-icons/fa';
+import './SideBarUsuario.css';
 
 const SideBarUsuario = ({ usuario, handleLogout }) => {
+    const [datosUsuario, setDatosUsuario] = useState({
+        nombreUsuario: usuario?.nombreUsuario || "Usuario",
+        correoUsuario: usuario?.correoUsuario || "",
+        nombreRol: usuario?.nombreRol || ""
+    });
+    
+    const [menuColapsado, setMenuColapsado] = useState(false);
+    
+    // Actualizar datos si cambian las props
+    useEffect(() => {
+        if (usuario) {
+            setDatosUsuario({
+                nombreUsuario: usuario.nombreUsuario || localStorage.getItem('nombreUsuario') || "Usuario",
+                correoUsuario: usuario.correoUsuario || localStorage.getItem('correoUsuario') || "",
+                nombreRol: usuario.nombreRol || localStorage.getItem('nombreRol') || ""
+            });
+        }
+    }, [usuario]);
+    
+    // Alternar el estado del menú en pantallas pequeñas
+    const toggleMenu = () => {
+        setMenuColapsado(!menuColapsado);
+    };
+
     return (
-        <div className="sidebar-container">
-            <h3 className="sidebar-title">Bienvenido {usuario?.nombreUsuario || "Usuario"}</h3>
-            <nav className="sidebar-nav">
-                <NavLink to="/dashboard" className="sidebar-link">
-                    <FaHome className="icon" /> Inicio
+        <>
+            {/* Botón para alternar la visibilidad del menú en dispositivos móviles */}
+            <button className="sidebar-toggle" onClick={toggleMenu}>
+                <FaAngleRight className={`toggle-icon ${menuColapsado ? 'rotated' : ''}`} />
+            </button>
+            
+            <div className={`sidebar-container ${menuColapsado ? 'collapsed' : ''}`}>
+                <div className="user-profile">
+                    <div className="avatar-circle">
+                        {datosUsuario.nombreUsuario.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="user-info">
+                        <h3 className="user-name">{datosUsuario.nombreUsuario}</h3>
+                        <p className="user-email">{datosUsuario.correoUsuario}</p>
+                        {datosUsuario.nombreRol && (
+                            <span className="user-role">{datosUsuario.nombreRol}</span>
+                        )}
+                    </div>
+                </div>
+                
+                <div className="sidebar-divider"></div>
+                
+                <nav className="sidebar-nav">
+                    <NavLink 
+                        to="/dashboard" 
+                        className={({isActive}) => isActive ? "sidebar-link active" : "sidebar-link"}
+                    >
+                        <FaHome className="sidebar-icon" /> 
+                        <span className="sidebar-text">Inicio</span>
+                    </NavLink>
+                    
+                    <NavLink 
+                        to="/orders" 
+                        className={({isActive}) => isActive ? "sidebar-link active" : "sidebar-link"}
+                    >
+                        <FaFileAlt className="sidebar-icon" /> 
+                        <span className="sidebar-text">Pedidos</span>
+                    </NavLink>
+                    
+                    <NavLink 
+                        to="/DireccionUsuario" 
+                        className={({isActive}) => isActive ? "sidebar-link active" : "sidebar-link"}
+                    >
+                        <FaMapMarkerAlt className="sidebar-icon" /> 
+                        <span className="sidebar-text">Dirección</span>
+                    </NavLink>
+                    
+                    <NavLink 
+                        to="/PerfilUsuario" 
+                        className={({isActive}) => isActive ? "sidebar-link active" : "sidebar-link"}
+                    >
+                        <FaUser className="sidebar-icon" /> 
+                        <span className="sidebar-text">Mi Perfil</span>
+                    </NavLink>
+                </nav>
+                
+                <div className="sidebar-divider"></div>
+                
+                <NavLink 
+                    to="/" 
+                    className="sidebar-link logout"
+                    onClick={handleLogout}
+                >
+                    <FaSignOutAlt className="sidebar-icon" /> 
+                    <span className="sidebar-text">Cerrar sesión</span>
                 </NavLink>
-                <NavLink to="/orders" className="sidebar-link">
-                    <FaFileAlt className="icon" /> Pedidos
-                </NavLink>
-                <NavLink to="/downloads" className="sidebar-link">
-                    <FaDownload className="icon" /> Comprobantes
-                </NavLink>
-                <NavLink to="/DireccionUsuario" className="sidebar-link">
-                    <FaMapMarkerAlt className="icon" /> Dirección
-                </NavLink>
-                <NavLink to="/PerfilUsuario" className="sidebar-link">
-                    <FaUser className="icon" /> Detalles de la cuenta
-                </NavLink>
-                <NavLink to="/" className="sidebar-link logout" onClick={handleLogout}>
-                    <FaSignOutAlt className="icon" /> Cerrar sesión
-                </NavLink>
-            </nav>
-        </div>
+            </div>
+        </>
     );
 };
 
