@@ -1,15 +1,12 @@
-// src/components/Auth/AuthOffcanvas.js
 import React, { useState, useEffect } from 'react';
 import { Offcanvas } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useAppContext } from "../Navbar/AppContext"; // Asegúrate que la ruta sea correcta
+import { useAppContext } from "../Navbar/AppContext"; 
 import { FaEye, FaEyeSlash, FaSpinner, FaArrowLeft } from 'react-icons/fa';
-import { toast } from 'react-toastify'; // Si usas react-toastify para notificaciones
-// Importa tus estilos si son específicos para este Offcanvas, por ejemplo:
-// import './AuthOffcanvas.css'; // O usa los de Login.css si aplican
-// Importa también los estilos de Login.css si los necesitas aquí
-import '../Login/Login.css'; // Ajusta la ruta si es necesario
+import '../Login/Login.css'; 
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 
 const AuthOffcanvas = () => {
   const { showSidebar, handleShowSidebar, updateUserStatus } = useAppContext();
@@ -25,16 +22,41 @@ const AuthOffcanvas = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [emailValidationTimer, setEmailValidationTimer] = useState(null);
 
+  const Alert = React.forwardRef(function Alert(props, ref) {
+    return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+  });
+
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success", 
+  });
+
+  const showSnackbar = (message, severity = "success") => {
+    setSnackbar({
+      open: true,
+      message,
+      severity,
+    });
+  };
+
+  const closeSnackbar = () => {
+    setSnackbar(prev => ({
+      ...prev,
+      open: false,
+    }));
+  };
+
   useEffect(() => {
     const rememberedEmail = localStorage.getItem("rememberedEmail");
-    if (rememberedEmail && showSidebar) { // Solo carga si el sidebar se va a mostrar
+    if (rememberedEmail && showSidebar) { 
       setLoginData(prev => ({ ...prev, correoUsuario: rememberedEmail }));
       setRememberMe(true);
     }
     return () => {
       if (emailValidationTimer) clearTimeout(emailValidationTimer);
     };
-  }, [showSidebar]); // Depende de showSidebar para actuar solo cuando se abre
+  }, [showSidebar]);
 
   const validateEmail = (email) => email && email.includes("@");
 
@@ -49,7 +71,7 @@ const AuthOffcanvas = () => {
       if (value.length > 3) {
         clearTimeout(emailValidationTimer);
         const timer = setTimeout(() => {
-          toast.warn(`Incluye un signo '@' en la dirección de correo electrónico. La dirección "${value}" no incluye el signo '@'.`);
+          showSnackbar("Debe incluir un signo '@' en la dirección de correo electrónico.", "info");
         }, 1000);
         setEmailValidationTimer(timer);
       }
@@ -57,13 +79,13 @@ const AuthOffcanvas = () => {
   };
 
   const login = async (e) => {
-    e.preventDefault(); // Prevenir el envío del formulario si se llama desde el evento onSubmit
+    e.preventDefault();
     if (!loginData.correoUsuario || !loginData.contraseniaUsuario) {
-      toast.warn("Por favor completa todos los campos requeridos");
+      showSnackbar("Por favor completa todos los campos requeridos.", "info");
       return;
     }
     if (!validateEmail(loginData.correoUsuario)) {
-        toast.warn(`Incluye un signo '@' en la dirección de correo electrónico. La dirección "${loginData.correoUsuario}" no incluye el signo '@'.`);
+        showSnackbar("Debe incluir un signo '@' en la dirección de correo electrónico.", "info");
         return;
     }
 
@@ -81,38 +103,36 @@ const AuthOffcanvas = () => {
 
         if (rememberMe) {
           localStorage.setItem("rememberedEmail", loginData.correoUsuario);
-          // Considera no guardar la contraseña o hacerlo de forma más segura si es estrictamente necesario
         } else {
           localStorage.removeItem("rememberedEmail");
         }
-        updateUserStatus(); // Actualiza el estado global del usuario
-        //toast.success(`Bienvenido ${response.data.nombreUsuario}`);
-        handleShowSidebar(); // Cierra el sidebar al iniciar sesión
+        updateUserStatus();
+        handleShowSidebar(); 
 
-        // Redirección basada en rol
         if (response.data.rol.nombreRol === "Administrador" || response.data.rol.nombreRol === "Gerente") {
           navigate("/principal");
-        } else { // Usuario u otros roles
-          navigate("/"); // O a /Dashboard si es para clientes
+        } else { 
+          navigate("/"); 
+          
         }
       } else {
-        toast.error("Credenciales no válidas.");
+        showSnackbar("Credenciales no válidas", "info");
       }
     } catch (error) {
       setIsLoading(false);
       const errorMsg = error.response?.data?.message || error.response?.data || "Error en el ingreso";
-      toast.error(errorMsg);
+      showSnackbar(errorMsg, "info");
     }
   };
 
   const handleForgotPassword = async (e) => {
     e.preventDefault();
     if (!loginData.correoUsuario) {
-      toast.warn("Por favor, ingresa tu correo electrónico");
+      showSnackbar("Ingresa tu correo electrónico.", "info");
       return;
     }
     if (!validateEmail(loginData.correoUsuario)) {
-      toast.warn(`Formato de correo inválido: "${loginData.correoUsuario}".`);
+      showSnackbar("Formato de correo inválido.", "info");
       return;
     }
 
@@ -122,26 +142,25 @@ const AuthOffcanvas = () => {
         correoUsuario: loginData.correoUsuario,
       });
       if (response.status === 200) {
-        toast.success("Código enviado con éxito a tu correo.");
+        showSnackbar("Código enviado con éxito.", "succes");
         navigate("/ResetPassword", { state: { correoUsuario: loginData.correoUsuario } });
-        handleShowSidebar(); // Cierra el sidebar
+        handleShowSidebar();
       }
     } catch (error) {
       const errorMsg = error.response?.data || "Error al enviar el código.";
-      toast.error(errorMsg);
+      showSnackbar(errorMsg, "info");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Limpiar formulario cuando el sidebar se cierra o cambia el modo
   useEffect(() => {
     if (!showSidebar) {
       setLoginData({ correoUsuario: localStorage.getItem("rememberedEmail") || "", contraseniaUsuario: "" });
       setShowForgotPassword(false);
       setIsLoading(false);
     } else if (showForgotPassword){
-       setLoginData(prev => ({ ...prev, contraseniaUsuario: "" })); // Limpiar contraseña al cambiar a forgot password
+       setLoginData(prev => ({ ...prev, contraseniaUsuario: "" }));
     }
   }, [showSidebar, showForgotPassword]);
 
@@ -167,7 +186,6 @@ const AuthOffcanvas = () => {
                   onChange={handleInputChange}
                   placeholder="ejemplo@correo.com"
                   className="form-control"
-                  required
                 />
               </div>
               <div className="form-group">
@@ -181,7 +199,6 @@ const AuthOffcanvas = () => {
                     onChange={handleInputChange}
                     placeholder="Ingresa tu contraseña"
                     className="form-control"
-                    required
                   />
                   <span
                     className="password-toggle-icon"
@@ -229,12 +246,11 @@ const AuthOffcanvas = () => {
                 <input
                   id="authOffcanvasForgotCorreo"
                   type="email"
-                  name="correoUsuario" // Asegúrate que el nombre coincida para que handleInputChange funcione
+                  name="correoUsuario"
                   value={loginData.correoUsuario}
                   onChange={handleInputChange}
                   placeholder="correo@ejemplo.com"
                   className="form-control"
-                  required
                 />
               </div>
               <button type="submit" className="btn-acceso" disabled={isLoading}>
@@ -246,6 +262,18 @@ const AuthOffcanvas = () => {
             </button>
           </div>
         )}
+
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={5000}
+          onClose={closeSnackbar}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        >
+          <Alert onClose={closeSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
+
       </Offcanvas.Body>
     </Offcanvas>
   );
