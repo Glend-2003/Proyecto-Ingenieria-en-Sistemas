@@ -1,23 +1,21 @@
 package com.bendicion.la.carniceria.carniceria.service;
-import com.bendicion.la.carniceria.carniceria.domain.Rol;
-import com.bendicion.la.carniceria.carniceria.jpa.RolRepository;
+
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
-/**
- *
- * @author Jamel Sandí
- */
+import com.bendicion.la.carniceria.carniceria.domain.Rol;
+import com.bendicion.la.carniceria.carniceria.jpa.RolRepository;
 
 @Service
 @Primary
-public class RolService implements IRolService{
-    
+public class RolService implements IRolService {
+
     @Autowired
     private RolRepository rolRepo;
-    
+
     @Override
     public Rol addRol(Rol rol) {
         System.out.println("Agregando rol con nombre: " + rol.getNombreRol());

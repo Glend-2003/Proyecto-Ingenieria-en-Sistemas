@@ -1,17 +1,10 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.bendicion.la.carniceria.carniceria.controller;
 
-import com.bendicion.la.carniceria.carniceria.domain.Categoria;
-import com.bendicion.la.carniceria.carniceria.domain.Notificacion;
-import com.bendicion.la.carniceria.carniceria.service.INotificacionService;
-import com.bendicion.la.carniceria.carniceria.service.NotificacionService;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,26 +18,24 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- *
- * @author Dilan Gutierrez
- */
+import com.bendicion.la.carniceria.carniceria.domain.Notificacion;
+import com.bendicion.la.carniceria.carniceria.service.INotificacionService;
 
 @RestController
 @CrossOrigin(origins = "*")
 @RequestMapping("/notificacion")
 public class NotificacionController {
-    
+
     @Autowired
     INotificacionService notificacionService;
-    
-     @GetMapping("/")
+
+    @GetMapping("/")
     public ResponseEntity<List<Notificacion>> listNotificacion(Boolean leidos) {
         List<Notificacion> notificacion = notificacionService.getNotificacion(leidos);
         System.out.println("Listando todas las notificaciones: " + notificacion.size() + " categorias encontradas.");
         return ResponseEntity.ok(notificacionService.getNotificacion(leidos));
     }
-    
+
     @PutMapping("/leer/{id}")
     public ResponseEntity<Boolean> leerNotificacion(@PathVariable int id) {
         boolean estado = notificacionService.leerNotificacion(id);
@@ -57,11 +48,11 @@ public class NotificacionController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
         }
     }
-    
-     @DeleteMapping("/eliminar/{id}")
+
+    @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<Boolean> deleteCNotificacion(@PathVariable int id) {
         boolean eliminado = notificacionService.deleteNotificacion(id);
-        
+
         if (eliminado) {
             System.out.println("Notificacion eliminada: ID -->" + id);
             return ResponseEntity.ok(true);
@@ -70,22 +61,22 @@ public class NotificacionController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
         }
     }
-    
+
     @PostMapping("/agregar")
-public ResponseEntity<?> addNotificacion(@RequestBody Notificacion notificacion) {
-    try {
-        Notificacion nuevaNotificacion = notificacionService.addNotificacion(notificacion);
+    public ResponseEntity<?> addNotificacion(@RequestBody Notificacion notificacion) {
+        try {
+            Notificacion nuevaNotificacion = notificacionService.addNotificacion(notificacion);
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("id", nuevaNotificacion.getIdNotificacion());
-        response.put("mensaje", "Notificación creada correctamente.");
+            Map<String, Object> response = new HashMap<>();
+            response.put("id", nuevaNotificacion.getIdNotificacion());
+            response.put("mensaje", "Notificación creada correctamente.");
 
-        return ResponseEntity.ok(response);
+            return ResponseEntity.ok(response);
 
-    } catch (Exception e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Collections.singletonMap("error", "Error al agregar la notificación: " + e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("error", "Error al agregar la notificación: " + e.getMessage()));
+        }
     }
-}
 
 }

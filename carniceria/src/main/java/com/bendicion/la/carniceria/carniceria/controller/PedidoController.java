@@ -1,4 +1,5 @@
 package com.bendicion.la.carniceria.carniceria.controller;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,10 +36,10 @@ import com.bendicion.la.carniceria.carniceria.service.NotificacionService;
 public class PedidoController {
 
     private static final String IMAGE_DIRECTORY = "src/main/resources/static/images";
-    
+
     @Autowired
     private IPedidoService pedidoService;
-    
+
     @Autowired
     private NotificacionService notificacionService;
 
@@ -46,29 +47,29 @@ public class PedidoController {
     public List<Map<String, Object>> getAllPedidos() {
         List<Map<String, Object>> pedidosPlanos = pedidoService.getPedido();
         Map<Integer, Map<String, Object>> pedidosPorId = new HashMap<>();
-        
+
         for (Map<String, Object> fila : pedidosPlanos) {
             Integer idPedido = ((Number) fila.get("idPedido")).intValue();
-            
+
             if (!pedidosPorId.containsKey(idPedido)) {
                 Map<String, Object> pedido = new HashMap<>();
                 Map<String, Object> carrito = new HashMap<>();
                 Map<String, Object> usuario = new HashMap<>();
                 Map<String, Object> tipoPago = new HashMap<>();
                 List<Map<String, Object>> productos = new ArrayList<>();
-                
+
                 pedido.put("idPedido", idPedido);
                 pedido.put("montoTotalPedido", fila.get("montoTotalPedido"));
                 pedido.put("fechaPedido", fila.get("fechaPedido"));
                 pedido.put("estadoPedido", fila.get("estadoPedido"));
                 pedido.put("estadoPedidoTexto", fila.get("estadoPedidoTexto"));
                 pedido.put("estadoEntregaPedido", fila.get("estadoEntregaPedido"));
-                
+
                 tipoPago.put("idTipoPago", fila.get("idTipoPago"));
                 tipoPago.put("descripcionTipoPago", fila.get("descripcionTipoPago"));
                 tipoPago.put("estadoTipoPago", fila.get("estadoTipoPago"));
                 pedido.put("tipoPago", tipoPago);
-                
+
                 usuario.put("idUsuario", fila.get("idUsuario"));
                 usuario.put("nombreUsuario", fila.get("nombreUsuario"));
                 usuario.put("primerApellido", fila.get("primerApellido"));
@@ -78,7 +79,7 @@ public class PedidoController {
                 usuario.put("correoUsuario", fila.get("correoUsuario"));
                 usuario.put("telefonoUsuario", fila.get("telefonoUsuario"));
                 usuario.put("fechaNacimiento", fila.get("fechaNacimiento"));
-                
+
                 carrito.put("idCarrito", fila.get("idCarrito"));
                 carrito.put("cantidadCarrito", fila.get("cantidadCarrito"));
                 carrito.put("montoTotalCarrito", fila.get("montoTotalCarrito"));
@@ -87,21 +88,20 @@ public class PedidoController {
                 carrito.put("cantidadTotalItems", fila.get("cantidadTotalItems"));
                 carrito.put("usuario", usuario);
                 carrito.put("productos", productos);
-                
+
                 pedido.put("carrito", carrito);
                 pedidosPorId.put(idPedido, pedido);
             }
-            
+
             if (fila.get("idProducto") != null) {
                 Map<String, Object> producto = new HashMap<>();
                 producto.put("idCarritoProducto", fila.get("idCarritoProducto"));
                 producto.put("idProducto", fila.get("idProducto"));
                 producto.put("nombreProducto", fila.get("nombreProducto"));
-                
-                // Procesar la ruta de la imagen para que sea accesible desde la URL
+
                 String imgProducto = (String) fila.get("imgProducto");
                 if (imgProducto != null && !imgProducto.isEmpty()) {
-                    // Verifica si la ruta ya es una URL completa o si necesita ser construida
+
                     if (!imgProducto.startsWith("http")) {
                         producto.put("imgProducto", "http://localhost:8080/producto/images/" + imgProducto);
                     } else {
@@ -110,7 +110,7 @@ public class PedidoController {
                 } else {
                     producto.put("imgProducto", null);
                 }
-                
+
                 producto.put("montoPrecioProducto", fila.get("montoPrecioProducto"));
                 producto.put("descripcionProducto", fila.get("descripcionProducto"));
                 producto.put("cantidadProducto", fila.get("cantidadProducto"));
@@ -119,103 +119,98 @@ public class PedidoController {
                 producto.put("codigoProducto", fila.get("codigoProducto"));
                 producto.put("idCategoria", fila.get("idCategoria"));
                 producto.put("estadoProducto", fila.get("estadoProducto"));
-                
-                List<Map<String, Object>> productos = (List<Map<String, Object>>) 
-                        ((Map<String, Object>) pedidosPorId.get(idPedido).get("carrito")).get("productos");
-                productos.add(producto);
-            }
-        }
-        return new ArrayList<>(pedidosPorId.values());
-    }
-    
-    // Para obtener todos los pedidos entregados
-    @GetMapping("/Entregado")
-    public List<Map<String, Object>> getAllPedidosEntregados() {
-        List<Map<String, Object>> pedidosPlanos = pedidoService.getPedidoEntregado();
-        Map<Integer, Map<String, Object>> pedidosPorId = new HashMap<>();
-        
-        for (Map<String, Object> fila : pedidosPlanos) {
-            Integer idPedido = ((Number) fila.get("idPedido")).intValue();
-            
-            if (!pedidosPorId.containsKey(idPedido)) {
-                Map<String, Object> pedido = new HashMap<>();
-                Map<String, Object> carrito = new HashMap<>();
-                Map<String, Object> usuario = new HashMap<>();
-                Map<String, Object> tipoPago = new HashMap<>();
-                List<Map<String, Object>> productos = new ArrayList<>();
-                
-                pedido.put("idPedido", idPedido);
-                pedido.put("montoTotalPedido", fila.get("montoTotalPedido"));
-                pedido.put("fechaPedido", fila.get("fechaPedido"));
-                pedido.put("estadoPedido", fila.get("estadoPedido"));
-                pedido.put("estadoPedidoTexto", fila.get("estadoPedidoTexto"));
-                pedido.put("estadoEntregaPedido", fila.get("estadoEntregaPedido"));
-                
-                tipoPago.put("idTipoPago", fila.get("idTipoPago"));
-                tipoPago.put("descripcionTipoPago", fila.get("descripcionTipoPago"));
-                tipoPago.put("estadoTipoPago", fila.get("estadoTipoPago"));
-                pedido.put("tipoPago", tipoPago);
-                
-                usuario.put("idUsuario", fila.get("idUsuario"));
-                usuario.put("nombreUsuario", fila.get("nombreUsuario"));
-                usuario.put("primerApellido", fila.get("primerApellido"));
-                usuario.put("segundoApellido", fila.get("segundoApellido"));
-                usuario.put("nombreCompletoUsuario", fila.get("nombreCompletoUsuario"));
-                usuario.put("cedulaUsuario", fila.get("cedulaUsuario"));
-                usuario.put("correoUsuario", fila.get("correoUsuario"));
-                usuario.put("telefonoUsuario", fila.get("telefonoUsuario"));
-                usuario.put("fechaNacimiento", fila.get("fechaNacimiento"));
-                
-                carrito.put("idCarrito", fila.get("idCarrito"));
-                carrito.put("cantidadCarrito", fila.get("cantidadCarrito"));
-                carrito.put("montoTotalCarrito", fila.get("montoTotalCarrito"));
-                carrito.put("estadoCarrito", fila.get("estadoCarrito"));
-                carrito.put("cantidadProductosDistintos", fila.get("cantidadProductosDistintos"));
-                carrito.put("cantidadTotalItems", fila.get("cantidadTotalItems"));
-                carrito.put("usuario", usuario);
-                carrito.put("productos", productos);
-                
-                pedido.put("carrito", carrito);
-                pedidosPorId.put(idPedido, pedido);
-            }
-            
-            if (fila.get("idProducto") != null) {
-                Map<String, Object> producto = new HashMap<>();
-                producto.put("idCarritoProducto", fila.get("idCarritoProducto"));
-                producto.put("idProducto", fila.get("idProducto"));
-                producto.put("nombreProducto", fila.get("nombreProducto"));
-                
-                // Procesar la ruta de la imagen para que sea accesible desde la URL
-                String imgProducto = (String) fila.get("imgProducto");
-                if (imgProducto != null && !imgProducto.isEmpty()) {
-                    // Verifica si la ruta ya es una URL completa o si necesita ser construida
-                    if (!imgProducto.startsWith("http")) {
-                        producto.put("imgProducto", "http://localhost:8080/producto/images/" + imgProducto);
-                    } else {
-                        producto.put("imgProducto", imgProducto);
-                    }
-                } else {
-                    producto.put("imgProducto", null);
-                }
-                
-                producto.put("montoPrecioProducto", fila.get("montoPrecioProducto"));
-                producto.put("descripcionProducto", fila.get("descripcionProducto"));
-                producto.put("cantidadProducto", fila.get("cantidadProducto"));
-                producto.put("stockProducto", fila.get("stockProducto"));
-                producto.put("tipoPesoProducto", fila.get("tipoPesoProducto"));
-                producto.put("codigoProducto", fila.get("codigoProducto"));
-                producto.put("idCategoria", fila.get("idCategoria"));
-                producto.put("estadoProducto", fila.get("estadoProducto"));
-                
-                List<Map<String, Object>> productos = (List<Map<String, Object>>) 
-                        ((Map<String, Object>) pedidosPorId.get(idPedido).get("carrito")).get("productos");
+
+                List<Map<String, Object>> productos = (List<Map<String, Object>>) ((Map<String, Object>) pedidosPorId.get(idPedido).get("carrito")).get("productos");
                 productos.add(producto);
             }
         }
         return new ArrayList<>(pedidosPorId.values());
     }
 
-    // Obtener pedidos por usuario con imagen de producto
+    @GetMapping("/Entregado")
+    public List<Map<String, Object>> getAllPedidosEntregados() {
+        List<Map<String, Object>> pedidosPlanos = pedidoService.getPedidoEntregado();
+        Map<Integer, Map<String, Object>> pedidosPorId = new HashMap<>();
+
+        for (Map<String, Object> fila : pedidosPlanos) {
+            Integer idPedido = ((Number) fila.get("idPedido")).intValue();
+
+            if (!pedidosPorId.containsKey(idPedido)) {
+                Map<String, Object> pedido = new HashMap<>();
+                Map<String, Object> carrito = new HashMap<>();
+                Map<String, Object> usuario = new HashMap<>();
+                Map<String, Object> tipoPago = new HashMap<>();
+                List<Map<String, Object>> productos = new ArrayList<>();
+
+                pedido.put("idPedido", idPedido);
+                pedido.put("montoTotalPedido", fila.get("montoTotalPedido"));
+                pedido.put("fechaPedido", fila.get("fechaPedido"));
+                pedido.put("estadoPedido", fila.get("estadoPedido"));
+                pedido.put("estadoPedidoTexto", fila.get("estadoPedidoTexto"));
+                pedido.put("estadoEntregaPedido", fila.get("estadoEntregaPedido"));
+
+                tipoPago.put("idTipoPago", fila.get("idTipoPago"));
+                tipoPago.put("descripcionTipoPago", fila.get("descripcionTipoPago"));
+                tipoPago.put("estadoTipoPago", fila.get("estadoTipoPago"));
+                pedido.put("tipoPago", tipoPago);
+
+                usuario.put("idUsuario", fila.get("idUsuario"));
+                usuario.put("nombreUsuario", fila.get("nombreUsuario"));
+                usuario.put("primerApellido", fila.get("primerApellido"));
+                usuario.put("segundoApellido", fila.get("segundoApellido"));
+                usuario.put("nombreCompletoUsuario", fila.get("nombreCompletoUsuario"));
+                usuario.put("cedulaUsuario", fila.get("cedulaUsuario"));
+                usuario.put("correoUsuario", fila.get("correoUsuario"));
+                usuario.put("telefonoUsuario", fila.get("telefonoUsuario"));
+                usuario.put("fechaNacimiento", fila.get("fechaNacimiento"));
+
+                carrito.put("idCarrito", fila.get("idCarrito"));
+                carrito.put("cantidadCarrito", fila.get("cantidadCarrito"));
+                carrito.put("montoTotalCarrito", fila.get("montoTotalCarrito"));
+                carrito.put("estadoCarrito", fila.get("estadoCarrito"));
+                carrito.put("cantidadProductosDistintos", fila.get("cantidadProductosDistintos"));
+                carrito.put("cantidadTotalItems", fila.get("cantidadTotalItems"));
+                carrito.put("usuario", usuario);
+                carrito.put("productos", productos);
+
+                pedido.put("carrito", carrito);
+                pedidosPorId.put(idPedido, pedido);
+            }
+
+            if (fila.get("idProducto") != null) {
+                Map<String, Object> producto = new HashMap<>();
+                producto.put("idCarritoProducto", fila.get("idCarritoProducto"));
+                producto.put("idProducto", fila.get("idProducto"));
+                producto.put("nombreProducto", fila.get("nombreProducto"));
+
+                String imgProducto = (String) fila.get("imgProducto");
+                if (imgProducto != null && !imgProducto.isEmpty()) {
+
+                    if (!imgProducto.startsWith("http")) {
+                        producto.put("imgProducto", "http://localhost:8080/producto/images/" + imgProducto);
+                    } else {
+                        producto.put("imgProducto", imgProducto);
+                    }
+                } else {
+                    producto.put("imgProducto", null);
+                }
+
+                producto.put("montoPrecioProducto", fila.get("montoPrecioProducto"));
+                producto.put("descripcionProducto", fila.get("descripcionProducto"));
+                producto.put("cantidadProducto", fila.get("cantidadProducto"));
+                producto.put("stockProducto", fila.get("stockProducto"));
+                producto.put("tipoPesoProducto", fila.get("tipoPesoProducto"));
+                producto.put("codigoProducto", fila.get("codigoProducto"));
+                producto.put("idCategoria", fila.get("idCategoria"));
+                producto.put("estadoProducto", fila.get("estadoProducto"));
+
+                List<Map<String, Object>> productos = (List<Map<String, Object>>) ((Map<String, Object>) pedidosPorId.get(idPedido).get("carrito")).get("productos");
+                productos.add(producto);
+            }
+        }
+        return new ArrayList<>(pedidosPorId.values());
+    }
+
     @GetMapping("/usuario/{id}")
     public ResponseEntity<List<Map<String, Object>>> getPedidosByUsuario(@PathVariable int id) {
         List<Map<String, Object>> pedidosPlanos = pedidoService.getPedidoByUsuario(id);
@@ -223,30 +218,29 @@ public class PedidoController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
         } else {
             Map<Integer, Map<String, Object>> pedidosPorId = new HashMap<>();
-            
+
             for (Map<String, Object> fila : pedidosPlanos) {
                 Integer idPedido = ((Number) fila.get("idPedido")).intValue();
-                
+
                 if (!pedidosPorId.containsKey(idPedido)) {
                     Map<String, Object> pedido = new HashMap<>();
                     Map<String, Object> carrito = new HashMap<>();
                     Map<String, Object> usuario = new HashMap<>();
                     Map<String, Object> tipoPago = new HashMap<>();
                     List<Map<String, Object>> productos = new ArrayList<>();
-                    
-                    // Aquí se configura el pedido como en los otros métodos
+
                     pedido.put("idPedido", idPedido);
                     pedido.put("montoTotalPedido", fila.get("montoTotalPedido"));
                     pedido.put("fechaPedido", fila.get("fechaPedido"));
                     pedido.put("estadoPedido", fila.get("estadoPedido"));
                     pedido.put("estadoPedidoTexto", fila.get("estadoPedidoTexto"));
                     pedido.put("estadoEntregaPedido", fila.get("estadoEntregaPedido"));
-                    
+
                     tipoPago.put("idTipoPago", fila.get("idTipoPago"));
                     tipoPago.put("descripcionTipoPago", fila.get("descripcionTipoPago"));
                     tipoPago.put("estadoTipoPago", fila.get("estadoTipoPago"));
                     pedido.put("tipoPago", tipoPago);
-                    
+
                     usuario.put("idUsuario", fila.get("idUsuario"));
                     usuario.put("nombreUsuario", fila.get("nombreUsuario"));
                     usuario.put("primerApellido", fila.get("primerApellido"));
@@ -256,7 +250,7 @@ public class PedidoController {
                     usuario.put("correoUsuario", fila.get("correoUsuario"));
                     usuario.put("telefonoUsuario", fila.get("telefonoUsuario"));
                     usuario.put("fechaNacimiento", fila.get("fechaNacimiento"));
-                    
+
                     carrito.put("idCarrito", fila.get("idCarrito"));
                     carrito.put("cantidadCarrito", fila.get("cantidadCarrito"));
                     carrito.put("montoTotalCarrito", fila.get("montoTotalCarrito"));
@@ -265,21 +259,20 @@ public class PedidoController {
                     carrito.put("cantidadTotalItems", fila.get("cantidadTotalItems"));
                     carrito.put("usuario", usuario);
                     carrito.put("productos", productos);
-                    
+
                     pedido.put("carrito", carrito);
                     pedidosPorId.put(idPedido, pedido);
                 }
-                
+
                 if (fila.get("idProducto") != null) {
                     Map<String, Object> producto = new HashMap<>();
                     producto.put("idCarritoProducto", fila.get("idCarritoProducto"));
                     producto.put("idProducto", fila.get("idProducto"));
                     producto.put("nombreProducto", fila.get("nombreProducto"));
-                    
-                    // Procesar la ruta de la imagen para que sea accesible desde la URL
+
                     String imgProducto = (String) fila.get("imgProducto");
                     if (imgProducto != null && !imgProducto.isEmpty()) {
-                        // Verifica si la ruta ya es una URL completa o si necesita ser construida
+
                         if (!imgProducto.startsWith("http")) {
                             producto.put("imgProducto", "http://localhost:8080/producto/images/" + imgProducto);
                         } else {
@@ -288,7 +281,7 @@ public class PedidoController {
                     } else {
                         producto.put("imgProducto", null);
                     }
-                    
+
                     producto.put("montoPrecioProducto", fila.get("montoPrecioProducto"));
                     producto.put("descripcionProducto", fila.get("descripcionProducto"));
                     producto.put("cantidadProducto", fila.get("cantidadProducto"));
@@ -297,9 +290,8 @@ public class PedidoController {
                     producto.put("codigoProducto", fila.get("codigoProducto"));
                     producto.put("idCategoria", fila.get("idCategoria"));
                     producto.put("estadoProducto", fila.get("estadoProducto"));
-                    
-                    List<Map<String, Object>> productos = (List<Map<String, Object>>) 
-                            ((Map<String, Object>) pedidosPorId.get(idPedido).get("carrito")).get("productos");
+
+                    List<Map<String, Object>> productos = (List<Map<String, Object>>) ((Map<String, Object>) pedidosPorId.get(idPedido).get("carrito")).get("productos");
                     productos.add(producto);
                 }
             }
@@ -307,17 +299,15 @@ public class PedidoController {
         }
     }
 
-    // Método para obtener imagen del producto
     @GetMapping("/images/{imageName}")
     public ResponseEntity<byte[]> getImage(@PathVariable String imageName) {
         try {
             Path filePath = Paths.get(IMAGE_DIRECTORY, imageName);
             System.out.println("Buscando imagen en: " + filePath.toString());
             byte[] image = Files.readAllBytes(filePath);
-            
-            // Determinar el tipo MIME basado en la extensión del archivo
+
             String contentType = Files.probeContentType(filePath);
-    
+
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(contentType))
                     .body(image);
@@ -329,53 +319,51 @@ public class PedidoController {
 
     @GetMapping("/filtrar")
     public ResponseEntity<List<Map<String, Object>>> filtrarPedidos(
-        @RequestParam int idUsuario,
-        @RequestParam(required = false) String estadoEntrega,
-        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") java.util.Date fechaInicio,
-        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") java.util.Date fechaFin,
-        @RequestParam(required = false) Integer estadoPedido
+            @RequestParam int idUsuario,
+            @RequestParam(required = false) String estadoEntrega,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") java.util.Date fechaInicio,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") java.util.Date fechaFin,
+            @RequestParam(required = false) Integer estadoPedido
     ) {
         System.out.println("Filtro - idUsuario: " + idUsuario);
         System.out.println("Filtro - estadoEntrega: " + estadoEntrega);
         System.out.println("Filtro - fechaInicio: " + fechaInicio);
         System.out.println("Filtro - fechaFin: " + fechaFin);
         System.out.println("Filtro - estadoPedido: " + estadoPedido);
-        
+
         try {
             List<Map<String, Object>> pedidosPlanos = pedidoService.filtrarPedidos(
-                idUsuario, estadoEntrega, fechaInicio, fechaFin, estadoPedido
+                    idUsuario, estadoEntrega, fechaInicio, fechaFin, estadoPedido
             );
-            
+
             if (pedidosPlanos.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
             } else {
-                // Procesamos los pedidos como en los otros métodos para incluir URLs de imágenes
+
                 Map<Integer, Map<String, Object>> pedidosPorId = new HashMap<>();
-                
+
                 for (Map<String, Object> fila : pedidosPlanos) {
                     Integer idPedido = ((Number) fila.get("idPedido")).intValue();
-                    
-                    // Mismo procesamiento que en los métodos anteriores
+
                     if (!pedidosPorId.containsKey(idPedido)) {
                         Map<String, Object> pedido = new HashMap<>();
                         Map<String, Object> carrito = new HashMap<>();
                         Map<String, Object> usuario = new HashMap<>();
                         Map<String, Object> tipoPago = new HashMap<>();
                         List<Map<String, Object>> productos = new ArrayList<>();
-                        
-                        // Configuración del pedido
+
                         pedido.put("idPedido", idPedido);
                         pedido.put("montoTotalPedido", fila.get("montoTotalPedido"));
                         pedido.put("fechaPedido", fila.get("fechaPedido"));
                         pedido.put("estadoPedido", fila.get("estadoPedido"));
                         pedido.put("estadoPedidoTexto", fila.get("estadoPedidoTexto"));
                         pedido.put("estadoEntregaPedido", fila.get("estadoEntregaPedido"));
-                        
+
                         tipoPago.put("idTipoPago", fila.get("idTipoPago"));
                         tipoPago.put("descripcionTipoPago", fila.get("descripcionTipoPago"));
                         tipoPago.put("estadoTipoPago", fila.get("estadoTipoPago"));
                         pedido.put("tipoPago", tipoPago);
-                        
+
                         usuario.put("idUsuario", fila.get("idUsuario"));
                         usuario.put("nombreUsuario", fila.get("nombreUsuario"));
                         usuario.put("primerApellido", fila.get("primerApellido"));
@@ -385,7 +373,7 @@ public class PedidoController {
                         usuario.put("correoUsuario", fila.get("correoUsuario"));
                         usuario.put("telefonoUsuario", fila.get("telefonoUsuario"));
                         usuario.put("fechaNacimiento", fila.get("fechaNacimiento"));
-                        
+
                         carrito.put("idCarrito", fila.get("idCarrito"));
                         carrito.put("cantidadCarrito", fila.get("cantidadCarrito"));
                         carrito.put("montoTotalCarrito", fila.get("montoTotalCarrito"));
@@ -394,18 +382,17 @@ public class PedidoController {
                         carrito.put("cantidadTotalItems", fila.get("cantidadTotalItems"));
                         carrito.put("usuario", usuario);
                         carrito.put("productos", productos);
-                        
+
                         pedido.put("carrito", carrito);
                         pedidosPorId.put(idPedido, pedido);
                     }
-                    
+
                     if (fila.get("idProducto") != null) {
                         Map<String, Object> producto = new HashMap<>();
                         producto.put("idCarritoProducto", fila.get("idCarritoProducto"));
                         producto.put("idProducto", fila.get("idProducto"));
                         producto.put("nombreProducto", fila.get("nombreProducto"));
-                        
-                        // Procesar la ruta de la imagen
+
                         String imgProducto = (String) fila.get("imgProducto");
                         if (imgProducto != null && !imgProducto.isEmpty()) {
                             if (!imgProducto.startsWith("http")) {
@@ -416,7 +403,7 @@ public class PedidoController {
                         } else {
                             producto.put("imgProducto", null);
                         }
-                        
+
                         producto.put("montoPrecioProducto", fila.get("montoPrecioProducto"));
                         producto.put("descripcionProducto", fila.get("descripcionProducto"));
                         producto.put("cantidadProducto", fila.get("cantidadProducto"));
@@ -425,9 +412,8 @@ public class PedidoController {
                         producto.put("codigoProducto", fila.get("codigoProducto"));
                         producto.put("idCategoria", fila.get("idCategoria"));
                         producto.put("estadoProducto", fila.get("estadoProducto"));
-                        
-                        List<Map<String, Object>> productos = (List<Map<String, Object>>) 
-                                ((Map<String, Object>) pedidosPorId.get(idPedido).get("carrito")).get("productos");
+
+                        List<Map<String, Object>> productos = (List<Map<String, Object>>) ((Map<String, Object>) pedidosPorId.get(idPedido).get("carrito")).get("productos");
                         productos.add(producto);
                     }
                 }
@@ -437,7 +423,7 @@ public class PedidoController {
             e.printStackTrace();
             System.err.println("Error al filtrar pedidos: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Collections.emptyList());
+                    .body(Collections.emptyList());
         }
     }
 
@@ -445,7 +431,7 @@ public class PedidoController {
     public ResponseEntity<?> addPedido(@RequestBody Pedido pedido) {
         try {
             Pedido pedidoNuevo = pedidoService.addPedido(pedido);
-            
+
             Map<String, Object> response = new HashMap<>();
             response.put("mensaje", "Pedido agregado con éxito");
             response.put("pedido", pedidoNuevo.getIdPedido());
@@ -454,7 +440,7 @@ public class PedidoController {
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Collections.singletonMap("error", "Error al agregar el pedido: " + e.getMessage()));
+                    .body(Collections.singletonMap("error", "Error al agregar el pedido: " + e.getMessage()));
         }
     }
 
@@ -462,20 +448,19 @@ public class PedidoController {
     public ResponseEntity<?> updatePedido(@RequestBody Pedido pedido) {
         try {
             Pedido pedidoActualizado = pedidoService.updatePedido(pedido);
-    
+
             Map<String, Object> response = new HashMap<>();
             response.put("mensaje", "Pedido actualizado con éxito");
             response.put("pedido", pedidoActualizado.getIdPedido());
-    
+
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Collections.singletonMap("error", "Error al actualizar el pedido: " + e.getMessage()));
+                    .body(Collections.singletonMap("error", "Error al actualizar el pedido: " + e.getMessage()));
         }
     }
-    
-    // Este elimina del todo, por medio de una cascada, lo que hace a eliminarlo de todas las tablas
+
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<Boolean> deletePedido(@PathVariable int id) {
         boolean eliminado = pedidoService.deletePedido(id);
@@ -485,8 +470,7 @@ public class PedidoController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
         }
     }
-    
-    // Este lo que hace es cambiar el estado del pedido, y ocultar los que tienen estado 1, pasan a 0 los ocultos
+
     @PostMapping("/ocultar/{id}")
     public ResponseEntity<Boolean> updateStatePedido(@RequestBody int id) {
         boolean oculto = pedidoService.updateStatePedido(id);
@@ -517,18 +501,18 @@ public class PedidoController {
             );
         }
     }
+
     @GetMapping("/reporteVentas")
-public ResponseEntity<?> getReporteVentas() {
-    try {
-        Map<String, Map<String, Object>> reporte = pedidoService.getReporteVentasCompleto();
-        System.out.println("Reporte de ventas generado: " + reporte);
-        return ResponseEntity.ok(reporte);
-    } catch (Exception e) {
-        e.printStackTrace();
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Collections.singletonMap("error", "Error al generar el reporte: " + e.getMessage()));
+    public ResponseEntity<?> getReporteVentas() {
+        try {
+            Map<String, Map<String, Object>> reporte = pedidoService.getReporteVentasCompleto();
+            System.out.println("Reporte de ventas generado: " + reporte);
+            return ResponseEntity.ok(reporte);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("error", "Error al generar el reporte: " + e.getMessage()));
+        }
     }
-}
-    
 
 }

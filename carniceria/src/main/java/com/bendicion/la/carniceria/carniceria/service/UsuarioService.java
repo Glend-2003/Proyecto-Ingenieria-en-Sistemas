@@ -1,21 +1,21 @@
 package com.bendicion.la.carniceria.carniceria.service;
+
 import java.sql.Date;
 import java.util.List;
+import java.util.Random;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
+
 import com.bendicion.la.carniceria.carniceria.Logic.JwtService;
 import com.bendicion.la.carniceria.carniceria.Logic.Seguridad;
 import com.bendicion.la.carniceria.carniceria.domain.Usuario;
 import com.bendicion.la.carniceria.carniceria.jpa.UsuarioCodigoRepository;
 import com.bendicion.la.carniceria.carniceria.jpa.UsuarioRepository;
-import jakarta.transaction.Transactional;
-import java.util.Random;
 
-/**
- *
- * @author Jamel Sandí
- */
+import jakarta.transaction.Transactional;
+
 @Service
 @Primary
 public class UsuarioService implements IUsuarioService {
@@ -31,14 +31,12 @@ public class UsuarioService implements IUsuarioService {
 
     @Autowired
     private UsuarioCodigoRepository usuarioCodigoRepo;
-    
+
     @Autowired
     private CorreoService correoService;
-    
 
-// -----------------------------------------------------------------------------
     @Override
-    @Transactional 
+    @Transactional
     public Usuario addUsuario(Usuario usuario) {
 
         if (usuario.getCedulaUsuario() == null || usuario.getCedulaUsuario().trim().isEmpty()) {
@@ -100,99 +98,85 @@ public class UsuarioService implements IUsuarioService {
         return usuario;
     }
 
-// ----------------------------------------------------------------------------- 
- @Override
-@Transactional
-public Usuario registerUsuario(Usuario usuario) {
-    int rolCliente = 3; // Valor predeterminado para el rol de cliente
+    @Override
+    @Transactional
+    public Usuario registerUsuario(Usuario usuario) {
+        int rolCliente = 3;
 
-    // Verificación de correo existente
-    int existe = usuarioRepo.verifyCorreoProcedureUsuario(usuario.getCorreoUsuario());
-    String encriptedPassword = seguridad.encriptPassword(usuario.getContraseniaUsuario());
+        int existe = usuarioRepo.verifyCorreoProcedureUsuario(usuario.getCorreoUsuario());
+        String encriptedPassword = seguridad.encriptPassword(usuario.getContraseniaUsuario());
 
-    if (existe > 0) {
-        throw new RuntimeException("El correo ya está en uso.");
+        if (existe > 0) {
+            throw new RuntimeException("El correo ya está en uso.");
+        }
+
+        if (usuario.getCorreoUsuario().equals("")) {
+            throw new RuntimeException("Debe ingresar un correo");
+        }
+
+        if (encriptedPassword == null || encriptedPassword.equals("")) {
+            throw new RuntimeException("Debe ingresar una contraseña");
+        }
+
+        if (usuario.getNombreUsuario().equals("")) {
+            throw new RuntimeException("Debe ingresar un nombre de usuario");
+        }
+
+        if (usuario.getPrimerApellido().equals("")) {
+            throw new RuntimeException("Debe ingresar el primer apellido");
+        }
+
+        if (usuario.getSegundoApellido().equals("")) {
+            throw new RuntimeException("Debe ingresar el segundo apellido");
+        }
+
+        String numCodigo = generateCodigo();
+
+        Integer idRol = (usuario.getRol() != null) ? usuario.getRol().getIdRol() : rolCliente;
+
+        // Registrar el usuario
+        usuario.setEstadoUsuario(true);
+
+        usuarioRepo.registerProcedureUsuario(
+                usuario.getCorreoUsuario(),
+                encriptedPassword,
+                usuario.getNombreUsuario(),
+                usuario.getPrimerApellido(),
+                usuario.getSegundoApellido(),
+                idRol,
+                usuario.isEstadoUsuario(),
+                numCodigo
+        );
+
+        return usuario;
     }
 
-    // Validaciones básicas
-    if (usuario.getCorreoUsuario().equals("")) {
-        throw new RuntimeException("Debe ingresar un correo");
-    }
-
-    if (encriptedPassword == null || encriptedPassword.equals("")) {
-        throw new RuntimeException("Debe ingresar una contraseña");
-    }
-
-    if (usuario.getNombreUsuario().equals("")) {
-        throw new RuntimeException("Debe ingresar un nombre de usuario");
-    }
-
-    if (usuario.getPrimerApellido().equals("")) {
-        throw new RuntimeException("Debe ingresar el primer apellido");
-    }
-
-    if (usuario.getSegundoApellido().equals("")) {
-        throw new RuntimeException("Debe ingresar el segundo apellido");
-    }
-
-    // Código
-    String numCodigo = generateCodigo();
-
-    // Asignar un valor predeterminado si el rol es null
-    Integer idRol = (usuario.getRol() != null) ? usuario.getRol().getIdRol() : rolCliente;
-
-    // Registrar el usuario
-    usuario.setEstadoUsuario(true);
-
-    usuarioRepo.registerProcedureUsuario(
-        usuario.getCorreoUsuario(),
-        encriptedPassword,
-        usuario.getNombreUsuario(),
-        usuario.getPrimerApellido(),
-        usuario.getSegundoApellido(),
-        idRol,  // Usar el valor predeterminado si el rol es null
-        usuario.isEstadoUsuario(),
-        numCodigo  
-    );
-
-    return usuario;
-}
-
-// -----------------------------------------------------------------------------      
-// Método para generar un código de 6 dígitos único
-    
     @Override
     public String generateCodigo() {
         Random random = new Random();
-        return String.format("%06d", random.nextInt(1000000));  
+        return String.format("%06d", random.nextInt(1000000));
     }
-    
-// -----------------------------------------------------------------------------      
-// Método para obtener el código de verificación con el correo ingresado
-    
+
     @Override
     @Transactional
     public void getCodigo(String correoUsuario) {
         try {
-            // 1. Verificar si el correo tiene un usuario asociado
+
             Usuario usuario = usuarioRepo.searchUsuario(correoUsuario);
 
             if (usuario == null) {
                 throw new RuntimeException("El correo no está registrado");
             }
 
-            // 2. Obtener el código de verificación
             String numCodigo = usuarioCodigoRepo.obtenerCodigoUsuario(correoUsuario);
 
             if (numCodigo == null) {
                 throw new RuntimeException("No se encontró un código de verificación para este usuario");
             }
 
-            // 3. Crear el mensaje del correo en HTML
             String asunto = "Código de Verificación";
             String mensajeHTML = crearMensajeHTML(numCodigo);
 
-            // 4. Enviar el correo
             correoService.enviarMensaje(correoUsuario, asunto, mensajeHTML);
 
             System.out.println("Código de verificación enviado a: " + correoUsuario);
@@ -201,55 +185,49 @@ public Usuario registerUsuario(Usuario usuario) {
         }
     }
 
-// -----------------------------------------------------------------------------     
-
-// Método para crear el mensaje HTML
     private String crearMensajeHTML(String numCodigo) {
-        return "<!DOCTYPE html>" +
-               "<html lang='es'>" +
-               "<head>" +
-               "    <meta charset='UTF-8'>" +
-               "    <meta name='viewport' content='width=device-width, initial-scale=1.0'>" +
-               "    <title>Código de Verificación</title>" +
-               "    <style>" +
-               "        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }" +
-               "        .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); border: 1px solid #dddddd; }" +  // Agregar borde
-               "        h1 { color: #333333; }" +
-               "        p { color: #555555; line-height: 1.6; }" +
-               "        .code { font-size: 24px; font-weight: bold; color: #007BFF; margin: 20px 0; }" +
-               "        .footer { margin-top: 20px; font-size: 12px; color: #888888; }" +
-               "    </style>" +
-               "</head>" +
-               "<body>" +
-               "    <div class='container'>" +
-               "        <h1>Código de Verificación</h1>" +
-               "        <p>Estimado usuario de Carnicería La Bendición:</p>" +
-               "        <p>Recibimos una solicitud para acceder a tu cuenta. Tu código de verificación es:</p>" +
-               "        <div class='code'>" + numCodigo + "</div>" +
-               "        <p>Si no solicitaste este código, es posible que otra persona esté intentando acceder a tu cuenta. No reenvíes ni proporciones este código a otra persona.</p>" +
-               "        <p>Gracias por ser parte de la familia de Carnicería La Bendición. ¡Esperamos verte pronto!</p>" +
-               "        <div class='footer'>" +
-               "            <p>Atentamente,</p>" +
-               "            <p>El equipo de Carnicería La Bendición</p>" +
-               "        </div>" +
-               "    </div>" +
-               "</body>" +
-               "</html>";
+        return "<!DOCTYPE html>"
+                + "<html lang='es'>"
+                + "<head>"
+                + "    <meta charset='UTF-8'>"
+                + "    <meta name='viewport' content='width=device-width, initial-scale=1.0'>"
+                + "    <title>Código de Verificación</title>"
+                + "    <style>"
+                + "        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }"
+                + "        .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); border: 1px solid #dddddd; }"
+                + // Agregar borde
+                "        h1 { color: #333333; }"
+                + "        p { color: #555555; line-height: 1.6; }"
+                + "        .code { font-size: 24px; font-weight: bold; color: #007BFF; margin: 20px 0; }"
+                + "        .footer { margin-top: 20px; font-size: 12px; color: #888888; }"
+                + "    </style>"
+                + "</head>"
+                + "<body>"
+                + "    <div class='container'>"
+                + "        <h1>Código de Verificación</h1>"
+                + "        <p>Estimado usuario de Carnicería La Bendición:</p>"
+                + "        <p>Recibimos una solicitud para acceder a tu cuenta. Tu código de verificación es:</p>"
+                + "        <div class='code'>" + numCodigo + "</div>"
+                + "        <p>Si no solicitaste este código, es posible que otra persona esté intentando acceder a tu cuenta. No reenvíes ni proporciones este código a otra persona.</p>"
+                + "        <p>Gracias por ser parte de la familia de Carnicería La Bendición. ¡Esperamos verte pronto!</p>"
+                + "        <div class='footer'>"
+                + "            <p>Atentamente,</p>"
+                + "            <p>El equipo de Carnicería La Bendición</p>"
+                + "        </div>"
+                + "    </div>"
+                + "</body>"
+                + "</html>";
     }
-    
-// -----------------------------------------------------------------------------  
-    //Método para cambiar la contrasenia con el codigo 
+
     @Override
     @Transactional
     public String cambiarContrasenaConCodigo(String numCodigo, String nuevaContrasenia) {
         try {
-            String nuevoCodigo = generateCodigo(); // Generar un nuevo código
-            String encriptedPassword = seguridad.encriptPassword(nuevaContrasenia); // Encriptar la contraseña
+            String nuevoCodigo = generateCodigo();
+            String encriptedPassword = seguridad.encriptPassword(nuevaContrasenia);
 
-            // Llamar al repositorio y obtener el resultado
             int resultado = usuarioRepo.cambiarContrasenaConCodigo(numCodigo, encriptedPassword, nuevoCodigo);
 
-            // Verificar el resultado
             if (resultado == 0) {
                 throw new RuntimeException("Código de verificación inválido");
             } else if (resultado == 1) {
@@ -262,9 +240,8 @@ public Usuario registerUsuario(Usuario usuario) {
         }
     }
 
-// -----------------------------------------------------------------------------  
     @Override
-    @Transactional // Asegúrate de que esté anotado
+    @Transactional
     public Usuario updateUsuario(Usuario usuario) {
 
         String encriptedPassword = null;
@@ -331,14 +308,12 @@ public Usuario registerUsuario(Usuario usuario) {
         return usuario;
     }
 
-// -----------------------------------------------------------------------------    
     @Override
     @Transactional
     public List<Usuario> getUsuario() {
         return usuarioRepo.listProcedureUsuario();
     }
 
-// -----------------------------------------------------------------------------    
     @Override
     public boolean deleteUsuario(int id) {
         try {
@@ -350,7 +325,6 @@ public Usuario registerUsuario(Usuario usuario) {
             return false;
         }
     }
-// -----------------------------------------------------------------------------    
 
     @Override
     public Usuario validateLogin(String correo, String contraseniaIngresada) {
@@ -374,15 +348,13 @@ public Usuario registerUsuario(Usuario usuario) {
             return null;
         }
 
-        // Generar el token utilizando el jwtService
         String token = jwt.generateToken(usuario.getCorreoUsuario());
 
         usuario.setToken(token);
 
-        return usuario; // Devuelve el objeto Usuario con el token
+        return usuario;
     }
 
-// ----------------------------------------------------------------------------- 
     @Override
     public Usuario searchCorreoUsuario(String correo) {
         Usuario usuario = usuarioRepo.searchUsuario(correo);
@@ -398,65 +370,63 @@ public Usuario registerUsuario(Usuario usuario) {
     @Override
     public Usuario actualizarContrasena(Usuario usuario) {
         try {
-            // Verificar si el comentario existe
-            if (!usuarioRepo.existsById(usuario.getIdUsuario())) { // Verifica si el comentario existe
+
+            if (!usuarioRepo.existsById(usuario.getIdUsuario())) {
                 System.err.println("El usuario con ID: " + usuario.getIdUsuario() + " no existe.");
-                return usuario; // Retorna false si no existe
+                return usuario;
             }
             String encriptedPassword = seguridad.encriptPassword(usuario.getContraseniaUsuario());
             System.out.println("Actualizando usuario con ID: " + usuario.getIdUsuario());
             usuarioRepo.UpdateProcedureContrasena(usuario.getIdUsuario(), encriptedPassword);
-            return usuario; // Retorna true si se eliminó exitosamente
+            return usuario;
         } catch (Exception e) {
             System.err.println("Error al actualizar el  usuario con ID: " + usuario.getIdUsuario() + ". Detalles: " + e.getMessage());
-            return usuario; // Retorna false en caso de error
+            return usuario;
         }
     }
-    
+
     @Override
     public Usuario getUsuarioById(int id) {
         return usuarioRepo.listProcedureUsuarioById(id);
     }
 
-    
-     @Override
-     @Transactional 
+    @Override
+    @Transactional
     public boolean activarUsuario(int id) {
         try {
-           
-            if (!usuarioRepo.existsById(id)) { // 
+
+            if (!usuarioRepo.existsById(id)) {
                 System.err.println("El usuario con ID: " + id + " no existe.");
-                return false; 
+                return false;
             }
 
             System.out.println("activando usuario con ID: " + id);
             usuarioRepo.activarUsuario(id);
-            return true; 
+            return true;
         } catch (Exception e) {
             System.err.println("Error al activar el usuario con ID: " + id + ". Detalles: " + e.getMessage());
-            return false; // Retorna false en caso de error
+            return false;
         }
     }
-   
-    
+
     @Override
-@Transactional
-public Usuario actualizarCredenciales(Usuario usuario) {
-    try {
-        usuario.setEstadoUsuario(true);
-        usuarioRepo.actualizarCredenciales(
-                usuario.getIdUsuario(),
-                usuario.getCedulaUsuario(),
-                usuario.getNombreUsuario(),
-                usuario.getPrimerApellido(),
-                usuario.getSegundoApellido(),
-                usuario.getTelefonoUsuario(),
-                usuario.getFechaNacimiento()
-        );
-        return usuario;
-    } catch (Exception e) {
-        throw new RuntimeException("Error al actualizar credenciales: " + e.getMessage());
+    @Transactional
+    public Usuario actualizarCredenciales(Usuario usuario) {
+        try {
+            usuario.setEstadoUsuario(true);
+            usuarioRepo.actualizarCredenciales(
+                    usuario.getIdUsuario(),
+                    usuario.getCedulaUsuario(),
+                    usuario.getNombreUsuario(),
+                    usuario.getPrimerApellido(),
+                    usuario.getSegundoApellido(),
+                    usuario.getTelefonoUsuario(),
+                    usuario.getFechaNacimiento()
+            );
+            return usuario;
+        } catch (Exception e) {
+            throw new RuntimeException("Error al actualizar credenciales: " + e.getMessage());
+        }
     }
-}
 
 }

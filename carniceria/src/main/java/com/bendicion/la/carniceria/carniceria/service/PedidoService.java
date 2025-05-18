@@ -1,6 +1,8 @@
 package com.bendicion.la.carniceria.carniceria.service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -19,16 +21,7 @@ import com.bendicion.la.carniceria.carniceria.jpa.PedidoRepository;
 import com.bendicion.la.carniceria.carniceria.jpa.UsuarioRepository;
 
 import jakarta.transaction.Transactional;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 
-/**
- *
- * @author jsand
- */
 @Service
 @Primary
 public class PedidoService implements IPedidoService {
@@ -41,35 +34,33 @@ public class PedidoService implements IPedidoService {
 
     @Autowired
     private GraficosPedidoRepository graficosRepo;
-    
+
     @Autowired
     private UsuarioRepository usuarioRepo;
 
     @Autowired
     private CorreoService correoService;
-    
+
     @Transactional
     @Override
     public Pedido addPedido(Pedido pedido) {
         Integer idCarrito = pedido.getCarrito().getIdCarrito();
         Integer idTipoPago = pedido.getTipoPago().getIdTipoPago();
-    
+
         Carrito carritos = carritoRepo.obtenerCarritoPorId(idCarrito);
         if (carritos == null) {
             throw new RuntimeException("El carrito con ID " + idCarrito + " no existe");
         }
-    
+
         try {
-            // Obtener el LocalDateTime directamente sin manipularlo
+
             LocalDateTime localDateTime = pedido.getFechaPedido();
-            
-            // Convertir a java.util.Date para el procedimiento almacenado
-            // Esto mantiene exactamente la misma hora
+
             Date fechaPedido = java.sql.Timestamp.valueOf(localDateTime);
-            
+
             System.out.println("Fecha exacta seleccionada por usuario: " + localDateTime);
             System.out.println("Fecha convertida a Timestamp: " + fechaPedido);
-            
+
             pedidoRepo.saveProcedurePedido(
                     pedido.getMontoTotalPedido(),
                     fechaPedido,
@@ -83,7 +74,7 @@ public class PedidoService implements IPedidoService {
             e.printStackTrace();
             throw new RuntimeException("Error al guardar el pedido: " + e.getMessage());
         }
-    
+
         return pedido;
     }
 
@@ -135,11 +126,9 @@ public class PedidoService implements IPedidoService {
 
         List<Object[]> resultados = pedidoRepo.listaPedidoEntregado();
 
-        // Mapear cada fila a un mapa de claves y valores
         return resultados.stream().map(fila -> {
             Map<String, Object> pedidoMap = new HashMap<>();
 
-            // Información básica del pedido
             pedidoMap.put("idPedido", fila[0]);
             pedidoMap.put("montoTotalPedido", fila[1]);
             pedidoMap.put("fechaPedido", fila[2]);
@@ -149,17 +138,14 @@ public class PedidoService implements IPedidoService {
             pedidoMap.put("idCarrito", fila[6]);
             pedidoMap.put("idTipoPago", fila[7]);
 
-            // Información del tipo de pago
             pedidoMap.put("descripcionTipoPago", fila[8]);
             pedidoMap.put("estadoTipoPago", fila[9]);
 
-            // Información del carrito
             pedidoMap.put("idUsuario", fila[10]);
             pedidoMap.put("montoTotalCarrito", fila[11]);
             pedidoMap.put("estadoCarrito", fila[12]);
             pedidoMap.put("cantidadCarrito", fila[13]);
 
-            // Información del usuario
             pedidoMap.put("nombreUsuario", fila[14]);
             pedidoMap.put("primerApellido", fila[15]);
             pedidoMap.put("segundoApellido", fila[16]);
@@ -169,15 +155,12 @@ public class PedidoService implements IPedidoService {
             pedidoMap.put("telefonoUsuario", fila[20]);
             pedidoMap.put("fechaNacimiento", fila[21]);
 
-            // Conteo de productos
             pedidoMap.put("cantidadProductosDistintos", fila[22]);
             pedidoMap.put("cantidadTotalItems", fila[23]);
 
-            // Información del carrito-producto (puede ser null)
             pedidoMap.put("idCarritoProducto", fila[24]);
             pedidoMap.put("cantidadProducto", fila[25]);
 
-            // Información del producto (puede ser null)
             pedidoMap.put("idProducto", fila[26]);
             pedidoMap.put("nombreProducto", fila[27]);
             pedidoMap.put("imgProducto", fila[28]);
@@ -195,16 +178,15 @@ public class PedidoService implements IPedidoService {
 
     @Override
     public List<Map<String, Object>> filtrarPedidos(
-        int idUsuario, 
-        String estadoEntrega,  // Cambiado de Integer a String
-        Date fechaInicio, 
-        Date fechaFin, 
-        Integer estadoPedido
+            int idUsuario,
+            String estadoEntrega,
+            Date fechaInicio,
+            Date fechaFin,
+            Integer estadoPedido
     ) {
         return pedidoRepo.filtrarPedidos(idUsuario, estadoEntrega, fechaInicio, fechaFin, estadoPedido);
     }
 
-    // Este elimina del todo, por medio de una cascada, lo que hace a eliminarlo d etodas las tablas
     @Transactional
     @Override
     public boolean deletePedido(int id) {
@@ -212,7 +194,6 @@ public class PedidoService implements IPedidoService {
         return true;
     }
 
-    // Este lo que hace es cambiar el estado del pedido, y ocultar los que tienen estado 0
     @Transactional
     @Override
     public boolean updateStatePedido(int id) {
@@ -262,18 +243,16 @@ public class PedidoService implements IPedidoService {
     @Transactional
     public void sendMail(String correoUsuario, String estado) {
         try {
-            // Verificar si el correo tiene un usuario asociado
+
             Usuario usuario = usuarioRepo.searchUsuario(correoUsuario);
 
             if (usuario == null) {
                 throw new RuntimeException("El correo no está registrado");
             }
 
-            // Crear el mensaje del correo en HTML
             String asunto = "Estado el pedido";
             String mensajeHTML = mensajePredeterminado(usuario.getNombreUsuario(), estado);
 
-            // 4. Enviar el correo
             correoService.enviarMensaje(correoUsuario, asunto, mensajeHTML);
 
             System.out.println("Correoenviado a: " + correoUsuario);
@@ -284,7 +263,7 @@ public class PedidoService implements IPedidoService {
 
     @Transactional
     public String mensajePredeterminado(String nombreUsuario, String estadoPedido) {
-        // Obtener fecha actual en formato legible
+
         LocalDate fecha = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         String fechaFormateada = fecha.format(formatter);

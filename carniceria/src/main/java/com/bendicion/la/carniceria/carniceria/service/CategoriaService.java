@@ -1,4 +1,5 @@
 package com.bendicion.la.carniceria.carniceria.service;
+
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,20 +11,13 @@ import com.bendicion.la.carniceria.carniceria.jpa.CategoriaRepository;
 
 import jakarta.transaction.Transactional;
 
-/**
- *
- * @author Jamel Sandí
- */
-
 @Service
 @Primary
 public class CategoriaService implements ICategoriaService {
 
     @Autowired
     private CategoriaRepository categoriaRep;
-    
-    // Aquí en vez de llamar el mae .save se llama el SP (igual co los demás)
-    
+
     @Override
     public Categoria addCategoria(Categoria categoria) {
         System.out.println("Agregando categoría con nombre: " + categoria.getNombreCategoria());
@@ -33,7 +27,7 @@ public class CategoriaService implements ICategoriaService {
     }
 
     @Override
-    @Transactional // Asegúrate de que esté anotado
+    @Transactional
     public Categoria updateCategoria(Categoria categoria) {
         System.out.println("Actualizando categoria con ID: " + categoria.getIdCategoria());
         categoria.setEstadoCategoria(true);
@@ -42,7 +36,7 @@ public class CategoriaService implements ICategoriaService {
     }
 
     @Override
-    @Transactional // Asegúrate de que esté anotado
+    @Transactional
     public List<Categoria> getCategoria(Boolean estadoCategoria) {
         return categoriaRep.listProcedureCategoria(estadoCategoria);
     }
@@ -54,32 +48,32 @@ public class CategoriaService implements ICategoriaService {
 
     @Override
     public boolean deleteCategoria(int id) {
-    try {
-        System.out.println("Eliminando categoría con ID: " + id);
-        categoriaRep.deleteProcedureCategoria(id);
-        return true;
-    } catch (Exception e) {
-        System.err.println("Error al eliminar la categoría con ID: " + id + ". Detalles: " + e.getMessage());
-        return false;
-    }
+        try {
+            System.out.println("Eliminando categoría con ID: " + id);
+            categoriaRep.deleteProcedureCategoria(id);
+            return true;
+        } catch (Exception e) {
+            System.err.println("Error al eliminar la categoría con ID: " + id + ". Detalles: " + e.getMessage());
+            return false;
+        }
     }
 
-      @Override
-     @Transactional 
+    @Override
+    @Transactional
     public boolean activarCategoria(int id) {
         try {
-          
-            if (!categoriaRep.existsById(id)) { 
+
+            if (!categoriaRep.existsById(id)) {
                 System.err.println("El prodcuto con ID: " + id + " no existe.");
                 return false;
             }
 
             System.out.println("activando categoria con ID: " + id);
             categoriaRep.activarCategoria(id);
-            return true; 
+            return true;
         } catch (Exception e) {
             System.err.println("Error al activar la categoria con ID: " + id + ". Detalles: " + e.getMessage());
-            return false; // Retorna false en caso de error
+            return false;
         }
     }
 }
