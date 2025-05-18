@@ -16,6 +16,7 @@ import Carrito from '../Carrito/CarritoApp';
 import SideBarUsuario from '../DetallesCliente/SideBarUsuario';
 import { AppProvider } from "../Navbar/AppContext";
 import './Dashboard.css';
+import { getDecryptedLocalStorage } from '../Utils/StorageUtils';
 
 const Dashboard = () => {
   const { usuario } = useAuth();
@@ -34,7 +35,7 @@ const Dashboard = () => {
         const nombreUsuario = localStorage.getItem('nombreUsuario') || "Usuario";
         const correoUsuario = localStorage.getItem('correoUsuario') || "";
         const idUsuario = localStorage.getItem('idUsuario') || "";
-        const nombreRol = localStorage.getItem('nombreRol') || "";
+        const nombreRol = getDecryptedLocalStorage('nombreRol') || ""
         
         setDatosUsuario({
           nombreUsuario,
