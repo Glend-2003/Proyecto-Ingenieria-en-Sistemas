@@ -29,68 +29,71 @@ const Principal = () => {
         { 
             path: '/GestionarUsuario', 
             name: 'Usuarios', 
-            icon: <FaUsers size={32} />, 
+            icon: <FaUsers size={36} />, 
             description: 'Gestión de usuarios del sistema', 
-            color: 'var(--primary-medium)' 
+            color: 'var(--primary-dark)' 
         },
         { 
             path: '/CategoriaApp', 
             name: 'Categorías', 
-            icon: <FaListAlt size={32} />, 
+            icon: <FaListAlt size={36} />, 
             description: 'Administrar categorías de productos', 
-            color: 'var(--primary-light)' 
+            color: 'var(--primary-medium)' 
         },
         { 
             path: '/ComentarioApp', 
             name: 'Comentarios', 
-            icon: <FaComments size={32} />, 
+            icon: <FaComments size={36} />, 
             description: 'Ver y gestionar comentarios', 
             color: 'var(--accent-gold)' 
         },
         { 
             path: '/ProductoApp', 
             name: 'Productos', 
-            icon: <FaBoxOpen size={32} />, 
+            icon: <FaBoxOpen size={36} />, 
             description: 'Administrar inventario de productos', 
             color: 'var(--primary-dark)' 
         },
         { 
             path: '/PromocionApp', 
             name: 'Promociones', 
-            icon: <FaPercentage size={32} />, 
+            icon: <FaPercentage size={36} />, 
             description: 'Gestionar promociones y descuentos', 
             color: 'var(--accent-brown)' 
         },
         { 
             path: '/TipoPagoApp', 
             name: 'Tipo Pago', 
-            icon: <FaCreditCard size={32} />, 
+            icon: <FaCreditCard size={36} />, 
             description: 'Configurar métodos de pago', 
             color: 'var(--primary-medium)' 
         },
         { 
             path: '/PedidosApp', 
             name: 'Pedidos', 
-            icon: <FaShoppingCart size={32} />, 
+            icon: <FaShoppingCart size={36} />, 
             description: 'Ver y gestionar pedidos actuales', 
-            color: 'var(--primary-light)' 
+            color: 'var(--accent-gold)' 
         },
         { 
             path: '/VentaPedido', 
             name: 'Ventas', 
-            icon: <FaChartLine size={32} />, 
+            icon: <FaChartLine size={36} />, 
             description: 'Consultar historial de ventas', 
-            color: 'var(--accent-gold)' 
+            color: 'var(--primary-dark)' 
         }
     ];
 
     return (
         <div className="principal-container">
             <SideBar usuario={usuario} />
-
             
+            <main className="page">
                 <div className="welcome-banner">
-                  
+                    <div className="welcome-text">
+                        <h1>Bienvenido, {usuario ? `${usuario.nombreUsuario}` : "Usuario"}</h1>
+                        <p>Accede rápidamente a todas las funciones del sistema desde tu panel principal.</p>
+                    </div>
                 </div>
 
                 <div className="dashboard-container">
@@ -145,7 +148,6 @@ const Principal = () => {
                                     <div className="info-content">
                                         <span className="info-label">Acciones</span>
                                         <div className="action-buttons">
-                                          
                                             <button className="logout-btn" onClick={handleLogout}>
                                                 Cerrar sesión
                                             </button>
@@ -173,7 +175,7 @@ const Principal = () => {
                         </div>
                     </div>
                 </div>
-          
+            </main>
             <FooterApp />
         </div>
     );

@@ -1,13 +1,14 @@
-/* Color palette variables based on provided colors */
+/* Color palette variables - mejoradas para mayor contraste */
 :root {
-  --primary-dark: #103f1b;    /* Dark green */
-  --primary-medium: #387623;  /* Medium green */
-  --primary-light: #9fc45a;   /* Light green */
-  --accent-gold: #958933;     /* Gold accent */
-  --accent-brown: #875725;    /* Brown accent */
-  --text-light: #ffffff;
-  --text-dark: #333333;
-  --background-light: #f5f8f5;
+  --primary-dark: #0b3014;    /* Dark green - más oscuro para mejor contraste */
+  --primary-medium: #2a6119;  /* Medium green - ajustado para mejor contraste */
+  --primary-light: #8cb23e;   /* Light green - menos saturado para mejor legibilidad */
+  --accent-gold: #8f7800;     /* Gold accent - más oscuro para mejor contraste */
+  --accent-brown: #6d4016;    /* Brown accent - ajustado para mejor contraste */
+  --text-light: #ffffff;      /* Blanco para texto en fondos oscuros */
+  --text-dark: #222222;       /* Casi negro para mejor contraste en fondos claros */
+  --text-medium: #444444;     /* Gris oscuro para textos secundarios */
+  --background-light: #f5f8f5; /* Fondo claro con toque verde suave */
   --card-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
 }
 
@@ -34,7 +35,7 @@ main.page {
   padding: 20px;
 }
 
-/* Welcome banner */
+/* Welcome banner - mejorado para mayor contraste */
 .welcome-banner {
   background: linear-gradient(135deg, var(--primary-dark), var(--primary-medium));
   color: var(--text-light);
@@ -45,21 +46,17 @@ main.page {
 }
 
 .welcome-text h1 {
+  color: var(--text-light);
   font-size: 2rem;
   margin-bottom: 10px;
   font-weight: 600;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); /* Sombra para mejorar legibilidad */
 }
 
 .welcome-text p {
   font-size: 1.1rem;
-  opacity: 0.9;
-}
-
-/* Dashboard container */
-.dashboard-container {
-  display: grid;
-  grid-template-columns: 2fr 3fr;
-  gap: 30px;
+  opacity: 1; /* Cambiado de 0.9 para mejor legibilidad */
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); /* Sombra sutil para mejorar legibilidad */
 }
 
 /* User profile card */
@@ -71,8 +68,9 @@ main.page {
   height: fit-content;
 }
 
+/* Profile header - mejorado para mayor contraste */
 .profile-header {
-  background: linear-gradient(to right, var(--primary-medium), var(--primary-light));
+  background: linear-gradient(to right, var(--primary-dark), var(--primary-medium));
   padding: 20px;
   position: relative;
   display: flex;
@@ -83,7 +81,7 @@ main.page {
 
 .profile-avatar {
   background-color: white;
-  color: var(--primary-medium);
+  color: var(--primary-dark); /* Más oscuro para mejor contraste */
   border-radius: 50%;
   padding: 5px;
   border: 3px solid white;
@@ -101,6 +99,7 @@ main.page {
   font-size: 0.8rem;
   font-weight: bold;
   text-transform: uppercase;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Sombra para mejorar legibilidad */
 }
 
 .profile-body {
@@ -114,11 +113,11 @@ main.page {
   font-weight: 600;
 }
 
-/* Information items */
-.profile-info {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+/* Dashboard container */
+.dashboard-container {
+  display: grid;
+  grid-template-columns: 2fr 3fr;
+  gap: 30px;
 }
 
 .info-item {
@@ -160,29 +159,30 @@ main.page {
 }
 
 .edit-profile-btn, .logout-btn {
-  padding: 8px 16px;
+  padding: 10px 16px; /* Ligeramente más grandes */
   border-radius: 4px;
   border: none;
-  font-weight: 500;
+  font-weight: 600; /* Más bold para mejor legibilidad */
   cursor: pointer;
   transition: background-color 0.3s, transform 0.2s;
+  color: var(--text-light); /* Siempre texto blanco para mejor contraste */
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2); /* Sombra para mejorar legibilidad */
 }
 
 .edit-profile-btn {
-  background-color: var(--primary-light);
-  color: var(--text-dark);
+  background-color: var(--primary-medium);
 }
 
 .logout-btn {
   background-color: var(--accent-brown);
-  color: white;
 }
 
 .edit-profile-btn:hover, .logout-btn:hover {
   transform: translateY(-2px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Quick Access Section - NEW */
+/* Quick Access Section - Mejorado para contraste */
 .quick-access-container {
   display: flex;
   flex-direction: column;
@@ -193,8 +193,9 @@ main.page {
   color: var(--primary-dark);
   font-size: 1.4rem;
   margin-bottom: 15px;
-  border-bottom: 2px solid var(--primary-light);
+  border-bottom: 2px solid var(--primary-medium);
   padding-bottom: 10px;
+  font-weight: 600;
 }
 
 .quick-access-grid {
@@ -214,6 +215,7 @@ main.page {
   color: var(--text-dark);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   height: 100%;
+  border: 1px solid rgba(0, 0, 0, 0.05); /* Borde sutil para definir mejor los cards */
 }
 
 .quick-access-card:hover {
@@ -225,8 +227,9 @@ main.page {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 15px 0;
+  padding: 20px 0;
   color: white;
+  font-size: 1.2rem; /* Asegurar que los iconos sean suficientemente grandes */
 }
 
 .card-content {
@@ -234,18 +237,20 @@ main.page {
   display: flex;
   flex-direction: column;
   flex: 1;
+  background-color: white; /* Asegurar fondo blanco para contraste */
 }
 
 .card-content h4 {
   margin: 0 0 8px 0;
   font-weight: 600;
   color: var(--primary-dark);
+  font-size: 1.1rem; /* Título ligeramente más grande */
 }
 
 .card-content p {
   margin: 0;
   font-size: 0.9rem;
-  color: #666;
+  color: var(--text-medium); /* Color más oscuro para mejor legibilidad */
   line-height: 1.4;
 }
 
