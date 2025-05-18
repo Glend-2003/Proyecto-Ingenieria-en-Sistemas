@@ -166,7 +166,6 @@ const AuthOffcanvas = () => {
     }
   }, [showSidebar, showForgotPassword]);
 
-
   return (
     <Offcanvas show={showSidebar} onHide={handleShowSidebar} placement="end" className="login-sidebar">
       <Offcanvas.Header closeButton className="login-header">
