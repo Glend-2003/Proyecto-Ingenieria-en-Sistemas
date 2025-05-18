@@ -1038,7 +1038,7 @@ const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
                                       </div>
                                       
                                       <div className="product-item-price">
-                                        <DollarSign size={16} />
+                                        
                                         ₡{producto.montoPrecioProducto ? producto.montoPrecioProducto.toLocaleString() : '0'}
                                       </div>
                                     </div>
