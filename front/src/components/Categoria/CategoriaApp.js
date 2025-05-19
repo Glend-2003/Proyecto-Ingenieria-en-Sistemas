@@ -1,4 +1,3 @@
-// CategoriaApp.js
 import React, { useState, useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -14,7 +13,7 @@ import {
 import SideBar from "../SideBar/SideBar";
 import useAuth from "../../hooks/useAuth";
 import { Button, Modal } from "react-bootstrap";
-import "./Categoria.css"; // Asegúrate de que este archivo exista en la misma carpeta
+import "./Categoria.css"; 
 import FooterApp from '../Footer/FooterApp';
 import PaginacionApp from "../Paginacion/PaginacionApp";
 
@@ -80,9 +79,13 @@ const CategoriaApp = () => {
         nombreCategoria: nombreCategoria.trim(),
         descripcionCategoria: descripcionCategoria.trim(),
       });
-      toast.success("Categoría agregada con éxito");
-      cargarCategorias();
+      
+      // Primero cerramos el modal
       handleCloseModal();
+      
+      // Luego mostramos el toast y actualizamos los datos
+      toast.success("Categoría agregada con éxito");
+      await cargarCategorias();
     } catch (error) {
       console.error("Error al agregar categoría:", error);
       toast.error("Ocurrió un error al agregar la categoría");
@@ -91,8 +94,7 @@ const CategoriaApp = () => {
 
   const actualizarCategoria = async () => {
     if (!validarCamposCategoria()) return;
-
-    // Verificar si la categoría está activa antes de permitir la actualización
+    
     if (!categoriaEdit.estadoCategoria) {
       toast.error("No se puede actualizar una categoría inactiva");
       return;
@@ -112,30 +114,34 @@ const CategoriaApp = () => {
       return;
     }
 
-    const { isConfirmed } = await Swal.fire({
-      title: "¿Estás seguro?",
-      text: "Esta acción no se puede deshacer.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Sí, actualizar",
-      cancelButtonText: "No, cancelar",
-      reverseButtons: true,
-    });
+    try {
+      const { isConfirmed } = await Swal.fire({
+        title: "¿Estás seguro?",
+        text: "Esta acción no se puede deshacer.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, actualizar",
+        cancelButtonText: "No, cancelar",
+        reverseButtons: true,
+      });
 
-    if (isConfirmed) {
-      try {
-        await axios.put("http://localhost:8080/categoria/actualizar", {
-          idCategoria: categoriaEdit.idCategoria,
-          nombreCategoria: nombreCategoria.trim(),
-          descripcionCategoria: descripcionCategoria.trim(),
-        });
-        toast.success("Categoría actualizada con éxito");
-        cargarCategorias();
-        handleCloseModal();
-      } catch (error) {
-        console.error("Error al actualizar categoría:", error);
-        toast.error("Ocurrió un error al actualizar la categoría");
-      }
+      if (!isConfirmed) return;
+      
+      await axios.put("http://localhost:8080/categoria/actualizar", {
+        idCategoria: categoriaEdit.idCategoria,
+        nombreCategoria: nombreCategoria.trim(),
+        descripcionCategoria: descripcionCategoria.trim(),
+      });
+      
+      // Primero cerramos el modal
+      handleCloseModal();
+      
+      // Luego mostramos el toast y actualizamos los datos
+      toast.success("Categoría actualizada con éxito");
+      await cargarCategorias();
+    } catch (error) {
+      console.error("Error al actualizar categoría:", error);
+      toast.error("Ocurrió un error al actualizar la categoría");
     }
   };
   
@@ -149,22 +155,22 @@ const CategoriaApp = () => {
   }
   
   const eliminarCategoria = async (id) => {
-    const { isConfirmed } = await Swal.fire({
-      title: "¿Estás seguro?",
-      text: "No podrás revertir esto.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Sí, eliminar",
-      cancelButtonText: "No, cancelar",
-      reverseButtons: true,
-    });
-
-    if (!isConfirmed) return;
-
     try {
+      const { isConfirmed } = await Swal.fire({
+        title: "¿Estás seguro?",
+        text: "No podrás revertir esto.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, eliminar",
+        cancelButtonText: "No, cancelar",
+        reverseButtons: true,
+      });
+
+      if (!isConfirmed) return;
+
       await axios.delete(`http://localhost:8080/categoria/eliminar/${id}`);
       toast.success("Categoría eliminada con éxito");
-      cargarCategorias();
+      await cargarCategorias();
     } catch (error) {
       console.error("Error al eliminar categoría:", error);
       toast.error("Ocurrió un error al eliminar la categoría");
@@ -175,7 +181,7 @@ const CategoriaApp = () => {
     try {
       await axios.put(`http://localhost:8080/categoria/activar/${id}`);
       toast.success("Cambio realizado con éxito.");
-      cargarCategorias();
+      await cargarCategorias();
     } catch (error) {
       console.error("Error al realizar el cambio:", error);
       toast.error("Ocurrió un error al cambiar el estado de la categoria.");
@@ -224,6 +230,15 @@ const CategoriaApp = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
 
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    if (categoriaEdit) {
+      actualizarCategoria();
+    } else {
+      agregarCategoria();
+    }
+  };
+
   return (
     <div className="categoria-container">
       <SideBar usuario={usuario} />
@@ -254,12 +269,7 @@ const CategoriaApp = () => {
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                categoriaEdit ? actualizarCategoria() : agregarCategoria();
-              }}
-            >
+            <form id="categoriaForm" onSubmit={handleFormSubmit}>
               <div className="mb-3">
                 <label>Nombre de la categoria</label>
                 <input
@@ -282,17 +292,26 @@ const CategoriaApp = () => {
                   onChange={(e) => setDescripcionCategoria(e.target.value)}
                 />
               </div>
-
             </form>
           </Modal.Body>
           <Modal.Footer>
-                            <Button variant="primary" type="submit">
-                {categoriaEdit ? "Actualizar" : "Agregar"}
-              </Button>
+            <Button variant="primary" onClick={handleFormSubmit}>
+              {categoriaEdit ? "Actualizar" : "Agregar"}
+            </Button>
           </Modal.Footer>
         </Modal>
-
-        <ToastContainer />
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          limit={3}
+        />
 
         <div className="categoria-table-container">
           <table className="categoria-table">
@@ -349,6 +368,7 @@ const CategoriaApp = () => {
                             className="categoria-delete-button"
                             type="button"
                             onClick={() => eliminarCategoria(categoria.idCategoria)}
+                            title="Eliminar categoria"
                           >
                             <FontAwesomeIcon icon={faTrash} />
                           </button>

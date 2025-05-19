@@ -41,10 +41,8 @@ const GestionarUsuarioForm = () => {
   const handleSaveUser = (e) => {
     e.preventDefault();
     if (userEdit) {
-      // Actualizar usuario existente
       setUsers(users.map(u => u.idUsuario === userEdit.idUsuario ? userEdit : u));
     } else {
-      // Agregar nuevo usuario
       const newUser = {
         idUsuario: users.length + 1,
         nombreUsuario: '',
@@ -215,7 +213,6 @@ const GestionarUsuarioForm = () => {
             </tbody>
           </table>
         </div>
-        {/* Botón para volver */}
         <div className="d-flex justify-content-end mt-3">
           <button className="btn btn-secondary" onClick={() => window.history.back()}>
             Volver

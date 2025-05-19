@@ -165,7 +165,6 @@ select.form-control {
   margin: 0;
 }
 
-/*Tabla*/
 .usuario-table-container {
   margin-left: 5px;
   border-radius: 10px;
@@ -323,8 +322,8 @@ select.form-control {
 }
 
 .usuario-roll {
-  font-weight: 700; /* Aumentado de 600 a 700 para hacerlo más negrita */
-  color: #000000; /* Cambiado a negro como solicitaste */
+  font-weight: 700;
+  color: #000000; 
 }
 
 .usuario-letraComun {
@@ -334,7 +333,7 @@ select.form-control {
   font-size: 0.9rem;
   line-height: 1.4;
   color: #444;
-  word-wrap: break-word; /* Permitir que el texto se envuelva */
+  word-wrap: break-word; 
 }
 
 .usuario-container {
@@ -357,13 +356,11 @@ select.form-control {
   flex-direction: column;
   padding: 30px;
   overflow-y: auto;
-  padding-bottom: 80px; /* Aumentar el espacio para el footer */
-  margin-left: 240px; /* Ajustar según el ancho de tu sidebar */
-  width: calc(100% - 240px); /* Ajustar el ancho para dejar espacio para el sidebar */
+  padding-bottom: 80px;
+  margin-left: 240px; 
+  width: calc(100% - 240px); 
 }
 
-
-/*Buscador*/
 .usuario-search-container {
   margin-bottom: 25px;
   background-color: rgba(255, 255, 255, 0.95);
@@ -387,7 +384,6 @@ select.form-control {
   outline: none;
 }
 
-/*Botón de agregar*/
 .usuario-add-button {
   background-color: #387623 !important;
   border-color: #387623 !important;
@@ -395,6 +391,6 @@ select.form-control {
   font-weight: bold;
   transition: all 0.3s ease;
   margin-bottom: 20px;
-  max-width: 250px; /* Limitar el ancho del botón */
+  max-width: 250px; 
   width: 100%;
 }

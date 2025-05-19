@@ -13,14 +13,12 @@ const NotificacionPedido = () => {
     const intervalRef = useRef(null);
     const notificacionesAnteriorRef = useRef({ noLeidas: 0 });
 
-    // Usando useCallback para memorizar la función y evitar renderizados innecesarios
     const cargarNotificaciones = useCallback(async (mostrarToast = false) => {
         setCargando(true);
         try {
             const [respNoLeidas, respLeidas] = await Promise.all([
                 axios.get("http://localhost:8080/notificacion/", { 
                     params: { leidos: 1 },
-                    // Añadimos un timestamp para evitar caché
                     headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
                 }),
                 axios.get("http://localhost:8080/notificacion/", { 
@@ -29,12 +27,10 @@ const NotificacionPedido = () => {
                 }),
             ]);
             
-            // Ordenar por fecha descendente
             const ordenarPorFecha = (a, b) => new Date(b.fechaNotificacion) - new Date(a.fechaNotificacion);
             const nuevasNoLeidas = [...respNoLeidas.data].sort(ordenarPorFecha);
             const nuevasLeidas = [...respLeidas.data].sort(ordenarPorFecha);
             
-            // Verificar si hay nuevas notificaciones
             if (mostrarToast && nuevasNoLeidas.length > notificacionesAnteriorRef.current.noLeidas) {
                 const nuevasNotificaciones = nuevasNoLeidas.length - notificacionesAnteriorRef.current.noLeidas;
                 toast.success(`${nuevasNotificaciones} ${nuevasNotificaciones === 1 ? 'nueva notificación' : 'nuevas notificaciones'}`, {
@@ -46,15 +42,12 @@ const NotificacionPedido = () => {
                     },
                 });
                 
-                // Si hay nuevas notificaciones, reproducimos un sonido (opcional)
                 playNotificationSound();
             }
             
-            // Actualizamos el estado con las nuevas notificaciones
             setNoLeidas(nuevasNoLeidas);
             setLeidas(nuevasLeidas);
             
-            // Actualizamos la referencia para futuras comparaciones
             notificacionesAnteriorRef.current = { noLeidas: nuevasNoLeidas.length };
             setUltimaActualizacion(new Date());
         } catch (error) {
@@ -63,36 +56,29 @@ const NotificacionPedido = () => {
         setCargando(false);
     }, []);
 
-    // Función para reproducir un sonido de notificación
     const playNotificationSound = () => {
         try {
-            const audio = new Audio('/notification-sound.mp3');  // Asegúrate de tener este archivo
+            const audio = new Audio('/notification-sound.mp3');  
             audio.play().catch(e => console.log('Error reproduciendo sonido:', e));
         } catch (e) {
             console.log('Error con el sonido:', e);
         }
     };
 
-    // Efecto para cargar notificaciones al inicio y configurar polling
     useEffect(() => {
-        // Carga inicial
         cargarNotificaciones();
         
-        // Configuramos el intervalo para actualizaciones regulares
-        intervalRef.current = setInterval(() => cargarNotificaciones(true), 10000); // Cada 10 segundos
+        intervalRef.current = setInterval(() => cargarNotificaciones(true), 10000);
         
-        // Agregamos un evento para cuando la ventana recupera el foco
         const handleFocus = () => cargarNotificaciones(true);
         window.addEventListener('focus', handleFocus);
         
-        // Limpieza al desmontar
         return () => {
             clearInterval(intervalRef.current);
             window.removeEventListener('focus', handleFocus);
         };
     }, [cargarNotificaciones]);
 
-    // Efecto adicional para manejar la visibilidad de la página
     useEffect(() => {
         const handleVisibilityChange = () => {
             if (document.visibilityState === 'visible') {

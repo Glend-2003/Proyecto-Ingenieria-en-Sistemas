@@ -28,17 +28,12 @@ const Orders = () => {
   const [filtrosAplicados, setFiltrosAplicados] = useState(false);
   const itemsPerPage = 5;
   
-  // Función para generar un código amigable para pedidos - DEBE SER IDÉNTICA en todos los componentes
   const generarCodigoPedido = (idPedido, fechaPedido) => {
-    // Extraer el año y mes de la fecha del pedido
     const fecha = new Date(fechaPedido);
-    const año = fecha.getFullYear().toString().substring(2); // Últimos dos dígitos del año
-    const mes = (fecha.getMonth() + 1).toString().padStart(2, '0'); // Mes con 2 dígitos
-    
-    // Formatear el ID interno con ceros a la izquierda (5 dígitos)
+    const año = fecha.getFullYear().toString().substring(2); 
+    const mes = (fecha.getMonth() + 1).toString().padStart(2, '0'); 
     const idFormateado = idPedido.toString().padStart(5, '0');
     
-    // Formato: PED-AAMM-XXXXX (Año-Mes-ID)
     return `PED-${año}${mes}-${idFormateado}`;
   };
   

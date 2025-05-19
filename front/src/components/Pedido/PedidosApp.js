@@ -6,65 +6,58 @@ import SideBar from "../SideBar/SideBar";
 import FooterApp from "../Footer/FooterApp";
 import useAuth from "../../hooks/useAuth";
 import NotificacionPedido from "../Notificacion/NotificacionPedido";
-import { 
-  ChevronDown, 
-  ChevronUp, 
-  Filter, 
-  RefreshCw, 
-  Clock, 
-  CheckCircle, 
-  AlertTriangle, 
-  Package, 
+import {
+  ChevronDown,
+  ChevronUp,
+  Filter,
+  RefreshCw,
+  Clock,
+  CheckCircle,
+  AlertTriangle,
+  Package,
   Truck,
-  Edit, 
+  Edit,
   X,
   DollarSign
 } from 'lucide-react';
 
-// Componente Alert personalizado
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
 const PedidosApp = () => {
-  // Estados principales
   const [pedidos, setPedidos] = useState([]);
   const [filteredPedidos, setFilteredPedidos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedPedido, setSelectedPedido] = useState(null);
-  
-  // Estados para filtros
+
   const [filterStatus, setFilterStatus] = useState('todos');
   const [mostrarFiltros, setMostrarFiltros] = useState(false);
   const [filtroFechaInicio, setFiltroFechaInicio] = useState('');
   const [filtroFechaFin, setFiltroFechaFin] = useState('');
-  
-  // Estados para edición
+
   const [editMode, setEditMode] = useState(false);
   const [editFormData, setEditFormData] = useState(null);
   const [tiposPago, setTiposPago] = useState([]);
-  
-  // Estados para UI
+
   const [expandedPedido, setExpandedPedido] = useState(null);
   const [updatingStatus, setUpdatingStatus] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(6);
-  
-  // Estados para notificaciones
+
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
 
   const { usuario } = useAuth();
-  
-  // Funciones para notificaciones
+
   const handleSnackbarClose = (event, reason) => {
     if (reason === "clickaway") return;
     setSnackbarOpen(false);
   };
-  
+
   const showSnackbar = (message, severity = "success") => {
     setSnackbarMessage(message);
     setSnackbarSeverity(severity);
@@ -72,67 +65,57 @@ const PedidosApp = () => {
   };
 
   const generarCodigoPedido = (idPedido, fechaPedido) => {
-    // Extraer el año y mes de la fecha del pedido
     const fecha = new Date(fechaPedido);
-    const año = fecha.getFullYear().toString().substring(2); // Últimos dos dígitos del año
-    const mes = (fecha.getMonth() + 1).toString().padStart(2, '0'); // Mes con 2 dígitos
-    
-    // Formatear el ID interno con ceros a la izquierda (5 dígitos)
+    const año = fecha.getFullYear().toString().substring(2);
+    const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
+
     const idFormateado = idPedido.toString().padStart(5, '0');
-    
-    // Formato: PED-AAMM-XXXXX (Año-Mes-ID)
+
     return `PED-${año}${mes}-${idFormateado}`;
   };
 
-  // Fetch de datos iniciales
   useEffect(() => {
     fetchPedidos();
     fetchTiposPago();
   }, []);
 
-  // Actualizar filtros cuando cambian
   useEffect(() => {
     aplicarFiltros();
   }, [filterStatus, pedidos, filtroFechaInicio, filtroFechaFin]);
-  
+
   const [allPedidos, setAllPedidos] = useState([]);
-  // Función para obtener pedidos
-const fetchPedidos = async () => {
-  try {
-    setLoading(true);
-    setRefreshing(true);
-    const response = await axios.get("http://localhost:8080/pedido/");
-    
-    // Ordenar pedidos por fecha (más recientes primero)
-    const sortedPedidos = response.data.sort((a, b) => 
-      new Date(b.fechaPedido) - new Date(a.fechaPedido)
-    );
-    
-    // Guardar todos los pedidos para estadísticas
-    setAllPedidos(sortedPedidos);
-    
-    // Filtrar para excluir los pedidos entregados
-    const pedidosActivos = sortedPedidos.filter(pedido => 
-      pedido.estadoEntregaPedido !== "Entregado"
-    );
-    
-    setPedidos(pedidosActivos);
-    setFilteredPedidos(pedidosActivos);
-    setLoading(false);
-    showSnackbar("Pedidos actualizados correctamente", "success");
-  } catch (err) {
-    setError(
-      "Error al cargar los pedidos. Por favor, intente de nuevo más tarde."
-    );
-    setLoading(false);
-    console.error("Error fetching pedidos:", err);
-    showSnackbar("Error al cargar los pedidos", "error");
-  } finally {
-    setRefreshing(false);
-  }
-};
-  
-  // Función para obtener tipos de pago
+  const fetchPedidos = async () => {
+    try {
+      setLoading(true);
+      setRefreshing(true);
+      const response = await axios.get("http://localhost:8080/pedido/");
+
+      const sortedPedidos = response.data.sort((a, b) =>
+        new Date(b.fechaPedido) - new Date(a.fechaPedido)
+      );
+
+      setAllPedidos(sortedPedidos);
+
+      const pedidosActivos = sortedPedidos.filter(pedido =>
+        pedido.estadoEntregaPedido !== "Entregado"
+      );
+
+      setPedidos(pedidosActivos);
+      setFilteredPedidos(pedidosActivos);
+      setLoading(false);
+      showSnackbar("Pedidos actualizados correctamente", "success");
+    } catch (err) {
+      setError(
+        "Error al cargar los pedidos. Por favor, intente de nuevo más tarde."
+      );
+      setLoading(false);
+      console.error("Error fetching pedidos:", err);
+      showSnackbar("Error al cargar los pedidos", "error");
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   const fetchTiposPago = async () => {
     try {
       const response = await axios.get("http://localhost:8080/tipopago/");
@@ -142,98 +125,88 @@ const fetchPedidos = async () => {
     }
   };
 
-  // Función para aplicar filtros
-const aplicarFiltros = () => {
-  let result = [...pedidos];
-  const filtrandoEntregados = filterStatus === "Entregado";
-
-  // Filtrar por estado
-  if (filterStatus !== "todos") {
-    if (filterStatus === "activo") {
-      result = result.filter((pedido) => pedido.estadoPedido);
-    } else if (filterStatus === "inactivo") {
-      result = result.filter((pedido) => !pedido.estadoPedido);
-    } else {
-      result = result.filter(
-        (pedido) => pedido.estadoEntregaPedido === filterStatus
-      );
-    }
-  } else if (!filtrandoEntregados) {
-    // Si no se está filtrando por ningún estado específico, excluir los entregados
-    result = result.filter(pedido => pedido.estadoEntregaPedido !== "Entregado");
-  }
-
-  // Filtrar por rango de fechas
-  if (filtroFechaInicio && filtroFechaFin) {
-    const fechaInicio = new Date(filtroFechaInicio);
-    fechaInicio.setHours(0, 0, 0, 0);
-    
-    const fechaFin = new Date(filtroFechaFin);
-    fechaFin.setHours(23, 59, 59, 999);
-    
-    result = result.filter((pedido) => {
-      const fechaPedido = new Date(pedido.fechaPedido);
-      return fechaPedido >= fechaInicio && fechaPedido <= fechaFin;
-    });
-  }
-
-  setFilteredPedidos(result);
-  setCurrentPage(1); // Reset a la primera página cuando cambian los filtros
-};
-
-  // Función para filtros avanzados usando el endpoint del backend
-const aplicarFiltrosAvanzados = async () => {
-  try {
-    setLoading(true);
-    
-    // Construir URL para filtrar
-    let url = `http://localhost:8080/pedido/filtrar?idUsuario=0`;
-    
-    // Variable para saber si se está filtrando explícitamente por estado "Entregado"
+  const aplicarFiltros = () => {
+    let result = [...pedidos];
     const filtrandoEntregados = filterStatus === "Entregado";
-    
-    if (filterStatus !== "todos" && filterStatus !== "activo" && filterStatus !== "inactivo") {
-      url += `&estadoEntrega=${encodeURIComponent(filterStatus)}`;
-    }
-    
-    if (filtroFechaInicio) {
-      const fechaInicio = new Date(filtroFechaInicio);
-      fechaInicio.setHours(0, 0, 0);
-      url += `&fechaInicio=${encodeURIComponent(fechaInicio.toISOString().replace('T', ' ').substring(0, 19))}`;
-    }
-    
-    if (filtroFechaFin) {
-      const fechaFin = new Date(filtroFechaFin);
-      fechaFin.setHours(23, 59, 59);
-      url += `&fechaFin=${encodeURIComponent(fechaFin.toISOString().replace('T', ' ').substring(0, 19))}`;
-    }
-    
-    const response = await axios.get(url);
-    
-    // Ordenar pedidos por fecha (más recientes primero)
-    const sortedPedidos = response.data.sort((a, b) => 
-      new Date(b.fechaPedido) - new Date(a.fechaPedido)
-    );
-    
-    // Si no se está filtrando explícitamente por "Entregado", excluirlos
-    let filteredResults = sortedPedidos;
-    if (!filtrandoEntregados) {
-      filteredResults = sortedPedidos.filter(pedido => 
-        pedido.estadoEntregaPedido !== "Entregado"
-      );
-    }
-    
-    setFilteredPedidos(filteredResults);
-    showSnackbar("Filtros aplicados correctamente", "success");
-  } catch (err) {
-    console.error("Error al aplicar filtros:", err);
-    showSnackbar("Error al aplicar filtros", "error");
-  } finally {
-    setLoading(false);
-  }
-};
 
-  // Funciones de paginación
+    if (filterStatus !== "todos") {
+      if (filterStatus === "activo") {
+        result = result.filter((pedido) => pedido.estadoPedido);
+      } else if (filterStatus === "inactivo") {
+        result = result.filter((pedido) => !pedido.estadoPedido);
+      } else {
+        result = result.filter(
+          (pedido) => pedido.estadoEntregaPedido === filterStatus
+        );
+      }
+    } else if (!filtrandoEntregados) {
+      result = result.filter(pedido => pedido.estadoEntregaPedido !== "Entregado");
+    }
+
+    if (filtroFechaInicio && filtroFechaFin) {
+      const fechaInicio = new Date(filtroFechaInicio);
+      fechaInicio.setHours(0, 0, 0, 0);
+
+      const fechaFin = new Date(filtroFechaFin);
+      fechaFin.setHours(23, 59, 59, 999);
+
+      result = result.filter((pedido) => {
+        const fechaPedido = new Date(pedido.fechaPedido);
+        return fechaPedido >= fechaInicio && fechaPedido <= fechaFin;
+      });
+    }
+
+    setFilteredPedidos(result);
+    setCurrentPage(1);
+  };
+
+  const aplicarFiltrosAvanzados = async () => {
+    try {
+      setLoading(true);
+
+      let url = `http://localhost:8080/pedido/filtrar?idUsuario=0`;
+
+      const filtrandoEntregados = filterStatus === "Entregado";
+
+      if (filterStatus !== "todos" && filterStatus !== "activo" && filterStatus !== "inactivo") {
+        url += `&estadoEntrega=${encodeURIComponent(filterStatus)}`;
+      }
+
+      if (filtroFechaInicio) {
+        const fechaInicio = new Date(filtroFechaInicio);
+        fechaInicio.setHours(0, 0, 0);
+        url += `&fechaInicio=${encodeURIComponent(fechaInicio.toISOString().replace('T', ' ').substring(0, 19))}`;
+      }
+
+      if (filtroFechaFin) {
+        const fechaFin = new Date(filtroFechaFin);
+        fechaFin.setHours(23, 59, 59);
+        url += `&fechaFin=${encodeURIComponent(fechaFin.toISOString().replace('T', ' ').substring(0, 19))}`;
+      }
+
+      const response = await axios.get(url);
+
+      const sortedPedidos = response.data.sort((a, b) =>
+        new Date(b.fechaPedido) - new Date(a.fechaPedido)
+      );
+
+      let filteredResults = sortedPedidos;
+      if (!filtrandoEntregados) {
+        filteredResults = sortedPedidos.filter(pedido =>
+          pedido.estadoEntregaPedido !== "Entregado"
+        );
+      }
+
+      setFilteredPedidos(filteredResults);
+      showSnackbar("Filtros aplicados correctamente", "success");
+    } catch (err) {
+      console.error("Error al aplicar filtros:", err);
+      showSnackbar("Error al aplicar filtros", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredPedidos.slice(indexOfFirstItem, indexOfLastItem);
@@ -243,10 +216,6 @@ const aplicarFiltrosAvanzados = async () => {
     setCurrentPage(pageNumber);
   };
 
-
-  
-
-  // Funciones para edición de pedido
   const handleEditFormChange = (e) => {
     const { name, value, type, checked } = e.target;
 
@@ -265,8 +234,8 @@ const aplicarFiltrosAvanzados = async () => {
         type === "checkbox"
           ? checked
           : name === "montoTotalPedido"
-          ? parseFloat(value)
-          : value;
+            ? parseFloat(value)
+            : value;
 
       setEditFormData({
         ...editFormData,
@@ -336,95 +305,84 @@ const aplicarFiltrosAvanzados = async () => {
     }
   };
 
-  // Funciones para actualizar estados de pedido
-const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
-  if (nuevoEstado === 'Cancelado' &&
-    !window.confirm('¿Está seguro que desea cancelar este pedido?')) {
-    return;
-  }
-
-  if (nuevoEstado === 'Entregado' &&
-    !window.confirm('¿Está seguro que desea marcar este pedido como entregado? El pedido ya no aparecerá en esta pantalla.')) {
-    return;
-  }
-
-  setUpdatingStatus(pedidoId);
-  try {
-    // Obtener el pedido actual para extraer el correo del cliente
-    const pedidoActual = pedidos.find(p => p.idPedido === pedidoId);
-    const correoCliente = pedidoActual?.carrito?.usuario?.correoUsuario || '';
-    
-    // Enviar tanto el estado como el correo como parámetros query
-    await axios.put(
-      `http://localhost:8080/pedido/actualizarEstadoPedido/${pedidoId}`,
-      null,
-      {
-        params: {
-          correoCliente: correoCliente,
-          nuevoEstado: nuevoEstado
-        }
-      }
-    );
-
-    if (nuevoEstado === "Entregado") {
-      // Si el pedido cambia a entregado, eliminarlo de la lista actual
-      const updatedPedidos = pedidos.filter(pedido => pedido.idPedido !== pedidoId);
-      setPedidos(updatedPedidos);
-      
-      // También actualizar pedidos filtrados
-      const updatedFiltered = filteredPedidos.filter(pedido => pedido.idPedido !== pedidoId);
-      setFilteredPedidos(updatedFiltered);
-      
-      // Si es el pedido seleccionado actualmente, cerrarlo
-      if (selectedPedido && selectedPedido.idPedido === pedidoId) {
-        setSelectedPedido(null);
-      }
-      
-      // Si es el pedido expandido actualmente, cerrarlo
-      if (expandedPedido === pedidoId) {
-        setExpandedPedido(null);
-      }
-      
-      showSnackbar("Pedido marcado como entregado y movido a historial", "success");
-    } else {
-      // Para otros estados, solo actualizar el estado
-      const updatedPedidos = pedidos.map((pedido) => {
-        if (pedido.idPedido === pedidoId) {
-          return { ...pedido, estadoEntregaPedido: nuevoEstado };
-        }
-        return pedido;
-      });
-      
-      setPedidos(updatedPedidos);
-      
-      // Actualizar pedidos filtrados
-      const updatedFiltered = filteredPedidos.map((pedido) => {
-        if (pedido.idPedido === pedidoId) {
-          return { ...pedido, estadoEntregaPedido: nuevoEstado };
-        }
-        return pedido;
-      });
-      
-      setFilteredPedidos(updatedFiltered);
-
-      if (selectedPedido && selectedPedido.idPedido === pedidoId) {
-        setSelectedPedido({
-          ...selectedPedido,
-          estadoEntregaPedido: nuevoEstado,
-        });
-      }
-      
-      showSnackbar(`Estado de entrega actualizado a: ${nuevoEstado}`, "success");
+  const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
+    if (nuevoEstado === 'Cancelado' &&
+      !window.confirm('¿Está seguro que desea cancelar este pedido?')) {
+      return;
     }
-  } catch (err) {
-    console.error("Error updating pedido status:", err);
-    showSnackbar("Error al actualizar el estado de entrega", "error");
-  } finally {
-    setUpdatingStatus(null);
-  }
-};
 
-  // Funciones de utilidad
+    if (nuevoEstado === 'Entregado' &&
+      !window.confirm('¿Está seguro que desea marcar este pedido como entregado? El pedido ya no aparecerá en esta pantalla.')) {
+      return;
+    }
+
+    setUpdatingStatus(pedidoId);
+    try {
+      const pedidoActual = pedidos.find(p => p.idPedido === pedidoId);
+      const correoCliente = pedidoActual?.carrito?.usuario?.correoUsuario || '';
+
+      await axios.put(
+        `http://localhost:8080/pedido/actualizarEstadoPedido/${pedidoId}`,
+        null,
+        {
+          params: {
+            correoCliente: correoCliente,
+            nuevoEstado: nuevoEstado
+          }
+        }
+      );
+
+      if (nuevoEstado === "Entregado") {
+        const updatedPedidos = pedidos.filter(pedido => pedido.idPedido !== pedidoId);
+        setPedidos(updatedPedidos);
+
+        const updatedFiltered = filteredPedidos.filter(pedido => pedido.idPedido !== pedidoId);
+        setFilteredPedidos(updatedFiltered);
+
+        if (selectedPedido && selectedPedido.idPedido === pedidoId) {
+          setSelectedPedido(null);
+        }
+        if (expandedPedido === pedidoId) {
+          setExpandedPedido(null);
+        }
+
+        showSnackbar("Pedido marcado como entregado y movido a historial", "success");
+      } else {
+        const updatedPedidos = pedidos.map((pedido) => {
+          if (pedido.idPedido === pedidoId) {
+            return { ...pedido, estadoEntregaPedido: nuevoEstado };
+          }
+          return pedido;
+        });
+
+        setPedidos(updatedPedidos);
+
+        const updatedFiltered = filteredPedidos.map((pedido) => {
+          if (pedido.idPedido === pedidoId) {
+            return { ...pedido, estadoEntregaPedido: nuevoEstado };
+          }
+          return pedido;
+        });
+
+        setFilteredPedidos(updatedFiltered);
+
+        if (selectedPedido && selectedPedido.idPedido === pedidoId) {
+          setSelectedPedido({
+            ...selectedPedido,
+            estadoEntregaPedido: nuevoEstado,
+          });
+        }
+
+        showSnackbar(`Estado de entrega actualizado a: ${nuevoEstado}`, "success");
+      }
+    } catch (err) {
+      console.error("Error updating pedido status:", err);
+      showSnackbar("Error al actualizar el estado de entrega", "error");
+    } finally {
+      setUpdatingStatus(null);
+    }
+  };
+
   const formatDate = (dateString) => {
     if (!dateString) return "";
     const date = new Date(dateString);
@@ -443,7 +401,6 @@ const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
     return date.toISOString().slice(0, 16);
   };
 
-  // Funciones de interacción con UI
   const handleSelectPedido = (pedido) => {
     setSelectedPedido(pedido);
     setEditMode(false);
@@ -462,7 +419,7 @@ const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
     setFiltroFechaFin('');
     setFilteredPedidos(pedidos);
   };
-  
+
   const toggleExpandPedido = (idPedido) => {
     if (expandedPedido === idPedido) {
       setExpandedPedido(null);
@@ -471,18 +428,16 @@ const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
     }
   };
 
-  // Renderizado de la UI
   return (
     <div className="page-container">
-        <div className="main-container ">
+      <div className="main-container ">
         <SideBar usuario={usuario} />
-        
+
         <div className="main-content">
-          {/* Cabecera con título y notificaciones */}
           <div className="header-container">
             <h1>Administración de Pedidos</h1>
             <div className="header-actions">
-              <button 
+              <button
                 onClick={fetchPedidos}
                 className="refresh-button"
                 disabled={refreshing}
@@ -500,73 +455,69 @@ const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
             </div>
           </div>
 
-          {/* Panel principal con filtros y estadísticas */}
           <div className="main-panel">
-            {/* Tarjetas de estadísticas */}
             <div className="stats-cards">
-  <div className="stat-card total-card">
-    <div className="stat-icon">
-      <DollarSign size={20} />
-    </div>
-    <div className="stat-content">
-      <h3 className="stat-title">Total de Pedidos</h3>
-      <p className="stat-value">{allPedidos.length}</p>
-    </div>
-  </div>
-  
-  <div className="stat-card pending-card">
-    <div className="stat-icon">
-      <Clock size={20} />
-    </div>
-    <div className="stat-content">
-      <h3 className="stat-title">Pendientes</h3>
-      <p className="stat-value">
-        {allPedidos.filter(p => p.estadoEntregaPedido === "Pendiente").length}
-      </p>
-    </div>
-  </div>
-  
-  <div className="stat-card process-card">
-    <div className="stat-icon">
-      <Package size={20} />
-    </div>
-    <div className="stat-content">
-      <h3 className="stat-title">En Proceso</h3>
-      <p className="stat-value">
-        {allPedidos.filter(p => p.estadoEntregaPedido === "En Proceso").length}
-      </p>
-    </div>
-  </div>
-  
-  <div className="stat-card ready-card">
-    <div className="stat-icon">
-      <CheckCircle size={20} />
-    </div>
-    <div className="stat-content">
-      <h3 className="stat-title">Listos</h3>
-      <p className="stat-value">
-        {allPedidos.filter(p => p.estadoEntregaPedido === "Listo").length}
-      </p>
-    </div>
-  </div>
-  
-  <div className="stat-card delivered-card">
-    <div className="stat-icon">
-      <Truck size={20} />
-    </div>
-    <div className="stat-content">
-      <h3 className="stat-title">Entregados</h3>
-      <p className="stat-value">
-        {allPedidos.filter(p => p.estadoEntregaPedido === "Entregado").length}
-      </p>
-    </div>
-  </div>
-</div>
-            
-            {/* Panel de filtros */}
+              <div className="stat-card total-card">
+                <div className="stat-icon">
+                  <DollarSign size={20} />
+                </div>
+                <div className="stat-content">
+                  <h3 className="stat-title">Total de Pedidos</h3>
+                  <p className="stat-value">{allPedidos.length}</p>
+                </div>
+              </div>
+
+              <div className="stat-card pending-card">
+                <div className="stat-icon">
+                  <Clock size={20} />
+                </div>
+                <div className="stat-content">
+                  <h3 className="stat-title">Pendientes</h3>
+                  <p className="stat-value">
+                    {allPedidos.filter(p => p.estadoEntregaPedido === "Pendiente").length}
+                  </p>
+                </div>
+              </div>
+
+              <div className="stat-card process-card">
+                <div className="stat-icon">
+                  <Package size={20} />
+                </div>
+                <div className="stat-content">
+                  <h3 className="stat-title">En Proceso</h3>
+                  <p className="stat-value">
+                    {allPedidos.filter(p => p.estadoEntregaPedido === "En Proceso").length}
+                  </p>
+                </div>
+              </div>
+
+              <div className="stat-card ready-card">
+                <div className="stat-icon">
+                  <CheckCircle size={20} />
+                </div>
+                <div className="stat-content">
+                  <h3 className="stat-title">Listos</h3>
+                  <p className="stat-value">
+                    {allPedidos.filter(p => p.estadoEntregaPedido === "Listo").length}
+                  </p>
+                </div>
+              </div>
+
+              <div className="stat-card delivered-card">
+                <div className="stat-icon">
+                  <Truck size={20} />
+                </div>
+                <div className="stat-content">
+                  <h3 className="stat-title">Entregados</h3>
+                  <p className="stat-value">
+                    {allPedidos.filter(p => p.estadoEntregaPedido === "Entregado").length}
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <div className="filter-panel">
               <div className="filter-controls">
-                {/* Filtros básicos */}
                 <div className="search-filter-row">
                   <div className="filter-select">
                     <label htmlFor="status-filter">Estado</label>
@@ -586,7 +537,7 @@ const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
                       <option value="Cancelado">Cancelado</option>
                     </select>
                   </div>
-                  
+
                   <button
                     onClick={() => setMostrarFiltros(!mostrarFiltros)}
                     className="filter-button"
@@ -596,7 +547,6 @@ const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
                   </button>
                 </div>
 
-                {/* Filtros avanzados */}
                 {mostrarFiltros && (
                   <div className="advanced-filters">
                     <h3 className="filter-title">Filtrar por fecha</h3>
@@ -639,13 +589,12 @@ const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
               </div>
             </div>
 
-            {/* Estados de carga y error */}
             {error && (
               <div className="error-message">
                 {error}
               </div>
             )}
-              
+
             {loading && !refreshing ? (
               <div className="loading-container">
                 <div className="loading-spinner"></div>
@@ -656,7 +605,6 @@ const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
               </div>
             ) : (
               <div>
-                {/* Tabla de pedidos */}
                 <div className="pedidos-container">
                   <table className="pedidos-table">
                     <thead>
@@ -672,7 +620,7 @@ const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
                     <tbody>
                       {currentItems.map((pedido) => (
                         <React.Fragment key={pedido.idPedido}>
-                          <tr 
+                          <tr
                             className={`pedido-row ${!pedido.estadoPedido ? 'inactive-row' : ''}`}
                             onClick={() => toggleExpandPedido(pedido.idPedido)}
                           >
@@ -702,7 +650,7 @@ const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
                             </td>
                             <td className="pedido-actions">
                               <div className="actions-container">
-                                <button 
+                                <button
                                   className="view-btn"
                                   onClick={(e) => {
                                     e.stopPropagation();
@@ -719,13 +667,11 @@ const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
                               </div>
                             </td>
                           </tr>
-                          
-                          {/* Detalles expandidos */}
+
                           {expandedPedido === pedido.idPedido && (
                             <tr className="expanded-row">
                               <td colSpan="6" className="expanded-content">
                                 <div className="expanded-grid">
-                                  {/* Información del cliente */}
                                   <div className="expanded-card client-info">
                                     <h4 className="expanded-card-title">
                                       Información del cliente
@@ -739,8 +685,7 @@ const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
                                       <p><strong>Teléfono:</strong> {pedido.carrito.usuario.telefonoUsuario}</p>
                                     )}
                                   </div>
-                                  
-                                  {/* Información del pedido */}
+
                                   <div className="expanded-card order-info">
                                     <h4 className="expanded-card-title">
                                       Información del pedido
@@ -751,7 +696,6 @@ const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
                                     <p><strong>Estado:</strong> {pedido.estadoEntregaPedido}</p>
                                   </div>
 
-                                  {/* Cambiar estado */}
                                   <div className="expanded-card status-change">
                                     <h4 className="expanded-card-title">
                                       Cambiar estado
@@ -775,8 +719,7 @@ const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
                                     </div>
                                   </div>
                                 </div>
-                                
-                                {/* Productos del pedido */}
+
                                 <div className="expanded-card products-list">
                                   <h4 className="expanded-card-title">
                                     Productos ({pedido.carrito?.productos?.length || 0})
@@ -787,7 +730,7 @@ const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
                                         <div key={idx} className="product-card">
                                           <div className="product-image">
                                             {producto.imgProducto ? (
-                                              <img 
+                                              <img
                                                 src={producto.imgProducto}
                                                 alt={producto.nombreProducto}
                                               />
@@ -825,8 +768,7 @@ const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
                     </tbody>
                   </table>
                 </div>
-                
-                {/* Paginación */}
+
                 {filteredPedidos.length > itemsPerPage && (
                   <div className="pagination-container">
                     <button
@@ -836,11 +778,11 @@ const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
                     >
                       &laquo; Anterior
                     </button>
-                    
+
                     <div className="pagination-info">
                       Página {currentPage} de {totalPages}
                     </div>
-                    
+
                     <button
                       onClick={() => handlePageChange(currentPage + 1)}
                       disabled={currentPage === totalPages}
@@ -854,17 +796,16 @@ const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
             )}
           </div>
 
-          {/* Modal de detalles del pedido */}
           {selectedPedido && (
             <div className="pedido-details-modal">
-              <div className="pedido-details-content">  
+              <div className="pedido-details-content">
                 <div className="modal-header">
                   <h2>Pedido {generarCodigoPedido(selectedPedido.idPedido, selectedPedido.fechaPedido)}</h2>
                   <button className="close-btn" onClick={handleCloseDetails}>
                     <X size={24} />
                   </button>
                 </div>
-                
+
                 <div className="modal-body">
                   {!editMode ? (
                     <>
@@ -879,14 +820,14 @@ const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
                                 <span className="info-label">Fecha:</span>
                                 <span className="info-value">{formatDate(selectedPedido.fechaPedido)}</span>
                               </div>
-                              
+
                               <div className="info-row">
                                 <span className="info-label">Estado:</span>
                                 <span className={`active-status ${selectedPedido.estadoPedido ? 'active' : 'inactive'}`}>
                                   {selectedPedido.estadoPedido ? 'Activo' : 'Inactivo'}
                                 </span>
                               </div>
-                              
+
                               <div className="info-row">
                                 <span className="info-label">Estado de Entrega:</span>
                                 <span className={`estado-badge estado-${selectedPedido.estadoEntregaPedido.toLowerCase().replace(' ', '-')}`}>
@@ -898,12 +839,12 @@ const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
                                   {selectedPedido.estadoEntregaPedido}
                                 </span>
                               </div>
-                              
+
                               <div className="info-row">
                                 <span className="info-label">Método de Pago:</span>
                                 <span className="info-value">{selectedPedido.tipoPago ? selectedPedido.tipoPago.descripcionTipoPago : 'N/A'}</span>
                               </div>
-                              
+
                               <div className="info-row">
                                 <span className="info-label">Monto Total:</span>
                                 <span className="info-value monto-total">₡{selectedPedido.montoTotalPedido ? selectedPedido.montoTotalPedido.toLocaleString() : '0'}</span>
@@ -911,7 +852,6 @@ const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
                             </div>
                           </div>
 
-                          {/* Información del cliente */}
                           {selectedPedido.carrito && selectedPedido.carrito.usuario && (
                             <div className="info-card">
                               <div className="info-header">
@@ -922,26 +862,26 @@ const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
                                   <span className="info-label">Nombre:</span>
                                   <span className="info-value">{selectedPedido.carrito.usuario.nombreUsuario} {selectedPedido.carrito.usuario.primerApellido} {selectedPedido.carrito.usuario.segundoApellido}</span>
                                 </div>
-                                
+
                                 {selectedPedido.carrito.usuario.cedulaUsuario && (
                                   <div className="info-row">
                                     <span className="info-label">Cédula:</span>
                                     <span className="info-value">{selectedPedido.carrito.usuario.cedulaUsuario}</span>
                                   </div>
                                 )}
-                                
+
                                 <div className="info-row">
                                   <span className="info-label">Correo:</span>
                                   <span className="info-value">{selectedPedido.carrito.usuario.correoUsuario}</span>
                                 </div>
-                                
+
                                 {selectedPedido.carrito.usuario.telefonoUsuario && (
                                   <div className="info-row">
                                     <span className="info-label">Teléfono:</span>
                                     <span className="info-value">{selectedPedido.carrito.usuario.telefonoUsuario}</span>
                                   </div>
                                 )}
-                                
+
                                 {selectedPedido.carrito.usuario.direccion && (
                                   <div className="info-row">
                                     <span className="info-label">Dirección:</span>
@@ -953,7 +893,6 @@ const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
                           )}
                         </div>
 
-                        {/* Cambiar estado de entrega */}
                         <div className="modal-section">
                           <div className="cambiar-estado-card">
                             <div className="info-header">
@@ -988,7 +927,6 @@ const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
                           </div>
                         </div>
 
-                        {/* Productos del pedido */}
                         <div className="modal-section full-width">
                           <div className="productos-card">
                             <div className="info-header product-header">
@@ -1001,7 +939,7 @@ const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
                                   <div key={index} className="product-item-card">
                                     <div className="product-item-image">
                                       {producto.imgProducto ? (
-                                        <img 
+                                        <img
                                           src={producto.imgProducto}
                                           alt={producto.nombreProducto}
                                         />
@@ -1011,34 +949,34 @@ const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
                                         </div>
                                       )}
                                     </div>
-                                    
+
                                     <div className="product-item-details">
                                       <h4 className="product-item-name">{producto.nombreProducto}</h4>
-                                      
+
                                       {producto.descripcionProducto && (
                                         <p className="product-item-description">{producto.descripcionProducto}</p>
                                       )}
-                                      
+
                                       <div className="product-item-meta">
                                         {producto.codigoProducto && (
                                           <div className="product-item-code">
                                             <span className="meta-label">Código:</span> {producto.codigoProducto}
                                           </div>
                                         )}
-                                        
+
                                         <div className="product-item-quantity">
                                           <span className="meta-label">Cantidad:</span> {producto.cantidadProducto} {producto.tipoPesoProducto || 'unidades'}
                                         </div>
-                                        
+
                                         {producto.idCategoria && (
                                           <div className="product-item-category">
                                             <span className="meta-label">Categoría:</span> {producto.idCategoria}
                                           </div>
                                         )}
                                       </div>
-                                      
+
                                       <div className="product-item-price">
-                                        
+
                                         ₡{producto.montoPrecioProducto ? producto.montoPrecioProducto.toLocaleString() : '0'}
                                       </div>
                                     </div>
@@ -1054,7 +992,6 @@ const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
                         </div>
                       </div>
 
-                      {/* Botón para editar */}
                       <div className="edit-button-container">
                         <button
                           onClick={handleEditPedido}
@@ -1067,10 +1004,9 @@ const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
                     </>
                   ) : (
                     <form onSubmit={handleSubmitEdit} className="edit-form">
-                      {/* Información básica */}
                       <div className="form-section">
                         <h3>Información Básica</h3>
-                        
+
                         <div className="form-row">
                           <div className="form-group">
                             <label>Monto Total (₡)</label>
@@ -1084,7 +1020,7 @@ const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
                               className="form-control"
                             />
                           </div>
-                          
+
                           <div className="form-group">
                             <label>Fecha del Pedido</label>
                             <input
@@ -1097,7 +1033,7 @@ const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
                             />
                           </div>
                         </div>
-                        
+
                         <div className="form-row">
                           <div className="form-group checkbox-group">
                             <label className="checkbox-container">
@@ -1113,10 +1049,9 @@ const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
                         </div>
                       </div>
 
-                      {/* Estado y método de pago */}
                       <div className="form-section">
                         <h3>Estado y Método de Pago</h3>
-                        
+
                         <div className="form-row">
                           <div className="form-group">
                             <label>Estado de Entrega</label>
@@ -1134,7 +1069,7 @@ const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
                               <option value="Cancelado">Cancelado</option>
                             </select>
                           </div>
-                          
+
                           <div className="form-group">
                             <label>Método de Pago</label>
                             <select
@@ -1158,12 +1093,11 @@ const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
                         </div>
                       </div>
 
-                      {/* Botones de acciones */}
                       <div className="form-actions">
                         <button type="submit" className="save-btn">
                           Guardar Cambios
                         </button>
-                        
+
                         <button
                           type="button"
                           className="cancel-btn"
@@ -1180,9 +1114,9 @@ const handleChangeEstadoEntrega = async (pedidoId, nuevoEstado) => {
           )}
         </div>
       </div>
-      
+
       <FooterApp />
-      
+
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={5000}

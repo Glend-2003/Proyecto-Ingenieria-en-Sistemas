@@ -1,6 +1,4 @@
-/* Historia.css - Estilos para la página de Historia de Carnicería la Bendición */
 
-/* Variables de colores - Nueva paleta */
 :root {
   --color-primary: #103f1b;      /* Verde oscuro - Color principal */
   --color-primary-light: #387623; /* Verde medio */
@@ -25,24 +23,17 @@
   color: var(--color-gray-700);
 }
 
-/* Para asegurar que el Navbar no herede la fuente de .historia-container, 
-   los estilos del Navbar deben ser suficientemente específicos o 
-   se debe aplicar una fuente diferente directamente a los elementos del Navbar en Navbar.css.
-   Si los elementos del Navbar (como el título de la marca o los enlaces de navegación) 
-   tienen su propia font-family definida en Navbar.css, esta prevalecerá sobre la heredada. */
-
-/* Hero Section */
 .historia-hero {
   position: relative;
   height: 16rem;
-  background-image: url('../../assets/images/backgroundTitulo.png'); /* Ruta de la imagen */
+  background-image: url('../../assets/images/backgroundTitulo.png');
   overflow: hidden;
 }
 
 .historia-hero-overlay {
   position: absolute;
   inset: 0;
-  background-color: rgba(16, 63, 27, 0.7); /* Verde oscuro con transparencia */
+  background-color: rgba(16, 63, 27, 0.7); 
   display: flex;
   align-items: center;
   justify-content: center;
@@ -56,7 +47,6 @@
   padding: 0 1rem;
 }
 
-/* Sección de introducción */
 .historia-intro {
   max-width: 48rem;
   margin: 0 auto;
@@ -76,7 +66,6 @@
   margin-bottom: 2rem;
 }
 
-/* Iconos circulares */
 .historia-icon-container {
   display: flex;
   justify-content: center;
@@ -100,7 +89,6 @@
   color: var(--color-primary-dark);
 }
 
-/* Timeline */
 .historia-timeline {
   max-width: 64rem;
   margin: 0 auto;
@@ -200,7 +188,6 @@
   height: 100%;
 }
 
-/* Valores */
 .historia-values {
   background-color: var(--color-primary-bg);
   border-radius: 0.75rem;
@@ -272,7 +259,6 @@
   color: var(--color-gray-700);
 }
 
-/* Testimonial */
 .historia-testimonial {
   max-width: 48rem;
   margin: 0 auto 4rem auto;
@@ -306,7 +292,6 @@
   color: var(--color-gray-700);
 }
 
-/* Location Info */
 .historia-location-info {
   background-color: var(--color-primary);
   color: var(--color-white);
@@ -343,7 +328,6 @@
   background-color: var(--color-accent-dark);
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
   .historia-icon-container {
     flex-direction: column;

@@ -16,19 +16,17 @@ import jakarta.transaction.Transactional;
  *
  * @author Jamel Sandí
  */
-
 @Service
 @Primary
-public class ProductoService implements IProductoService{
+public class ProductoService implements IProductoService {
 
     @Autowired
     private ProductoRepository productoRepo;
 
-    // Método para agregar un producto
     @Override
     @Transactional
     public Producto addProducto(Producto producto) {
-        // Validaciones
+
         if (producto.getNombreProducto() == null || producto.getNombreProducto().trim().isEmpty()) {
             throw new IllegalArgumentException("El nombre del producto no puede estar vacío");
         }
@@ -54,7 +52,6 @@ public class ProductoService implements IProductoService{
             throw new IllegalArgumentException("Formato de imagen inválido. Debe ser .jpg, .png o .jpeg");
         }
 
-        // Llamada al stored procedure para guardar
         productoRepo.saveProcedureProducto(
                 producto.getNombreProducto(),
                 producto.getImgProducto(),
@@ -71,14 +68,13 @@ public class ProductoService implements IProductoService{
         return producto;
     }
 
-    //Método para obtener por id
     public Producto ObtenerPorId(int id) {
         return productoRepo.buscarProducto(id);
     }
-    // Método para actualizar un producto
+
     @Transactional
     public Producto updateProducto(Producto producto) {
-        
+
         // Validaciones
         if (producto.getIdProducto() <= 0) {
             throw new IllegalArgumentException("ID de producto inválido");
@@ -108,7 +104,6 @@ public class ProductoService implements IProductoService{
             throw new IllegalArgumentException("Formato de imagen inválido. Debe ser .jpg, .png o .jpeg");
         }
 
-        // Llamada al stored procedure para actualizar
         productoRepo.updateProcedureProducto(
                 producto.getIdProducto(),
                 producto.getNombreProducto(),
@@ -126,14 +121,12 @@ public class ProductoService implements IProductoService{
         return producto;
     }
 
-    // Método para listar productos
     @Override
-    @Transactional 
+    @Transactional
     public List<Producto> getProducto(boolean estadoProducto) {
         return productoRepo.listProcedureProducto(estadoProducto);
     }
 
-    // Método para eliminar un producto
     @Override
     public boolean deleteProducto(int idProducto) {
         try {
@@ -150,8 +143,8 @@ public class ProductoService implements IProductoService{
             return false;
         }
     }
- 
-        @Override
+
+    @Override
     public Producto buscarUsuario(int id) {
         Producto producto = productoRepo.buscarProducto(id);
 
@@ -162,26 +155,24 @@ public class ProductoService implements IProductoService{
 
         return producto;
     }
-    
-     @Override
-     @Transactional 
+
+    @Override
+    @Transactional
     public boolean activarProducto(int id) {
         try {
-            // Verificar si el comentario existe
-            if (!productoRepo.existsById(id)) { // Verifica si el producto existe
+
+            if (!productoRepo.existsById(id)) {
                 System.err.println("El prodcuto con ID: " + id + " no existe.");
-                return false; // Retorna false si no existe
+                return false;
             }
 
             System.out.println("activando producto con ID: " + id);
             productoRepo.activarProducto(id);
-            return true; 
+            return true;
         } catch (Exception e) {
             System.err.println("Error al activar el producto con ID: " + id + ". Detalles: " + e.getMessage());
-            return false; // Retorna false en caso de error
+            return false;
         }
     }
-
-
 
 }

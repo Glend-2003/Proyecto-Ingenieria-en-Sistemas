@@ -1,4 +1,3 @@
-// Dashboard.js
 import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -28,7 +27,6 @@ const Dashboard = () => {
     nombreRol: ""
   });
 
-  // Cargar datos del localStorage al iniciar el componente
   useEffect(() => {
     const obtenerDatosLocalStorage = () => {
       try {
@@ -57,12 +55,9 @@ const Dashboard = () => {
         <NavbarApp />
         
         <div className="dashboard-container">
-          {/* Sidebar Component */}
           <SideBarUsuario usuario={datosUsuario} handleLogout={handleLogout} />
 
-          {/* Contenido Principal */}
           <div className="dashboard-content">
-            {/* Header con saludo personalizado */}
             <div className="dashboard-header">
               <div className="welcome-section">
                 <h1>Bienvenido, {datosUsuario.nombreUsuario}</h1>
@@ -73,7 +68,6 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Menú principal */}
             <div className="action-menu">
               <h2>Gestiona tu cuenta</h2>
               <div className="menu-cards">
@@ -108,7 +102,6 @@ const Dashboard = () => {
                 </NavLink>
               </div>
               
-              {/* Botón de cerrar sesión separado */}
               <div className="logout-container">
                 <NavLink to="/" className="logout-button" onClick={handleLogout}>
                   <FaSignOutAlt className="logout-icon" />
@@ -118,7 +111,6 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Carrito en el lateral */}
           <Carrito />
         </div>
         

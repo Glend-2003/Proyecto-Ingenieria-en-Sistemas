@@ -1,18 +1,9 @@
 .perfil-usuario-container {
   display: flex;
-  min-height: 80vh; /* Ajustado para dar espacio al footer */
+  min-height: 80vh;
   background-color: #f9f9f9;
 }
 
-/* Colores de la paleta 
-  Verde oscuro: #103f1b
-  Verde medio: #387623
-  Verde claro: #9fc45a
-  Amarillo: #958933
-  Marrón: #875725
-*/
-
-/* Contenido principal */
 .profile-content {
   flex: 1;
   padding: 30px;
@@ -40,7 +31,6 @@
   font-size: 16px;
 }
 
-/* Tarjeta de perfil */
 .profile-card {
   background: white;
   border-radius: 10px;
@@ -108,7 +98,6 @@
   color: white;
 }
 
-/* Formulario */
 .profile-form {
   padding: 30px;
 }
@@ -139,7 +128,6 @@
   width: 16px;
 }
 
-/* Input con validación */
 .input-with-validation {
   position: relative;
   display: flex;
@@ -209,7 +197,6 @@
   text-align: right;
 }
 
-/* Responsive */
 @media (max-width: 992px) {
   .form-grid {
     grid-template-columns: 1fr;

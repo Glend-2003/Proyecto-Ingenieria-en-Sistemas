@@ -19,10 +19,6 @@ import com.bendicion.la.carniceria.carniceria.jpa.PromocionRepository;
 
 import jakarta.transaction.Transactional;
 
-/**
- *
- * @author Dilan Gutierrez
- */
 @Service
 @Primary
 public class PromocionService implements IPromocionService {
@@ -38,7 +34,6 @@ public class PromocionService implements IPromocionService {
     public List<Map<String, Object>> getPromociones() {
         List<Object[]> resultados = promocionRepo.listaPromocion();
 
-   
         return resultados.stream().map(fila -> Map.of(
                 "idPromocion", fila[0],
                 "descripcionPromocion", fila[1],
@@ -60,20 +55,16 @@ public class PromocionService implements IPromocionService {
             throw new IllegalArgumentException("Debe ingresar una fecha de fin");
         }
 
-    
         LocalDate fechaInicioPromocion = obtenerLocalDateSinAjusteZona(promocion.getFechaInicioPromocion());
         LocalDate fechaFinPromocion = obtenerLocalDateSinAjusteZona(promocion.getFechaFinPromocion());
 
-      
         System.out.println("Fecha inicio original: " + promocion.getFechaInicioPromocion());
         System.out.println("Fecha fin original: " + promocion.getFechaFinPromocion());
         System.out.println("LocalDate inicio: " + fechaInicioPromocion);
         System.out.println("LocalDate fin: " + fechaFinPromocion);
 
-  
         LocalDate fechaActual = LocalDate.now();
 
-     
         if (fechaInicioPromocion.isBefore(fechaActual)) {
             throw new IllegalArgumentException("La fecha de inicio de la promoción no puede ser anterior a la fecha actual");
         }
@@ -90,11 +81,9 @@ public class PromocionService implements IPromocionService {
             throw new IllegalArgumentException("Usuario is required for adding a comment.");
         }
 
-       
         Date fechaInicio = java.sql.Date.valueOf(fechaInicioPromocion);
         Date fechaFin = java.sql.Date.valueOf(fechaFinPromocion);
 
-   
         promocionRepo.saveProcedurePromocion(
                 promocion.getDescripcionPromocion(),
                 fechaInicio,
@@ -120,7 +109,7 @@ public class PromocionService implements IPromocionService {
 
         Date fechaInicio = java.sql.Date.valueOf(fechaInicioPromocion);
         Date fechaFin = java.sql.Date.valueOf(fechaFinPromocion);
-     
+
         promocionRepo.updateProcedurePromocion(
                 promocion.getIdPromocion(),
                 promocion.getDescripcionPromocion(),
@@ -137,13 +126,12 @@ public class PromocionService implements IPromocionService {
         if (fecha == null) {
             return null;
         }
-        
-      
+
         if (fecha instanceof java.util.Date && fecha.toString().contains("T")) {
-           
+
             try {
                 String fechaStr = fecha.toString();
-               
+
                 String[] partes = fechaStr.split("T");
                 if (partes.length > 0) {
                     return LocalDate.parse(partes[0]);
@@ -152,17 +140,16 @@ public class PromocionService implements IPromocionService {
                 System.err.println("Error al parsear fecha ISO: " + e.getMessage());
             }
         }
-        
-      
+
         try {
-          
+
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             String fechaStr = sdf.format(fecha);
-          
+
             return LocalDate.parse(fechaStr);
         } catch (Exception e) {
             System.err.println("Error en conversión de fecha: " + e.getMessage());
-           
+
             return fecha.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         }
     }
@@ -179,8 +166,8 @@ public class PromocionService implements IPromocionService {
         }
     }
 
-    @Transactional 
-     public void enviarMensaje(String destino, String sujeto, String mensaje) {
+    @Transactional
+    public void enviarMensaje(String destino, String sujeto, String mensaje) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(destino);
@@ -197,7 +184,7 @@ public class PromocionService implements IPromocionService {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         String inicio = dateFormat.format(inicioPromocion);
         String fin = dateFormat.format(finPromocion);
-        
+
         return String.format(
                 "¡Hola %s!\n\n"
                 + "¡Esperamos que estés teniendo un excelente día!\n\n"
@@ -216,21 +203,21 @@ public class PromocionService implements IPromocionService {
     }
 
     @Override
-    @Transactional 
+    @Transactional
     public boolean activarPromocion(int id) {
         try {
-          
-            if (!promocionRepo.existsById(id)) { 
+
+            if (!promocionRepo.existsById(id)) {
                 System.err.println("La promocion con ID: " + id + " no existe.");
                 return false;
             }
 
             System.out.println("activando categoria con ID: " + id);
             promocionRepo.activarPromocion(id);
-            return true; 
+            return true;
         } catch (Exception e) {
             System.err.println("Error al activar la promocion con ID: " + id + ". Detalles: " + e.getMessage());
-            return false; 
+            return false;
         }
     }
 }

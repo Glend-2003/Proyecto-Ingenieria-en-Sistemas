@@ -1,4 +1,4 @@
-/* Estilos principales */
+
 body {
     margin: 0;
     padding: 0;
@@ -22,30 +22,27 @@ body {
     transform: translateY(-33px);
 }
 
-/* Variables de color basadas en la paleta existente */
 :root {
-    --color-primary: #387623; /* Verde principal */
-    --color-primary-dark: #103f1b; /* Verde oscuro */
-    --color-primary-light: #9fc45a; /* Verde claro */
-    --color-accent: #875725; /* Marrón/café */
-    --color-accent-light: #b78956; /* Marrón claro */
-    --color-background: #f9f9f7; /* Fondo crema suave */
-    --color-text: #333333; /* Texto principal */
-    --color-text-light: #5a5a5a; /* Texto secundario */
-    --color-border: #e0e0e0; /* Bordes */
+    --color-primary: #387623; 
+    --color-primary-dark: #103f1b; 
+    --color-primary-light: #9fc45a; 
+    --color-accent: #875725; 
+    --color-accent-light: #b78956; 
+    --color-background: #f9f9f7; 
+    --color-text: #333333; 
+    --color-text-light: #5a5a5a; 
+    --color-border: #e0e0e0; 
     --shadow-sm: 0 2px 5px rgba(0,0,0,0.05);
     --shadow-md: 0 4px 8px rgba(0,0,0,0.1);
     --border-radius: 8px;
 }
 
-/* Estructura principal */
 .page-container {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
 }
 
-/* Hero section con imagen de fondo mejorada */
 .orden-hero {
     background-image: url('/images/actualmente.png');
     background-size: cover;
@@ -98,7 +95,6 @@ body {
     text-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
-/* Contenedor principal */
 .orden-main-content {
     max-width: 1200px;
     margin: 0 auto;
@@ -125,7 +121,6 @@ body {
     }
 }
 
-/* Sección detalles del carrito */
 .carrito-detalles {
     width: 68%;
     position: relative;
@@ -134,9 +129,9 @@ body {
 
 .bottom-back-button {
     display: flex;
-    justify-content: flex-start; /* Botón a la izquierda */
-    width: 100%; /* Asegura que el contenedor ocupe todo el ancho */
-    margin-top: 20px; /* Espaciado superior (ajustable) */
+    justify-content: flex-start; 
+    width: 100%; 
+    margin-top: 20px;
 }
 
 .cart-section-title {
@@ -153,7 +148,6 @@ body {
     font-weight: 600;
 }
 
-/* Tabla de productos */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -183,7 +177,6 @@ table tr:last-child td {
     border-bottom: none;
 }
 
-/* Información del producto */
 .producto-info {
     display: flex;
     align-items: center;
@@ -223,7 +216,6 @@ table tr:last-child td {
     color: var(--color-text-light);
 }
 
-/* Botón de eliminar */
 .remove-btn {
     background: none;
     border: none;
@@ -244,7 +236,6 @@ table tr:last-child td {
     transform: scale(1.1);
 }
 
-/* Control de cantidad */
 .cantidad-control {
     display: flex;
     align-items: center;
@@ -280,7 +271,6 @@ table tr:last-child td {
     font-weight: 500;
 }
 
-/* Precios y subtotales */
 .precio {
     font-weight: 500;
     color: var(--color-accent);
@@ -291,7 +281,6 @@ table tr:last-child td {
     color: var(--color-primary);
 }
 
-/* Acciones del carrito */
 .carrito-acciones {
     display: flex;
     justify-content: flex-start;
@@ -315,7 +304,6 @@ table tr:last-child td {
     color: white;
 }
 
-/* Carrito vacío */
 .carrito-vacio {
     text-align: center;
     padding: 40px 20px;
@@ -340,7 +328,6 @@ table tr:last-child td {
     margin-bottom: 25px;
 }
 
-/* Sección de totales */
 .carrito-totales {
     width: 28%;
     border: 1px solid #e0e0e0;
@@ -425,7 +412,6 @@ table tr:last-child td {
     box-shadow: none;
 }
 
-/* Sección de inicio de sesión */
 .iniciar-sesion {
     margin-top: 20px;
     text-align: center;
@@ -462,7 +448,6 @@ table tr:last-child td {
     transform: translateY(-1px);
 }
 
-/* Política de seguridad */
 .politica-seguridad {
     display: flex;
     align-items: center;
@@ -488,7 +473,6 @@ table tr:last-child td {
     color: var(--color-text-light);
 }
 
-/* Botón "Volver a la tienda" */
 .back-button {
     display: flex;
     align-items: center;
@@ -510,7 +494,6 @@ table tr:last-child td {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* Adaptaciones para diferentes tamaños de pantalla */
 @media (max-width: 768px) {
     .orden-hero {
         height: 300px;

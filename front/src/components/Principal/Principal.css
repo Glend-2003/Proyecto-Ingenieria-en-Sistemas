@@ -1,18 +1,17 @@
-/* Color palette variables - mejoradas para mayor contraste */
+
 :root {
-  --primary-dark: #0b3014;    /* Dark green - más oscuro para mejor contraste */
-  --primary-medium: #2a6119;  /* Medium green - ajustado para mejor contraste */
-  --primary-light: #8cb23e;   /* Light green - menos saturado para mejor legibilidad */
-  --accent-gold: #8f7800;     /* Gold accent - más oscuro para mejor contraste */
-  --accent-brown: #6d4016;    /* Brown accent - ajustado para mejor contraste */
-  --text-light: #ffffff;      /* Blanco para texto en fondos oscuros */
-  --text-dark: #222222;       /* Casi negro para mejor contraste en fondos claros */
-  --text-medium: #444444;     /* Gris oscuro para textos secundarios */
-  --background-light: #f5f8f5; /* Fondo claro con toque verde suave */
+  --primary-dark: #0b3014;    
+  --primary-medium: #2a6119;  
+  --primary-light: #8cb23e;  
+  --accent-gold: #8f7800;     
+  --accent-brown: #6d4016;   
+  --text-light: #ffffff;      
+  --text-dark: #222222;      
+  --text-medium: #444444;     
+  --background-light: #f5f8f5; 
   --card-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
 }
 
-/* General styles */
 html, body {
   height: 100%;
   margin: 0;
@@ -21,21 +20,18 @@ html, body {
   background-color: var(--background-light);
 }
 
-/* Container structure */
 .principal-container {
-  margin-left: 260px; /* Alineado con el ancho del sidebar */
+  margin-left: 260px;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
-/* Main content area */
 main.page {
   flex: 1;
   padding: 20px;
 }
 
-/* Welcome banner - mejorado para mayor contraste */
 .welcome-banner {
   background: linear-gradient(135deg, var(--primary-dark), var(--primary-medium));
   color: var(--text-light);
@@ -50,16 +46,15 @@ main.page {
   font-size: 2rem;
   margin-bottom: 10px;
   font-weight: 600;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); /* Sombra para mejorar legibilidad */
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .welcome-text p {
   font-size: 1.1rem;
-  opacity: 1; /* Cambiado de 0.9 para mejor legibilidad */
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); /* Sombra sutil para mejorar legibilidad */
+  opacity: 1; 
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); 
 }
 
-/* User profile card */
 .user-profile-card {
   background-color: white;
   border-radius: 8px;
@@ -68,7 +63,6 @@ main.page {
   height: fit-content;
 }
 
-/* Profile header - mejorado para mayor contraste */
 .profile-header {
   background: linear-gradient(to right, var(--primary-dark), var(--primary-medium));
   padding: 20px;
@@ -81,7 +75,7 @@ main.page {
 
 .profile-avatar {
   background-color: white;
-  color: var(--primary-dark); /* Más oscuro para mejor contraste */
+  color: var(--primary-dark); 
   border-radius: 50%;
   padding: 5px;
   border: 3px solid white;
@@ -99,7 +93,7 @@ main.page {
   font-size: 0.8rem;
   font-weight: bold;
   text-transform: uppercase;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Sombra para mejorar legibilidad */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); 
 }
 
 .profile-body {
@@ -113,7 +107,6 @@ main.page {
   font-weight: 600;
 }
 
-/* Dashboard container */
 .dashboard-container {
   display: grid;
   grid-template-columns: 2fr 3fr;
@@ -151,7 +144,6 @@ main.page {
   color: var(--text-dark);
 }
 
-/* Action buttons */
 .action-buttons {
   display: flex;
   gap: 10px;
@@ -159,14 +151,14 @@ main.page {
 }
 
 .edit-profile-btn, .logout-btn {
-  padding: 10px 16px; /* Ligeramente más grandes */
+  padding: 10px 16px; 
   border-radius: 4px;
   border: none;
-  font-weight: 600; /* Más bold para mejor legibilidad */
+  font-weight: 600; 
   cursor: pointer;
   transition: background-color 0.3s, transform 0.2s;
-  color: var(--text-light); /* Siempre texto blanco para mejor contraste */
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2); /* Sombra para mejorar legibilidad */
+  color: var(--text-light); 
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2); 
 }
 
 .edit-profile-btn {
@@ -182,7 +174,6 @@ main.page {
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Quick Access Section - Mejorado para contraste */
 .quick-access-container {
   display: flex;
   flex-direction: column;
@@ -215,7 +206,7 @@ main.page {
   color: var(--text-dark);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   height: 100%;
-  border: 1px solid rgba(0, 0, 0, 0.05); /* Borde sutil para definir mejor los cards */
+  border: 1px solid rgba(0, 0, 0, 0.05); 
 }
 
 .quick-access-card:hover {
@@ -229,7 +220,7 @@ main.page {
   align-items: center;
   padding: 20px 0;
   color: white;
-  font-size: 1.2rem; /* Asegurar que los iconos sean suficientemente grandes */
+  font-size: 1.2rem;
 }
 
 .card-content {
@@ -237,24 +228,23 @@ main.page {
   display: flex;
   flex-direction: column;
   flex: 1;
-  background-color: white; /* Asegurar fondo blanco para contraste */
+  background-color: white;
 }
 
 .card-content h4 {
   margin: 0 0 8px 0;
   font-weight: 600;
   color: var(--primary-dark);
-  font-size: 1.1rem; /* Título ligeramente más grande */
+  font-size: 1.1rem;
 }
 
 .card-content p {
   margin: 0;
   font-size: 0.9rem;
-  color: var(--text-medium); /* Color más oscuro para mejor legibilidad */
+  color: var(--text-medium);
   line-height: 1.4;
 }
 
-/* Responsive adjustments */
 @media (max-width: 1200px) {
   .dashboard-container {
     grid-template-columns: 1fr;
@@ -273,7 +263,7 @@ main.page {
 
 @media (max-width: 768px) {
   .principal-container {
-    margin-left: 65px; /* Ajustado para coincidir con el sidebar colapsado */
+    margin-left: 65px;
   }
   
   .quick-access-grid {

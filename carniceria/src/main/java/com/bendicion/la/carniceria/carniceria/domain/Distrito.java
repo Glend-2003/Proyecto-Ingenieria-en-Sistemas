@@ -1,4 +1,5 @@
 package com.bendicion.la.carniceria.carniceria.domain;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -8,27 +9,24 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-/**
- *
- * @author Jamel Sandí
- */
-
 @Entity
 @Table(name = "tbdistrito")
 public class Distrito {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idDistrito")
     private int idDistrito;
-    
+
     @Column(name = "nombreDistrito")
     private String nombreDistrito;
-    
+
     @ManyToOne()
     @JoinColumn(name = "idCanton")
     private Canton canton;
-    
-    public Distrito(){}
+
+    public Distrito() {
+    }
 
     public int getIdDistrito() {
         return idDistrito;
@@ -52,6 +50,5 @@ public class Distrito {
 
     public void setCanton(Canton canton) {
         this.canton = canton;
-    }   
+    }
 }
-
