@@ -1,4 +1,4 @@
-/* Estilos para el componente de notificaciones */
+
 .notificaciones-contenedor {
   position: relative;
   display: inline-block;
@@ -259,7 +259,6 @@
   color: #777;
 }
 
-/* Animación para nuevas notificaciones */
 @keyframes fadeIn {
   from {
       opacity: 0;
@@ -275,8 +274,7 @@
   animation: fadeIn 0.5s ease-out;
   border-left: 3px solid #007bff;
 }
-
-/* Responsive */
+/* Media query existente mejorada */
 @media (max-width: 576px) {
   .panel-notificaciones {
       position: fixed;
@@ -287,6 +285,7 @@
       max-height: none;
       border-radius: 0;
       animation: slideInRight 0.3s ease-out;
+      z-index: 1050; /* Incrementar z-index para asegurar que esté por encima de otros elementos */
   }
   
   @keyframes slideInRight {
@@ -299,6 +298,121 @@
   }
   
   .lista-notificaciones {
+      max-height: calc(100vh - 60px); /* Ajuste para la cabecera del panel */
+  }
+  
+  /* Mejoras adicionales para móviles */
+  .cabecera-panel {
+      padding: 15px;
+      position: sticky;
+      top: 0;
+      background-color: #f8f9fa;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      z-index: 2;
+  }
+  
+  .cerrar-panel {
+      padding: 8px;
+      font-size: 16px;
+  }
+  
+  .notificacion {
+      padding: 15px;
+  }
+  
+  .mensaje-notificacion {
+      font-size: 15px;
+  }
+  
+  .acciones-notificacion {
+      margin-left: 12px;
+  }
+  
+  .accion-btn {
+      padding: 8px;
+      margin: 3px 0;
+  }
+}
+
+/* Media query para dispositivos medianos */
+@media (min-width: 577px) and (max-width: 768px) {
+  .panel-notificaciones {
+      width: 320px;
+  }
+}
+
+/* Media query para móviles pequeños */
+@media (max-width: 360px) {
+  .notificacion {
+      padding: 12px;
+      flex-direction: column;
+  }
+  
+  .acciones-notificacion {
+      flex-direction: row;
+      margin-left: 0;
+      margin-top: 10px;
+      justify-content: flex-end;
+  }
+  
+  .accion-btn {
+      margin: 0 5px;
+  }
+  
+  .usuario-notificacion {
+      font-size: 12px;
+  }
+  
+  .mensaje-notificacion {
+      font-size: 14px;
+  }
+  
+  .fecha-hora-notificacion {
+      font-size: 11px;
+  }
+  
+  .cabecera-panel h3 {
+      font-size: 15px;
+  }
+  
+  .ultima-actualizacion {
+      font-size: 10px;
+  }
+}
+
+/* Media query para altura muy reducida */
+@media (max-height: 500px) and (max-width: 576px) {
+  .cabecera-panel {
+      padding: 10px 15px;
+  }
+  
+  .lista-notificaciones {
       max-height: calc(100vh - 50px);
+  }
+  
+  .notificacion {
+      padding: 10px 15px;
+  }
+  
+  .titulo-seccion {
+      padding: 6px 15px;
+      font-size: 13px;
+  }
+  
+  .sin-notificaciones {
+      padding: 20px;
+  }
+}
+
+/* Adaptación para animación en scroll */
+@media (prefers-reduced-motion: reduce) {
+  .panel-notificaciones,
+  .notificacion.nueva,
+  .contador-notificaciones {
+      animation: none;
+  }
+  
+  .actualizar-notificaciones:hover {
+      transform: none;
   }
 }

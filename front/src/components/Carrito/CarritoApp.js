@@ -3,9 +3,9 @@ import { Offcanvas, ListGroup, Button } from 'react-bootstrap';
 import { useCart } from '../../contexto/ContextoCarrito';
 import { useNavigate } from 'react-router-dom';
 import './Carrito.css';
-import useAuth from '../../hooks/userInfo'; 
+import useAuth from '../../hooks/useAuth';
 import axios from 'axios'; 
-import { useAppContext } from "../Navbar/AppContext"
+import { useAppContext } from "../Navbar/AppContext";
 
 function CarritoApp() {
   const {
@@ -16,8 +16,7 @@ function CarritoApp() {
     setShowCartMenu,
   } = useCart();
 
-  const {idUsuario} = useAppContext();
-
+  const { idUsuario } = useAppContext();
   const { usuario } = useAuth();
   const navigate = useNavigate();
 
@@ -54,24 +53,20 @@ function CarritoApp() {
         return;
       }
   
-      // Calcular totales
       const total = carritoLocal.reduce((sum, item) => sum + (item.montoPrecioProducto || 0) * item.cantidad, 0);
       const cantidadTotal = carritoLocal.reduce((sum, item) => sum + item.cantidad, 0);
   
-      // Crear objeto carrito como lo espera el backend
       const carritoData = {
-        usuario: { idUsuario: usuario.idUsuario }, // Esto es lo más importante
+        usuario: { idUsuario: usuario.idUsuario },
         montoTotalCarrito: total,
         estadoCarrito: true,
         cantidadCarrito: cantidadTotal
       };
   
-      // Primero crear el carrito
       const { data: carritoCreado } = await axios.post('http://localhost:8080/carrito', carritoData, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
   
-      // Luego agregar productos
       await Promise.all(
         carritoLocal.map(item => 
           axios.post(`http://localhost:8080/carrito/${carritoCreado.idCarrito}/productos`, {
@@ -109,22 +104,27 @@ function CarritoApp() {
   }, []);
 
   return (
-    <Offcanvas show={showCartMenu} onHide={() => setShowCartMenu(false)} placement="end"
-    style={{
-      position: 'fixed',
-      top: '0',
-      zIndex: 1200, // Mayor que el zIndex del navbar (1100)
-      height: '100vh'
-    }}>
+    <Offcanvas 
+      show={showCartMenu} 
+      onHide={() => setShowCartMenu(false)} 
+      placement="end"
+      className="carrito-offcanvas"
+      style={{
+        position: 'fixed',
+        top: '0',
+        zIndex: 1200,
+        height: '100vh'
+      }}
+    >
       <Offcanvas.Header closeButton>
         <Offcanvas.Title>Tu carrito de compras</Offcanvas.Title>
       </Offcanvas.Header>
       <Offcanvas.Body className="d-flex flex-column p-0" style={{ minHeight: 0 }}>
         {groupedCart.length > 0 ? (
           <>
-            <div className="cart-products-container px-3 pt-3">
+            <div className="carrito-productos-container px-3 pt-3">
               {groupedCart.map((item, index) => (
-                <div key={index} className="cart-product mb-3 position-relative">
+                <div key={index} className="carrito-producto mb-3 position-relative">
                   <div className="d-flex gap-3">
                     {item.imgProducto && (
                       <img
@@ -136,13 +136,13 @@ function CarritoApp() {
                         alt={item.nombreProducto}
                         width="60"
                         height="60"
-                        className="item-img rounded"
+                        className="carrito-producto-img"
                         style={{ objectFit: 'cover' }}
                       />
                     )}
                     <div>
-                      <div className="fw-bold">{item.nombreProducto}</div>
-                      <div className="text-muted small">
+                      <div className="carrito-producto-nombre">{item.nombreProducto}</div>
+                      <div className="carrito-producto-precio">
                         {item.cantidad} × ₡{item.montoPrecioProducto.toLocaleString()}
                       </div>
                     </div>
@@ -150,7 +150,7 @@ function CarritoApp() {
                   <Button
                     variant="link"
                     size="sm"
-                    className="text-danger p-0 position-absolute end-0 top-0"
+                    className="carrito-btn-eliminar p-0 position-absolute end-0 top-0"
                     onClick={() => removeFromCart(item.idProducto)}
                     style={{ transform: 'translateY(25%)' }}
                   >
@@ -160,10 +160,10 @@ function CarritoApp() {
               ))}
             </div>
   
-            <div className="cart-footer border-top px-3 py-3 mt-auto">
+            <div className="carrito-footer mt-auto">
               <div className="d-flex justify-content-between mb-3">
-                <span className="fw-bold">Subtotal:</span>
-                <span className="fw-bold">
+                <span className="carrito-subtotal-texto">Subtotal:</span>
+                <span className="carrito-subtotal-valor">
                   ₡{groupedCart.reduce(
                     (total, item) => total + item.montoPrecioProducto * item.cantidad,
                     0
@@ -172,25 +172,17 @@ function CarritoApp() {
               </div>
               
               <Button 
-                variant="outline-dark" 
-                className="w-100 mb-2 fw-bold"
+                variant="primary" 
+                className="carrito-btn-ver w-100 mb-2"
                 onClick={handleVerOrden}
               >
                 VER CARRITO
               </Button>
-              
-              <Button 
-                variant="success" 
-                className="w-100 fw-bold"
-                onClick={handlePagar2}
-              >
-                FINALIZAR COMPRA
-              </Button>
             </div>
           </>
         ) : (
-          <div className="text-center p-4">
-            <p className="text-muted">No hay productos en el carrito.</p>
+          <div className="carrito-vacio p-4">
+            <p>No hay productos en el carrito.</p>
           </div>
         )}
       </Offcanvas.Body>

@@ -28,16 +28,35 @@ const PromocionApp = () => {
   const [estadoPromocion, setEstadoPromocion] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
-  
+  const [fechaDesde, setFechaDesde] = useState("");
+  const [fechaHasta, setFechaHasta] = useState("");
+
   useEffect(() => {
     cargarPromociones();
     cargarProductos();
   }, []);
 
+
+  useEffect(() => {
+    if (showModal && promocionEdit && productos.length > 0) {
+      console.log("Estado actual:");
+      console.log("ID de producto seleccionado:", idProducto);
+      console.log("Productos disponibles:", productos);
+
+      const productoSeleccionado = productos.find(p => p.idProducto.toString() === idProducto);
+      if (productoSeleccionado) {
+        console.log("Producto seleccionado encontrado:", productoSeleccionado.nombreProducto);
+      } else if (idProducto) {
+        console.log("⚠️ ADVERTENCIA: ID de producto seleccionado no encontrado en la lista de productos");
+      }
+    }
+  }, [showModal, promocionEdit, productos, idProducto]);
+
   const cargarPromociones = async () => {
     try {
       const response = await axios.get("http://localhost:8080/promocion/");
       console.log("Promociones recibidas del backend:", response.data);
+      
       setPromociones(response.data);
     } catch (error) {
       console.error("Error al cargar promociones:", error);
@@ -57,90 +76,121 @@ const PromocionApp = () => {
     }
   };
 
+  const isPromocionVencida = (fechaFin) => {
+    const fechaFinDate = new Date(fechaFin);
+
+    fechaFinDate.setHours(0, 0, 0, 0);
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    return fechaFinDate < hoy;
+  };
+
   const validarCamposPromocion = () => {
     const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0); // Eliminar la hora para comparar solo fechas
-    
+    hoy.setHours(0, 0, 0, 0);
+
     const fechaInicio = new Date(fechaInicioPromocion);
     const fechaFin = new Date(fechaFinPromocion);
-  
 
-  
     if (!fechaFinPromocion || isNaN(fechaFin)) {
       toast.error("La fecha de fin es inválida o está vacía");
       return false;
     }
-  
-    if (fechaInicio < hoy-2) {
+
+    if (fechaInicio < hoy - 2) {
       toast.error("La fecha de inicio no puede ser menor a la actual");
       return false;
     }
-  
+
     if (fechaFin < fechaInicio) {
       toast.error("La fecha de fin debe ser mayor o igual a la fecha de inicio");
       return false;
     }
-  
+
     if (!montoPromocion || isNaN(montoPromocion) || Number(montoPromocion) <= 0) {
       toast.error("El monto de la promoción debe ser un número mayor a cero");
       return false;
     }
-  
+
     if (!idProducto || isNaN(Number(idProducto)) || Number(idProducto) <= 0 || !Number.isInteger(Number(idProducto))) {
       toast.error("Debe seleccionar un producto válido");
+      return false;
+    }
+
+    if (!descripcionPromocion || descripcionPromocion.trim() === "") {
+      toast.error("La descripción de la promoción no puede estar vacía");
+      return false;
+    }
+
+    if (/^\d+$/.test(descripcionPromocion.trim())) {
+      toast.error("La descripción no puede contener solo números");
       return false;
     }
   
     return true;
   };
-  
-  
 
   const agregarPromocion = async () => {
     if (!validarCamposPromocion()) {
-
       return;
     }
-  
+
+
+    const ajustarFechaSumandoUnDia = (fechaStr) => {
+      const fecha = new Date(fechaStr);
+      fecha.setDate(fecha.getDate() + 1);
+      return fecha.toISOString().split('T')[0];
+    };
+
     const promocionData = {
       descripcionPromocion: descripcionPromocion.trim(),
-      fechaInicioPromocion: fechaInicioPromocion.trim(),
-      fechaFinPromocion: fechaFinPromocion.trim(),
+      fechaInicioPromocion: ajustarFechaSumandoUnDia(fechaInicioPromocion),
+      fechaFinPromocion: ajustarFechaSumandoUnDia(fechaFinPromocion),
       montoPromocion,
       producto: {
         idProducto,
       },
     };
-  
+
+    console.log("Datos enviados al backend (con fecha ajustada):", promocionData);
+
     console.log(" Datos enviados al backend:", promocionData);
-    
+
     try {
       await axios.post("http://localhost:8080/promocion/agregarPromocion", promocionData);
       toast.success("Promoción agregada con éxito");
-      
+
     } catch (error) {
       console.error("Error al agregar promoción:", error.response?.data || error.message);
       toast.error(error.response?.data?.mensaje || "Ocurrió un error al agregar la promoción");
     }
 
     cargarPromociones();
-      handleCloseModal();
+    handleCloseModal();
   };
-
 
   const actualizarPromocion = async () => {
     if (!validarCamposPromocion()) return;
 
+
+    const ajustarFechaSumandoUnDia = (fechaStr) => {
+      const fecha = new Date(fechaStr);
+      fecha.setDate(fecha.getDate() + 1);
+      return fecha.toISOString().split('T')[0];
+    };
+
     const promocionData = {
       idPromocion: promocionEdit.idPromocion,
       descripcionPromocion: descripcionPromocion.trim(),
-      fechaInicioPromocion: fechaInicioPromocion.trim(),
-      fechaFinPromocion: fechaFinPromocion.trim(),
+      fechaInicioPromocion: ajustarFechaSumandoUnDia(fechaInicioPromocion),
+      fechaFinPromocion: ajustarFechaSumandoUnDia(fechaFinPromocion),
       montoPromocion,
       producto: {
         idProducto,
       },
     };
+
+    console.log("Datos enviados al backend (con fecha ajustada):", promocionData);
 
     try {
       console.log("Datos enviados al backend:", promocionData);
@@ -180,84 +230,119 @@ const PromocionApp = () => {
 
   const enviarMensaje = async (promocion) => {
     const { isConfirmed } = await Swal.fire({
-        title: "¿Estás seguro?",
-        text: "No podrás revertir esto.",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Sí, enviar",
-        cancelButtonText: "No, cancelar",
-        reverseButtons: true,
+      title: "¿Estás seguro?",
+      text: "No podrás revertir esto.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sí, enviar",
+      cancelButtonText: "No, cancelar",
+      reverseButtons: true,
     });
 
     if (!isConfirmed) return;
-
     console.log("Datos enviados al backend:", promocion);
-
-    // Mostrar un indicador de carga mientras se envía el correo
     const loadingToast = toast.loading("Enviando mensaje...");
+    try {
+
+      const response = await axios.post(`http://localhost:8080/promocion/mensaje?nombreProducto=${encodeURIComponent(promocion.nombreProducto)}`, promocion);
+
+
+      if (response.status === 200) {
+
+        toast.update(loadingToast, {
+          render: "Mensaje enviado con éxito",
+          type: "success",
+          isLoading: false,
+          autoClose: 5000,
+        });
+        cargarPromociones();
+      } else {
+
+        toast.update(loadingToast, {
+          render: "Ocurrió un error al enviar el mensaje",
+          type: "error",
+          isLoading: false,
+          autoClose: 5000,
+        });
+      }
+    } catch (error) {
+      console.error("Error al enviar mensaje:", error);
+      toast.update(loadingToast, {
+        render: error.response?.data?.error || "Ocurrió un error al enviar el mensaje",
+        type: "error",
+        isLoading: false,
+        autoClose: 5000,
+      });
+    }
+  };
+
+  const activarDesactivarPromocion = async (id) => {
+
+    const promocion = promociones.find(p => p.idPromocion === id);
+
+    if (!promocion.estadoPromocion && isPromocionVencida(promocion.fechaFinPromocion)) {
+      toast.error("No se puede activar esta promoción porque su fecha de fin ya pasó");
+      return;
+    }
 
     try {
-        // Enviar la solicitud de backend
-        const response = await axios.post(`http://localhost:8080/promocion/mensaje?nombreProducto=${encodeURIComponent(promocion.nombreProducto)}`, promocion);
-
-        // Verificar la respuesta del servidor
-        if (response.status === 200) {
-            // Cerrar el indicador de carga y mostrar el mensaje de éxito
-            toast.update(loadingToast, {
-                render: "Mensaje enviado con éxito",
-                type: "success",
-                isLoading: false,
-                autoClose: 5000,
-            });
-            cargarPromociones();  // Recargar las promociones después de enviar el correo
-        } else {
-            // En caso de error, mostrar mensaje de error
-            toast.update(loadingToast, {
-                render: "Ocurrió un error al enviar el mensaje",
-                type: "error",
-                isLoading: false,
-                autoClose: 5000,
-            });
-        }
+      await axios.put(`http://localhost:8080/promocion/activar/${id}`);
+      toast.success("Cambio realizado con éxito.");
+      cargarPromociones();
     } catch (error) {
-        console.error("Error al enviar mensaje:", error);
-        toast.update(loadingToast, {
-            render: error.response?.data?.error || "Ocurrió un error al enviar el mensaje",
-            type: "error",
-            isLoading: false,
-            autoClose: 5000,
-        });
+      console.error("Error al realizar el cambio:", error);
+      toast.error("Ocurrió un error al cambiar el estado de la promocion.");
     }
-};
-
-const activarDesactivarPromocion = async (id) => {
-  try {
-    await axios.put(`http://localhost:8080/promocion/activar/${id}`);
-    toast.success("Cambio realizado con éxito.");
-    cargarPromociones();
-  } catch (error) {
-    console.error("Error al realizar el cambio:", error);
-    toast.error("Ocurrió un error al cambiar el estado de la promocion.");
-  }
-};
+  };
 
   const handleShowModal = (promocion = null) => {
     if (promocion) {
       setPromocionEdit(promocion);
       setDescripcionPromocion(promocion.descripcionPromocion);
-      setFechaInicioPromocion(new Date(promocion.fechaInicioPromocion)); // Asegúrate de convertir a Date
-      setFechaFinPromocion(new Date(promocion.fechaFinPromocion)); // Asegúrate de convertir a Date
+
+      const formatearFechaParaInput = (fechaStr) => {
+        const fecha = new Date(fechaStr);
+        return fecha.toISOString().split('T')[0];
+      };
+
+      setFechaInicioPromocion(formatearFechaParaInput(promocion.fechaInicioPromocion));
+      setFechaFinPromocion(formatearFechaParaInput(promocion.fechaFinPromocion));
       setMontoPromocion(promocion.montoPromocion);
 
-      setIdProducto(promocion.producto?.idProducto || "");
 
+      if (promocion.producto && promocion.producto.idProducto) {
+        console.log("Caso 1: Producto encontrado como objeto:", promocion.producto.idProducto);
+        setIdProducto(promocion.producto.idProducto.toString());
+      }
+
+      else if (promocion.idProducto) {
+        console.log("Caso 2: Producto encontrado como ID directo:", promocion.idProducto);
+        setIdProducto(promocion.idProducto.toString());
+      }
+
+      else if (promocion.nombreProducto && productos.length > 0) {
+        console.log("Caso 3: Buscando producto por nombre:", promocion.nombreProducto);
+        const productoEncontrado = productos.find(
+          p => p.nombreProducto === promocion.nombreProducto
+        );
+
+        if (productoEncontrado) {
+          console.log("Producto encontrado por nombre. ID:", productoEncontrado.idProducto);
+          setIdProducto(productoEncontrado.idProducto.toString());
+        } else {
+          console.log("No se encontró producto con el nombre:", promocion.nombreProducto);
+          setIdProducto("");
+        }
+      } else {
+        console.log("No se encontró información de producto");
+        setIdProducto("");
+      }
     } else {
       setPromocionEdit(null);
       setDescripcionPromocion("");
       setFechaInicioPromocion("");
       setFechaFinPromocion("");
       setMontoPromocion("");
-
       setIdProducto("");
     }
     setShowModal(true);
@@ -270,15 +355,33 @@ const activarDesactivarPromocion = async (id) => {
     setFechaInicioPromocion("");
     setFechaFinPromocion("");
     setMontoPromocion("");
-
     setIdProducto("");
   };
 
   const handleSearchChange = (e) => setSearch(e.target.value);
+  const limpiarFiltros = () => {
+    setFechaDesde("");
+    setFechaHasta("");
+  };
 
-  const filteredPromociones = promociones.filter((promocion) =>
-    promocion.descripcionPromocion.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredPromociones = promociones.filter((promocion) => {
+    const matchesSearch = promocion.descripcionPromocion.toLowerCase().includes(search.toLowerCase());
+
+    let matchesDate = true;
+    if (fechaDesde || fechaHasta) {
+      const fechaInicio = new Date(promocion.fechaInicioPromocion);
+      if (fechaDesde) {
+        const desde = new Date(fechaDesde);
+        matchesDate = matchesDate && fechaInicio >= desde;
+      }
+      if (fechaHasta) {
+        const hasta = new Date(fechaHasta);
+        matchesDate = matchesDate && fechaInicio <= hasta;
+      }
+    }
+
+    return matchesSearch && matchesDate;
+  });
 
   const totalPages = Math.ceil(filteredPromociones.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -293,23 +396,60 @@ const activarDesactivarPromocion = async (id) => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
 
+
   return (
-    <div className="content-container">
+    <div className="promocion-container">
       <SideBar usuario={usuario} />
-      <div className="container mt-5">
+      <div className="promocion-main-container">
         <h1>Gestión de promociones</h1>
-        <Button className="custom-button" onClick={() => handleShowModal()}>
+        <Button className="promocion-add-button" onClick={() => handleShowModal()}>
           Agregar promoción nueva
         </Button>
-        <div className="mb-2"></div>
-        <label>Buscar promoción</label>
-        <input
-          type="text"
-          className="form-control my-3"
-          placeholder="Buscar promoción por descripción"
-          value={search}
-          onChange={handleSearchChange}
-        />
+
+        <div className="promocion-search-container">
+          <label>Buscar promoción</label>
+          <input
+            type="text"
+            className="promocion-search-input"
+            placeholder="Buscar promoción por descripción."
+            value={search}
+            onChange={handleSearchChange}
+          />
+        </div>
+
+        <div className="promocion-date-filter-container">
+          <div className="promocion-filter-container">
+            <div className="promocion-filter-row">
+              <div className="promocion-filter-group">
+                <label className="promocion-filter-label">Fecha inicio:</label>
+                <input
+                  type="date"
+                  className="promocion-filter-input"
+                  value={fechaDesde}
+                  onChange={(e) => setFechaDesde(e.target.value)}
+                />
+              </div>
+              <div className="promocion-filter-group">
+                <label className="promocion-filter-label">Fecha fin:</label>
+                <input
+                  type="date"
+                  className="promocion-filter-input"
+                  value={fechaHasta}
+                  onChange={(e) => setFechaHasta(e.target.value)}
+                />
+              </div>
+              <div className="promocion-filter-buttons">
+                <button
+                  className="promocion-filter-button promocion-filter-clear"
+                  onClick={limpiarFiltros}
+                  title="Limpiar filtros"
+                >
+                  Limpiar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <Modal show={showModal} onHide={handleCloseModal}>
           <Modal.Header closeButton>
@@ -383,72 +523,91 @@ const activarDesactivarPromocion = async (id) => {
               </div>
 
               <div className="modal-footer">
-                <Button variant="secondary" onClick={handleCloseModal}>
-                  Cerrar
-                </Button>
                 <Button type="submit" variant="primary">
                   {promocionEdit ? "Actualizar" : "Agregar"}
                 </Button>
-                
+
               </div>
             </form>
           </Modal.Body>
         </Modal>
 
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Descripción</th>
-              <th>Producto</th>
-              <th>Fecha Inicio</th>
-              <th>Fecha Fin</th>
-              <th>Monto</th>
-              <th>Estado</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentPromociones.map((promocion, index) => (
-              <tr key={promocion.idPromocion}>
-                <td>{promocion.descripcionPromocion}</td>
-                <td>{promocion.nombreProducto || "Sin producto"}</td>
-                <td>{new Date(promocion.fechaInicioPromocion).toLocaleDateString()}</td>
-                <td>{new Date(promocion.fechaFinPromocion).toLocaleDateString()}</td>
-                <td>{promocion.montoPromocion}</td>
-                <td>
-                  <button
-                    className={`btn btn-sm ${
-                      promocion.estadoPromocion ? "btn-success" : "btn-danger"
-                    }`}
-                    onClick={() => activarDesactivarPromocion(promocion.idPromocion)}
-                  >
-                    {promocion.estadoPromocion ? "Activo" : "Inactivo"}
-                  </button>
-                </td>
-                <td>
-                  <button
-                    className="btn btn-warning btn-sm mx-1"
-                    onClick={() => handleShowModal(promocion)}
-                  >
-                    <FontAwesomeIcon icon={faEdit} />
-                  </button>
-                  <button
-                    className="btn btn-danger btn-sm"
-                    onClick={() => eliminarPromocion(promocion.idPromocion)}
-                  >
-                    <FontAwesomeIcon icon={faTrash} />
-                  </button>
-                  <button
-                    className="btn btn-primary btn-sm mx-1"
-                    onClick={() => enviarMensaje(promocion)}
-                  >
-                    <FontAwesomeIcon icon={faEnvelope} />
-                  </button>
-                </td>
+        <div className="promocion-table-container">
+          <table className="promocion-table">
+            <thead>
+              <tr className="promocion-table-header-row">
+                <th>No</th>
+                <th>Descripción</th>
+                <th>Producto</th>
+                <th>Fecha Inicio</th>
+                <th>Fecha Fin</th>
+                <th>Monto</th>
+                <th>Acciones</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {currentPromociones.length === 0 ? (
+                <tr className="promocion-no-results">
+                  <td colSpan="7">
+                    <FontAwesomeIcon icon={faExclamationTriangle} className="promocion-warning-icon" size="lg" />
+                    <span>No hay productos disponibles</span>
+                  </td>
+                </tr>
+              ) : (
+                currentPromociones.map((promocion, index) => (
+                  <tr key={promocion.idPromocion} className="promocion-table-row">
+                    <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
+                    <td className="promocion-descripcion">{promocion.descripcionPromocion}</td>
+                    <td className="promocion-nombreProducto">{promocion.nombreProducto || "Sin producto"}</td>
+                    <td className="fecha-columna fecha-inicio">{new Date(promocion.fechaInicioPromocion).toLocaleDateString()}</td>
+                    <td className="fecha-columna fecha-fin">{new Date(promocion.fechaFinPromocion).toLocaleDateString()}</td>
+                    <td className="precio-celda">
+                      <span className="promocion-precio">₡{promocion.montoPromocion}</span>
+                    </td>
+                    <td>
+                      <div className="promocion-actions-container">
+                        <button
+                          className={`promocion-status-button ${promocion.estadoPromocion ? "promocion-status-active" : "promocion-status-inactive"
+                            }`}
+                          onClick={() => activarDesactivarPromocion(promocion.idPromocion)}
+                        >
+                          {promocion.estadoPromocion ? "Activo" : "Inactivo"}
+                        </button>
+                        <div className="promocion-action-buttons">
+                          <button
+                            className="promocion-edit-button"
+                            type="button"
+                            onClick={() => handleShowModal(promocion)}
+                            title="Editar promoción"
+                          >
+                            <FontAwesomeIcon icon={faEdit} />
+                          </button>
+                          <button
+                            className="promocion-delete-button"
+                            type="button"
+                            onClick={() => eliminarPromocion(promocion.idPromocion)}
+                            title="Eliminar promoción"
+                          >
+                            <FontAwesomeIcon icon={faTrash} />
+                          </button>
+                          <button
+                            className="promocion-sendMessage-button"
+                            onClick={() => enviarMensaje(promocion)}
+                            disabled={isPromocionVencida(promocion.fechaFinPromocion)}
+                            title={isPromocionVencida(promocion.fechaFinPromocion) ? "No se puede enviar mensaje de una promoción vencida" : "Enviar mensaje de promoción"}
+                          >
+                            <FontAwesomeIcon icon={faEnvelope} />
+                          </button>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
 
         {filteredPromociones.length > itemsPerPage && (
           <PaginacionApp

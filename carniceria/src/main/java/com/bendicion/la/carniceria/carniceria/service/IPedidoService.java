@@ -8,52 +8,46 @@ import com.bendicion.la.carniceria.carniceria.domain.Pedido;
 
 import jakarta.transaction.Transactional;
 
-/**
- *
- * @author Jamel Sandí
- */
-
 public interface IPedidoService {
-    
+
     @Transactional
     public Pedido addPedido(Pedido pedido);
-    
-    @Transactional 
+
+    @Transactional
     public Pedido updatePedido(Pedido pedido);
-    
+
     @Transactional
     public List<Map<String, Object>> getPedido();
-    
+
     @Transactional
     public List<Map<String, Object>> getPedidoEntregado();
-    
+
     @Transactional
-    public List<Map<String, Object>>  getPedidoByUsuario(int id); 
-    
+    public List<Map<String, Object>> getPedidoByUsuario(int id);
+
     @Transactional
     List<Map<String, Object>> filtrarPedidos(
-        int idUsuario, 
-        String estadoEntrega,  // Cambiado de Integer a String
-        Date fechaInicio, 
-        Date fechaFin, 
-        Integer estadoPedido
+            int idUsuario,
+            String estadoEntrega,
+            Date fechaInicio,
+            Date fechaFin,
+            Integer estadoPedido
     );
 
     @Transactional
     public boolean deletePedido(int id);
-    
+
     @Transactional
     public boolean updateStatePedido(int id);
-    
+
     @Transactional
     public void updateStateEntregaPedido(int idPedido, String nuevoEstado);
-    
-     @Transactional
+
+    @Transactional
     public Map<String, Object> getTotalVentas();
-    
+
     @Transactional
     public Map<String, Map<String, Object>> getReporteVentasCompleto();
-    
-       
+
     public void sendMail(String correo, String estado);
 }

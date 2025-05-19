@@ -1,4 +1,5 @@
 package com.bendicion.la.carniceria.carniceria.controller;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -23,11 +24,6 @@ import com.bendicion.la.carniceria.carniceria.service.IUsuarioService;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-/**
- *
- * @author Jamel Sandí
- */
-
 @RestController
 @CrossOrigin(origins = "*")
 @RequestMapping("/usuario")
@@ -39,18 +35,13 @@ public class UsuarioController {
     @Autowired
     private JwtService jwtService;
 
-    // Read
-    // Lee todos los usuarios existentes, trayendo hasta la dirección (Para vista Admin)
     @GetMapping("/")
     public ResponseEntity<List<Usuario>> listUsuarios() {
         List<Usuario> usuarios = iUsuarioService.getUsuario();
         System.out.println("Listando todos los usuarios: " + usuarios.size() + " usuarios encontrados.");
         return ResponseEntity.ok(usuarios);
     }
-    
-// -----------------------------------------------------------------------------    
-    // Add
-    // Agregar usuarios en vista Admin
+
     @PostMapping("/agregar")
     public ResponseEntity<?> addUsuario(@RequestBody Usuario usuario) {
         try {
@@ -68,11 +59,10 @@ public class UsuarioController {
         }
     }
 
-// -----------------------------------------------------------------------------
     @PostMapping("/registrar")
     public ResponseEntity<?> registrarUsuario(@RequestBody Usuario usuario) {
         try {
-System.out.println("Datos del usuario recibidos: " + usuario);
+            System.out.println("Datos del usuario recibidos: " + usuario);
             iUsuarioService.registerUsuario(usuario);
             return ResponseEntity.ok("Usuario registrado con éxito");
         } catch (Exception e) {
@@ -80,9 +70,6 @@ System.out.println("Datos del usuario recibidos: " + usuario);
         }
     }
 
-// -----------------------------------------------------------------------------    
-    // Update
-    // Actualizar usuarios 
     @PutMapping("/actualizar")
     public ResponseEntity<?> updateUsuario(@RequestBody Usuario usuario) {
         try {
@@ -100,9 +87,6 @@ System.out.println("Datos del usuario recibidos: " + usuario);
         }
     }
 
-// -----------------------------------------------------------------------------       
-    // Delete
-    // Eliminar usuarios
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<Boolean> deleteUsuario(@PathVariable int id) {
         boolean eliminado = iUsuarioService.deleteUsuario(id);
@@ -116,7 +100,6 @@ System.out.println("Datos del usuario recibidos: " + usuario);
         }
     }
 
-// -----------------------------------------------------------------------------       
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest) {
 
@@ -153,7 +136,7 @@ System.out.println("Datos del usuario recibidos: " + usuario);
         String token = request.getHeader("Authorization").substring(7); // Eliminar "Bearer "
 
         if (jwtService.verifyToken(token)) {
-            // Extraer datos del usuario desde el token
+
             String correoUsuario = jwtService.getCorreoUsuario(token);
             Usuario usuario = iUsuarioService.searchCorreoUsuario(correoUsuario);
 
@@ -163,8 +146,6 @@ System.out.println("Datos del usuario recibidos: " + usuario);
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o expirado");
     }
-    // Update
-    // Actualizar Contrasena 
 
     @PutMapping("/actualizarContrasena")
     public ResponseEntity<?> updateContrasena(@RequestBody Usuario usuario) {
@@ -182,20 +163,19 @@ System.out.println("Datos del usuario recibidos: " + usuario);
                     .body(Collections.singletonMap("error", "Error al actualizar la contraseña: " + e.getMessage()));
         }
     }
-    
+
     @GetMapping("obtenerPorId/{id}")
     public ResponseEntity<Usuario> listUsuarioById(@PathVariable int id) {
         Usuario usuario = iUsuarioService.getUsuarioById(id);
         if (usuario != null) {
-            System.out.println("Usuario encontrada: ID -->" + usuario.getIdUsuario()+ ", Nombre -->" + usuario.getNombreUsuario());
+            System.out.println("Usuario encontrada: ID -->" + usuario.getIdUsuario() + ", Nombre -->" + usuario.getNombreUsuario());
             return ResponseEntity.ok(usuario);
         } else {
             System.out.println("Usuario no encontrada: ID -->" + id);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
-    
-    
+
     @PutMapping("/activar/{id}")
     public ResponseEntity<Boolean> activarUsuario(@PathVariable int id) {
         boolean estado = iUsuarioService.activarUsuario(id);
@@ -208,10 +188,7 @@ System.out.println("Datos del usuario recibidos: " + usuario);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
         }
     }
-    
-// -----------------------------------------------------------------------------
-// Método para enviar código al correo ingresado y validar si existe
-    
+
     @PostMapping("/verificarCambioContrasena")
     public ResponseEntity<?> verificarCorreoYEnviarCodigo(@RequestBody Map<String, String> request) {
         try {
@@ -228,9 +205,7 @@ System.out.println("Datos del usuario recibidos: " + usuario);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
-    
-// ----------------------------------------------------------------------------- 
-    // Método para cambiar la contra con código
+
     @PostMapping("/cambiarContrasena")
     public ResponseEntity<?> cambiarContrasenaConCodigo(@RequestBody Map<String, String> request) {
         try {
@@ -252,13 +227,12 @@ System.out.println("Datos del usuario recibidos: " + usuario);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
-    
-    
+
     @PutMapping("/actualizarCredenciales")
     public ResponseEntity<?> actualizarCredenciales(@RequestBody Usuario usuario) {
         try {
             Usuario nuevosCredenciales = iUsuarioService.actualizarCredenciales(usuario);
-            
+
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Credenciales actualizados con exito: " + nuevosCredenciales.getIdUsuario());
             response.put("id", nuevosCredenciales.getIdUsuario());

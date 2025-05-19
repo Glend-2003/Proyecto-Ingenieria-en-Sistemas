@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { NavLink, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./DireccionUsuario.css";
@@ -10,23 +8,30 @@ import { faSave, faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
 import FooterApp from "../Footer/FooterApp";
 import { FaFileAlt, FaDownload, FaUser, FaSignOutAlt, FaHome, FaMapMarkerAlt } from "react-icons/fa";
 import NavbarApp from "../Navbar/NavbarApp";
-import Carrito from "../Carrito/CarritoApp";
 import useAuth from "../../hooks/useAuth";
 import SideBarUsuario from '../DetallesCliente/SideBarUsuario';
 import { useAppContext } from "../Navbar/AppContext";
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
+
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 const DireccionUsuario = () => {
   const { usuario } = useAuth();
   const navigate = useNavigate();
-
-  // Estados para los combos
   const [provincias, setProvincia] = useState([]);
   const [cantones, setCantones] = useState([]);
   const [distritos, setDistritos] = useState([]);
-  const [isValidatingPostalCode, setIsValidatingPostalCode] = useState(false);
+  const [direccionCompleta, setDireccionCompleta] = useState(null);
+  const [loading, setLoading] = useState(true);
   
+  // Estados para el Snackbar
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
 
-  // Estado para el formulario
   const [formData, setFormData] = useState({
     codigoPostalDireccion: "",
     descripcionDireccion: "",
@@ -34,76 +39,100 @@ const DireccionUsuario = () => {
     idCanton: "",
     idDistrito: "",
   });
-   const {handleLogout
-        } = useAppContext();
 
+  const { handleLogout } = useAppContext();
   const [isEditing, setIsEditing] = useState(false);
 
   const isValidPostalCodeFormat = (code) => {
     return /^\d{5}$/.test(code);
   };
 
-  const validatePostalCodeWithAPI = async (postalCode, country = "CR") => {
-    try {
-      setIsValidatingPostalCode(true);
-      
-      const username = "CarniceriaLaBendi"; 
-      const response = await fetch(
-        `https://secure.geonames.org/postalCodeLookupJSON?postalcode=${postalCode}&country=${country}&username=${username}`
-      );
-      
-      const data = await response.json();
-      return data.postalcodes && data.postalcodes.length > 0;
-      
-    } catch (error) {
-      console.error("Error validando código postal:", error);
-      toast.warning("No se pudo verificar el código postal. Se aceptará pero no está validado.");
-      return true; 
-    } finally {
-      setIsValidatingPostalCode(false);
-    }
+  // Función para mostrar el Snackbar
+  const showSnackbar = (message, severity = 'success') => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setOpenSnackbar(true);
   };
 
-  // Validación específica para Costa Rica
-  const validateCostaRicaPostalCode = async (postalCode) => {
-    // Primero validamos el formato
-    if (!isValidPostalCodeFormat(postalCode)) {
-      toast.error("El código postal debe tener exactamente 5 dígitos");
-      return false;
+  // Función para cerrar el Snackbar
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
     }
-
-    return await validatePostalCodeWithAPI(postalCode);
+    setOpenSnackbar(false);
   };
 
   useEffect(() => {
-    if (usuario) {
-      setFormData({
-        codigoPostalDireccion: usuario.codigoPostalDireccion || "",
-        descripcionDireccion: usuario.descripcionDireccion || "",
-        idDistrito: usuario.idDistrito || ""
-      });
+    if (usuario?.correoUsuario) {
+      cargarDireccionUsuario();
       cargarProvincias();
     }
   }, [usuario]);
 
-  // Cargar combos dependientes
-  useEffect(() => {
-    if (formData.idProvincia) {
-      cargarCantones();
-    } else {
-      setCantones([]);
-      setFormData(prev => ({ ...prev, idCanton: "", idDistrito: "" }));
+  const cargarDireccionUsuario = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(
+        `http://localhost:8080/direccion/buscar-por-correo`, 
+        {
+          params: { correoUsuario: usuario.correoUsuario },
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
+
+      if (response.data) {
+        setDireccionCompleta(response.data);
+        
+        setFormData({
+          codigoPostalDireccion: response.data.codigoPostalDireccion || "",
+          descripcionDireccion: response.data.descripcionDireccion || "",
+          idProvincia: response.data.idProvincia || "",
+          idCanton: response.data.idCanton || "",
+          idDistrito: response.data.idDistrito || ""
+        });
+        
+        if (response.data.idProvincia) {
+          await cargarCantonesPorProvincia(response.data.idProvincia);
+        }
+        
+        if (response.data.idCanton) {
+          await cargarDistritosPorCanton(response.data.idCanton);
+        }
+      }
+    } catch (error) {
+      console.error("Error al cargar la dirección del usuario:", error);
+      
+      if (error.response?.status !== 404) {
+        showSnackbar("No se pudo cargar la información de dirección", "error");
+      }
+    } finally {
+      setLoading(false);
     }
-  }, [formData.idProvincia]);
+  };
 
   useEffect(() => {
-    if (formData.idCanton) {
-      cargarDistritos();
-    } else {
-      setDistritos([]);
-      setFormData(prev => ({ ...prev, idDistrito: "" }));
+    if (formData.idProvincia && !loading) {
+      cargarCantones();
+    } else if (!loading) {
+      setCantones([]);
+      if (!direccionCompleta) {
+        setFormData(prev => ({ ...prev, idCanton: "", idDistrito: "" }));
+      }
     }
-  }, [formData.idCanton]);
+  }, [formData.idProvincia, loading]);
+
+  useEffect(() => {
+    if (formData.idCanton && !loading) {
+      cargarDistritos();
+    } else if (!loading) {
+      setDistritos([]);
+      if (!direccionCompleta) {
+        setFormData(prev => ({ ...prev, idDistrito: "" }));
+      }
+    }
+  }, [formData.idCanton, loading]);
 
   const cargarProvincias = async () => {
     try {
@@ -111,7 +140,43 @@ const DireccionUsuario = () => {
       setProvincia(response.data);
     } catch (error) {
       console.error("Error al cargar las provincias:", error);
-      toast.error("Ocurrió un error al cargar las provincias");
+      showSnackbar("Ocurrió un error al cargar las provincias");
+    }
+  };
+
+  const cargarCantonesPorProvincia = async (idProvincia) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8080/canton/leerPorProvincia/${idProvincia}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
+      setCantones(response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error al cargar los cantones:", error);
+      return [];
+    }
+  };
+
+  const cargarDistritosPorCanton = async (idCanton) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8080/distrito/leerPorCanton/${idCanton}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
+      setDistritos(response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error al cargar los distritos:", error);
+      return [];
     }
   };
 
@@ -128,7 +193,7 @@ const DireccionUsuario = () => {
       setCantones(response.data);
     } catch (error) {
       console.error("Error al cargar los cantones:", error);
-      toast.error("Ocurrió un error al cargar los cantones");
+      showSnackbar("Ocurrió un error al cargar los cantones");
     }
   };
 
@@ -145,21 +210,25 @@ const DireccionUsuario = () => {
       setDistritos(response.data);
     } catch (error) {
       console.error("Error al cargar los distritos:", error);
-      toast.error("Ocurrió un error al cargar los distritos");
+      showSnackbar("Ocurrió un error al cargar los distritos");
     }
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    
+    if (name === "codigoPostalDireccion") {
+      if (value === "" || /^\d+$/.test(value)) {
+        setFormData({ ...formData, [name]: value });
+      }
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
-  const handleBlurPostalCode = async () => {
-    if (formData.codigoPostalDireccion && formData.codigoPostalDireccion.length === 5) {
-      const isValid = await validateCostaRicaPostalCode(formData.codigoPostalDireccion);
-      if (!isValid) {
-        toast.info("Si el código es correcto pero no se valida, puedes continuar igual");
-      }
+  const handleBlurPostalCode = () => {
+    if (formData.codigoPostalDireccion && !isValidPostalCodeFormat(formData.codigoPostalDireccion)) {
+      showSnackbar("El código postal debe tener exactamente 5 dígitos", "warning");
     }
   };
 
@@ -167,13 +236,12 @@ const DireccionUsuario = () => {
     e.preventDefault();
     
     if (!formData.descripcionDireccion || !formData.idDistrito) {
-      toast.error("Descripción y distrito son obligatorios");
+      showSnackbar("Descripción y distrito son obligatorios", "error");
       return;
     }
 
-    // Validación de formato pero no bloqueamos si la API falla
     if (formData.codigoPostalDireccion && !isValidPostalCodeFormat(formData.codigoPostalDireccion)) {
-      toast.error("El código postal debe tener 5 dígitos");
+      showSnackbar("El código postal debe tener exactamente 5 dígitos", "error");
       return;
     }
 
@@ -194,34 +262,38 @@ const DireccionUsuario = () => {
         }
       );
 
-      toast.success(response.data);
+      showSnackbar(response.data, "success");
       setIsEditing(false);
+      
+      cargarDireccionUsuario();
     } catch (error) {
       if (error.response?.status === 401) {
         handleLogout();
-        toast.error("Sesión expirada, por favor ingrese nuevamente");
+        showSnackbar("Sesión expirada, por favor ingrese nuevamente", "error");
       } else {
         console.error("Error:", error.response?.data);
-        toast.error(error.response?.data || "Error al guardar la dirección");
+        showSnackbar(error.response?.data || "Error al guardar la dirección", "error");
       }
     }
   };
 
 
+
   return (
-    
     <div className="profile-page">
       <NavbarApp />
-      <Carrito />
+       
+        <div className="catalogo-hero">
+      <div className="catalogo-hero-content">
+        <h1>MI DIRECCIÓN </h1>
+      </div>
+    </div>
       <div className="perfil-usuario-container">
-        {/* Sidebar Component */}
         <SideBarUsuario usuario={usuario} handleLogout={handleLogout} />
 
-        {/* Contenido principal con nuevo diseño */}
         <div className="profile-content">
           <div className="profile-header">
             <h2>Mi Dirección</h2>
-            <p>Administra y actualiza tu información de dirección</p>
           </div>
 
           <div className="profile-card">
@@ -239,11 +311,13 @@ const DireccionUsuario = () => {
                   className="cancel-btn"
                   onClick={() => {
                     setIsEditing(false);
-                    if (usuario) {
+                    if (direccionCompleta) {
                       setFormData({
-                        codigoPostalDireccion: usuario.codigoPostalDireccion || "",
-                        descripcionDireccion: usuario.descripcionDireccion || "",
-                        idDistrito: usuario.idDistrito || ""
+                        codigoPostalDireccion: direccionCompleta.codigoPostalDireccion || "",
+                        descripcionDireccion: direccionCompleta.descripcionDireccion || "",
+                        idProvincia: direccionCompleta.idProvincia || "",
+                        idCanton: direccionCompleta.idCanton || "",
+                        idDistrito: direccionCompleta.idDistrito || ""
                       });
                     }
                   }}
@@ -253,9 +327,23 @@ const DireccionUsuario = () => {
               )}
             </div>
 
+            {direccionCompleta && !isEditing && (
+              <div className="direccion-display">
+                <div className="direccion-completa">
+                  <h4>Dirección actual:</h4>
+                  <p>
+                    {direccionCompleta.descripcionDireccion}, 
+                    {direccionCompleta.nombreDistrito && ` ${direccionCompleta.nombreDistrito},`} 
+                    {direccionCompleta.nombreCanton && ` ${direccionCompleta.nombreCanton},`}
+                    {direccionCompleta.nombreProvincia && ` ${direccionCompleta.nombreProvincia}`}
+                    {direccionCompleta.codigoPostalDireccion && ` - C.P: ${direccionCompleta.codigoPostalDireccion}`}
+                  </p>
+                </div>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="profile-form">
               <div className="form-grid">
-                {/* Código Postal */}
                 <div className="form-group">
                   <label>
                     <FontAwesomeIcon icon={faMapMarkerAlt} className="input-icon" /> Código Postal
@@ -271,13 +359,9 @@ const DireccionUsuario = () => {
                     disabled={!isEditing}
                     maxLength="5"
                   />
-                  {isValidatingPostalCode && (
-                    <small className="text-muted">Validando código postal...</small>
-                  )}
-                  <small className="text-muted">Ejemplos válidos: 10101 (San José), 20101 (Alajuela)</small>
+                  <small className="text-muted">Debe contener exactamente 5 dígitos</small>
                 </div>
 
-                {/* Descripción */}
                 <div className="form-group full-width">
                   <label>Descripción de la dirección</label>
                   <textarea
@@ -292,7 +376,6 @@ const DireccionUsuario = () => {
                   />
                 </div>
 
-                {/* Provincia */}
                 <div className="form-group">
                   <label>Provincia</label>
                   <select
@@ -319,7 +402,6 @@ const DireccionUsuario = () => {
                   </select>
                 </div>
 
-                {/* Cantón */}
                 <div className="form-group">
                   <label>Cantón</label>
                   <select
@@ -345,7 +427,6 @@ const DireccionUsuario = () => {
                   </select>
                 </div>
 
-                {/* Distrito */}
                 <div className="form-group">
                   <label>Distrito</label>
                   <select
@@ -371,7 +452,6 @@ const DireccionUsuario = () => {
                   <button 
                     type="submit" 
                     className="save-btn"
-                    disabled={isValidatingPostalCode}
                   >
                     <FontAwesomeIcon icon={faSave} /> Guardar Cambios
                   </button>
@@ -381,9 +461,25 @@ const DireccionUsuario = () => {
           </div>
         </div>
 
-        <ToastContainer position="bottom-right" autoClose={3000} />
+       
       </div>
-      <FooterApp />
+       <FooterApp />
+
+      {/* Snackbar para mostrar mensajes */}
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={3000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={handleCloseSnackbar} 
+          severity={snackbarSeverity}
+          sx={{ width: '100%' }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };

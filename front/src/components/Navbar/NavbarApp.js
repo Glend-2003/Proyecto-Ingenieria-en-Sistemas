@@ -8,9 +8,9 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import './Navbar.css';
 import { useCart } from '../../contexto/ContextoCarrito';
 import { Form, InputGroup, FormControl, Button } from "react-bootstrap";
+import { FaHome } from 'react-icons/fa';
 
 const NavbarApp = () => {
-  // Usar el contexto para obtener estados y funciones
   const { cart, showCartMenu, setShowCartMenu } = useCart();
   const {
     idUsuario,
@@ -27,7 +27,6 @@ const NavbarApp = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isScrolled, setIsScrolled] = useState(false);
 
-  // Efecto para detectar el scroll
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 50) {
@@ -46,15 +45,11 @@ const NavbarApp = () => {
   useEffect(() => {
   }, [idUsuario]);
 
-  // Función para manejar la búsqueda y cambiar la página si es necesario
   const handleSearch = (e) => {
-    // Prevenir comportamiento de formulario si es un evento
     if (e) e.preventDefault();
     if (searchQuery.trim()) {
-      // Actualizar el término de búsqueda global
       buscarProductos(searchQuery.trim());
-      // Forzar redirección a la página principal
-      if (location.pathname !=="/"){      
+      if (location.pathname !== "/") {
         window.location.href = '/';
       }
       navigate('/', { replace: true });
@@ -63,7 +58,6 @@ const NavbarApp = () => {
     setSearchOpen(false);
   };
 
-  // Función para limpiar la búsqueda
   const handleClearSearch = () => {
     setSearchQuery("");
     limpiarBusqueda();
@@ -71,14 +65,11 @@ const NavbarApp = () => {
     sessionStorage.removeItem("searchTerm");
   };
 
-  // Reemplazar función limpiarBusqueda en AppContext.js
   const limpiarBusqueda = () => {
     setGlobalSearchTerm("");
     sessionStorage.removeItem("searchTerm");
   };
 
-
-  // Clases dinámicas basadas en el estado de scroll
   const navbarClasses = `navbar-transition ${isScrolled ? "navbar-scrolled" : "navbar-top"}`;
 
   return (
@@ -90,7 +81,6 @@ const NavbarApp = () => {
       style={{ position: 'relative', zIndex: 1100 }}
     >
       <Container fluid="lg">
-        {/* Logo y título para versión desktop */}
         <div className="navbar-brand-container d-none d-lg-flex">
           <Link to="/Historia" className="d-flex align-items-center text-decoration-none">
             <img
@@ -104,7 +94,6 @@ const NavbarApp = () => {
           </Link>
         </div>
 
-        {/* Logo y título para versión móvil */}
         <div className="d-flex d-lg-none align-items-center">
           <Link to="/Historia" className="d-flex align-items-center text-decoration-none">
             <img
@@ -118,7 +107,6 @@ const NavbarApp = () => {
           </Link>
         </div>
 
-        {/* Iconos móviles */}
         <div className="d-flex align-items-center ml-auto d-lg-none">
           <Nav.Link className="icon-link" onClick={() => setSearchOpen(!searchOpen)}>
             <svg
@@ -154,7 +142,10 @@ const NavbarApp = () => {
         <BootstrapNavbar.Toggle aria-controls="basic-navbar-nav" />
 
         <BootstrapNavbar.Collapse id="basic-navbar-nav">
-        <Nav className="me-auto main-nav" >
+          <Nav className="me-auto main-nav" >
+            <Nav.Link as={Link} to="/" className="nav-link-custom" onClick={handleClearSearch}>
+              <FaHome size={28} />
+            </Nav.Link>
             <Nav.Link as={Link} to="/cortes-de-res" className="nav-link-custom" onClick={handleClearSearch}>
               CORTES DE RES
             </Nav.Link>
@@ -231,7 +222,6 @@ const NavbarApp = () => {
         </BootstrapNavbar.Collapse>
       </Container>
 
-      {/* Contenedor de búsqueda que se muestra/oculta */}
       {searchOpen && (
         <div className="search-container">
           <Form className="search-form" onSubmit={handleSearch}>
@@ -259,7 +249,7 @@ const NavbarApp = () => {
                 ×
               </button>
             </InputGroup>
-        
+
           </Form>
         </div>
       )}

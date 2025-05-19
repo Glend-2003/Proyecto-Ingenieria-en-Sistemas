@@ -5,7 +5,7 @@ import './PedidoCrud.css';
 import axios from "axios";
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
-import { FaSpinner, FaArrowLeft, FaCheck, FaTimes, FaShoppingCart, FaCalendarAlt } from 'react-icons/fa';
+import { FaSpinner, FaArrowLeft, FaCheck, FaTimes, FaShoppingCart, FaCalendarAlt, FaInfoCircle, FaStore } from 'react-icons/fa';
 
 function PedidoCrud() {
   const [formData, setFormData] = useState({
@@ -14,8 +14,8 @@ function PedidoCrud() {
     segundoApellido: '',
     correoUsuario: '',
     cedulaUsuario: '',
-    sucursal: 'Cairo de Cariari',
-    provincia: 'Limón',
+    sucursal: 'Cairo de Siquirres',
+    provincia: 'Siquirres',
     localidad: 'SuperMercado en el Centro Comercial',
     fechaHoraRetiro: '',
     tipoPago: ''
@@ -27,13 +27,13 @@ function PedidoCrud() {
     error: null,
     success: false
   });
-  
+
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
     severity: 'success'
   });
-  
+
   const [cedulaValidation, setCedulaValidation] = useState({
     isValid: false,
     isChecking: false,
@@ -64,13 +64,13 @@ function PedidoCrud() {
   useEffect(() => {
     const userName = localStorage.getItem("nombreUsuario");
     const userEmail = localStorage.getItem("correoUsuario");
-    
+
     if (userName && userEmail) {
       setLoggedUser({
         nombreUsuario: userName,
         correoUsuario: userEmail
       });
-      
+
       setFormData(prevData => ({
         ...prevData,
         nombreUsuario: userName,
@@ -87,16 +87,16 @@ function PedidoCrud() {
     }, 1000);
     return () => clearTimeout(delayDebounceFn);
   }, [formData.cedulaUsuario]);
-  
+
   useEffect(() => {
     const savedCart = JSON.parse(localStorage.getItem("carrito")) || [];
     setCart(savedCart);
-    
+
     const fetchTiposPago = async () => {
       try {
         const response = await axios.get('http://localhost:8080/tipopago/');
         setTiposPago(response.data);
-        
+
         if (response.data && response.data.length > 0) {
           setFormData(prevData => ({
             ...prevData,
@@ -111,7 +111,7 @@ function PedidoCrud() {
         });
       }
     };
-    
+
     fetchTiposPago();
   }, []);
 
@@ -121,9 +121,9 @@ function PedidoCrud() {
 
   const validateLettersOnly = (value, fieldName) => {
     const lettersOnlyRegex = /^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$/;
-    
+
     const isValid = value.trim() === '' || lettersOnlyRegex.test(value);
-    
+
     setFieldValidations(prev => ({
       ...prev,
       [fieldName]: {
@@ -131,14 +131,14 @@ function PedidoCrud() {
         message: isValid ? '' : 'Este campo solo permite letras'
       }
     }));
-    
+
     return isValid;
   };
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const isValid = email.trim() === '' || emailRegex.test(email);
-    
+
     setFieldValidations(prev => ({
       ...prev,
       correoUsuario: {
@@ -146,15 +146,15 @@ function PedidoCrud() {
         message: isValid ? '' : 'Formato de correo electrónico inválido'
       }
     }));
-    
+
     return isValid;
   };
 
   const validateMatchWithLoggedUser = (value, fieldName) => {
     if (!loggedUser[fieldName]) return true;
-    
+
     const isValid = value === loggedUser[fieldName];
-    
+
     if (!isValid) {
       setFieldValidations(prev => ({
         ...prev,
@@ -164,7 +164,7 @@ function PedidoCrud() {
         }
       }));
     }
-    
+
     return isValid;
   };
 
@@ -179,7 +179,7 @@ function PedidoCrud() {
       });
       return;
     }
-    
+
     if (!cedula || cedula.trim().length === 0) {
       setCedulaValidation({
         isValid: false,
@@ -189,7 +189,7 @@ function PedidoCrud() {
       });
       return;
     }
-    
+
     setCedulaValidation({
       ...cedulaValidation,
       isChecking: true,
@@ -198,7 +198,7 @@ function PedidoCrud() {
 
     try {
       const response = await axios.get(`https://api.hacienda.go.cr/fe/ae?identificacion=${cedula}`);
-      
+
       if (response.data && response.status === 200) {
         setCedulaValidation({
           isValid: true,
@@ -233,12 +233,12 @@ function PedidoCrud() {
       });
       return false;
     }
-    
+
     const dateTime = new Date(fechaHora);
-    
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     if (dateTime < today) {
       setFechaHoraRetiroValidation({
         isValid: false,
@@ -247,23 +247,23 @@ function PedidoCrud() {
       });
       return false;
     }
-    
+
     const hours = dateTime.getHours();
     const minutes = dateTime.getMinutes();
-    
+
     const totalMinutos = hours * 60 + minutes;
-    
-    const horaMinima = 8 * 60; // 8:00 AM
-    const horaMaxima = 21 * 60; // 9:00 PM
-    
+
+    const horaMinima = 8 * 60;
+    const horaMaxima = 21 * 60;
+
     const isValid = totalMinutos >= horaMinima && totalMinutos <= horaMaxima;
-    
+
     setFechaHoraRetiroValidation({
       isValid: isValid,
       wasChecked: true,
       message: isValid ? '' : 'El horario de retiro debe ser entre 8:00 AM y 9:00 PM'
     });
-    
+
     if (!isValid) {
       setSnackbar({
         open: true,
@@ -271,16 +271,16 @@ function PedidoCrud() {
         severity: 'warning'
       });
     }
-    
+
     return isValid;
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
+
     if (name === 'nombreUsuario' || name === 'primerApellido' || name === 'segundoApellido') {
       validateLettersOnly(value, name);
-      
+
       if (name === 'nombreUsuario') {
         validateMatchWithLoggedUser(value, name);
       }
@@ -297,7 +297,7 @@ function PedidoCrud() {
     } else if (name === 'fechaHoraRetiro') {
       validateFechaHoraRetiro(value);
     }
-    
+
     setFormData({
       ...formData,
       [name]: value
@@ -305,7 +305,7 @@ function PedidoCrud() {
   };
 
   const handleCloseSnackbar = () => {
-    setSnackbar({...snackbar, open: false});
+    setSnackbar({ ...snackbar, open: false });
   };
 
   const Alert = React.forwardRef(function Alert(props, ref) {
@@ -318,28 +318,28 @@ function PedidoCrud() {
         return true;
       }
     }
-    
+
     if (!cedulaValidation.isValid) {
       return true;
     }
-    
+
     if (!fechaHoraRetiroValidation.isValid) {
       return true;
     }
-    
+
     return false;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    const nombreValid = validateLettersOnly(formData.nombreUsuario, 'nombreUsuario') && 
-                         validateMatchWithLoggedUser(formData.nombreUsuario, 'nombreUsuario');
+
+    const nombreValid = validateLettersOnly(formData.nombreUsuario, 'nombreUsuario') &&
+      validateMatchWithLoggedUser(formData.nombreUsuario, 'nombreUsuario');
     const primerApellidoValid = validateLettersOnly(formData.primerApellido, 'primerApellido');
     const segundoApellidoValid = validateLettersOnly(formData.segundoApellido, 'segundoApellido');
-    const correoValid = validateEmail(formData.correoUsuario) && 
-                         validateMatchWithLoggedUser(formData.correoUsuario, 'correoUsuario');
-    
+    const correoValid = validateEmail(formData.correoUsuario) &&
+      validateMatchWithLoggedUser(formData.correoUsuario, 'correoUsuario');
+
     if (!nombreValid || !primerApellidoValid || !segundoApellidoValid || !correoValid) {
       setSnackbar({
         open: true,
@@ -348,7 +348,7 @@ function PedidoCrud() {
       });
       return;
     }
-  
+
     if (!cedulaValidation.isValid) {
       setSnackbar({
         open: true,
@@ -357,16 +357,16 @@ function PedidoCrud() {
       });
       return;
     }
-    
+
     if (!validateFechaHoraRetiro(formData.fechaHoraRetiro)) {
       return;
     }
-  
+
     setStatus({ loading: true, error: null, success: false });
-  
+
     try {
       const idUsuario = localStorage.getItem("idUsuario");
-      
+
       const carritoData = {
         usuario: {
           idUsuario: parseInt(idUsuario, 10)
@@ -375,10 +375,10 @@ function PedidoCrud() {
         estadoCarrito: true,
         cantidadCarrito: cart.length
       };
-      
+
       const carritoResponse = await axios.post('http://localhost:8080/carrito', carritoData);
       const idCarrito = carritoResponse.data.idCarrito;
-      
+
       for (const item of cart) {
         const productoCarrito = {
           carrito: {
@@ -387,18 +387,17 @@ function PedidoCrud() {
           idProducto: item.idProducto,
           cantidadProducto: item.cantidad
         };
-        
+
         await axios.post(`http://localhost:8080/carrito/${idCarrito}/productos`, productoCarrito);
       }
-    
+
       await new Promise(resolve => setTimeout(resolve, 3000));
-  
+
       try {
         await axios.get(`http://localhost:8080/carrito/usuario/${idUsuario}`);
       } catch (verifyError) {
-        // Continuar con el flujo incluso si hay error en la verificación
       }
-      
+
       const fechaHoraObj = new Date(formData.fechaHoraRetiro);
       const horaRetiro = `${fechaHoraObj.getHours().toString().padStart(2, '0')}:${fechaHoraObj.getMinutes().toString().padStart(2, '0')}`;
 
@@ -410,33 +409,33 @@ function PedidoCrud() {
         tipoPersona: "Física",
         cedulaUsuario: formData.cedulaUsuario,
         tipoCedula: "Cédula Física",
-        
+
         sucursal: formData.sucursal,
         provincia: formData.provincia,
         localidad: formData.localidad,
         horaRetiro: horaRetiro,
         fechaRetiro: formData.fechaHoraRetiro.split('T')[0],
-        
+
         carrito: {
           idCarrito: idCarrito,
           usuario: {
             idUsuario: parseInt(idUsuario, 10)
           }
         },
-        
+
         tipoPago: {
           idTipoPago: parseInt(formData.tipoPago, 10)
         },
-        
+
         subtotal: subtotal,
         montoTotalPedido: montoTotalPedido,
         fechaPedido: formData.fechaHoraRetiro,
         estadoPedido: true,
         estadoEntregaPedido: "Pendiente"
       };
-      
+
       await axios.post('http://localhost:8080/pedido/agregar', pedidoData);
-      
+
       await axios.put(`http://localhost:8080/carrito/${idCarrito}`, {
         usuario: {
           idUsuario: parseInt(idUsuario, 10)
@@ -445,29 +444,29 @@ function PedidoCrud() {
         estadoCarrito: false,
         cantidadCarrito: cart.length
       });
-  
+
       setStatus({ loading: false, error: null, success: true });
-  
+
       setSnackbar({
         open: true,
         message: 'Pedido registrado de manera exitosa',
         severity: 'success'
       });
-  
+
       localStorage.removeItem("carrito");
       setCart([]);
-  
+
       setTimeout(() => {
         window.location.href = "/";
       }, 2000);
-  
-    } catch(error) {
-      setStatus({ 
-        loading: false, 
-        error: error.response?.data?.message || "Error al procesar el pedido", 
-        success: false 
+
+    } catch (error) {
+      setStatus({
+        loading: false,
+        error: error.response?.data?.message || "Error al procesar el pedido",
+        success: false
       });
-      
+
       setSnackbar({
         open: true,
         message: error.response?.data?.message || "Error al procesar el pedido",
@@ -493,13 +492,13 @@ function PedidoCrud() {
     }
   };
 
-  const isSubmitDisabled = status.loading || 
-                           tiposPago.length === 0 || 
-                           !cedulaValidation.isValid || 
-                           cedulaValidation.isChecking || 
-                           !fechaHoraRetiroValidation.isValid ||
-                           cart.length === 0 ||
-                           hasValidationErrors();
+  const isSubmitDisabled = status.loading ||
+    tiposPago.length === 0 ||
+    !cedulaValidation.isValid ||
+    cedulaValidation.isChecking ||
+    !fechaHoraRetiroValidation.isValid ||
+    cart.length === 0 ||
+    hasValidationErrors();
 
   const renderErrorMessage = (fieldName) => {
     const field = fieldValidations[fieldName];
@@ -515,22 +514,29 @@ function PedidoCrud() {
   };
 
   return (
+    
     <div className="pedido-container">
-      <div className="pedido-header">
-        <h1>Finalizar pedido</h1>
-        <button 
-          className="btn-back" 
-          onClick={() => window.history.back()}
-        >
-          <FaArrowLeft className="icon-back" /> Volver
-        </button>
+      <div className="orden-hero">
+        <div className="orden-hero-content">
+  <h1>Finalizar tu pedido</h1>
+  <p>Estás a un paso de disfrutar de nuestros productos. Completa tus datos y programa el retiro.</p>
+</div>
       </div>
-
+<div className="contenedor-boton">
+  <button 
+    className="btn-back" 
+    onClick={() => window.history.back()}
+  >
+    <FaArrowLeft className="icon-back" /> Volver
+  </button>
+</div>
       <div className="pedido-content">
+        
         <div className="client-info-card">
           <div className="card-header">
             <h2>Información del cliente</h2>
           </div>
+     
           <div className="card-body">
             <div className="form-row">
               <div className="form-group">
@@ -560,7 +566,7 @@ function PedidoCrud() {
                 {renderErrorMessage('primerApellido')}
               </div>
             </div>
-            
+
             <div className="form-row">
               <div className="form-group">
                 <label htmlFor="segundoApellido">Segundo apellido</label>
@@ -589,7 +595,7 @@ function PedidoCrud() {
                 {renderErrorMessage('correoUsuario')}
               </div>
             </div>
-            
+
             <div className="form-row">
               <div className="form-group">
                 <label htmlFor="cedulaUsuario">Cédula</label>
@@ -650,7 +656,7 @@ function PedidoCrud() {
                 )}
               </div>
             </div>
-            
+
             <div className="form-row">
               <div className="form-group">
                 <label htmlFor="tipoPago">Tipo de Pago</label>
@@ -673,6 +679,12 @@ function PedidoCrud() {
                 </select>
               </div>
             </div>
+                 <div className="info-section">
+  <FaInfoCircle className="info-icon" />
+  <p className="info-text">
+    Por favor verifica que tus datos sean correctos. Esta información será usada para procesar tu pedido y enviarte notificaciones.
+  </p>
+</div>
           </div>
         </div>
 
@@ -693,6 +705,12 @@ function PedidoCrud() {
               <span className="location-label">Localidad:</span>
               <span className="location-value">{formData.localidad}</span>
             </div>
+            <div className="info-section">
+  <FaStore className="info-icon" />
+  <p className="info-text">
+    Retira tu pedido en nuestra sucursal de {formData.sucursal}. Horario de atención: de 8:00 AM a 9:00 PM.
+  </p>
+</div>
           </div>
         </div>
 
@@ -704,7 +722,7 @@ function PedidoCrud() {
             <div className="cart-items">
               {renderCartItems()}
             </div>
-            
+
             <div className="cart-summary">
               <div className="summary-item">
                 <span>Subtotal (sin I.V.A):</span>
@@ -719,10 +737,10 @@ function PedidoCrud() {
                 <span>₡{montoTotalPedido.toLocaleString()}</span>
               </div>
             </div>
-            
+
             <div className="submit-section">
-              <button 
-                className="btn-submit" 
+              <button
+                className="btn-submit"
                 onClick={handleSubmit}
                 disabled={isSubmitDisabled}
               >
@@ -754,9 +772,9 @@ function PedidoCrud() {
         </div>
       </div>
 
-      <Snackbar 
-        open={snackbar.open} 
-        autoHideDuration={6000} 
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >

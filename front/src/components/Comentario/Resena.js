@@ -2,7 +2,9 @@ import React, { useState, useEffect, forwardRef } from "react";
 import { Star, MessageCircle, Send, AlertCircle } from "lucide-react";
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
+import PaginacionApp from "../Paginacion/PaginacionApp";
 import "./Resena.css";
+import { useAppContext } from "../Navbar/AppContext";
 
 const Resena = () => {
   const [comentarios, setComentarios] = useState([]);
@@ -10,6 +12,7 @@ const Resena = () => {
   const [error, setError] = useState(null);
   const [usuarioActual, setUsuarioActual] = useState(null);
   const [loadingUsuario, setLoadingUsuario] = useState(false);
+  const { handleShowSidebar } = useAppContext();
   const [newComentario, setNewComentario] = useState({
     nombre: "",
     email: "",
@@ -17,17 +20,17 @@ const Resena = () => {
     descripcionComentario: "",
   });
   
-  // Estado para el Snackbar
+  const [currentPage, setCurrentPage] = useState(1);
+  const comentariosPorPagina = 3;
+  
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   
-  // Componente Alert personalizado
   const Alert = forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
   });
 
-  // Funciones para manejar el Snackbar
   const handleOpenSnackbar = (message, severity = "success") => {
     setSnackbarMessage(message);
     setSnackbarSeverity(severity);
@@ -46,11 +49,9 @@ const Resena = () => {
     fetchUsuarioActual();
   }, []);
 
-  // Obtener el usuario actual del localStorage
   const fetchUsuarioActual = async () => {
     try {
       setLoadingUsuario(true);
-      // Obtener el ID de usuario del localStorage
       const userId = localStorage.getItem("idUsuario");
       
       if (!userId) {
@@ -59,7 +60,6 @@ const Resena = () => {
         return;
       }
       
-      // Llamar al endpoint para obtener el usuario por ID
       const response = await fetch(`http://localhost:8080/usuario/obtenerPorId/${userId}`);
       
       if (!response.ok) {
@@ -69,7 +69,6 @@ const Resena = () => {
       const userData = await response.json();
       setUsuarioActual(userData);
       
-      // Pre-rellenar el formulario con los datos del usuario
       if (userData) {
         setNewComentario({
           ...newComentario,
@@ -120,7 +119,6 @@ const Resena = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Verificar si hay un usuario logueado
       const userId = localStorage.getItem("idUsuario");
       
       if (!userId && !usuarioActual) {
@@ -128,11 +126,10 @@ const Resena = () => {
         return;
       }
       
-      // Crear objeto de comentario para enviar al backend
       const comentarioData = {
         descripcionComentario: newComentario.descripcionComentario,
         numCalificacion: newComentario.numCalificacion,
-        verificacion: false, // Por defecto no se muestra hasta que sea aprobado
+        verificacion: false, 
         usuario: usuarioActual || { idUsuario: parseInt(userId) }
       };
 
@@ -148,23 +145,21 @@ const Resena = () => {
         throw new Error("Error al enviar el comentario");
       }
 
-      // Resetear el formulario
       setNewComentario({
-        nombre: "",
-        email: "",
+        ...newComentario,
         numCalificacion: 5,
         descripcionComentario: "",
       });
 
-      // Mostrar mensaje de éxito
       handleOpenSnackbar("¡Gracias por tu comentario! Será revisado antes de publicarse.", "success");
+      
+      fetchComentarios();
     } catch (error) {
       console.error("Error:", error);
       handleOpenSnackbar("No pudimos enviar tu comentario. Por favor, intente más tarde.", "error");
     }
   };
 
-  // Función para renderizar estrellas según la calificación
   const renderStars = (rating) => {
     const stars = [];
     for (let i = 1; i <= 5; i++) {
@@ -179,7 +174,6 @@ const Resena = () => {
     return stars;
   };
 
-  // Función para formatear la fecha
   const formatDate = (dateString) => {
     if (!dateString) return "";
     const date = new Date(dateString);
@@ -189,12 +183,33 @@ const Resena = () => {
       year: "numeric",
     });
   };
+  
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const indexOfLastComentario = currentPage * comentariosPorPagina;
+  const indexOfFirstComentario = indexOfLastComentario - comentariosPorPagina;
+  const comentariosActuales = comentarios.slice(indexOfFirstComentario, indexOfLastComentario);
+  
+  const totalPages = Math.ceil(comentarios.length / comentariosPorPagina);
 
   return (
     <div className="resena-container">
       <h3 className="resena-title">Lo que dicen nuestros clientes</h3>
 
-      {/* Comentarios existentes */}
       <div className="resena-list">
         {loading ? (
           <div className="resena-loading">Cargando comentarios...</div>
@@ -205,15 +220,21 @@ const Resena = () => {
             No hay comentarios aún. ¡Sé el primero en dejarnos tu opinión!
           </div>
         ) : (
-          comentarios.map((comentario) => (
+          comentariosActuales.map((comentario) => (
             <div key={comentario.idComentario} className="resena-card">
               <div className="resena-header">
                 <div className="resena-user">
                   <div className="resena-avatar">
-                    {comentario.nombre ? comentario.nombre.charAt(0).toUpperCase() : "C"}
+                    {comentario.nombre 
+                      ? comentario.nombre.charAt(0).toUpperCase() 
+                      : (comentario.usuario && comentario.usuario.nombre 
+                          ? comentario.usuario.nombre.charAt(0).toUpperCase() 
+                          : "C")}
                   </div>
                   <div className="resena-user-info">
-                    <h4 className="resena-name">{comentario.nombre}</h4>
+                    <h4 className="resena-name">
+                      {comentario.nombre || (comentario.usuario ? comentario.usuario.nombre : "Cliente")}
+                    </h4>
                     <div className="resena-date">
                       {formatDate(comentario.fechaComentario)}
                     </div>
@@ -230,8 +251,19 @@ const Resena = () => {
           ))
         )}
       </div>
+      
+      {!loading && !error && comentarios.length > 0 && (
+        <div className="resena-pagination">
+          <PaginacionApp
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+            onNextPage={handleNextPage}
+            onPreviousPage={handlePreviousPage}
+          />
+        </div>
+      )}
 
-      {/* Formulario para nuevo comentario */}
       <div className="resena-form-container">
         <h4 className="resena-form-title">
           <MessageCircle size={20} />
@@ -242,7 +274,7 @@ const Resena = () => {
           <div className="resena-login-required">
             <AlertCircle size={24} />
             <p>Debes iniciar sesión para dejar un comentario</p>
-            <a href="/login" className="resena-login-link">Iniciar sesión</a>
+            <a onClick={handleShowSidebar}  className="resena-login-link">Iniciar sesión</a>
           </div>
         ) : (
           <form className="resena-form" onSubmit={handleSubmit}>
@@ -290,7 +322,6 @@ const Resena = () => {
         </p>
       </div>
       
-      {/* Snackbar para notificaciones */}
       <Snackbar
         open={openSnackbar}
         autoHideDuration={6000}

@@ -1,4 +1,5 @@
 package com.bendicion.la.carniceria.carniceria.domain;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,45 +14,38 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
-/**
- *
- * @author Jamel Sandí
- */
-
 @Entity
 @Table(name = "tbrol")
 public class Rol {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idRol")
     private int idRol;
-    
+
     @Column(name = "nombreRol")
     private String nombreRol;
-    
+
     @Column(name = "descripcionRol")
     private String descripcionRol;
 
     @Column(name = "estadoRol")
     private boolean estadoRol;
-/*
-    public Rol() {
-    }
-  */  
+
     @JsonBackReference
     @OneToMany(mappedBy = "rol", fetch = FetchType.LAZY)
     private List<Usuario> usuario;
-    
+
     public Rol() {
         usuario = new ArrayList<>();
     }
-    
+
     public Rol(int idRol, String nombreRol, String descripcionRol, boolean estadoRol) {
         this.idRol = idRol;
         this.nombreRol = nombreRol;
         this.descripcionRol = descripcionRol;
         this.estadoRol = estadoRol;
-    }   
+    }
 
     public int getIdRol() {
         return idRol;
@@ -75,7 +69,7 @@ public class Rol {
 
     public void setDescripcionRol(String descripcionRol) {
         this.descripcionRol = descripcionRol;
-    }   
+    }
 
     public List<Usuario> getUsuario() {
         return usuario;
@@ -92,5 +86,5 @@ public class Rol {
     public void setEstadoRol(boolean estadoRol) {
         this.estadoRol = estadoRol;
     }
-  
+
 }

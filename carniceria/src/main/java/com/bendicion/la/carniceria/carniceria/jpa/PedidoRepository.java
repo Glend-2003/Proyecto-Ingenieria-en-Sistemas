@@ -1,4 +1,5 @@
 package com.bendicion.la.carniceria.carniceria.jpa;
+
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
@@ -17,17 +18,24 @@ public interface PedidoRepository extends JpaRepository<Pedido, Integer> {
 
     @Query(value = "{call sp_AgregarPedido(:montoTotalPedido, :fechaPedido, :estadoPedido, :estadoEntregaPedido, :idCarrito, :idTipoPago)}", nativeQuery = true)
     void saveProcedurePedido(
-        @Param("montoTotalPedido") BigDecimal montoTotalPedido, 
-        @Param("fechaPedido") Date fechaPedido,
-        @Param("estadoPedido") boolean estadoPedido,
-        @Param("estadoEntregaPedido") String estadoEntregaPedido,
-        @Param("idCarrito") Integer idCarrito,
-        @Param("idTipoPago") Integer idTipoPago
+            @Param("montoTotalPedido") BigDecimal montoTotalPedido,
+            @Param("fechaPedido") Date fechaPedido,
+            @Param("estadoPedido") boolean estadoPedido,
+            @Param("estadoEntregaPedido") String estadoEntregaPedido,
+            @Param("idCarrito") Integer idCarrito,
+            @Param("idTipoPago") Integer idTipoPago
+    );
+
+    @Modifying
+    @Query(value = "{call spActualizarStock(:idProducto, :cantidadProducto)}", nativeQuery = true)
+    void updateStock(
+            @Param("idProducto") Integer idProducto,
+            @Param("cantidadProducto") Integer cantidadProducto
     );
 
     @Query(value = "CALL spLeerPedidoDetallado()", nativeQuery = true)
     List<Map<String, Object>> listaPedido();
-    
+
     @Query(value = "CALL spLeerPedidoDetalladoEntregado()", nativeQuery = true)
     List<Object[]> listaPedidoEntregado();
 
@@ -35,41 +43,40 @@ public interface PedidoRepository extends JpaRepository<Pedido, Integer> {
     List<Map<String, Object>> getPedidoByUsuario(@Param("id") int id);
 
     @Query(value = "{call spFiltrarPedidos(:idUsuario, :estadoEntrega, :fechaInicio, :fechaFin, :estadoPedido)}", nativeQuery = true)
-List<Map<String, Object>> filtrarPedidos(
-    @Param("idUsuario") int idUsuario,
-    @Param("estadoEntrega") String estadoEntrega,
-    @Param("fechaInicio") Date fechaInicio,
-    @Param("fechaFin") Date fechaFin,
-    @Param("estadoPedido") Integer estadoPedido
-);
+    List<Map<String, Object>> filtrarPedidos(
+            @Param("idUsuario") int idUsuario,
+            @Param("estadoEntrega") String estadoEntrega,
+            @Param("fechaInicio") Date fechaInicio,
+            @Param("fechaFin") Date fechaFin,
+            @Param("estadoPedido") Integer estadoPedido
+    );
 
     @Modifying
     @Query(value = "{call spActualizarPedido(:idPedido, :montoTotalPedido, :fechaPedido, :estadoPedido, :estadoEntregaPedido, :idCarrito, :idTipoPago)}", nativeQuery = true)
     void updateProcedurePedido(
-        @Param("idPedido") Integer idPedido,
-        @Param("montoTotalPedido") BigDecimal montoTotalPedido, 
-        @Param("fechaPedido") Date fechaPedido,
-        @Param("estadoPedido") Integer estadoPedido,
-        @Param("estadoEntregaPedido") String estadoEntregaPedido,
-        @Param("idCarrito") Integer idCarrito,
-        @Param("idTipoPago") Integer idTipoPago
+            @Param("idPedido") Integer idPedido,
+            @Param("montoTotalPedido") BigDecimal montoTotalPedido,
+            @Param("fechaPedido") Date fechaPedido,
+            @Param("estadoPedido") Integer estadoPedido,
+            @Param("estadoEntregaPedido") String estadoEntregaPedido,
+            @Param("idCarrito") Integer idCarrito,
+            @Param("idTipoPago") Integer idTipoPago
     );
 
     @Query(value = "{call spEliminarPedido(:idPedido)}", nativeQuery = true)
     void deleteProcedurePedido(@Param("idPedido") Integer idPedido);
-    
+
     @Query(value = "{call spActualizarEstadoPedido(:idPedido)}", nativeQuery = true)
     void deleteStateProcedurePedido(@Param("idPedido") Integer idPedido);
-    
+
     @Modifying
     @Query(value = "{call spActualizarEstadoEntregaPedido(:idPedido, :nuevoEstado)}", nativeQuery = true)
     void updateStateEntrega(
-        @Param("idPedido") Integer idPedido,
-        @Param("nuevoEstado") String nuevoEstado
+            @Param("idPedido") Integer idPedido,
+            @Param("nuevoEstado") String nuevoEstado
     );
-    
-        @Query(value = "CALL spObtenerTotalVentas(:periodo)", nativeQuery = true)
+
+    @Query(value = "CALL spObtenerTotalVentas(:periodo)", nativeQuery = true)
     Map<String, Object> getTotalVentasConPeriodo(@Param("periodo") String periodo);
-    
+
 }
-    

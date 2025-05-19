@@ -6,7 +6,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 function ResetPassword() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { correoUsuario } = location.state || { correoUsuario: '' }; // Obtén el correo del estado
+  const { correoUsuario } = location.state || { correoUsuario: '' }; 
 
   const [form, setForm] = useState({
     codigoVerificacion: '',
@@ -36,7 +36,7 @@ function ResetPassword() {
       });
       if (response.status === 200) {
         toast.success("Contraseña cambiada con éxito");
-        navigate('/login'); // Redirige al inicio de sesión
+        navigate('/login');
       }
     } catch (error) {
       toast.error("Error al cambiar la contraseña: " + error.message);

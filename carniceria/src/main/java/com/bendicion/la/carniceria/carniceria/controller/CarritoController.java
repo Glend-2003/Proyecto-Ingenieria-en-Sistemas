@@ -25,10 +25,10 @@ import com.bendicion.la.carniceria.carniceria.service.ICarritoService;
 @CrossOrigin(origins = "*")
 @RequestMapping("/carrito")
 public class CarritoController {
-    
+
     @Autowired
     private ICarritoService carritoService;
-    
+
     @Autowired
     private ICarritoProductoService carritoProductoService;
 
@@ -37,14 +37,14 @@ public class CarritoController {
         Carrito nuevoCarrito = carritoService.addCarrito(carrito);
         return ResponseEntity.ok(nuevoCarrito);
     }
-    
+
     @PutMapping("/{id}")
     public ResponseEntity<Carrito> actualizarCarrito(@PathVariable int id, @RequestBody Carrito carrito) {
         carrito.setIdCarrito(id);
         Carrito carritoActualizado = carritoService.updateCarrito(carrito);
         return ResponseEntity.ok(carritoActualizado);
     }
-    
+
     @GetMapping
     public ResponseEntity<List<Carrito>> listarCarritos(@RequestParam boolean estado) {
         return ResponseEntity.ok(carritoService.getCarrito(estado));
@@ -55,23 +55,25 @@ public class CarritoController {
         Map<String, List<Object[]>> resultado = carritoService.obtenerCarritosUsuario(idUsuario);
         return ResponseEntity.ok(resultado);
     }
-    
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarCarrito(@PathVariable int id) {
         carritoService.deleteCarrito(id);
         return ResponseEntity.noContent().build();
     }
-    
+
     @PostMapping("/{idCarrito}/productos")
     public ResponseEntity<CarritoProducto> agregarProducto(
-            @PathVariable int idCarrito, 
+            @PathVariable int idCarrito,
             @RequestBody CarritoProducto producto) {
-        
+
         Carrito carrito = new Carrito();
         carrito.setIdCarrito(idCarrito);
         producto.setCarrito(carrito);
-        
+
         CarritoProducto nuevoProducto = carritoProductoService.addProductoAlCarrito(producto);
+        CarritoProducto actualizarStock = carritoProductoService.updateStock(producto);
         return ResponseEntity.ok(nuevoProducto);
     }
+
 }

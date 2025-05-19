@@ -1,57 +1,182 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-//import { useNavigate } from 'react-router-dom';
-import { NavLink, useNavigate } from 'react-router-dom';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import { FaWpforms, FaStar, FaUserCircle } from 'react-icons/fa'; // Actualizamos las importaciones
-//import Navbar from './Navbar';
+import React from 'react';
+import { NavLink } from 'react-router-dom';
+import { 
+    FaUserCircle, 
+    FaEnvelope, 
+    FaIdBadge, 
+    FaCogs,
+    FaUsers,
+    FaListAlt,
+    FaComments,
+    FaBoxOpen,
+    FaPercentage,
+    FaCreditCard,
+    FaShoppingCart,
+    FaChartLine
+} from 'react-icons/fa';
 import useAuth from '../../hooks/useAuth';
 import SideBar from '../SideBar/SideBar';
-import { Button } from 'react-bootstrap';
 import FooterApp from '../Footer/FooterApp';
-import "./Principal.css";
 import { useAppContext } from "../Navbar/AppContext";
+import "./Principal.css";
 
-const Principal = () => {
-    const { usuario} = useAuth();
-    const {handleLogout} = useAppContext();
+const PrincipalAdmin = () => {
+    const { usuario } = useAuth();
+    const { handleLogout } = useAppContext();
 
-    const navigate = useNavigate();
-    
-   
+    // Array de accesos rápidos para administración
+    const adminQuickAccess = [
+        { 
+            path: '/GestionarUsuario', 
+            name: 'Usuarios', 
+            icon: <FaUsers size={32} />, 
+            description: 'Gestión de usuarios del sistema', 
+            color: 'var(--primary-medium)' 
+        },
+        { 
+            path: '/CategoriaApp', 
+            name: 'Categorías', 
+            icon: <FaListAlt size={32} />, 
+            description: 'Administrar categorías de productos', 
+            color: 'var(--primary-light)' 
+        },
+        { 
+            path: '/ComentarioApp', 
+            name: 'Comentarios', 
+            icon: <FaComments size={32} />, 
+            description: 'Ver y gestionar comentarios', 
+            color: 'var(--accent-gold)' 
+        },
+        { 
+            path: '/ProductoApp', 
+            name: 'Productos', 
+            icon: <FaBoxOpen size={32} />, 
+            description: 'Administrar inventario de productos', 
+            color: 'var(--primary-dark)' 
+        },
+        { 
+            path: '/PromocionApp', 
+            name: 'Promociones', 
+            icon: <FaPercentage size={32} />, 
+            description: 'Gestionar promociones y descuentos', 
+            color: 'var(--accent-brown)' 
+        },
+        { 
+            path: '/TipoPagoApp', 
+            name: 'Tipo Pago', 
+            icon: <FaCreditCard size={32} />, 
+            description: 'Configurar métodos de pago', 
+            color: 'var(--primary-medium)' 
+        },
+        { 
+            path: '/PedidosApp', 
+            name: 'Pedidos', 
+            icon: <FaShoppingCart size={32} />, 
+            description: 'Ver y gestionar pedidos actuales', 
+            color: 'var(--primary-light)' 
+        },
+        { 
+            path: '/VentaPedido', 
+            name: 'Ventas', 
+            icon: <FaChartLine size={32} />, 
+            description: 'Consultar historial de ventas', 
+            color: 'var(--accent-gold)' 
+        }
+    ];
 
     return (
-        <div className="principal-container">
-            <SideBar usuario={usuario} /> 
+        <main className="admin-dashboard">
+            <SideBar usuario={usuario} adminPanel={true} />
 
-            <main className="page">
-                <section className="portfolio-block hire-me">
-                    <div className="container">
-                        <div className="heading">
-                            <h2>Bienvenido a la página principal</h2>
-                        </div>
-                        <div className="border rounded border-0 shadow-lg p-3 p-md-5" data-bs-theme="light">
-                            {usuario ? (
-                                <div>
-                                    <h2>Información personal</h2>
-                                    <p>Nombre: {usuario.nombreUsuario + " " +usuario.primerApellido}</p>
-                                    <p>Correo: {usuario.correoUsuario}</p>
-                                    <p>Rol: {usuario.rol.nombreRol}</p>
-                                    <Button className="custom-button" onClick={handleLogout} style={{ cursor: 'pointer' }}>
-                                        Cerrar sesión
-                                    </Button>
-                                </div>
-                            ) : (
-                                <p>Cargando información del usuario...</p>
-                            )}
-                        </div>
+            <section className="admin-content-area">
+                <header className="admin-welcome-header">
+                    {/* Espacio reservado para banner de administración */}
+                </header>
+
+                <div className="admin-dashboard-container">
+                    <article className="admin-profile-card">
+                        <header className="admin-profile-header">
+                            <figure className="admin-avatar">
+                                <FaUserCircle size={80} />
+                            </figure>
+                            <span className="admin-role-badge">
+                                {usuario?.rol?.nombreRol || "Administrador"}
+                            </span>
+                        </header>
                         
-                    </div>
-                </section>
-            </main>
-            <FooterApp />
-        </div>
+                        <section className="admin-profile-details">
+                            <h2 className="admin-profile-title">{usuario ? `${usuario.nombreUsuario} ${usuario.primerApellido}` : "Cargando..."}</h2>
+                            
+                            <dl className="admin-profile-info">
+                                <div className="admin-info-item">
+                                    <dt className="admin-info-icon">
+                                        <FaUserCircle />
+                                    </dt>
+                                    <dd className="admin-info-content">
+                                        <span className="admin-info-label">Nombre completo</span>
+                                        <span className="admin-info-value">{usuario ? `${usuario.nombreUsuario} ${usuario.primerApellido}` : "..."}</span>
+                                    </dd>
+                                </div>
+                                
+                                <div className="admin-info-item">
+                                    <dt className="admin-info-icon">
+                                        <FaEnvelope />
+                                    </dt>
+                                    <dd className="admin-info-content">
+                                        <span className="admin-info-label">Correo electrónico</span>
+                                        <span className="admin-info-value">{usuario?.correoUsuario || "..."}</span>
+                                    </dd>
+                                </div>
+                                
+                                <div className="admin-info-item">
+                                    <dt className="admin-info-icon">
+                                        <FaIdBadge />
+                                    </dt>
+                                    <dd className="admin-info-content">
+                                        <span className="admin-info-label">Rol en el sistema</span>
+                                        <span className="admin-info-value">{usuario?.rol?.nombreRol || "..."}</span>
+                                    </dd>
+                                </div>
+                                
+                                <div className="admin-info-item">
+                                    <dt className="admin-info-icon">
+                                        <FaCogs />
+                                    </dt>
+                                    <dd className="admin-info-content">
+                                        <span className="admin-info-label">Acciones administrativas</span>
+                                        <div className="admin-action-buttons">
+                                            <button className="admin-logout-btn" onClick={handleLogout}>
+                                                Cerrar sesión
+                                            </button>
+                                        </div>
+                                    </dd>
+                                </div>
+                            </dl>
+                        </section>
+                    </article>
+                    
+                    <section className="admin-tools-section">
+                        <h3 className="admin-section-title">Panel de Administración</h3>
+                        <nav className="admin-quick-access-grid">
+                            {adminQuickAccess.map((item, index) => (
+                                <NavLink to={item.path} key={index} className="admin-quick-access-card">
+                                    <figure className="admin-card-icon" style={{ backgroundColor: item.color }}>
+                                        {item.icon}
+                                    </figure>
+                                    <div className="admin-card-content">
+                                        <h4>{item.name}</h4>
+                                        <p>{item.description}</p>
+                                    </div>
+                                </NavLink>
+                            ))}
+                        </nav>
+                    </section>
+                </div>
+            </section>
+            
+            <FooterApp adminFooter={true} />
+        </main>
     );
 };
 
-export default Principal;
+export default PrincipalAdmin;

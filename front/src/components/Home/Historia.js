@@ -1,24 +1,21 @@
 import React from "react";
 import { Calendar, Award, Clock, Users, MapPin } from "lucide-react";
-import '../Home/Historia.css';
+import './Historia.css';
 import Resena from "../Comentario/Resena";
+import NavbarApp from "../Navbar/NavbarApp.js";
 import FooterApp from "../Footer/FooterApp";
-import NavbarApp from "../Navbar/NavbarApp";
 
 const Historia = () => {
   return (
     <div className="historia-container">
       <NavbarApp />
-      {/* Hero Section */}
       <div className="historia-hero">
         <div className="historia-hero-overlay">
           <h1 className="historia-title">Nuestra Historia</h1>
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="container mx-auto px-4 py-12">
-        {/* Intro Section */}
         <div className="historia-intro">
           <h2 className="historia-intro-title">Tradición y Calidad desde 1982</h2>
           <p className="historia-intro-text">
@@ -46,15 +43,12 @@ const Historia = () => {
           </div>
         </div>
 
-        {/* Timeline */}
         <div className="historia-timeline">
           <h3 className="historia-timeline-title">Nuestro Camino</h3>
-          
+
           <div className="historia-timeline-container">
-            {/* Line */}
             <div className="historia-timeline-line"></div>
-            
-            {/* 1982 */}
+
             <div className="historia-event">
               <div className="historia-event-flex">
                 <div className="historia-event-left">
@@ -67,20 +61,19 @@ const Historia = () => {
                 <div className="historia-event-right">
                   <div className="historia-event-image-container">
                     <div className="historia-event-image-placeholder">
-                    <img src={require('../../assets/images/Duena-carniceria.png')} alt="Fundación de la carnicería" className="historia-event-image" />
+                      <img src={require('../../assets/images/Duena-carniceria.png')} alt="Fundación de la carnicería" className="historia-event-image" />
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            
-            {/* 1995 */}
+
             <div className="historia-event">
               <div className="historia-event-flex">
                 <div className="historia-event-left">
                   <div className="historia-event-image-container">
                     <div className="historia-event-image-placeholder">
-                    <img src={require('../../assets/images/expansion.png')} alt="Fundación de la carnicería" className="historia-event-image" />
+                      <img src={require('../../assets/images/expansion.png')} alt="Expansión del negocio" className="historia-event-image" />
                     </div>
                   </div>
                 </div>
@@ -93,8 +86,7 @@ const Historia = () => {
                 </div>
               </div>
             </div>
-            
-            {/* 2008 */}
+
             <div className="historia-event">
               <div className="historia-event-flex">
                 <div className="historia-event-left">
@@ -107,20 +99,19 @@ const Historia = () => {
                 <div className="historia-event-right">
                   <div className="historia-event-image-container">
                     <div className="historia-event-image-placeholder">
-                    <img src={require('../../assets/images/tercera.png')} alt="Fundación de la carnicería" className="historia-event-image" />
+                      <img src={require('../../assets/images/tercera.png')} alt="Segunda generación" className="historia-event-image" />
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            
-            {/* Present */}
+
             <div className="historia-event">
               <div className="historia-event-flex">
                 <div className="historia-event-left">
                   <div className="historia-event-image-container">
                     <div className="historia-event-image-placeholder">
-                    <img src={require('../../assets/images/actualmente.png')} alt="Fundación de la carnicería" className="historia-event-image" />
+                      <img src={require('../../assets/images/actualmente.png')} alt="Actualidad" className="historia-event-image" />
                     </div>
                   </div>
                 </div>
@@ -136,7 +127,6 @@ const Historia = () => {
           </div>
         </div>
 
-        {/* Values */}
         <div className="historia-values">
           <h3 className="historia-values-title">Nuestros Valores</h3>
           <div className="historia-values-grid">
@@ -164,7 +154,6 @@ const Historia = () => {
           </div>
         </div>
 
-        {/* Testimonial */}
         <div className="historia-testimonial">
           <div className="historia-quote">"</div>
           <p className="historia-testimonial-text">
@@ -174,10 +163,8 @@ const Historia = () => {
           <div className="historia-testimonial-role">Director General, Segunda Generación</div>
         </div>
 
-        {/* Reseñas de Clientes - Reemplazando el div "historia-visit" */}
         <Resena />
-        
-        {/* Información de ubicación */}
+
         <div className="historia-location-info">
           <MapPin className="historia-location-icon" />
           <span>El cairo de Siquirres</span>

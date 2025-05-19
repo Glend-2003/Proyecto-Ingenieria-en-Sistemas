@@ -1,4 +1,3 @@
-// CategoriaApp.js
 import React, { useState, useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -14,7 +13,7 @@ import {
 import SideBar from "../SideBar/SideBar";
 import useAuth from "../../hooks/useAuth";
 import { Button, Modal } from "react-bootstrap";
-import "./Categoria.css";
+import "./Categoria.css"; 
 import FooterApp from '../Footer/FooterApp';
 import PaginacionApp from "../Paginacion/PaginacionApp";
 
@@ -35,7 +34,7 @@ const CategoriaApp = () => {
 
   const cargarCategorias = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/categoria/",{
+      const response = await axios.get("http://localhost:8080/categoria/", {
         params: { estadoCategoria: 0 }
       });
       setCategorias(response.data);
@@ -80,9 +79,13 @@ const CategoriaApp = () => {
         nombreCategoria: nombreCategoria.trim(),
         descripcionCategoria: descripcionCategoria.trim(),
       });
-      toast.success("Categoría agregada con éxito");
-      cargarCategorias();
+      
+      // Primero cerramos el modal
       handleCloseModal();
+      
+      // Luego mostramos el toast y actualizamos los datos
+      toast.success("Categoría agregada con éxito");
+      await cargarCategorias();
     } catch (error) {
       console.error("Error al agregar categoría:", error);
       toast.error("Ocurrió un error al agregar la categoría");
@@ -91,11 +94,16 @@ const CategoriaApp = () => {
 
   const actualizarCategoria = async () => {
     if (!validarCamposCategoria()) return;
+    
+    if (!categoriaEdit.estadoCategoria) {
+      toast.error("No se puede actualizar una categoría inactiva");
+      return;
+    }
 
     const nombreDuplicado = categorias.some(
       (cat) =>
         cat.nombreCategoria.toLowerCase() ===
-          nombreCategoria.trim().toLowerCase() &&
+        nombreCategoria.trim().toLowerCase() &&
         cat.idCategoria !== categoriaEdit.idCategoria
     );
 
@@ -106,50 +114,63 @@ const CategoriaApp = () => {
       return;
     }
 
-    const { isConfirmed } = await Swal.fire({
-      title: "¿Estás seguro?",
-      text: "Esta acción no se puede deshacer.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Sí, actualizar",
-      cancelButtonText: "No, cancelar",
-      reverseButtons: true,
-    });
+    try {
+      const { isConfirmed } = await Swal.fire({
+        title: "¿Estás seguro?",
+        text: "Esta acción no se puede deshacer.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, actualizar",
+        cancelButtonText: "No, cancelar",
+        reverseButtons: true,
+      });
 
-    if (isConfirmed) {
-      try {
-        await axios.put("http://localhost:8080/categoria/actualizar", {
-          idCategoria: categoriaEdit.idCategoria,
-          nombreCategoria: nombreCategoria.trim(),
-          descripcionCategoria: descripcionCategoria.trim(),
-        });
-        toast.success("Categoría actualizada con éxito");
-        cargarCategorias();
-        handleCloseModal();
-      } catch (error) {
-        console.error("Error al actualizar categoría:", error);
-        toast.error("Ocurrió un error al actualizar la categoría");
-      }
+      if (!isConfirmed) return;
+      
+      await axios.put("http://localhost:8080/categoria/actualizar", {
+        idCategoria: categoriaEdit.idCategoria,
+        nombreCategoria: nombreCategoria.trim(),
+        descripcionCategoria: descripcionCategoria.trim(),
+      });
+      
+      // Primero cerramos el modal
+      handleCloseModal();
+      
+      // Luego mostramos el toast y actualizamos los datos
+      toast.success("Categoría actualizada con éxito");
+      await cargarCategorias();
+    } catch (error) {
+      console.error("Error al actualizar categoría:", error);
+      toast.error("Ocurrió un error al actualizar la categoría");
     }
   };
-
-  const eliminarCategoria = async (id) => {
-    const { isConfirmed } = await Swal.fire({
-      title: "¿Estás seguro?",
-      text: "No podrás revertir esto.",
+  
+  const showAlertaInactivo = () => {
+    Swal.fire({
+      title: "Categoria inactiva",
+      text: "No puedes editar un registro inactivo.",
       icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Sí, eliminar",
-      cancelButtonText: "No, cancelar",
-      reverseButtons: true,
+      confirmButtonText: "Aceptar",
     });
-
-    if (!isConfirmed) return;
-
+  }
+  
+  const eliminarCategoria = async (id) => {
     try {
+      const { isConfirmed } = await Swal.fire({
+        title: "¿Estás seguro?",
+        text: "No podrás revertir esto.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, eliminar",
+        cancelButtonText: "No, cancelar",
+        reverseButtons: true,
+      });
+
+      if (!isConfirmed) return;
+
       await axios.delete(`http://localhost:8080/categoria/eliminar/${id}`);
       toast.success("Categoría eliminada con éxito");
-      cargarCategorias();
+      await cargarCategorias();
     } catch (error) {
       console.error("Error al eliminar categoría:", error);
       toast.error("Ocurrió un error al eliminar la categoría");
@@ -160,7 +181,7 @@ const CategoriaApp = () => {
     try {
       await axios.put(`http://localhost:8080/categoria/activar/${id}`);
       toast.success("Cambio realizado con éxito.");
-      cargarCategorias();
+      await cargarCategorias();
     } catch (error) {
       console.error("Error al realizar el cambio:", error);
       toast.error("Ocurrió un error al cambiar el estado de la categoria.");
@@ -209,39 +230,48 @@ const CategoriaApp = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
 
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    if (categoriaEdit) {
+      actualizarCategoria();
+    } else {
+      agregarCategoria();
+    }
+  };
+
   return (
-    <div className="content-container">
-      <SideBar usuario={usuario} /> 
-      <div className="container mt-5">
+    <div className="categoria-container">
+      <SideBar usuario={usuario} />
+      <div className="categoria-main-container">
         <h1>Gestión de categorías</h1>
-        <Button className="custom-button" onClick={() => handleShowModal()}>
+        <Button 
+          className="categoria-add-button" 
+          onClick={() => handleShowModal()}
+        >
           Agregar nueva categoría
         </Button>
         <div className="mb-2"></div>
-        <label>Buscar categoría</label>
-        <input
-          type="text"
-          className="form-control my-3"
-          placeholder="Buscar categoría por nombre"
-          value={search}
-          onChange={handleSearchChange}
-        />
+        <div className="categoria-search-container">
+          <label>Buscar categoría</label>
+          <input
+            type="text"
+            className="categoria-search-input"
+            placeholder="Buscar categoría por nombre"
+            value={search}
+            onChange={handleSearchChange}
+          />
+        </div>
 
         <Modal show={showModal} onHide={handleCloseModal}>
           <Modal.Header closeButton>
-            <Modal.Title>
+            <Modal.Title className="categoria-modal">
               {categoriaEdit ? "Actualizar Categoría" : "Agregar Categoría"}
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                categoriaEdit ? actualizarCategoria() : agregarCategoria();
-              }}
-            >
+            <form id="categoriaForm" onSubmit={handleFormSubmit}>
               <div className="mb-3">
-              <label>Nombre de la categoria</label>
+                <label>Nombre de la categoria</label>
                 <input
                   className="form-control"
                   type="text"
@@ -252,7 +282,7 @@ const CategoriaApp = () => {
                 />
               </div>
               <div className="mb-3">
-              <label>Descripción</label>
+                <label>Descripción</label>
                 <input
                   className="form-control"
                   type="text"
@@ -262,78 +292,88 @@ const CategoriaApp = () => {
                   onChange={(e) => setDescripcionCategoria(e.target.value)}
                 />
               </div>
-              <Button variant="primary" type="submit">
-                {categoriaEdit ? "Actualizar" : "Agregar"}
-              </Button>
             </form>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={handleCloseModal}>
-              Cerrar
+            <Button variant="primary" onClick={handleFormSubmit}>
+              {categoriaEdit ? "Actualizar" : "Agregar"}
             </Button>
           </Modal.Footer>
         </Modal>
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          limit={3}
+        />
 
-        <ToastContainer />
-
-        <div className="table-responsive mt-5">
-          <table className="table table-hover table-bordered">
+        <div className="categoria-table-container">
+          <table className="categoria-table">
             <thead>
-              <tr>
-                <th>No.</th>
+              <tr className="categoria-table-header-row">
+                <th>No</th>
                 <th>Nombre</th>
                 <th>Descripción</th>
-                <th>Estado</th>
-                <th>Acción</th>
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
-                {currentCategorias.length === 0 ? (
-                  <tr className="warning no-result">
-                    <td colSpan="4" className="text-center">
-                      <FontAwesomeIcon icon={faExclamationTriangle} /> No hay registros.
-                      !!!
-                    </td>
-                  </tr>
-                ) : (
+              {currentCategorias.length === 0 ? (
+                <tr className="categoria-no-results">
+                  <td colSpan="7">
+                    <FontAwesomeIcon icon={faExclamationTriangle} className="categoria-warning-icon" size="lg" />
+                    <span>No hay categorias disponibles</span>
+                  </td>
+                </tr>
+              ) : (
                 currentCategorias.map((categoria, index) => (
-                  <tr key={categoria.idCategoria}>
+                  <tr key={categoria.idCategoria} className="categoria-table-row">
                     <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
-                    <td>{categoria.nombreCategoria}</td>
-                    <td>{categoria.descripcionCategoria}</td>
-                    <td>
-                      <button
-                        className={`btn btn-sm ${
-                          categoria.estadoCategoria
-                            ? "btn-success"
-                            : "btn-danger"
-                        }`}
-                        onClick={() => activarDesactivarCategoria(categoria.idCategoria)}
-                      >
-                        {categoria.estadoCategoria ? "Activo" : "Inactivo"}
-                      </button>
-                    </td>
-                    <td className="text-center">
-                      <button
-                        className="btn btn-warning btn-sm me-2"
-                        type="button"
-                        onClick={() => handleShowModal(categoria)}
-                      >
-                        <FontAwesomeIcon
-                          icon={faEdit}
-                          style={{ fontSize: "15px" }}
-                        />
-                      </button>
-                      <button
-                        className="btn btn-danger btn-sm"
-                        type="button"
-                        onClick={() => eliminarCategoria(categoria.idCategoria)}
-                      >
-                        <FontAwesomeIcon
-                          icon={faTrash}
-                          style={{ fontSize: "15px" }}
-                        />
-                      </button>
+                    <td className="categoria-letraNegrita">{categoria.nombreCategoria}</td>
+                    <td className="categoria-letraComun">{categoria.descripcionCategoria}</td>
+                    <td className="categoria-actions-cell">
+                      <div className="categoria-actions-container">
+                        <button
+                          className={`categoria-status-button ${categoria.estadoCategoria
+                            ? "categoria-status-active"
+                            : "categoria-status-inactive"
+                          }`}
+                          type="button"
+                          onClick={() => activarDesactivarCategoria(categoria.idCategoria)}
+                        >
+                          {categoria.estadoCategoria ? "Activo" : "Inactivo"}
+                        </button>
+                        <div className="categoria-action-buttons">
+                          <button
+                            className="categoria-edit-button"
+                            type="button"
+                            onClick={() => {
+                              if (!categoria.estadoCategoria) {
+                                showAlertaInactivo();
+                              } else {
+                                handleShowModal(categoria);
+                              }
+                            }}
+                            title="Editar categoria"
+                          >
+                            <FontAwesomeIcon icon={faEdit}/>
+                          </button>
+                          <button
+                            className="categoria-delete-button"
+                            type="button"
+                            onClick={() => eliminarCategoria(categoria.idCategoria)}
+                            title="Eliminar categoria"
+                          >
+                            <FontAwesomeIcon icon={faTrash} />
+                          </button>
+                        </div>
+                      </div>
                     </td>
                   </tr>
                 ))

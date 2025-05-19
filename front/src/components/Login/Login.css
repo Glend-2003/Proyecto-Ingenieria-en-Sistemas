@@ -1,4 +1,4 @@
-/* Variables para la paleta de colores */
+
 :root {
   --dark-green: #103f1b;
   --medium-green: #387623;
@@ -11,11 +11,10 @@
   --focus-shadow: rgba(56, 118, 35, 0.2);
 }
 
-/* Estilos para el sidebar de login/recuperación */
 .login-sidebar {
   width: 350px !important;
   max-width: 100%;
-  z-index: 1100; /* Valor mayor que el del navbar para que aparezca por encima */
+  z-index: 1100; 
 }
 
 .login-header {
@@ -30,13 +29,11 @@
   margin-left: 8px;
 }
 
-/* Contenedor del formulario */
 .auth-form-container {
   padding: 20px;
   width: 100%;
 }
 
-/* Grupos de formulario */
 .form-group {
   margin-bottom: 22px;
 }
@@ -49,7 +46,6 @@
   font-size: 14px;
 }
 
-/* Inputs estilizados */
 .form-control, 
 input[type="email"], 
 input[type="password"], 
@@ -71,13 +67,11 @@ input:focus {
   box-shadow: 0 0 0 3px var(--focus-shadow);
 }
 
-/* Contenedor para el input de contraseña con icono */
 .password-input-container {
   position: relative;
   width: 100%;
 }
 
-/* Ícono toggle contraseña */
 .password-toggle-icon {
   position: absolute;
   right: 15px;
@@ -92,13 +86,12 @@ input:focus {
   color: var(--medium-green);
 }
 
-/* Opciones (Recordar y Olvidé contraseña) */
 .options-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
-  flex-wrap: wrap; /* Para dispositivos pequeños */
+  flex-wrap: wrap;
 }
 
 .remember-me {
@@ -118,7 +111,6 @@ input:focus {
   cursor: pointer;
 }
 
-/* Link de olvidé contraseña */
 .forgot-password-link {
   background: none;
   border: none;
@@ -135,7 +127,6 @@ input:focus {
   text-decoration: underline;
 }
 
-/* Botón de acceso principal */
 .btn-acceso {
   width: 100%;
   background-color: var(--medium-green);
@@ -168,7 +159,6 @@ input:focus {
   box-shadow: none;
 }
 
-/* Sección de crear cuenta */
 .create-account-section {
   display: flex;
   flex-direction: column;
@@ -176,7 +166,6 @@ input:focus {
   margin-top: 15px;
 }
 
-/* Divisor con texto "O" */
 .divider {
   width: 100%;
   text-align: center;
@@ -192,7 +181,6 @@ input:focus {
   font-size: 14px;
 }
 
-/* Ícono de usuario */
 .user-icon-container {
   display: flex;
   justify-content: center;
@@ -211,7 +199,6 @@ input:focus {
   color: #555;
 }
 
-/* Botón crear cuenta */
 .btn-crear-cuenta {
   display: inline-block;
   width: 100%;
@@ -236,7 +223,6 @@ input:focus {
   color: var(--dark-green);
 }
 
-/* Mensaje de reseteo */
 .reset-message {
   background-color: rgba(159, 196, 90, 0.15);
   border-left: 4px solid var(--light-green);
@@ -252,7 +238,6 @@ input:focus {
   font-size: 14px;
 }
 
-/* Botón volver */
 .btn-volver {
   display: flex;
   align-items: center;
@@ -279,7 +264,6 @@ input:focus {
   box-shadow: 0 4px 8px var(--shadow-color);
 }
 
-/* Animación para el spinner */
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
@@ -290,5 +274,185 @@ input:focus {
 }
 
 main.flex-grow-2 {
-  padding-top: 20px; /* Dar un poco más de espacio */
+  padding-top: 20px;
+}
+
+/* Media queries para adaptación móvil */
+@media (max-width: 992px) {
+  .login-sidebar {
+    width: 320px !important;
+  }
+  
+  .login-title {
+    font-size: 1.4rem;
+  }
+  
+  main.flex-grow-2 {
+    padding-top: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .login-sidebar {
+    width: 100% !important;
+    max-width: 450px;
+    margin: 0 auto;
+  }
+  
+  .auth-form-container {
+    padding: 15px;
+  }
+  
+  .login-header {
+    padding: 15px 15px 10px;
+  }
+  
+  .form-control, 
+  input[type="email"], 
+  input[type="password"], 
+  input[type="text"] {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+  
+  .btn-acceso {
+    padding: 12px;
+    font-size: 15px;
+  }
+  
+  .btn-crear-cuenta {
+    padding: 10px;
+    font-size: 14px;
+  }
+  
+  .options-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .forgot-password-link {
+    align-self: flex-end;
+  }
+}
+
+@media (max-width: 576px) {
+  .login-sidebar {
+    max-width: 100%;
+  }
+  
+  .login-title {
+    font-size: 1.3rem;
+  }
+  
+  .form-group {
+    margin-bottom: 18px;
+  }
+  
+  .form-group label {
+    font-size: 13px;
+  }
+  
+  .form-control, 
+  input[type="email"], 
+  input[type="password"], 
+  input[type="text"] {
+    padding: 10px;
+    font-size: 14px;
+  }
+  
+  .form-check-label {
+    font-size: 13px;
+  }
+  
+  .forgot-password-link {
+    font-size: 13px;
+  }
+  
+  .btn-acceso {
+    padding: 12px;
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+  
+  .divider {
+    margin: 15px 0 25px;
+  }
+  
+  .divider span {
+    font-size: 13px;
+  }
+  
+  .user-icon-container {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 12px;
+  }
+  
+  .no-account-text {
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+  
+  .btn-crear-cuenta {
+    padding: 10px;
+    font-size: 14px;
+  }
+  
+  .reset-message {
+    padding: 12px;
+    margin-bottom: 20px;
+  }
+  
+  .reset-message p {
+    font-size: 13px;
+  }
+  
+  .btn-volver {
+    padding: 10px;
+    font-size: 14px;
+    margin-top: 15px;
+  }
+}
+
+@media (max-width: 360px) {
+  .login-header {
+    padding: 12px 12px 8px;
+  }
+  
+  .auth-form-container {
+    padding: 12px;
+  }
+  
+  .login-title {
+    font-size: 1.2rem;
+  }
+  
+  .form-group {
+    margin-bottom: 15px;
+  }
+  
+  .form-control, 
+  input[type="email"], 
+  input[type="password"], 
+  input[type="text"] {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+  
+  .password-toggle-icon {
+    right: 10px;
+  }
+  
+  .user-icon-container {
+    width: 45px;
+    height: 45px;
+  }
+  
+  .btn-acceso,
+  .btn-crear-cuenta,
+  .btn-volver {
+    padding: 10px 8px;
+    font-size: 13px;
+  }
 }

@@ -5,7 +5,7 @@ import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Swal from "sweetalert2";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faTrash, faExclamationTriangle } from "@fortawesome/free-solid-svg-icons";
+import { faEdit, faExclamationTriangle } from "@fortawesome/free-solid-svg-icons";
 import SideBar from "../SideBar/SideBar";
 import useAuth from "../../hooks/useAuth";
 import { Button, Modal } from "react-bootstrap";
@@ -20,7 +20,6 @@ const TipoPagoApp = () => {
   const { usuario } = useAuth();
   const [search, setSearch] = useState("");
   const [descripcionTipoPago, setDescripcionTipoPago] = useState("");
-  const [estadoTipoPago, setEstadoTipoPago] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
@@ -45,6 +44,15 @@ const TipoPagoApp = () => {
     }
     return true;
   };
+
+  const showAlertaInactivo = () => {
+    Swal.fire({
+      title: "Tipo pago inactivo",
+      text: "No puedes editar un registro inactivo.",
+      icon: "warning",
+      confirmButtonText: "Aceptar",
+    });
+  }
 
   const agregarTipoPago = async () => {
     if (!validarCamposTipoPago()) return;
@@ -81,6 +89,7 @@ const TipoPagoApp = () => {
 
     const tipoPagoDuplicado = tipoPagos.some(
       (tipoPago) =>
+        tipoPago.idTipoPago !== tipoPagoEdit.idTipoPago &&
         tipoPago.descripcionTipoPago.toLowerCase() ===
         descripcionTipoPago.trim().toLowerCase()
     );
@@ -89,14 +98,14 @@ const TipoPagoApp = () => {
       toast.error("El nombre del tipo de pago ya existe. Por favor, elige un nombre diferente.");
       return;
     }
-      const tipoPagoData = {
-        idTipoPago: tipoPagoEdit.idTipoPago,
-        descripcionTipoPago: descripcionTipoPago.trim(),
-        estadoTipoPago: 1,
-      };
+    
+    const tipoPagoData = {
+      idTipoPago: tipoPagoEdit.idTipoPago,
+      descripcionTipoPago: descripcionTipoPago.trim(),
+      estadoTipoPago: 1,
+    };
 
     try {
-      console.log("Datos enviados al backend:", tipoPagoData);
       await axios.put("http://localhost:8080/tipopago/actualizar", tipoPagoData);
       toast.success("Tipo pago actualizado con éxito");
       cargarTipoPago();
@@ -104,31 +113,6 @@ const TipoPagoApp = () => {
     } catch (error) {
       console.error("Error al actualizar tipo pago:", error);
       toast.error("Ocurrió un error al actualizar el tipo pago");
-    }
-  
-  };
-
-  const eliminarTipoPago = async (id) => {
-    const { isConfirmed } = await Swal.fire({
-      title: "¿Estás seguro?",
-      text: "No podrás revertir esto.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Sí, eliminar",
-      cancelButtonText: "No, cancelar",
-      reverseButtons: true,
-    });
-
-    if (!isConfirmed) return;
-
-    try {
-      await axios.delete(`http://localhost:8080/tipopago/eliminar/${id}`);
-
-      toast.success("Tipo pago eliminado con éxito");
-      cargarTipoPago();
-    } catch (error) {
-      console.error("Error al eliminar el tipo pago:", error);
-      toast.error("Ocurrió un error al eliminar el tipo pago");
     }
   };
 
@@ -147,11 +131,9 @@ const TipoPagoApp = () => {
     if (tipoPago) {
       setTipoPagoEdit(tipoPago);
       setDescripcionTipoPago(tipoPago.descripcionTipoPago);
-
     } else {
       setTipoPagoEdit(null);
       setDescripcionTipoPago("");
-    
     }
     setShowModal(true);
   };
@@ -160,19 +142,18 @@ const TipoPagoApp = () => {
     setShowModal(false);
     setTipoPagoEdit(null);
     setDescripcionTipoPago("");
-  
   };
 
   const handleSearchChange = (e) => setSearch(e.target.value);
 
-  const filteredTIpoPagos = tipoPagos.filter((tipoPago) =>
+  const filteredTipoPagos = tipoPagos.filter((tipoPago) =>
     tipoPago.descripcionTipoPago.toLowerCase().includes(search.toLowerCase())
   );
 
-  const totalPages = Math.ceil(filteredTIpoPagos.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredTipoPagos.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentTipoPagos = filteredTIpoPagos.slice(indexOfFirstItem, indexOfLastItem);
+  const currentTipoPagos = filteredTipoPagos.slice(indexOfFirstItem, indexOfLastItem);
 
   const handleNextPage = () => {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
@@ -182,42 +163,50 @@ const TipoPagoApp = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
 
-
   return (
-    <div className="content-tipoPago">
+    <div className="tipopago-container">
       <SideBar usuario={usuario} />
-      <div className="container mt-5">
-        <h1>Gestión tipo de pagos</h1>
-        <Button className="custom-button" onClick={() => handleShowModal()}>
-          Agregar nuevo tipo pago
+      <div className="tipopago-main-container">
+        <h1>Gestión de tipos de pago</h1>
+        <Button className="tipopago-add-button" onClick={() => handleShowModal()}>
+          Agregar nuevo tipo de pago
         </Button>
-        <div className="mb-2"></div>
-        <label>Buscar tipo pago</label>
-        <input
-          type="text"
-          className="form-control my-3"
-          placeholder="Buscar tipo pago por descripción"
-          value={search}
-          onChange={handleSearchChange}
-        />
+        <div className="tipopago-search-container">
+          <label>Buscar tipo de pago</label>
+          <input
+            type="text"
+            className="tipopago-search-input"
+            placeholder="Buscar tipo de pago por descripción"
+            value={search}
+            onChange={handleSearchChange}
+          />
+        </div>
 
-        <Modal show={showModal} onHide={handleCloseModal}>
-          <Modal.Header closeButton>
+        <Modal show={showModal} onHide={handleCloseModal} className="tipopago-modal" size="md" centered>
+          <Modal.Header
+            closeButton
+            className="tipopago-modal-header"
+            style={{
+              backgroundColor: '#9fc45a',
+              color: '#000',
+              borderBottom: 'none'
+            }}
+          >
             <Modal.Title>
-              {tipoPagoEdit ? "Actualizar Tipo Pago" : "Agregar Tipo Pago"}
+              {tipoPagoEdit ? "Actualizar Tipo de Pago" : "Agregar Tipo de Pago"}
             </Modal.Title>
           </Modal.Header>
-          <Modal.Body>
+          <Modal.Body className="tipopago-modal-body">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 tipoPagoEdit ? actualizarTipoPago() : agregarTipoPago();
               }}
             >
-              <div className="mb-3">
-                <label>Nombre del tipo pago</label>
+              <div className="tipopago-form-group">
+                <label>Nombre del tipo de pago</label>
                 <input
-                  className="form-control"
+                  className="tipopago-form-control"
                   type="text"
                   placeholder="Nombre del tipo de pago"
                   required
@@ -226,65 +215,79 @@ const TipoPagoApp = () => {
                 />
               </div>
 
-              <div className="modal-footer">
-                <Button variant="secondary" onClick={handleCloseModal}>
-                  Cerrar
+              <div className="tipopago-form-actions">
+                <Button variant="outline-secondary" onClick={handleCloseModal}>
+                  Cancelar
                 </Button>
-                <Button type="submit" variant="primary">
+                <Button className="tipopago-submit-button" type="submit">
                   {tipoPagoEdit ? "Actualizar" : "Agregar"}
                 </Button>
-                
               </div>
             </form>
           </Modal.Body>
         </Modal>
 
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Tipo de pago</th>
-              <th>Estado</th>
-
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentTipoPagos.map((tipoPago, index) => (
-              <tr key={tipoPago.idTipoPago}>
-
-                <td>{tipoPago.descripcionTipoPago}</td>
-                <td>
+        <div className="tipopago-table-container">
+          <table className="tipopago-table">
+            <thead>
+              <tr className="tipopago-table-header-row">
+                <th className="tipopago-header-no">NO.</th>
+                <th className="tipopago-header-nombre">TIPO DE PAGO</th>
+                <th className="tipopago-header-estado">ESTADO</th>
+                <th className="tipopago-header-acciones">ACCIONES</th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentTipoPagos.length === 0 ? (
+                <tr className="tipopago-no-results">
+                  <td colSpan="4">
+                    <FontAwesomeIcon icon={faExclamationTriangle} className="tipopago-warning-icon" size="lg" />
+                    <span>No hay tipos de pago disponibles</span>
+                  </td>
+                </tr>
+              ) : (
+                currentTipoPagos.map((tipoPago, index) => (
+                  <tr key={tipoPago.idTipoPago} className="tipopago-table-row">
+                    <td className="tipopago-no-cell">{index + 1 + (currentPage - 1) * itemsPerPage}</td>
+                    <td className="tipopago-description-cell">
+                      {tipoPago.descripcionTipoPago}
+                    </td>
+                    <td className="tipopago-status-cell">
                       <button
-                        className={`btn btn-sm ${
-                          tipoPago.estadoTipoPago ? "btn-success" : "btn-danger"
+                        className={`tipopago-status-button ${
+                          tipoPago.estadoTipoPago ? "tipopago-status-active" : "tipopago-status-inactive"
                         }`}
                         onClick={() => activarDesactivarTipoPago(tipoPago.idTipoPago)}
                       >
                         {tipoPago.estadoTipoPago ? "Activo" : "Inactivo"}
                       </button>
                     </td>
-                <td>
-                  <button
-                    className="btn btn-warning btn-sm mx-1"
-                    onClick={() => handleShowModal(tipoPago)}
-                  >
-                    <FontAwesomeIcon icon={faEdit} />
-                  </button>
-                  <button
-                    className="btn btn-danger btn-sm"
-                    onClick={() => eliminarTipoPago(tipoPago.idTipoPago)}
-                  >
-                    <FontAwesomeIcon icon={faTrash} />
-                  </button>
-
-                  
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {filteredTIpoPagos.length > itemsPerPage && (
+                    <td className="tipopago-actions-cell">
+                      <div className="tipopago-action-buttons">
+                        <button
+                          className="tipopago-edit-button"
+                          type="button"
+                          onClick={() => {
+                            if (!tipoPago.estadoTipoPago) {
+                              showAlertaInactivo();
+                            } else {
+                              handleShowModal(tipoPago);
+                            }
+                          }}
+                          title="Editar tipo de pago"
+                        >
+                          <FontAwesomeIcon icon={faEdit} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+        
+        {filteredTipoPagos.length > itemsPerPage && (
           <PaginacionApp
             currentPage={currentPage}
             totalPages={totalPages}

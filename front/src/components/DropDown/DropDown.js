@@ -10,13 +10,11 @@ const DropDown = ({ icon, idUsuario, onLogout }) => {
     const dropdownRef = useRef(null);
     
     const toggle = () => {
-        // Solo permite alternar si hay un usuario
         if (idUsuario) {
             setIsOpen(!isOpen);
         }
     };
 
-    // Manejo del hover
     const handleMouseEnter = () => {
         if (idUsuario) {
             setIsOpen(true);
@@ -27,7 +25,6 @@ const DropDown = ({ icon, idUsuario, onLogout }) => {
         setIsOpen(false);
     };
 
-    // Función para manejar la navegación
     const handleNavigation = (path) => {
         navigate(path);
         setIsOpen(false);
@@ -41,7 +38,7 @@ const DropDown = ({ icon, idUsuario, onLogout }) => {
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             direction="down"
-            inNavbar={true} /* Esto es importante para el posicionamiento */
+            inNavbar={true} 
             ref={dropdownRef}
         >
             <DropdownToggle tag="span" className="cursor-pointer">
@@ -55,11 +52,8 @@ const DropDown = ({ icon, idUsuario, onLogout }) => {
                 <DropdownItem onClick={() => handleNavigation('/Dashboard')} className="dropdown-item-custom">
                     Panel
                 </DropdownItem>
-                <DropdownItem onClick={() => handleNavigation('/')} className="dropdown-item-custom">
+                <DropdownItem onClick={() => handleNavigation('/orders')} className="dropdown-item-custom">
                     Pedidos
-                </DropdownItem>
-                <DropdownItem onClick={() => handleNavigation('/')} className="dropdown-item-custom">
-                    Comprobantes
                 </DropdownItem>
                 <DropdownItem onClick={() => handleNavigation('/DireccionUsuario')} className="dropdown-item-custom">
                     Dirección

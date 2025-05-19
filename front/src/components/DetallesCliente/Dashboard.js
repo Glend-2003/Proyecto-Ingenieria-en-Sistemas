@@ -1,62 +1,130 @@
-import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { NavLink } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import "./Dashboard.css";
+import { 
+  FaFileAlt, 
+  FaMapMarkerAlt, 
+  FaUser, 
+  FaSignOutAlt
+} from "react-icons/fa";
 import useAuth from "../../hooks/useAuth";
-import { FaFileAlt, FaDownload, FaMapMarkerAlt, FaUser, FaSignOutAlt, FaHome } from "react-icons/fa";
-import FooterApp from '../Footer/FooterApp';
+import { useAppContext } from "../Navbar/AppContext";
 import NavbarApp from '../Navbar/NavbarApp';
-import { AppProvider } from "../Navbar/AppContext"
+import FooterApp from '../Footer/FooterApp';
 import Carrito from '../Carrito/CarritoApp';
 import SideBarUsuario from '../DetallesCliente/SideBarUsuario';
-import { useAppContext } from "../Navbar/AppContext";
+import { AppProvider } from "../Navbar/AppContext";
+import './Dashboard.css';
+import { getDecryptedLocalStorage } from '../Utils/StorageUtils';
 
 const Dashboard = () => {
-    const { usuario } = useAuth();
-    const navigate = useNavigate();
-     const {handleLogout} = useAppContext();
+  const { usuario } = useAuth();
+  const { handleLogout } = useAppContext();
+  const [datosUsuario, setDatosUsuario] = useState({
+    nombreUsuario: "",
+    correoUsuario: "",
+    idUsuario: "",
+    nombreRol: ""
+  });
 
- 
-    return (
-        <AppProvider>
-            <div>
-                <NavbarApp />
-                <div className="dashboard-container">
-                    {/* Sidebar Component */}
-                    <SideBarUsuario usuario={usuario} handleLogout={handleLogout} />
+  useEffect(() => {
+    const obtenerDatosLocalStorage = () => {
+      try {
+        const nombreUsuario = localStorage.getItem('nombreUsuario') || "Usuario";
+        const correoUsuario = localStorage.getItem('correoUsuario') || "";
+        const idUsuario = localStorage.getItem('idUsuario') || "";
+        const nombreRol = getDecryptedLocalStorage('nombreRol') || ""
+        
+        setDatosUsuario({
+          nombreUsuario,
+          correoUsuario,
+          idUsuario,
+          nombreRol
+        });
+      } catch (error) {
+        console.error("Error al obtener datos del localStorage:", error);
+      }
+    };
 
-                    {/* Contenido */}
-                    <div className="content">
-                        <h2 className="text-center">Bienvenido a tu perfil</h2>
-                        <div className="cards-container">
-                            <NavLink to="/orders" className="card">
-                                <FaFileAlt className="icon" />
-                                <span>Pedidos</span>
-                            </NavLink>
-                            <NavLink to="/downloads" className="card">
-                                <FaDownload className="icon" />
-                                <span>Comprobantes</span>
-                            </NavLink>
-                            <NavLink to="/DireccionUsuario" className="card">
-                                <FaMapMarkerAlt className="icon" />
-                                <span>Dirección</span>
-                            </NavLink>
-                            <NavLink to="/PerfilUsuario" className="card">
-                                <FaUser className="icon" />
-                                <span>Detalles de la cuenta</span>
-                            </NavLink>
-                            <NavLink to="/" className="card logout" onClick={handleLogout}>
-                                <FaSignOutAlt className="icon" />
-                                <span>Cerrar sesión</span>
-                            </NavLink>
-                        </div>
-                    </div>
-                    <Carrito />
-                </div>
-                <FooterApp />
+    obtenerDatosLocalStorage();
+  }, []);
+
+  return (
+    <>
+    
+    <AppProvider>
+      <div className="dashboard-main">
+        <NavbarApp />
+        <div className="catalogo-hero">
+      <div className="catalogo-hero-content">
+        <h1>MI CUENTA </h1>
+      </div>
+    </div>
+        <div className="dashboard-container">
+          <SideBarUsuario usuario={datosUsuario} handleLogout={handleLogout} />
+
+          <div className="dashboard-content">
+            <div className="dashboard-header">
+              <div className="welcome-section">
+                <h1>Bienvenido, {datosUsuario.nombreUsuario}</h1>
+                <p>¿Qué deseas hacer hoy?</p>
+              </div>
+              <div className="user-summary">
+             
+              </div>
             </div>
-        </AppProvider>
-    );
+
+            <div className="action-menu">
+              <h2>Gestiona tu cuenta</h2>
+              <div className="menu-cards">
+                <NavLink to="/orders" className="menu-card">
+                  <div className="card-icon">
+                    <FaFileAlt />
+                  </div>
+                  <div className="card-info">
+                    <h3>Mis Pedidos</h3>
+                    <p>Revisa el estado de tus compras</p>
+                  </div>
+                </NavLink>
+                
+                <NavLink to="/DireccionUsuario" className="menu-card">
+                  <div className="card-icon">
+                    <FaMapMarkerAlt />
+                  </div>
+                  <div className="card-info">
+                    <h3>Dirección</h3>
+                    <p>Gestiona tus direcciones de envío</p>
+                  </div>
+                </NavLink>
+                
+                <NavLink to="/PerfilUsuario" className="menu-card">
+                  <div className="card-icon">
+                    <FaUser />
+                  </div>
+                  <div className="card-info">
+                    <h3>Mi Perfil</h3>
+                    <p>Actualiza tus datos personales</p>
+                  </div>
+                </NavLink>
+              </div>
+              
+              <div className="logout-container">
+                <NavLink to="/" className="logout-button" onClick={handleLogout}>
+                  <FaSignOutAlt className="logout-icon" />
+                  <span>Cerrar sesión</span>
+                </NavLink>
+              </div>
+            </div>
+          </div>
+
+          <Carrito />
+        </div>
+        
+        <FooterApp />
+      </div>
+    </AppProvider>
+    </>
+  );
 };
 
 export default Dashboard;

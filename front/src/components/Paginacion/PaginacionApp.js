@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from "prop-types";
-
+import './PaginacionApp.css'; 
 const PaginacionApp = ({ currentPage, totalPages, onPageChange, onNextPage, onPreviousPage }) => {
     return (
       <div className="d-flex justify-content-center mt-3">

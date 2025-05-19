@@ -1,15 +1,14 @@
 package com.bendicion.la.carniceria.carniceria.controller;
-import com.bendicion.la.carniceria.carniceria.domain.TipoPago;
-import com.bendicion.la.carniceria.carniceria.service.ITipoPagoService;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,28 +17,24 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- *
- * @author Jamel Sandí
- */
+import com.bendicion.la.carniceria.carniceria.domain.TipoPago;
+import com.bendicion.la.carniceria.carniceria.service.ITipoPagoService;
 
 @RestController
 @CrossOrigin(origins = "*")
 @RequestMapping("/tipopago")
 public class TipoPagoController {
-    
+
     @Autowired
     ITipoPagoService iTipoPagoService;
-    
-    // Read
+
     @GetMapping("/")
     public ResponseEntity<List<TipoPago>> listTipoPago() {
         List<TipoPago> categorias = iTipoPagoService.getTipoPago();
         System.out.println("Listando todos los tipos de pago: " + categorias.size() + " categorias encontradas.");
         return ResponseEntity.ok(iTipoPagoService.getTipoPago());
     }
-    
-    // Read by ID
+
     @GetMapping("obtenerPorId/{id}")
     public ResponseEntity<TipoPago> listTipoPagoById(@PathVariable int id) {
         TipoPago tipoPago = iTipoPagoService.getTipoPagoById(id);
@@ -51,15 +46,14 @@ public class TipoPagoController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
-    
-    // Add TipoPago
+
     @PostMapping("/agregar")
     public ResponseEntity<?> addTipoPago(@RequestBody TipoPago tipoPago) {
         try {
             TipoPago nuevoTipoPago = iTipoPagoService.addTipoPago(tipoPago);
-            System.out.println("Tipo de pago agregado: ID --> " + tipoPago.getIdTipoPago() + 
-                               ", Descripción --> " + tipoPago.getDescripcionTipoPago() + 
-                               ", Estado --> " + tipoPago.isEstadoTipoPago());
+            System.out.println("Tipo de pago agregado: ID --> " + tipoPago.getIdTipoPago()
+                    + ", Descripción --> " + tipoPago.getDescripcionTipoPago()
+                    + ", Estado --> " + tipoPago.isEstadoTipoPago());
 
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Tipo de pago guardado con éxito con ID: " + nuevoTipoPago.getIdTipoPago());
@@ -72,14 +66,13 @@ public class TipoPagoController {
         }
     }
 
-    // Update TipoPago
     @PutMapping("/actualizar")
     public ResponseEntity<?> updateTipoPago(@RequestBody TipoPago tipoPago) {
         try {
             TipoPago tipoPagoActualizado = iTipoPagoService.updateTipoPago(tipoPago);
-            System.out.println("Tipo de pago actualizado: ID --> " + tipoPago.getIdTipoPago() + 
-                               ", Descripción --> " + tipoPago.getDescripcionTipoPago() + 
-                               ", Estado --> " + tipoPago.isEstadoTipoPago());
+            System.out.println("Tipo de pago actualizado: ID --> " + tipoPago.getIdTipoPago()
+                    + ", Descripción --> " + tipoPago.getDescripcionTipoPago()
+                    + ", Estado --> " + tipoPago.isEstadoTipoPago());
 
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Tipo de pago actualizado con éxito con ID: " + tipoPagoActualizado.getIdTipoPago());
@@ -92,21 +85,7 @@ public class TipoPagoController {
         }
     }
 
-    // Delete TipoPago
-    @DeleteMapping("/eliminar/{id}")
-    public ResponseEntity<Boolean> deleteTipoPago(@PathVariable int id) {
-        boolean eliminado = iTipoPagoService.deleteTipoPago(id);
-
-        if (eliminado) {
-            System.out.println("Tipo de pago eliminado: ID --> " + id);
-            return ResponseEntity.ok(true);
-        } else {
-            System.out.println("No se pudo eliminar el tipo de pago: ID --> " + id + " no encontrado.");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
-        }
-    }
-    
-      @PutMapping("/activar/{id}")
+    @PutMapping("/activar/{id}")
     public ResponseEntity<Boolean> activarTipoPago(@PathVariable int id) {
         boolean estado = iTipoPagoService.activarTipoPago(id);
 

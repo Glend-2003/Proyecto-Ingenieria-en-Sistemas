@@ -12,22 +12,29 @@ import com.bendicion.la.carniceria.carniceria.domain.CarritoProducto;
 
 @Repository
 public interface CarritoProductoRepository extends JpaRepository<CarritoProducto, Integer> {
-    
+
     @Modifying
     @Query(value = "{call spAgregarCarritoProducto(:idCarrito, :idProducto, :cantidadProducto)}", nativeQuery = true)
     void saveProcedureCarritoProducto(
-        @Param("idCarrito") Integer idCarrito,
-        @Param("idProducto") Integer idProducto,
-        @Param("cantidadProducto") Integer cantidadProducto
+            @Param("idCarrito") Integer idCarrito,
+            @Param("idProducto") Integer idProducto,
+            @Param("cantidadProducto") Integer cantidadProducto
     );
 
     @Modifying
     @Query(value = "{call spActualizarCarritoProducto(:idCarritoProducto, :idCarrito, :idProducto, :cantidadProducto)}", nativeQuery = true)
     void updateProcedureCarritoProducto(
-        @Param("idCarritoProducto") Integer idCarritoProducto,
-        @Param("idCarrito") Integer idCarrito,
-        @Param("idProducto") Integer idProducto,
-        @Param("cantidadProducto") Integer cantidadProducto
+            @Param("idCarritoProducto") Integer idCarritoProducto,
+            @Param("idCarrito") Integer idCarrito,
+            @Param("idProducto") Integer idProducto,
+            @Param("cantidadProducto") Integer cantidadProducto
+    );
+
+    @Modifying
+    @Query(value = "{call spActualizarStock(:idProducto, :cantidadProducto)}", nativeQuery = true)
+    void updateStock(
+            @Param("idProducto") Integer idProducto,
+            @Param("cantidadProducto") Integer cantidadProducto
     );
 
     @Query(value = "{call spEliminarCarritoProducto(:idCarritoProducto)}", nativeQuery = true)
