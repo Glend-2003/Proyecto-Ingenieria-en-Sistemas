@@ -6,7 +6,7 @@ import { getDecryptedLocalStorage } from './Utils/StorageUtils';
 
 const PrivateRoute = ({ children, allowedRoles }) => {
   const token = localStorage.getItem('token');
-  const userRole = getDecryptedLocalStorage('nombreRol'); 
+  const userRole = getDecryptedLocalStorage('nombreRol'); // Cambiado
 
   if (!token) {
     return <Navigate to="/" replace />;

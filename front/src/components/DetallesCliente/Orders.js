@@ -2,15 +2,23 @@ import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { FaHome, FaFileAlt, FaDownload, FaMapMarkerAlt, FaUser, FaSignOutAlt, FaCheck, FaClock, FaFilter, FaSearch, FaTimes, FaCog, FaExclamationTriangle } from 'react-icons/fa';
 import axios from 'axios';
-import Swal from 'sweetalert2';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import NavbarApp from "../Navbar/NavbarApp";
 import FooterApp from '../Footer/FooterApp';
 import PaginacionApp from '../Paginacion/PaginacionApp';
-import { ToastContainer, toast } from 'react-toastify';
 import './Orders.css';
 import SideBarUsuario from '../DetallesCliente/SideBarUsuario';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogTitle from '@mui/material/DialogTitle';
+
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 const Orders = () => {
   const [pedidos, setPedidos] = useState([]);
@@ -28,6 +36,15 @@ const Orders = () => {
   const [filtrosAplicados, setFiltrosAplicados] = useState(false);
   const itemsPerPage = 5;
   
+  // Estados para Snackbar
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+  
+  // Estados para diálogo de confirmación
+  const [openDialog, setOpenDialog] = useState(false);
+  const [pedidoACancelar, setPedidoACancelar] = useState(null);
+
   const generarCodigoPedido = (idPedido, fechaPedido) => {
     const fecha = new Date(fechaPedido);
     const año = fecha.getFullYear().toString().substring(2); 
@@ -37,6 +54,32 @@ const Orders = () => {
     return `PED-${año}${mes}-${idFormateado}`;
   };
   
+  // Función para mostrar Snackbar
+  const showSnackbar = (message, severity = 'success') => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setOpenSnackbar(true);
+  };
+
+  // Función para cerrar Snackbar
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenSnackbar(false);
+  };
+
+  // Función para abrir diálogo de confirmación
+  const handleOpenDialog = (idPedido) => {
+    setPedidoACancelar(idPedido);
+    setOpenDialog(true);
+  };
+
+  // Función para cerrar diálogo de confirmación
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
+
   useEffect(() => {
     const loadUserAndOrders = async () => {
       try {
@@ -212,7 +255,7 @@ const Orders = () => {
         setPedidos([]);
         setError(null);
       } else {
-        setError("No se pudieron cargar los pedidos. Intente nuevamente más tarde.");
+        setError("No tiene historial de pedidos.");
       }
       
       setLoading(false);
@@ -261,6 +304,26 @@ const Orders = () => {
     window.location.href = '/';
   };
 
+  
+
+   const cancelarPedidoYNotificar = async () => {
+    if (!pedidoACancelar) return;
+    
+    try {
+      await axios.delete(`http://localhost:8080/pedido/eliminar/${pedidoACancelar}`);
+      showSnackbar("Pedido cancelado con éxito. Se notificará a la carnicería.", "success");
+
+      await crearNotificacion(usuario.idUsuario);
+      fetchPedidos(usuario.idUsuario);
+
+    } catch (error) {
+      console.error("Error al cancelar el pedido:", error);
+      showSnackbar("Ocurrió un error al cancelar el pedido.", "error");
+    } finally {
+      handleCloseDialog();
+    }
+  };
+
   const crearNotificacion = async (idUsuario) => {
     try {
       const response = await axios.post("http://localhost:8080/notificacion/agregar", {
@@ -273,41 +336,12 @@ const Orders = () => {
         }
       });
 
-      toast.success("Notificación creada exitosamente.");
       return response.data;
 
     } catch (error) {
       const errorMsg = error.response?.data?.error || error.message;
       console.error("Error al crear notificación:", errorMsg);
-      toast.error(errorMsg);
       throw new Error(errorMsg);
-    }
-  };
-
-  const cancelarPedidoYNotificar = async (idPedido) => {
-    const { isConfirmed } = await Swal.fire({
-      title: "¿Estás seguro que quieres cancelar el pedido?",
-      text: "No podrás revertir esto.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      cancelButtonText: "No, cancelar",
-      confirmButtonText: "Sí, eliminar",
-    });
-
-    if (!isConfirmed) return;
-
-    try {
-      await axios.delete(`http://localhost:8080/pedido/eliminar/${idPedido}`);
-      toast.success("Pedido cancelado con éxito.\nSe notificará a la carnicería.");
-
-      await crearNotificacion(usuario.idUsuario);
-      fetchPedidos(usuario.idUsuario);
-
-    } catch (error) {
-      console.error("Error al cancelar el pedido:", error);
-      toast.error("Ocurrió un error al cancelar el pedido.");
     }
   };
 
@@ -366,8 +400,16 @@ const Orders = () => {
   };
 
   return (
+<>
+    
     <div className="orders-page">
-      <NavbarApp />
+        <NavbarApp />
+        <div className="catalogo-hero">
+      <div className="catalogo-hero-content">
+        <h1>MIS PEDIDOS </h1>
+      </div>
+    </div>
+      
       <div className="perfil-usuario-container">
         <SideBarUsuario usuario={usuario} handleLogout={handleLogout} />
 
@@ -542,12 +584,13 @@ const Orders = () => {
                       
                       <div className="order-actions">
                         {isPendiente(pedido.estadoEntregaPedido) && (
-                          <button 
-                            className="cancel-button" 
-                            onClick={() => cancelarPedidoYNotificar(pedido.idPedido)}
-                          >
-                            Cancelar
-                          </button>
+                                     <button 
+                className="cancel-button" 
+                onClick={() => handleOpenDialog(pedido.idPedido)}
+              >
+                Cancelar
+              </button>
+
                         )}
                       </div>
                     </div>
@@ -568,9 +611,118 @@ const Orders = () => {
           )}
         </div>
       </div>
-      <FooterApp />
-      <ToastContainer />
-    </div>
+        <FooterApp />
+      </div>
+
+      {/* Snackbar para mostrar mensajes */}
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={3000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={handleCloseSnackbar} 
+          severity={snackbarSeverity}
+          sx={{ width: '100%' }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+
+      {/* Diálogo de confirmación para cancelar pedido */}
+    <Dialog
+  open={openDialog}
+  onClose={handleCloseDialog}
+  aria-labelledby="alert-dialog-title"
+  aria-describedby="alert-dialog-description"
+  PaperProps={{
+    sx: {
+      borderRadius: '12px',
+      padding: '20px',
+      width: '450px',
+      maxWidth: '90vw',
+      boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.15)',
+      background: 'linear-gradient(145deg, #ffffff, #f8f9fa)',
+      border: '1px solid rgba(0, 0, 0, 0.1)'
+    }
+  }}
+>
+  <DialogTitle 
+    id="alert-dialog-title"
+    sx={{
+      fontSize: '1.5rem',
+      fontWeight: '600',
+      color: '#2c3e50',
+      textAlign: 'center',
+      padding: '16px 24px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '10px'
+    }}
+  >
+    <FaExclamationTriangle 
+      style={{ 
+        color: '#e74c3c',
+        fontSize: '1.8rem'
+      }} 
+    />
+    Confirmar cancelación
+  </DialogTitle>
+
+  <div style={{
+    padding: '0 24px 20px',
+    textAlign: 'center',
+    fontSize: '1.1rem',
+    color: '#555'
+  }}>
+    ¿Estás seguro que deseas cancelar este pedido? Esta acción no se puede deshacer.
+  </div>
+
+  <DialogActions sx={{
+    justifyContent: 'center',
+    padding: '0 24px 20px',
+    gap: '20px'
+  }}>
+    <Button 
+      onClick={handleCloseDialog}
+      variant="outlined"
+      sx={{
+        textTransform: 'none',
+        fontSize: '1rem',
+        padding: '8px 24px',
+        borderRadius: '8px',
+        border: '2px solid #3498db',
+        color: '#3498db',
+        '&:hover': {
+          backgroundColor: '#f0f8ff',
+          border: '2px solid #2980b9'
+        }
+      }}
+    >
+      No, conservar pedido
+    </Button>
+    <Button 
+      onClick={cancelarPedidoYNotificar} 
+      autoFocus 
+      variant="contained"
+      sx={{
+        textTransform: 'none',
+        fontSize: '1rem',
+        padding: '8px 24px',
+        borderRadius: '8px',
+        backgroundColor: '#e74c3c',
+        '&:hover': {
+          backgroundColor: '#c0392b'
+        }
+      }}
+    >
+      Sí, cancelar pedido
+    </Button>
+  </DialogActions>
+</Dialog>
+    </>
   );
 };
 

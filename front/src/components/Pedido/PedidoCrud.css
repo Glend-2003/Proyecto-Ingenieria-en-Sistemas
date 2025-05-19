@@ -1,8 +1,6 @@
 
 .pedido-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
+
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: #333;
 }
@@ -12,20 +10,66 @@
   min-height: 100vh;
 }
 
-.pedido-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
-  border-bottom: 3px solid #9fc45a;
-  padding-bottom: 15px;
+
+.pedido-hero {
+    background-image: url('/images/actualmente.png');
+    background-size: cover;
+    background-position: center top;
+    background-color: var(--color-primary);
+    color: white;
+    position: relative;
+    padding: px 0;
+    text-align: center;
+    height: 250px;
+    margin-bottom: 40px;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    image-rendering: high-quality;
+    background-blend-mode: multiply;
+    background-color: rgba(16, 63, 27, 0.3);
 }
 
-.pedido-header h1 {
-  color: #103f1b;
-  font-size: 28px;
-  font-weight: 700;
-  margin: 0;
+.pedido-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(16, 63, 27, 0.4), rgba(56, 118, 35, 0.3));
+    z-index: 1;
+}
+
+.pedido-hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 800px;
+    margin: 0 auto;
+    padding-top: 80px;
+}
+
+.pedido-hero h1 {
+    color: white;
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+    text-shadow: 0 3px 6px rgba(0,0,0,0.4);
+}
+
+.pedido-hero p {
+    font-size: 1.1rem;
+    margin-top: 0;
+    opacity: 0.95;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+/* Botón Volver modificado a color café */
+.contenedor-boton {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px 20px;
+  display: flex;
+  justify-content: flex-start;
 }
 
 .btn-back {
@@ -95,6 +139,9 @@
 }
 
 .pedido-content {
+    max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
@@ -459,3 +506,5 @@
     font-size: 16px;
   }
 }
+
+

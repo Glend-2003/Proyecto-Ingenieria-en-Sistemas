@@ -20,164 +20,163 @@ import FooterApp from '../Footer/FooterApp';
 import { useAppContext } from "../Navbar/AppContext";
 import "./Principal.css";
 
-const Principal = () => {
+const PrincipalAdmin = () => {
     const { usuario } = useAuth();
     const { handleLogout } = useAppContext();
 
-    const quickAccess = [
+    // Array de accesos rápidos para administración
+    const adminQuickAccess = [
         { 
             path: '/GestionarUsuario', 
             name: 'Usuarios', 
-            icon: <FaUsers size={36} />, 
+            icon: <FaUsers size={32} />, 
             description: 'Gestión de usuarios del sistema', 
-            color: 'var(--primary-dark)' 
+            color: 'var(--primary-medium)' 
         },
         { 
             path: '/CategoriaApp', 
             name: 'Categorías', 
-            icon: <FaListAlt size={36} />, 
+            icon: <FaListAlt size={32} />, 
             description: 'Administrar categorías de productos', 
-            color: 'var(--primary-medium)' 
+            color: 'var(--primary-light)' 
         },
         { 
             path: '/ComentarioApp', 
             name: 'Comentarios', 
-            icon: <FaComments size={36} />, 
+            icon: <FaComments size={32} />, 
             description: 'Ver y gestionar comentarios', 
             color: 'var(--accent-gold)' 
         },
         { 
             path: '/ProductoApp', 
             name: 'Productos', 
-            icon: <FaBoxOpen size={36} />, 
+            icon: <FaBoxOpen size={32} />, 
             description: 'Administrar inventario de productos', 
             color: 'var(--primary-dark)' 
         },
         { 
             path: '/PromocionApp', 
             name: 'Promociones', 
-            icon: <FaPercentage size={36} />, 
+            icon: <FaPercentage size={32} />, 
             description: 'Gestionar promociones y descuentos', 
             color: 'var(--accent-brown)' 
         },
         { 
             path: '/TipoPagoApp', 
             name: 'Tipo Pago', 
-            icon: <FaCreditCard size={36} />, 
+            icon: <FaCreditCard size={32} />, 
             description: 'Configurar métodos de pago', 
             color: 'var(--primary-medium)' 
         },
         { 
             path: '/PedidosApp', 
             name: 'Pedidos', 
-            icon: <FaShoppingCart size={36} />, 
+            icon: <FaShoppingCart size={32} />, 
             description: 'Ver y gestionar pedidos actuales', 
-            color: 'var(--accent-gold)' 
+            color: 'var(--primary-light)' 
         },
         { 
             path: '/VentaPedido', 
             name: 'Ventas', 
-            icon: <FaChartLine size={36} />, 
+            icon: <FaChartLine size={32} />, 
             description: 'Consultar historial de ventas', 
-            color: 'var(--primary-dark)' 
+            color: 'var(--accent-gold)' 
         }
     ];
 
     return (
-        <div className="principal-container">
-            <SideBar usuario={usuario} />
-            
-            <main className="page">
-                <div className="welcome-banner">
-                    <div className="welcome-text">
-                        <h1>Bienvenido, {usuario ? `${usuario.nombreUsuario}` : "Usuario"}</h1>
-                        <p>Accede rápidamente a todas las funciones del sistema desde tu panel principal.</p>
-                    </div>
-                </div>
+        <main className="admin-dashboard">
+            <SideBar usuario={usuario} adminPanel={true} />
 
-                <div className="dashboard-container">
-                    <div className="user-profile-card">
-                        <div className="profile-header">
-                            <div className="profile-avatar">
+            <section className="admin-content-area">
+                <header className="admin-welcome-header">
+                    {/* Espacio reservado para banner de administración */}
+                </header>
+
+                <div className="admin-dashboard-container">
+                    <article className="admin-profile-card">
+                        <header className="admin-profile-header">
+                            <figure className="admin-avatar">
                                 <FaUserCircle size={80} />
-                            </div>
-                            <div className="profile-role-badge">
-                                {usuario?.rol?.nombreRol || "Usuario"}
-                            </div>
-                        </div>
+                            </figure>
+                            <span className="admin-role-badge">
+                                {usuario?.rol?.nombreRol || "Administrador"}
+                            </span>
+                        </header>
                         
-                        <div className="profile-body">
-                            <h2>{usuario ? `${usuario.nombreUsuario} ${usuario.primerApellido}` : "Cargando..."}</h2>
+                        <section className="admin-profile-details">
+                            <h2 className="admin-profile-title">{usuario ? `${usuario.nombreUsuario} ${usuario.primerApellido}` : "Cargando..."}</h2>
                             
-                            <div className="profile-info">
-                                <div className="info-item">
-                                    <div className="info-icon">
+                            <dl className="admin-profile-info">
+                                <div className="admin-info-item">
+                                    <dt className="admin-info-icon">
                                         <FaUserCircle />
-                                    </div>
-                                    <div className="info-content">
-                                        <span className="info-label">Nombre completo</span>
-                                        <span className="info-value">{usuario ? `${usuario.nombreUsuario} ${usuario.primerApellido}` : "..."}</span>
-                                    </div>
+                                    </dt>
+                                    <dd className="admin-info-content">
+                                        <span className="admin-info-label">Nombre completo</span>
+                                        <span className="admin-info-value">{usuario ? `${usuario.nombreUsuario} ${usuario.primerApellido}` : "..."}</span>
+                                    </dd>
                                 </div>
                                 
-                                <div className="info-item">
-                                    <div className="info-icon">
+                                <div className="admin-info-item">
+                                    <dt className="admin-info-icon">
                                         <FaEnvelope />
-                                    </div>
-                                    <div className="info-content">
-                                        <span className="info-label">Correo electrónico</span>
-                                        <span className="info-value">{usuario?.correoUsuario || "..."}</span>
-                                    </div>
+                                    </dt>
+                                    <dd className="admin-info-content">
+                                        <span className="admin-info-label">Correo electrónico</span>
+                                        <span className="admin-info-value">{usuario?.correoUsuario || "..."}</span>
+                                    </dd>
                                 </div>
                                 
-                                <div className="info-item">
-                                    <div className="info-icon">
+                                <div className="admin-info-item">
+                                    <dt className="admin-info-icon">
                                         <FaIdBadge />
-                                    </div>
-                                    <div className="info-content">
-                                        <span className="info-label">Rol en el sistema</span>
-                                        <span className="info-value">{usuario?.rol?.nombreRol || "..."}</span>
-                                    </div>
+                                    </dt>
+                                    <dd className="admin-info-content">
+                                        <span className="admin-info-label">Rol en el sistema</span>
+                                        <span className="admin-info-value">{usuario?.rol?.nombreRol || "..."}</span>
+                                    </dd>
                                 </div>
                                 
-                                <div className="info-item">
-                                    <div className="info-icon">
+                                <div className="admin-info-item">
+                                    <dt className="admin-info-icon">
                                         <FaCogs />
-                                    </div>
-                                    <div className="info-content">
-                                        <span className="info-label">Acciones</span>
-                                        <div className="action-buttons">
-                                            <button className="logout-btn" onClick={handleLogout}>
+                                    </dt>
+                                    <dd className="admin-info-content">
+                                        <span className="admin-info-label">Acciones administrativas</span>
+                                        <div className="admin-action-buttons">
+                                            <button className="admin-logout-btn" onClick={handleLogout}>
                                                 Cerrar sesión
                                             </button>
                                         </div>
-                                    </div>
+                                    </dd>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
+                            </dl>
+                        </section>
+                    </article>
                     
-                    <div className="quick-access-container">
-                        <h3 className="section-title">Accesos Rápidos</h3>
-                        <div className="quick-access-grid">
-                            {quickAccess.map((item, index) => (
-                                <NavLink to={item.path} key={index} className="quick-access-card">
-                                    <div className="card-icon" style={{ backgroundColor: item.color }}>
+                    <section className="admin-tools-section">
+                        <h3 className="admin-section-title">Panel de Administración</h3>
+                        <nav className="admin-quick-access-grid">
+                            {adminQuickAccess.map((item, index) => (
+                                <NavLink to={item.path} key={index} className="admin-quick-access-card">
+                                    <figure className="admin-card-icon" style={{ backgroundColor: item.color }}>
                                         {item.icon}
-                                    </div>
-                                    <div className="card-content">
+                                    </figure>
+                                    <div className="admin-card-content">
                                         <h4>{item.name}</h4>
                                         <p>{item.description}</p>
                                     </div>
                                 </NavLink>
                             ))}
-                        </div>
-                    </div>
+                        </nav>
+                    </section>
                 </div>
-            </main>
-            <FooterApp />
-        </div>
+            </section>
+            
+            <FooterApp adminFooter={true} />
+        </main>
     );
 };
 
-export default Principal;
+export default PrincipalAdmin;

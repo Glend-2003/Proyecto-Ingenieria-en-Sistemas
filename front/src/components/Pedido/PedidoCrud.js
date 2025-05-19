@@ -5,7 +5,7 @@ import './PedidoCrud.css';
 import axios from "axios";
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
-import { FaSpinner, FaArrowLeft, FaCheck, FaTimes, FaShoppingCart, FaCalendarAlt } from 'react-icons/fa';
+import { FaSpinner, FaArrowLeft, FaCheck, FaTimes, FaShoppingCart, FaCalendarAlt, FaInfoCircle, FaStore } from 'react-icons/fa';
 
 function PedidoCrud() {
   const [formData, setFormData] = useState({
@@ -514,22 +514,29 @@ function PedidoCrud() {
   };
 
   return (
+    
     <div className="pedido-container">
-      <div className="pedido-header">
-        <h1>Finalizar pedido</h1>
-        <button
-          className="btn-back"
-          onClick={() => window.history.back()}
-        >
-          <FaArrowLeft className="icon-back" /> Volver
-        </button>
+      <div className="orden-hero">
+        <div className="orden-hero-content">
+  <h1>Finalizar tu pedido</h1>
+  <p>Estás a un paso de disfrutar de nuestros productos. Completa tus datos y programa el retiro.</p>
+</div>
       </div>
-
+<div className="contenedor-boton">
+  <button 
+    className="btn-back" 
+    onClick={() => window.history.back()}
+  >
+    <FaArrowLeft className="icon-back" /> Volver
+  </button>
+</div>
       <div className="pedido-content">
+        
         <div className="client-info-card">
           <div className="card-header">
             <h2>Información del cliente</h2>
           </div>
+     
           <div className="card-body">
             <div className="form-row">
               <div className="form-group">
@@ -672,6 +679,12 @@ function PedidoCrud() {
                 </select>
               </div>
             </div>
+                 <div className="info-section">
+  <FaInfoCircle className="info-icon" />
+  <p className="info-text">
+    Por favor verifica que tus datos sean correctos. Esta información será usada para procesar tu pedido y enviarte notificaciones.
+  </p>
+</div>
           </div>
         </div>
 
@@ -692,6 +705,12 @@ function PedidoCrud() {
               <span className="location-label">Localidad:</span>
               <span className="location-value">{formData.localidad}</span>
             </div>
+            <div className="info-section">
+  <FaStore className="info-icon" />
+  <p className="info-text">
+    Retira tu pedido en nuestra sucursal de {formData.sucursal}. Horario de atención: de 8:00 AM a 9:00 PM.
+  </p>
+</div>
           </div>
         </div>
 

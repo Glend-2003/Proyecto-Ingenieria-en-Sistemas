@@ -52,7 +52,7 @@ const DropDown = ({ icon, idUsuario, onLogout }) => {
                 <DropdownItem onClick={() => handleNavigation('/Dashboard')} className="dropdown-item-custom">
                     Panel
                 </DropdownItem>
-                <DropdownItem onClick={() => handleNavigation('/')} className="dropdown-item-custom">
+                <DropdownItem onClick={() => handleNavigation('/orders')} className="dropdown-item-custom">
                     Pedidos
                 </DropdownItem>
                 <DropdownItem onClick={() => handleNavigation('/DireccionUsuario')} className="dropdown-item-custom">

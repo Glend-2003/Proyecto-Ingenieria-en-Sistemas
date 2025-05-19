@@ -721,14 +721,7 @@ const ProductoApp = () => {
                           >
                             <FontAwesomeIcon icon={faEdit} />
                           </button>
-                          <button
-                            className="producto-delete-button"
-                            type="button"
-                            onClick={() => eliminarProducto(producto.idProducto)}
-                            title="Eliminar producto"
-                          >
-                            <FontAwesomeIcon icon={faTrash} />
-                          </button>
+                        
                         </div>
                       </div>
                     </td>

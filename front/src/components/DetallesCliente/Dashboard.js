@@ -50,10 +50,16 @@ const Dashboard = () => {
   }, []);
 
   return (
+    <>
+    
     <AppProvider>
       <div className="dashboard-main">
         <NavbarApp />
-        
+        <div className="catalogo-hero">
+      <div className="catalogo-hero-content">
+        <h1>MI CUENTA </h1>
+      </div>
+    </div>
         <div className="dashboard-container">
           <SideBarUsuario usuario={datosUsuario} handleLogout={handleLogout} />
 
@@ -117,6 +123,7 @@ const Dashboard = () => {
         <FooterApp />
       </div>
     </AppProvider>
+    </>
   );
 };
 
