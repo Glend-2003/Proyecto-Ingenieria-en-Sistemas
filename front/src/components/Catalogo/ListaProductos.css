@@ -4,58 +4,76 @@
   min-height: 100vh;
 }
 
+
+.product-catalog-container {
+  background-color: var(--color-gray-background);
+  padding-top: 20px;
+  min-height: 100vh;
+  padding-bottom: 50px; /* NUEVO: Espacio para el footer */
+}
+
 .catalogo-hero {
-    background-image: url('/images/actualmente.png');
-    background-size: cover;
-    background-position: center top;
-    background-color: var(--color-primary);
-    color: white;
-    position: relative;
-    padding: px 0;
-    text-align: center;
-    height: 250px;
-    margin-bottom: 0px;
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
-    image-rendering: high-quality;
-    background-blend-mode: multiply;
-    background-color: rgba(16, 63, 27, 0.3);
+  background-image: url('/images/actualmente.png'); /* Asegúrate que esta ruta sea correcta desde public */
+  background-size: cover;
+  background-position: center center; /* Centrado mejor */
+  /* color: var(--color-white); */ /* Se define explícitamente en h1 y p si es necesario */
+  position: relative;
+  padding: 60px 20px; /* Más padding vertical */
+  text-align: center;
+  margin-bottom: 0px; /* Espacio después del hero */
+  background-blend-mode: multiply;
+  background-color: rgba(16, 63, 27, 0.6); /* Superposición más oscura para legibilidad */
+  border-bottom: 5px solid var(--color-light-green);
 }
 
 .catalogo-hero::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(16, 63, 27, 0.4), rgba(56, 118, 35, 0.3));
-    z-index: 1;
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  /* Opcional: si se usa un gradiente adicional encima del blend-mode. Si no, puede eliminarse.
+     background: linear-gradient(135deg, rgba(16, 63, 27, 0.1), rgba(56, 118, 35, 0.05)); */
+  z-index: 1; /* Detrás del contenido */
 }
 
 .catalogo-hero-content {
-    position: relative;
-    z-index: 2;
-    max-width: 800px;
-    margin: 0 auto;
-    padding-top: 80px;
+  position: relative;
+  z-index: 2; /* Encima del ::before */
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .catalogo-hero h1 {
-    color: white;
-    font-size: 2.5rem;
-    margin-bottom: 0.5rem;
-    font-weight: 700;
-    text-shadow: 0 3px 6px rgba(0,0,0,0.4);
+  color: var(--color-white); /* ASEGURADO: Texto del h1 en blanco */
+  font-size: 2.8rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-shadow: 0 2px 5px rgba(0,0,0,0.5);
 }
 
-.catalogo-hero p {
-    font-size: 1.1rem;
-    margin-top: 0;
-    opacity: 0.95;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+.catalogo-hero .hero-subtitle {
+  color: var(--color-white); /* Asegurar que el subtítulo también sea blanco */
+  font-size: 1.2rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.9;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.4);
 }
-
+.hero-badges {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+.hero-badges .badge {
+  background-color: rgba(255, 255, 255, 0.15);
+  border: 1px solid var(--color-light-green);
+  color: var(--color-white);
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
 
 /* Sidebar con nuevos colores */
 .sidebar-filters {
