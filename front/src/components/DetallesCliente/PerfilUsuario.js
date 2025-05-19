@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -12,6 +10,12 @@ import FooterApp from '../Footer/FooterApp';
 import NavbarApp from "../Navbar/NavbarApp";
 import SideBarUsuario from '../DetallesCliente/SideBarUsuario';
 import { useAppContext } from "../Navbar/AppContext";
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
+
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 const PerfilUsuario = () => {
   const { usuario } = useAuth();
@@ -23,6 +27,12 @@ const PerfilUsuario = () => {
     primerApellido: true,
     segundoApellido: true
   });
+  
+  // Estados para el Snackbar
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+
   const validarTelefono = (telefono) => {
     const telefonoLimpio = telefono.replace(/-/g, "");
     
@@ -34,6 +44,7 @@ const PerfilUsuario = () => {
       return true;
     }
   };
+
   const [formData, setFormData] = useState({
     cedulaUsuario: "",
     nombreUsuario: "",
@@ -54,6 +65,21 @@ const PerfilUsuario = () => {
 
   const { handleLogout } = useAppContext();
   const [isEditing, setIsEditing] = useState(false);
+
+  // Función para mostrar el Snackbar
+  const showSnackbar = (message, severity = 'success') => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setOpenSnackbar(true);
+  };
+
+  // Función para cerrar el Snackbar
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenSnackbar(false);
+  };
 
   useEffect(() => {
     if (usuario) {
@@ -171,12 +197,12 @@ const PerfilUsuario = () => {
     return formValido;
   };
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault();
 
     const esValido = await validarFormulario();
     if (!esValido) {
-      toast.error("Por favor corrige los errores en el formulario");
+      showSnackbar("Por favor corrige los errores en el formulario", "error");
       return;
     }
 
@@ -185,19 +211,23 @@ const PerfilUsuario = () => {
       idUsuario: usuario.idUsuario
     };
 
-    console.log("Datos enviados al backend:", userData);
-
     try {
       await axios.put("http://localhost:8080/usuario/actualizarCredenciales", userData);
-      toast.success("Tus datos se han actualizado correctamente");
+      showSnackbar("Tus datos se han actualizado correctamente", "success");
       setIsEditing(false);
     } catch (error) {
-      toast.error("Error al actualizar tus datos. Por favor intenta nuevamente.");
+      showSnackbar("Error al actualizar tus datos. Por favor intenta nuevamente.", "error");
     }
-  }; 
+  };
   return (
     <div className="page-container">
-      <NavbarApp />
+    
+        <NavbarApp />
+              <div className="catalogo-hero">
+            <div className="catalogo-hero-content">
+              <h1>MIS CREDENCIALES </h1>
+            </div>
+          </div>
 
       <div className="perfil-usuario-container">
         <SideBarUsuario usuario={usuario} handleLogout={handleLogout} />
@@ -305,6 +335,7 @@ const PerfilUsuario = () => {
                       onChange={handleChange}
                       required
                       disabled={!isEditing}
+                      
                     />
                     {isEditing && formData.primerApellido && (
                       <div className={`validation-icon ${nombreApellidosValidos.primerApellido ? 'valid' : 'invalid'}`}>
@@ -327,6 +358,7 @@ const PerfilUsuario = () => {
                       value={formData.segundoApellido}
                       onChange={handleChange}
                       disabled={!isEditing}
+                      required
                     />
                     {isEditing && formData.segundoApellido && (
                       <div className={`validation-icon ${nombreApellidosValidos.segundoApellido ? 'valid' : 'invalid'}`}>
@@ -353,6 +385,7 @@ const PerfilUsuario = () => {
                     placeholder="9999-9999"
                     maxLength="9"
                     disabled={!isEditing}
+                    required
                   />
                   {formErrors.telefonoUsuario && (
                     <div className="error-message">{formErrors.telefonoUsuario}</div>
@@ -370,6 +403,7 @@ const PerfilUsuario = () => {
                     value={formData.fechaNacimiento}
                     onChange={handleChange}
                     disabled={!isEditing}
+                    required
                   />
                   {formErrors.fechaNacimiento && (
                     <div className="error-message">{formErrors.fechaNacimiento}</div>
@@ -387,11 +421,28 @@ const PerfilUsuario = () => {
             </form>
           </div>
         </div>
-        <ToastContainer position="bottom-right" autoClose={3000} />
+     
       </div>
       <FooterApp />
+
+      {/* Snackbar para mostrar mensajes */}
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={3000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={handleCloseSnackbar} 
+          severity={snackbarSeverity}
+          sx={{ width: '100%' }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };
+
 
 export default PerfilUsuario;

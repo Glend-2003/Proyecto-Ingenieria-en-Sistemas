@@ -130,6 +130,7 @@
 }
 
 .icon-link svg {
+  color: white !important;
   width: 1.5em !important;
   height: 1.5em !important;
 }

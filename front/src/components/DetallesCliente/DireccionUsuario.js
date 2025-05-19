@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { NavLink, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./DireccionUsuario.css";
@@ -13,6 +11,12 @@ import NavbarApp from "../Navbar/NavbarApp";
 import useAuth from "../../hooks/useAuth";
 import SideBarUsuario from '../DetallesCliente/SideBarUsuario';
 import { useAppContext } from "../Navbar/AppContext";
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
+
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 const DireccionUsuario = () => {
   const { usuario } = useAuth();
@@ -23,6 +27,11 @@ const DireccionUsuario = () => {
   const [direccionCompleta, setDireccionCompleta] = useState(null);
   const [loading, setLoading] = useState(true);
   
+  // Estados para el Snackbar
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+
   const [formData, setFormData] = useState({
     codigoPostalDireccion: "",
     descripcionDireccion: "",
@@ -38,6 +47,21 @@ const DireccionUsuario = () => {
     return /^\d{5}$/.test(code);
   };
 
+  // Función para mostrar el Snackbar
+  const showSnackbar = (message, severity = 'success') => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setOpenSnackbar(true);
+  };
+
+  // Función para cerrar el Snackbar
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenSnackbar(false);
+  };
+
   useEffect(() => {
     if (usuario?.correoUsuario) {
       cargarDireccionUsuario();
@@ -45,64 +69,49 @@ const DireccionUsuario = () => {
     }
   }, [usuario]);
 
-const cargarDireccionUsuario = async () => {
-  try {
-    setLoading(true);
-    console.log("Iniciando carga de dirección del usuario:", usuario.correoUsuario);
-    
-    const response = await axios.get(
-      `http://localhost:8080/direccion/buscar-por-correo`, 
-      {
-        params: { correoUsuario: usuario.correoUsuario },
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+  const cargarDireccionUsuario = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(
+        `http://localhost:8080/direccion/buscar-por-correo`, 
+        {
+          params: { correoUsuario: usuario.correoUsuario },
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
+
+      if (response.data) {
+        setDireccionCompleta(response.data);
+        
+        setFormData({
+          codigoPostalDireccion: response.data.codigoPostalDireccion || "",
+          descripcionDireccion: response.data.descripcionDireccion || "",
+          idProvincia: response.data.idProvincia || "",
+          idCanton: response.data.idCanton || "",
+          idDistrito: response.data.idDistrito || ""
+        });
+        
+        if (response.data.idProvincia) {
+          await cargarCantonesPorProvincia(response.data.idProvincia);
+        }
+        
+        if (response.data.idCanton) {
+          await cargarDistritosPorCanton(response.data.idCanton);
         }
       }
-    );
-
-    console.log("Respuesta de dirección recibida:", response.data);
-
-    if (response.data) {
-      setDireccionCompleta(response.data);
+    } catch (error) {
+      console.error("Error al cargar la dirección del usuario:", error);
       
-      setFormData({
-        codigoPostalDireccion: response.data.codigoPostalDireccion || "",
-        descripcionDireccion: response.data.descripcionDireccion || "",
-        idProvincia: response.data.idProvincia || "",
-        idCanton: response.data.idCanton || "",
-        idDistrito: response.data.idDistrito || ""
-      });
-      
-      console.log("Formulario configurado con datos:", {
-        codigoPostalDireccion: response.data.codigoPostalDireccion || "",
-        descripcionDireccion: response.data.descripcionDireccion || "",
-        idProvincia: response.data.idProvincia || "",
-        idCanton: response.data.idCanton || "",
-        idDistrito: response.data.idDistrito || ""
-      });
-      
-      if (response.data.idProvincia) {
-        const cantones = await cargarCantonesPorProvincia(response.data.idProvincia);
-        console.log("Cantones cargados:", cantones);
+      if (error.response?.status !== 404) {
+        showSnackbar("No se pudo cargar la información de dirección", "error");
       }
-      
-      if (response.data.idCanton) {
-        const distritos = await cargarDistritosPorCanton(response.data.idCanton);
-        console.log("Distritos cargados:", distritos);
-      }
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    console.error("Error al cargar la dirección del usuario:", error);
-    console.error("Detalles del error:", error.response?.data);
-    console.error("Estado HTTP:", error.response?.status);
-    
-    if (error.response?.status !== 404) {
-      toast.error("No se pudo cargar la información de dirección");
-    }
-  } finally {
-    setLoading(false);
-  }
-};
+  };
+
   useEffect(() => {
     if (formData.idProvincia && !loading) {
       cargarCantones();
@@ -131,7 +140,7 @@ const cargarDireccionUsuario = async () => {
       setProvincia(response.data);
     } catch (error) {
       console.error("Error al cargar las provincias:", error);
-      toast.error("Ocurrió un error al cargar las provincias");
+      showSnackbar("Ocurrió un error al cargar las provincias");
     }
   };
 
@@ -184,7 +193,7 @@ const cargarDireccionUsuario = async () => {
       setCantones(response.data);
     } catch (error) {
       console.error("Error al cargar los cantones:", error);
-      toast.error("Ocurrió un error al cargar los cantones");
+      showSnackbar("Ocurrió un error al cargar los cantones");
     }
   };
 
@@ -201,7 +210,7 @@ const cargarDireccionUsuario = async () => {
       setDistritos(response.data);
     } catch (error) {
       console.error("Error al cargar los distritos:", error);
-      toast.error("Ocurrió un error al cargar los distritos");
+      showSnackbar("Ocurrió un error al cargar los distritos");
     }
   };
 
@@ -219,7 +228,7 @@ const cargarDireccionUsuario = async () => {
 
   const handleBlurPostalCode = () => {
     if (formData.codigoPostalDireccion && !isValidPostalCodeFormat(formData.codigoPostalDireccion)) {
-      toast.warning("El código postal debe tener exactamente 5 dígitos");
+      showSnackbar("El código postal debe tener exactamente 5 dígitos", "warning");
     }
   };
 
@@ -227,12 +236,12 @@ const cargarDireccionUsuario = async () => {
     e.preventDefault();
     
     if (!formData.descripcionDireccion || !formData.idDistrito) {
-      toast.error("Descripción y distrito son obligatorios");
+      showSnackbar("Descripción y distrito son obligatorios", "error");
       return;
     }
 
     if (formData.codigoPostalDireccion && !isValidPostalCodeFormat(formData.codigoPostalDireccion)) {
-      toast.error("El código postal debe tener exactamente 5 dígitos");
+      showSnackbar("El código postal debe tener exactamente 5 dígitos", "error");
       return;
     }
 
@@ -253,17 +262,17 @@ const cargarDireccionUsuario = async () => {
         }
       );
 
-      toast.success(response.data);
+      showSnackbar(response.data, "success");
       setIsEditing(false);
       
       cargarDireccionUsuario();
     } catch (error) {
       if (error.response?.status === 401) {
         handleLogout();
-        toast.error("Sesión expirada, por favor ingrese nuevamente");
+        showSnackbar("Sesión expirada, por favor ingrese nuevamente", "error");
       } else {
         console.error("Error:", error.response?.data);
-        toast.error(error.response?.data || "Error al guardar la dirección");
+        showSnackbar(error.response?.data || "Error al guardar la dirección", "error");
       }
     }
   };
@@ -273,6 +282,12 @@ const cargarDireccionUsuario = async () => {
   return (
     <div className="profile-page">
       <NavbarApp />
+       
+        <div className="catalogo-hero">
+      <div className="catalogo-hero-content">
+        <h1>MI DIRECCIÓN </h1>
+      </div>
+    </div>
       <div className="perfil-usuario-container">
         <SideBarUsuario usuario={usuario} handleLogout={handleLogout} />
 
@@ -446,9 +461,25 @@ const cargarDireccionUsuario = async () => {
           </div>
         </div>
 
-        <ToastContainer position="bottom-right" autoClose={3000} />
+       
       </div>
-      <FooterApp />
+       <FooterApp />
+
+      {/* Snackbar para mostrar mensajes */}
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={3000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={handleCloseSnackbar} 
+          severity={snackbarSeverity}
+          sx={{ width: '100%' }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };

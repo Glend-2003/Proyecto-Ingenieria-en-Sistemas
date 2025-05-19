@@ -6,6 +6,7 @@ import { useCart } from '../../contexto/ContextoCarrito';
 import { FiFilter, FiX, FiShoppingCart, FiInfo, FiStar, FiChevronDown } from "react-icons/fi";
 import "./ListaProductos.css";
 import { useAppContext } from "../Navbar/AppContext";
+import { useLocation, useNavigate } from "react-router-dom";
 
 function ListaProductosApp({ categoria }) {
   const { addToCart } = useCart();
@@ -14,17 +15,17 @@ function ListaProductosApp({ categoria }) {
   const [showModal, setShowModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [cantidad, setCantidad] = useState(1);
-  const [productosFiltrados, setProductosFiltrados] = useState([]);
   const [loading, setLoading] = useState(true);
   const [priceRange, setPriceRange] = useState({ min: 0, max: 0 });
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [selectedPrice, setSelectedPrice] = useState(0);
   const [sortOrder, setSortOrder] = useState("default");
   const [showFilters, setShowFilters] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const {globalSearchTerm} = useAppContext();
+  const { globalSearchTerm } = useAppContext();
   const [selectedCategories, setSelectedCategories] = useState([]);
-  const [isBuscando, setIsBuscando] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [isGlobalFilter, setIsGlobalFilter] = useState(false);
 
   const colors = {
     darkGreen: '#103f1b',
@@ -39,7 +40,7 @@ function ListaProductosApp({ categoria }) {
     setCantidad(1);
     setShowModal(true);
   };
-
+  
   const handleCloseModal = () => {
     setShowModal(false);
     setSelectedProduct(null);
@@ -57,26 +58,14 @@ function ListaProductosApp({ categoria }) {
     }
   };
 
-  useEffect(() => {
-    const fetchCategorias = async () => {
-      try {
-        const response = await axios.get('http://localhost:8080/categoria/',{
-          params: { estadoCategoria: 1 }
-        });
-        setCategorias(response.data);
-      } catch (error) {
-        console.error('Error al cargar categorías:', error);
-      }
-    };
-
-    fetchCategorias();
-  }, []);
-
+  // Obtener todos los productos
   useEffect(() => {
     const fetchProductos = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('http://localhost:8080/producto/', { params: { estadoProducto: 1 } });
+        const response = await axios.get('http://localhost:8080/producto/', { 
+          params: { estadoProducto: 1 } 
+        });
         setProductos(response.data);
         
         if (response.data.length > 0) {
@@ -96,82 +85,96 @@ function ListaProductosApp({ categoria }) {
     };
 
     fetchProductos();
-  }, [])
+  }, []);
 
- useEffect(() => {
-  if (!productos.length || !categorias.length) {
-    setProductosFiltrados([]);
-    setFilteredProducts([]);
-    return;
-  }
+  // Obtener categorías
+  useEffect(() => {
+    const fetchCategorias = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/categoria/', {
+          params: { estadoCategoria: 1 }
+        });
+        setCategorias(response.data);
+      } catch (error) {
+        console.error('Error al cargar categorías:', error);
+      }
+    };
 
-  let resultadosFiltrados = [...productos];
+    fetchCategorias();
+  }, []);
 
-  if (categoria) {
-    if (categoria.toLowerCase() === "varios") {
-      const categoriasExcluidas = categorias
-        .filter(cat =>
-          ["res", "cerdo", "pollo"].includes(cat.nombreCategoria.toLowerCase())
-        )
-        .map(cat => cat.idCategoria);
-
-      resultadosFiltrados = resultadosFiltrados.filter(
-        producto =>
-          producto.categoria &&
-          !categoriasExcluidas.includes(producto.categoria.idCategoria)
-      );
+  // Efecto para manejar cuando se activa el filtro global
+  useEffect(() => {
+    if (globalSearchTerm || selectedCategories.length > 0 || selectedPrice < priceRange.max || sortOrder !== "default") {
+      setIsGlobalFilter(true);
     } else {
-      const categoriaObj = categorias.find(
-        cat => cat.nombreCategoria.toLowerCase() === categoria.toLowerCase()
-      );
+      setIsGlobalFilter(false);
+    }
+  }, [globalSearchTerm, selectedCategories, selectedPrice, sortOrder, priceRange.max]);
 
-      if (categoriaObj) {
-        resultadosFiltrados = resultadosFiltrados.filter(
-          producto =>
-            producto.categoria &&
-            producto.categoria.idCategoria === categoriaObj.idCategoria
+  // Aplicar filtros
+  useEffect(() => {
+    if (productos.length === 0 || categorias.length === 0) return;
+
+    let resultados = [...productos];
+
+    // Solo aplicar filtro de categoría si no estamos en modo filtro global
+    if (categoria && !isGlobalFilter) {
+      if (categoria.toLowerCase() === "varios") {
+        const categoriasExcluidas = categorias
+          .filter(cat => ["res", "cerdo", "pollo"].includes(cat.nombreCategoria.toLowerCase()))
+          .map(cat => cat.idCategoria);
+
+        resultados = resultados.filter(
+          producto => producto.categoria && 
+          !categoriasExcluidas.includes(producto.categoria.idCategoria)
         );
       } else {
-        resultadosFiltrados = [];
+        const categoriaObj = categorias.find(
+          cat => cat.nombreCategoria.toLowerCase() === categoria.toLowerCase()
+        );
+
+        if (categoriaObj) {
+          resultados = resultados.filter(
+            producto => producto.categoria && 
+            producto.categoria.idCategoria === categoriaObj.idCategoria
+          );
+        } else {
+          resultados = [];
+        }
       }
     }
-  }
 
-  if (globalSearchTerm) {
-    resultadosFiltrados = resultadosFiltrados.filter(producto =>
-      producto.nombreProducto.toLowerCase().includes(globalSearchTerm.toLowerCase()) ||
-      (producto.descripcionProducto?.toLowerCase().includes(globalSearchTerm.toLowerCase())) ||
-      (producto.codigoProducto?.toLowerCase().includes(globalSearchTerm.toLowerCase()))
-    );
-  }
-
-  setProductosFiltrados(resultadosFiltrados);
-  setFilteredProducts(resultadosFiltrados);
-}, [productos, categorias, categoria, globalSearchTerm]);
-
-  useEffect(() => {
+    // Aplicar filtros globales
     if (globalSearchTerm) {
-      setSearchTerm(globalSearchTerm);
-      setIsBuscando(true);
-    } else {
-      setSearchTerm("");
-      setIsBuscando(false);
+      resultados = resultados.filter(producto =>
+        producto.nombreProducto.toLowerCase().includes(globalSearchTerm.toLowerCase()) ||
+        (producto.descripcionProducto?.toLowerCase().includes(globalSearchTerm.toLowerCase())) ||
+        (producto.codigoProducto?.toLowerCase().includes(globalSearchTerm.toLowerCase()))
+      );
     }
-  }, [globalSearchTerm]);
 
-  useEffect(() => {
-    if (productosFiltrados.length > 0) {
-      const prices = productosFiltrados.map(p => p.montoPrecioProducto);
-      const minPrice = Math.min(...prices);
-      const maxPrice = Math.max(...prices);
-      setPriceRange({ min: minPrice, max: maxPrice });
-      setSelectedPrice(maxPrice);
-      setFilteredProducts(productosFiltrados);
+    if (selectedCategories.length > 0) {
+      resultados = resultados.filter(producto =>
+        producto.categoria && selectedCategories.includes(producto.categoria.idCategoria)
+      );
     }
-  }, [productosFiltrados]);
+
+    resultados = resultados.filter(product => 
+      product.montoPrecioProducto <= selectedPrice
+    );
+
+    if (sortOrder === "price-asc") {
+      resultados.sort((a, b) => a.montoPrecioProducto - b.montoPrecioProducto);
+    } else if (sortOrder === "price-desc") {
+      resultados.sort((a, b) => b.montoPrecioProducto - a.montoPrecioProducto);
+    }
+
+    setFilteredProducts(resultados);
+  }, [productos, categorias, categoria, globalSearchTerm, selectedCategories, selectedPrice, sortOrder, isGlobalFilter]);
 
   const handlePriceFilter = () => {
-    const filtered = productosFiltrados.filter(product => 
+    const filtered = productos.filter(product => 
       product.montoPrecioProducto <= selectedPrice
     );
     setFilteredProducts(filtered);
@@ -180,16 +183,6 @@ function ListaProductosApp({ categoria }) {
   const handleSortChange = (e) => {
     const order = e.target.value;
     setSortOrder(order);
-
-    let sortedProducts = [...filteredProducts];
-
-    if (order === "price-asc") {
-      sortedProducts.sort((a, b) => a.montoPrecioProducto - b.montoPrecioProducto);
-    } else if (order === "price-desc") {
-      sortedProducts.sort((a, b) => b.montoPrecioProducto - a.montoPrecioProducto);
-    }
-
-    setFilteredProducts(sortedProducts);
   };
 
   const toggleCategoryFilter = (categoryId) => {
@@ -201,124 +194,86 @@ function ListaProductosApp({ categoria }) {
   };
 
   const applyCategoryFilters = () => {
-    if (selectedCategories.length === 0) {
-      setFilteredProducts(productosFiltrados);
-    } else {
-      const filtered = productosFiltrados.filter(product => 
-        product.categoria && selectedCategories.includes(product.categoria.idCategoria)
-      );
-      setFilteredProducts(filtered);
-    }
     setShowFilters(false);
   };
 
   const resetFilters = () => {
     setSelectedCategories([]);
     setSelectedPrice(priceRange.max);
-    setFilteredProducts(productosFiltrados);
     setSortOrder("default");
+    navigate(location.pathname); // Esto recarga la vista sin filtros
   };
 
   return (
-     <>
-        {/* Hero Banner */}
-<div className="catalogo-hero">
-  <div className="catalogo-hero-content">
-    <h1>NUESTROS PRODUCTOS </h1>
-    <p className="hero-subtitle">Carne fresca de la más alta calidad, seleccionada cuidadosamente para tu familia</p>
-    <div className="hero-badges">
-      <span className="badge"><FiStar /> Calidad garantizada</span>
-      <span className="badge"><FiStar /> Cortes premium</span>
-      <span className="badge"><FiStar /> Entrega rápida</span>
-    </div>
-  </div>
-</div>
+    <>
+      {/* Hero Banner */}
+      <div className="catalogo-hero">
+        <div className="catalogo-hero-content">
+          <h1>NUESTROS PRODUCTOS</h1>
+          <p className="hero-subtitle">Carne fresca de la más alta calidad, seleccionada cuidadosamente para tu familia</p>
+          <div className="hero-badges">
+            <span className="badge"><FiStar /> Calidad garantizada</span>
+            <span className="badge"><FiStar /> Cortes premium</span>
+            <span className="badge"><FiStar /> Entrega rápida</span>
+          </div>
+        </div>
+      </div>
 
-    <Container fluid className="product-catalog-container px-md-5">
-      <ToastContainer position="top-right" autoClose={3000} />
+      <Container fluid className="product-catalog-container px-md-5">
+        <ToastContainer position="top-right" autoClose={3000} />
 
-   
-      <Row>
-        <Col md={3} className="sidebar-filters mb-4">
-     <div className="filter-card p-3 mb-3" style={{ backgroundColor: '#f8f9fa', borderRadius: '10px' }}>
-  <div className="d-flex justify-content-between align-items-center mb-3">
-    <h5 className="m-0">
-      <FiFilter className="me-2" />
-      Filtros
-    </h5>
-    <button className="btn btn-sm btn-link text-decoration-none" onClick={resetFilters} style={{ color: colors.mediumGreen }}>
-      Limpiar
-    </button>
-  </div>
-
-  <div className="mb-4">
-    <h6 className="fw-bold mb-3">Precio</h6>
-    <p className="small text-muted mb-2">Selecciona el rango de precios que deseas explorar</p>
-    <div className="d-flex justify-content-between mb-2">
-      <span>₡{priceRange.min.toLocaleString()}</span>
-      <span>₡{selectedPrice.toLocaleString()}</span>
-    </div>
-              <input
-                type="range"
-                min={priceRange.min}
-                max={priceRange.max}
-                value={selectedPrice}
-                onChange={(e) => setSelectedPrice(Number(e.target.value))}
-                className="form-range"
-                style={{ accentColor: colors.mediumGreen }}
-              />
-              <div className="d-flex justify-content-center mt-2">
-                <button 
-                  onClick={handlePriceFilter} 
-                  className="btn btn-sm"
-                  style={{ 
-                    backgroundColor: colors.mediumGreen, 
-                    color: 'white',
-                    borderRadius: '20px',
-                    padding: '5px 15px'
-                  }}
-                >
-                  Aplicar
+        <Row>
+          <Col md={3} className="sidebar-filters mb-4">
+            <div className="filter-card p-3 mb-3" style={{ backgroundColor: '#f8f9fa', borderRadius: '10px' }}>
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <h5 className="m-0">
+                  <FiFilter className="me-2" />
+                  Filtros
+                </h5>
+                <button className="btn btn-sm btn-link text-decoration-none" onClick={resetFilters} style={{ color: colors.mediumGreen }}>
+                  Limpiar
                 </button>
               </div>
-            </div>
 
-            <div className="mb-4">
-              <h6 className="fw-bold mb-3">Categorías</h6>
-              <div className="category-list">
-                {categorias.map(cat => (
-                  <div key={cat.idCategoria} className="form-check mb-2">
-                    <input
-                      className="form-check-input"
-                      type="checkbox"
-                      checked={selectedCategories.includes(cat.idCategoria)}
-                      onChange={() => toggleCategoryFilter(cat.idCategoria)}
-                      style={{ accentColor: colors.mediumGreen }}
-                    />
-                    <label className="form-check-label">
-                      {cat.nombreCategoria}
-                    </label>
-                  </div>
-                ))}
+              <div className="mb-4">
+                <h6 className="fw-bold mb-3">Precio</h6>
+                <p className="small text-muted mb-2">Selecciona el rango de precios que deseas explorar</p>
+                <div className="d-flex justify-content-between mb-2">
+                  <span>₡{priceRange.min.toLocaleString()}</span>
+                  <span>₡{selectedPrice.toLocaleString()}</span>
+                </div>
+                <input
+                  type="range"
+                  min={priceRange.min}
+                  max={priceRange.max}
+                  value={selectedPrice}
+                  onChange={(e) => setSelectedPrice(Number(e.target.value))}
+                  className="form-range"
+                  style={{ accentColor: colors.mediumGreen }}
+                />
+              </div>
+
+              <div className="mb-4">
+                <h6 className="fw-bold mb-3">Categorías</h6>
+                <div className="category-list">
+                  {categorias.map(cat => (
+                    <div key={cat.idCategoria} className="form-check mb-2">
+                      <input
+                        className="form-check-input"
+                        type="checkbox"
+                        checked={selectedCategories.includes(cat.idCategoria)}
+                        onChange={() => toggleCategoryFilter(cat.idCategoria)}
+                        style={{ accentColor: colors.mediumGreen }}
+                      />
+                      <label className="form-check-label">
+                        {cat.nombreCategoria}
+                      </label>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-
-            <button 
-              onClick={applyCategoryFilters}
-              className="btn w-100"
-              style={{ 
-                backgroundColor: colors.darkGreen, 
-                color: 'white',
-                borderRadius: '5px',
-                padding: '8px'
-              }}
-            >
-              Aplicar Filtros
-            </button>
-          </div>
-
-      
-        </Col>
+          </Col>
         <Col md={9}>
           <div className="d-flex justify-content-between align-items-center mb-4">
             <div className="results-count">
