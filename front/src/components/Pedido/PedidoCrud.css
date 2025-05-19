@@ -151,6 +151,15 @@
   .pedido-content {
     grid-template-columns: 1fr;
   }
+  
+  /* Mejoras adicionales para tablets */
+  .card-body {
+    padding: 20px;
+  }
+  
+  .form-row {
+    gap: 15px;
+  }
 }
 
 .client-info-card,
@@ -505,6 +514,228 @@
   .pedido-banner-subtitle {
     font-size: 16px;
   }
+  
+  /* Mejoras adicionales para móviles */
+  .pedido-hero {
+    height: 200px;
+  }
+  
+  .pedido-hero-content {
+    padding-top: 60px;
+  }
+  
+  .pedido-hero h1 {
+    font-size: 2rem;
+  }
+  
+  .pedido-hero p {
+    font-size: 1rem;
+  }
+  
+  .contenedor-boton {
+    padding: 0 15px 15px;
+  }
+  
+  .location-label, 
+  .location-value {
+    font-size: 14px;
+  }
+  
+  .location-info {
+    padding: 12px;
+  }
+  
+  .cart-item {
+    padding: 12px;
+  }
+  
+  .submit-section {
+    margin-top: 20px;
+  }
+}
+
+@media (max-width: 576px) {
+  .pedido-hero {
+    height: 180px;
+  }
+  
+  .pedido-hero-content {
+    padding-top: 50px;
+  }
+  
+  .pedido-hero h1 {
+    font-size: 1.8rem;
+    margin-bottom: 0.3rem;
+  }
+  
+  .pedido-hero p {
+    font-size: 0.9rem;
+  }
+  
+  .card-header {
+    padding: 12px 15px;
+  }
+  
+  .card-body {
+    padding: 15px;
+  }
+  
+  .form-group label {
+    font-size: 15px;
+    margin-bottom: 8px;
+  }
+  
+  .form-group input,
+  .form-group select {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+  
+  .btn-back {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+  
+  .card-header h2 {
+    font-size: 16px;
+  }
+  
+  .cart-items {
+    max-height: 250px;
+  }
+  
+  .cart-item-name,
+  .cart-item-price {
+    font-size: 14px;
+  }
+  
+  .summary-item {
+    font-size: 14px;
+  }
+  
+  .summary-item.total {
+    font-size: 16px;
+  }
+  
+  .btn-submit {
+    padding: 12px 20px;
+    font-size: 15px;
+  }
+  
+  .info-section {
+    padding: 12px;
+  }
+  
+  .info-text {
+    font-size: 13px;
+  }
+  
+  .pedido-banner {
+    height: 130px;
+  }
+  
+  .pedido-banner-title {
+    font-size: 20px;
+  }
+  
+  .pedido-banner-subtitle {
+    font-size: 14px;
+  }
 }
 
 
+@media (max-width: 360px) {
+  .pedido-hero {
+    height: 160px;
+  }
+  
+  .pedido-hero-content {
+    padding-top: 45px;
+  }
+  
+  .pedido-hero h1 {
+    font-size: 1.5rem;
+  }
+  
+  .pedido-hero p {
+    font-size: 0.85rem;
+  }
+  
+  .card-header h2 {
+    font-size: 15px;
+  }
+  
+  .form-group label {
+    font-size: 14px;
+  }
+  
+  .form-group input,
+  .form-group select {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+  
+  .cedula-message {
+    font-size: 12px;
+  }
+  
+  .location-label, 
+  .location-value {
+    font-size: 13px;
+  }
+  
+  .cart-item-name,
+  .cart-item-price {
+    font-size: 13px;
+  }
+  
+  .summary-item {
+    font-size: 13px;
+  }
+  
+  .summary-item.total {
+    font-size: 15px;
+  }
+  
+  .btn-submit {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+  
+  .validation-warning {
+    font-size: 12px;
+  }
+  
+  .pedido-banner-title {
+    font-size: 18px;
+  }
+  
+  .pedido-banner-subtitle {
+    font-size: 13px;
+  }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  .pedido-hero {
+    height: 120px;
+  }
+  
+  .pedido-hero-content {
+    padding-top: 35px;
+  }
+  
+  .pedido-content {
+    padding: 10px;
+  }
+  
+  .card-body {
+    padding: 12px;
+  }
+  
+  .cart-items {
+    max-height: 150px;
+  }
+  
+  .pedido-banner {
+    height: 100px;
+  }
+}

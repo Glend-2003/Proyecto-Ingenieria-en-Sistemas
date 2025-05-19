@@ -330,3 +330,244 @@
 .tipopago-table-header-row th {
   text-align: center;
 }
+
+/* Media queries para adaptación móvil */
+@media (max-width: 992px) {
+  .tipopago-main-container {
+    margin-left: 0;
+    width: 100%;
+    padding: 20px;
+  }
+  
+  .tipopago-add-button {
+    max-width: 100%;
+  }
+  
+  .tipopago-modal .modal-dialog {
+    max-width: 90%;
+    margin: 20px auto;
+  }
+  
+  .tipopago-table-container {
+    overflow-x: auto;
+    margin-left: 0;
+  }
+  
+  .tipopago-search-container {
+    padding: 12px 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .tipopago-main-container {
+    padding: 15px;
+  }
+  
+  .tipopago-table-container {
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .tipopago-table {
+    table-layout: auto; /* Cambiar de fixed a auto para mejor adaptación */
+  }
+  
+  .tipopago-table-header-row th {
+    padding: 12px 8px;
+    font-size: 0.85rem;
+  }
+  
+  .tipopago-table-row td {
+    padding: 10px 8px;
+  }
+  
+  .tipopago-description-cell {
+    padding-left: 10px;
+  }
+  
+  .tipopago-search-container label {
+    font-size: 1rem;
+  }
+  
+  .tipopago-search-input {
+    padding: 8px 12px;
+  }
+  
+  .tipopago-status-button {
+    font-size: 0.75rem;
+    padding: 6px 10px;
+    min-width: 90px;
+  }
+  
+  .tipopago-edit-button {
+    font-size: 1.1rem;
+    margin: 0 5px;
+  }
+  
+  .tipopago-modal-body {
+    padding: 15px;
+  }
+  
+  .tipopago-form-actions {
+    margin-top: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .tipopago-main-container {
+    padding: 10px;
+  }
+  
+  .tipopago-search-container {
+    padding: 10px;
+    margin-bottom: 15px;
+  }
+  
+  .tipopago-search-container label {
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+  }
+  
+  .tipopago-search-input {
+    font-size: 0.9rem;
+  }
+  
+  /* Transformar tabla para vista móvil */
+  .tipopago-table-container {
+    box-shadow: none;
+    background-color: transparent;
+    overflow: visible;
+    border-radius: 0;
+  }
+  
+  .tipopago-table,
+  .tipopago-table tbody,
+  .tipopago-table tr {
+    display: block;
+    width: 100%;
+  }
+  
+  .tipopago-table-header-row {
+    display: none;
+  }
+  
+  .tipopago-table-row {
+    margin-bottom: 15px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    display: block;
+  }
+  
+  .tipopago-table-row td {
+    display: block;
+    text-align: center;
+    position: relative;
+    padding: 10px;
+    border-bottom: 1px solid #e9f2dd;
+  }
+  
+  .tipopago-table-row td:before {
+    content: attr(data-label);
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    color: #666;
+  }
+  
+  .tipopago-description-cell {
+    text-align: center;
+    padding-left: 10px;
+    padding-top: 15px;
+    font-size: 1.1rem;
+  }
+  
+  .tipopago-status-cell {
+    width: 100%;
+    padding: 10px 15px !important;
+  }
+  
+  .tipopago-status-button {
+    width: 60%;
+  }
+  
+  .tipopago-actions-cell {
+    width: 100%;
+    border-bottom: none !important;
+  }
+  
+  .tipopago-modal-header {
+    padding: 12px 15px;
+  }
+  
+  .tipopago-modal-header .modal-title {
+    font-size: 1.1rem;
+  }
+  
+  .tipopago-modal-body {
+    padding: 12px;
+  }
+  
+  .tipopago-form-actions {
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+  
+  .tipopago-form-actions button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 400px) {
+  .tipopago-description-cell {
+    font-size: 1rem;
+  }
+  
+  .tipopago-status-button {
+    width: 80%;
+    font-size: 0.7rem;
+  }
+  
+  .tipopago-status-button:before {
+    font-size: 1.2rem;
+  }
+  
+  .tipopago-edit-button {
+    font-size: 1rem;
+  }
+  
+  .tipopago-modal-header .modal-title {
+    font-size: 1rem;
+  }
+  
+  .tipopago-modal-body label {
+    font-size: 0.9rem;
+  }
+  
+  .tipopago-form-control {
+    font-size: 0.9rem;
+  }
+}
+
+/* Media query para orientación horizontal en pantallas pequeñas */
+@media (max-height: 500px) and (orientation: landscape) {
+  .tipopago-modal .modal-dialog {
+    max-width: 95%;
+    margin: 10px auto;
+  }
+  
+  .tipopago-modal-body {
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+  
+  .tipopago-table-row td {
+    padding: 8px 10px;
+  }
+  
+  .tipopago-status-button {
+    padding: 5px 8px;
+  }
+}

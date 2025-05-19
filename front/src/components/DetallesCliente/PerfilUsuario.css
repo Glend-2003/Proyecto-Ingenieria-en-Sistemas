@@ -227,3 +227,145 @@
     gap: 15px;
   }
 }
+
+@media (max-width: 992px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .perfil-usuario-container {
+    flex-direction: column;
+  }
+  
+  .sidebar-container {
+    width: 100%;
+    min-height: auto;
+  }
+  
+  .profile-header h2 {
+    font-size: 24px;
+    padding: 12px 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .profile-content {
+    padding: 25px 20px;
+  }
+  
+  .profile-card {
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.06);
+  }
+  
+  .card-header {
+    padding: 15px 20px;
+  }
+  
+  .card-header h3 {
+    font-size: 18px;
+  }
+  
+  .profile-form {
+    padding: 20px;
+  }
+  
+  .form-group label {
+    font-size: 14px;
+  }
+  
+  .form-input {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+  
+  .edit-btn, .cancel-btn {
+    padding: 8px 15px;
+    font-size: 14px;
+  }
+  
+  .save-btn {
+    padding: 10px 20px;
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 576px) {
+  .profile-content {
+    padding: 20px 15px;
+  }
+  
+  .profile-header h2 {
+    font-size: 22px;
+    padding: 10px 15px;
+  }
+  
+  .profile-header p {
+    font-size: 14px;
+  }
+  
+  .profile-form {
+    padding: 15px;
+  }
+  
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 15px;
+  }
+  
+  .form-group {
+    margin-bottom: 12px;
+  }
+  
+  .form-input {
+    padding: 10px;
+  }
+  
+  .edit-btn, .cancel-btn, .save-btn {
+    width: 100%;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  
+  .form-actions {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .validation-icon {
+    right: 10px;
+    font-size: 14px;
+  }
+  
+  .error-message {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 360px) {
+  .profile-header h2 {
+    font-size: 20px;
+  }
+  
+  .card-header h3 {
+    font-size: 16px;
+  }
+  
+  .form-group label {
+    font-size: 13px;
+  }
+  
+  .input-icon {
+    margin-right: 8px;
+    width: 14px;
+  }
+  
+  .form-input {
+    font-size: 13px;
+  }
+}

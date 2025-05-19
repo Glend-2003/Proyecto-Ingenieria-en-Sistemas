@@ -331,3 +331,97 @@ h1 {
   background-color: #6c757d !important;
   border-color: #6c757d !important;
 }
+
+@media (max-width: 992px) {
+  .categoria-main-container {
+    margin-left: 0;
+    width: 100%;
+    padding: 20px 15px;
+  }
+  
+  .categoria-table-container {
+    overflow-x: auto;
+    margin-left: 0;
+  }
+  
+  .categoria-table {
+    min-width: 800px;
+  }
+  
+  .categoria-add-button {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .categoria-main-container {
+    padding: 15px 10px;
+    padding-bottom: 60px;
+  }
+  
+  .categoria-search-container {
+    padding: 12px 15px;
+  }
+  
+  .categoria-table-header-row th {
+    padding: 12px 8px;
+    font-size: 0.8rem;
+  }
+  
+  .categoria-table-row td {
+    padding: 10px 8px;
+  }
+  
+  .categoria-letraNegrita {
+    font-size: 0.95rem;
+  }
+  
+  .categoria-letraComun {
+    font-size: 0.85rem;
+  }
+  
+  .categoria-actions-container {
+    flex-direction: row;
+    justify-content: center;
+  }
+  
+  .categoria-status-button {
+    font-size: 0.75rem;
+    padding: 6px 10px;
+  }
+  
+  .modal .modal-header {
+    padding: 12px 15px;
+  }
+  
+  .modal .modal-title {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  h1 {
+    font-size: 1.5rem;
+  }
+  
+  .categoria-add-button {
+    font-size: 0.9rem;
+    padding: 8px 12px;
+  }
+  
+  .categoria-search-input {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
+  
+  .categoria-action-buttons {
+    flex-direction: row;
+  }
+  
+  .categoria-edit-button,
+  .categoria-delete-button {
+    font-size: 1.1rem;
+    margin: 0 5px;
+    padding: 4px;
+  }
+}

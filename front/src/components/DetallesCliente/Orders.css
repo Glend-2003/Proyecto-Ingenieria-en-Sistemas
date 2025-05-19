@@ -629,3 +629,122 @@
 .dialog-button-confirm:hover {
   background-color: #c0392b;
 }
+
+@media (max-width: 576px) {
+  .catalogo-hero {
+    padding: 25px 15px;
+  }
+  
+  .catalogo-hero h1 {
+    font-size: 2rem;
+  }
+  
+  .catalogo-hero .hero-subtitle {
+    font-size: 1rem;
+  }
+  
+  .orders-title {
+    font-size: 1.5rem;
+  }
+  
+  .filters-panel {
+    padding: 1rem;
+  }
+  
+  .filters-header h3 {
+    font-size: 1rem;
+  }
+  
+  .filter-group label {
+    font-size: 0.85rem;
+  }
+  
+  .filter-select, .date-picker {
+    padding: 7px 10px;
+    font-size: 0.85rem;
+  }
+  
+  .order-card {
+    border-width: 1px;
+  }
+  
+  .order-header {
+    padding: 0.8rem 1rem;
+  }
+  
+  .order-id {
+    font-size: 1rem;
+  }
+  
+  .order-date {
+    font-size: 0.8rem;
+  }
+  
+  .order-status, .order-products, .order-footer {
+    padding: 0.8rem 1rem;
+  }
+  
+  .product-name {
+    font-size: 0.9rem;
+  }
+  
+  .product-quantity, .product-price {
+    font-size: 0.85rem;
+  }
+  
+  .order-total {
+    font-size: 1rem;
+  }
+  
+  /* Optimizaciones para el diálogo */
+  .dialog-container {
+    padding: 15px;
+    width: 95vw;
+  }
+  
+  .dialog-title {
+    font-size: 1.3rem;
+    padding: 12px 16px;
+  }
+  
+  .dialog-content {
+    padding: 0 16px 16px;
+    font-size: 1rem;
+  }
+  
+  .dialog-actions {
+    padding: 0 16px 16px;
+    gap: 10px;
+    flex-direction: column-reverse; /* Coloca el botón confirmar primero */
+    width: 100%;
+  }
+  
+  .dialog-button {
+    width: 100%;
+    padding: 10px;
+    margin: 0;
+  }
+}
+
+@media (max-width: 360px) {
+  .catalogo-hero h1 {
+    font-size: 1.8rem;
+  }
+  
+  .order-id {
+    font-size: 0.9rem;
+  }
+  
+  .status-text, .payment-method {
+    font-size: 0.85rem;
+  }
+  
+  .no-orders p {
+    font-size: 1rem;
+  }
+  
+  .shop-now-button {
+    padding: 0.7rem 1.5rem;
+    font-size: 0.9rem;
+  }
+}

@@ -334,3 +334,103 @@
   max-width: 250px; 
   width: 100%;
 }
+
+@media (max-width: 992px) {
+  .comentario-main-container {
+    margin-left: 0;
+    width: 100%;
+    padding: 20px 15px;
+  }
+  
+  .content-container {
+    margin-left: 0;
+    padding: 15px;
+  }
+  
+  .comentario-table-container {
+    overflow-x: auto;
+    margin-left: 0;
+  }
+  
+  .comentario-table {
+    min-width: 800px;
+  }
+  
+  .comentario-add-button {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .comentario-main-container {
+    padding: 15px 10px;
+    padding-bottom: 60px;
+  }
+  
+  .comentario-search-container {
+    padding: 12px 15px;
+  }
+  
+  .comentario-table-header-row th {
+    padding: 12px 8px;
+    font-size: 0.8rem;
+  }
+  
+  .comentario-table-row td {
+    padding: 10px 8px;
+  }
+  
+  .comentario-letraNegrita {
+    font-size: 0.95rem;
+  }
+  
+  .comentario-letraComun {
+    font-size: 0.85rem;
+  }
+  
+  .comentario-actions-container {
+    flex-direction: row;
+    justify-content: center;
+  }
+  
+  .comentario-status-button {
+    font-size: 0.75rem;
+    padding: 6px 10px;
+  }
+  
+  .fecha-columna {
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 576px) {
+  .comentario-add-button {
+    font-size: 0.9rem;
+    padding: 8px 12px;
+  }
+  
+  .comentario-search-input {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
+  
+  .comentario-action-buttons {
+    flex-direction: row;
+  }
+  
+  .comentario-edit-button,
+  .comentario-delete-button {
+    font-size: 1.1rem;
+    margin: 0 3px;
+    padding: 4px;
+  }
+  
+  .comentario-status-button:before {
+    font-size: 1.2rem;
+  }
+  
+  .search-table-col {
+    margin-top: 50px;
+  }
+}

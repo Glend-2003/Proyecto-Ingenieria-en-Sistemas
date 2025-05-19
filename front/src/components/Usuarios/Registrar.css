@@ -269,7 +269,45 @@ label {
   .registro-form {
     padding: 20px;
   }
+  
+  /* Mejoras adicionales */
+  .registro-header {
+    padding: 15px;
+  }
+  
+  .shield-icon {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 8px;
+  }
+  
+  .registro-header h4 {
+    font-size: 20px;
+  }
+  
+  .form-control {
+    padding: 9px 10px;
+    font-size: 14px;
+  }
+  
+  label {
+    font-size: 13px;
+  }
+  
+  .invalid-feedback {
+    font-size: 12px;
+  }
+  
+  .password-requirements {
+    font-size: 11px;
+  }
+  
+  .btn-registrar {
+    padding: 10px 18px;
+    font-size: 15px;
+  }
 }
+
 
 .MuiAlert-root {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
@@ -351,4 +389,228 @@ label {
 .strength-bar-strong {
   width: 100%;
   background-color: var(--color-success);
+}
+
+@media (max-width: 576px) {
+  .registrar-container {
+    padding: 10px;
+  }
+  
+  .registro-card {
+    max-width: 100%;
+    border-radius: 10px;
+  }
+  
+  .registro-form {
+    padding: 15px;
+  }
+  
+  .shield-icon {
+    width: 35px;
+    height: 35px;
+    margin-bottom: 6px;
+  }
+  
+  .registro-header h4 {
+    font-size: 18px;
+  }
+  
+  .form-group {
+    margin-bottom: 12px;
+  }
+  
+  .form-control {
+    padding: 8px 10px;
+  }
+  
+  .form-control.is-invalid {
+    background-position: right 30px center;
+    padding-right: 30px;
+  }
+  
+  .toggle-password {
+    right: 8px;
+  }
+  
+  .eye-icon, .eye-icon.eye-slash {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .password-strength-meter {
+    height: 6px;
+  }
+  
+  .password-strength-text {
+    font-size: 12px;
+  }
+  
+  .btn-registrar {
+    padding: 10px 15px;
+    font-size: 14px;
+    margin-top: 8px;
+  }
+  
+  .return-link span {
+    font-size: 13px;
+    padding: 6px;
+  }
+  
+  .arrow-left-icon {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .MuiAlert-root {
+    font-size: 14px !important;
+  }
+}
+
+/* Media query para móviles pequeños */
+@media (max-width: 400px) {
+  .registro-header {
+    padding: 12px;
+  }
+  
+  .shield-icon {
+    width: 30px;
+    height: 30px;
+    margin-bottom: 5px;
+  }
+  
+  .registro-header h4 {
+    font-size: 16px;
+  }
+  
+  .registro-form {
+    padding: 12px;
+  }
+  
+  .form-group {
+    margin-bottom: 10px;
+  }
+  
+  .form-control {
+    padding: 8px;
+    font-size: 13px;
+  }
+  
+  label {
+    font-size: 12px;
+    margin-bottom: 4px;
+  }
+  
+  .invalid-feedback {
+    font-size: 11px;
+    margin-top: 2px;
+  }
+  
+  .password-requirements {
+    font-size: 10px;
+  }
+  
+  .password-requirements span {
+    margin-bottom: 1px;
+  }
+  
+  .password-strength-meter {
+    height: 5px;
+    margin-top: 6px;
+    margin-bottom: 3px;
+  }
+  
+  .password-strength-text {
+    font-size: 11px;
+  }
+  
+  .btn-registrar {
+    padding: 9px 12px;
+    font-size: 13px;
+  }
+  
+  .return-link {
+    margin-top: 12px;
+  }
+  
+  .return-link span {
+    font-size: 12px;
+  }
+  
+  .arrow-left-icon {
+    width: 12px;
+    height: 12px;
+  }
+  
+  .MuiAlert-root {
+    font-size: 12px !important;
+  }
+}
+
+/* Media query para dispositivos con orientación horizontal y altura limitada */
+@media (max-height: 600px) and (orientation: landscape) {
+  .registrar-container {
+    padding: 10px;
+    align-items: flex-start;
+  }
+  
+  .registro-card {
+    overflow-y: auto;
+    max-height: 95vh;
+  }
+  
+  .registro-header {
+    padding: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+  }
+  
+  .shield-icon {
+    width: 30px;
+    height: 30px;
+    margin-bottom: 5px;
+  }
+  
+  .registro-header h4 {
+    font-size: 16px;
+  }
+  
+  .registro-form {
+    padding: 15px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    max-height: calc(95vh - 70px);
+    overflow-y: auto;
+  }
+  
+  .form-group, .form-row {
+    margin-bottom: 10px;
+  }
+  
+  .form-group:last-child, 
+  .return-link, 
+  .btn-registrar {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Media query para soporte táctil específico */
+@media (pointer: coarse) {
+  .form-control {
+    padding: 10px 12px; /* Aumentar área táctil */
+  }
+  
+  .toggle-password {
+    padding: 10px; /* Aumentar área táctil */
+    right: 5px;
+  }
+  
+  .btn-registrar {
+    padding: 12px 20px; /* Aumentar área táctil */
+  }
+  
+  .return-link span {
+    padding: 10px; /* Aumentar área táctil */
+  }
 }

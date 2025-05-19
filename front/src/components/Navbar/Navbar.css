@@ -242,8 +242,7 @@
   color: #103f1b; /* Color al pasar el mouse */
 }
 
-
-/* Estilos para dispositivos móviles */
+/* Estilos para dispositivos móviles - existentes con mejoras */
 @media (max-width: 991px) {
   .navbar-brand-container {
     margin-right: auto;
@@ -291,6 +290,38 @@
   .search-input {
     padding: 0.5rem 0.75rem !important;
   }
+  
+  /* Mejoras adicionales para el menú móvil */
+  .navbar-toggler {
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    padding: 0.4rem 0.6rem !important;
+  }
+  
+  .navbar-toggler:focus {
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(159, 196, 90, 0.3) !important;
+  }
+  
+  .navbar-collapse {
+    max-height: calc(100vh - 70px);
+    overflow-y: auto;
+  }
+  
+  .dropdown-menu {
+    position: static !important;
+    float: none !important;
+    width: 100% !important;
+    margin: 0.5rem 0 !important;
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  
+  /* Mejora para el botón de cierre de búsqueda */
+  .search-close-btn {
+    right: 20px;
+    padding: 10px;
+  }
 }
 
 @media (max-width: 576px) {
@@ -311,6 +342,32 @@
     width: 1.4em !important;
     height: 1.4em !important;
   }
+  
+  /* Mejoras adicionales */
+  .navbar-top,
+  .navbar-scrolled {
+    padding: 0.5rem 0;
+  }
+  
+  .cart-badge {
+    font-size: 0.65rem;
+    padding: 0.1rem 0.35rem;
+    top: -5px;
+    right: -5px;
+    border-width: 1px;
+  }
+  
+  .search-container {
+    padding: 0.5rem;
+  }
+  
+  .search-form {
+    width: 100%;
+  }
+  
+  .search-input {
+    font-size: 0.9rem !important;
+  }
 }
 
 @media (max-width: 400px) {
@@ -322,5 +379,47 @@
     font-size: 0.8rem !important;
     white-space: normal; /* Permite que el texto del brand se divida en múltiples líneas si es necesario */
     line-height: 1.2;    /* Ajusta el interlineado si el texto se divide */
+  }
+  
+  /* Mejoras adicionales */
+  .navbar-logo {
+    height: 32px;
+    margin-right: 6px;
+  }
+  
+  .icon-link {
+    margin-left: 0.6rem;
+  }
+  
+  .icon-link svg {
+    width: 1.3em !important;
+    height: 1.3em !important;
+  }
+  
+  .navbar-top {
+    padding: 0.4rem 0;
+  }
+  
+  /* Optimizar iconos en móviles muy pequeños */
+  .icons-nav {
+    gap: 0.5rem;
+  }
+}
+
+/* Media query adicional para dispositivos con altura muy reducida */
+@media (max-height: 500px) and (orientation: landscape) {
+  .navbar-collapse {
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  
+  .nav-link-custom {
+    padding: 0.3rem !important;
+    margin: 0.15rem 0;
+  }
+  
+  .icons-nav {
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
   }
 }

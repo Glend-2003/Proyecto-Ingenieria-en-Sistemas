@@ -327,7 +327,7 @@
 .historia-location-link:hover {
   background-color: var(--color-accent-dark);
 }
-
+/* Media queries existentes */
 @media (max-width: 768px) {
   .historia-icon-container {
     flex-direction: column;
@@ -355,5 +355,226 @@
   
   .historia-event-circle {
     left: 1.25rem;
+  }
+  
+  /* Mejoras adicionales para tablets */
+  .historia-hero {
+    height: 12rem;
+  }
+  
+  .historia-title {
+    font-size: 2.5rem;
+  }
+  
+  .historia-intro {
+    padding: 3rem 1rem;
+  }
+  
+  .historia-intro-title {
+    font-size: 1.5rem;
+  }
+  
+  .historia-intro-text {
+    font-size: 1rem;
+  }
+  
+  .historia-timeline-title {
+    font-size: 1.25rem;
+  }
+  
+  .historia-event-year {
+    font-size: 1.1rem;
+  }
+  
+  .historia-values {
+    padding: 1.5rem;
+  }
+  
+  .historia-testimonial {
+    padding: 1.5rem;
+  }
+  
+  .historia-testimonial-text {
+    font-size: 1.1rem;
+  }
+}
+
+/* Media query adicional para dispositivos más pequeños */
+@media (max-width: 576px) {
+  .historia-hero {
+    height: 10rem;
+  }
+  
+  .historia-title {
+    font-size: 2rem;
+  }
+  
+  .historia-intro {
+    padding: 2rem 1rem;
+  }
+  
+  .historia-intro-title {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+  
+  .historia-intro-text {
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .historia-icon-circle {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+  
+  .historia-icon {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+  
+  .historia-timeline {
+    padding: 0 0.75rem 3rem 0.75rem;
+  }
+  
+  .historia-timeline-title {
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+  }
+  
+  .historia-event {
+    margin-bottom: 3rem;
+  }
+  
+  .historia-event-circle {
+    width: 2rem;
+    height: 2rem;
+  }
+  
+  .historia-event-number {
+    font-size: 0.9rem;
+  }
+  
+  .historia-event-year {
+    font-size: 1rem;
+  }
+  
+  .historia-event-text {
+    font-size: 0.95rem;
+  }
+  
+  .historia-event-image-placeholder {
+    height: 10rem;
+  }
+  
+  .historia-values {
+    padding: 1.25rem;
+    margin-bottom: 3rem;
+  }
+  
+  .historia-values-title {
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .historia-value-card {
+    padding: 1.25rem;
+  }
+  
+  .historia-value-icon-circle {
+    width: 3.5rem;
+    height: 3.5rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .historia-value-icon {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+  
+  .historia-value-title {
+    font-size: 1.1rem;
+  }
+  
+  .historia-value-text {
+    font-size: 0.9rem;
+  }
+  
+  .historia-testimonial {
+    padding: 1.25rem;
+    margin-bottom: 3rem;
+  }
+  
+  .historia-quote {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .historia-testimonial-text {
+    font-size: 1rem;
+    margin-bottom: 1.25rem;
+  }
+  
+  .historia-location-info {
+    padding: 1.25rem;
+    margin-bottom: 3rem;
+    border-radius: 0.5rem;
+  }
+}
+
+/* Para dispositivos muy pequeños */
+@media (max-width: 360px) {
+  .historia-hero {
+    height: 8rem;
+  }
+  
+  .historia-title {
+    font-size: 1.75rem;
+  }
+  
+  .historia-intro-title {
+    font-size: 1.1rem;
+  }
+  
+  .historia-intro-text {
+    font-size: 0.9rem;
+  }
+  
+  .historia-icon-circle {
+    width: 3rem;
+    height: 3rem;
+  }
+  
+  .historia-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  
+  .historia-event-left,
+  .historia-event-right {
+    padding: 0 0.5rem 0 2rem; /* Ajuste para la línea de tiempo */
+  }
+  
+  .historia-timeline-line {
+    left: 0.75rem;
+  }
+  
+  .historia-event-circle {
+    left: 0.75rem;
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  
+  .historia-event-number {
+    font-size: 0.8rem;
+  }
+  
+  .historia-value-card {
+    padding: 1rem;
+  }
+  
+  .historia-location-link {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
   }
 }

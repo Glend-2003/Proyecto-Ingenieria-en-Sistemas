@@ -394,3 +394,302 @@ select.form-control {
   max-width: 250px; 
   width: 100%;
 }
+
+/* Media queries para adaptación móvil */
+@media (max-width: 992px) {
+  .usuario-main-container {
+    margin-left: 0;
+    width: 100%;
+    padding: 20px;
+  }
+  
+  .usuario-add-button {
+    max-width: 100%;
+  }
+  
+  .usuario-table-container {
+    overflow-x: auto;
+    border-radius: 8px;
+  }
+  
+  .usuario-table {
+    min-width: 800px;
+  }
+  
+  .usuario-modal .modal-dialog {
+    max-width: 90%;
+    margin: 20px auto;
+  }
+  
+  .usuario-search-container {
+    padding: 12px 15px;
+  }
+  
+  .usuario-search-input {
+    padding: 8px 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .usuario-main-container {
+    padding: 15px;
+  }
+  
+  .usuario-table-header-row th {
+    padding: 12px 8px;
+    font-size: 0.85rem;
+  }
+  
+  .usuario-table-row td {
+    padding: 10px 8px;
+  }
+  
+  .usuario-edit-button,
+  .usuario-delete-button {
+    font-size: 1.1rem;
+    margin: 0 5px;
+  }
+  
+  .usuario-action-buttons {
+    gap: 0;
+  }
+  
+  .usuario-status-button {
+    font-size: 0.75rem;
+    padding: 6px 10px;
+  }
+  
+  .usuario-status-button:before {
+    font-size: 1.2rem;
+  }
+  
+  .usuario-search-container label {
+    font-size: 0.9rem;
+  }
+  
+  .usuario-modal .modal-body {
+    padding: 15px;
+  }
+  
+  .btn-submit {
+    padding: 8px 15px;
+  }
+  
+  .spinner input {
+    min-width: 50px;
+    font-size: 0.9rem;
+  }
+  
+  .spinner-btn {
+    padding: 0.3rem 0.6rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .usuario-main-container {
+    padding: 10px;
+  }
+  
+  .usuario-search-container {
+    padding: 10px;
+    margin-bottom: 15px;
+  }
+  
+  .usuario-search-input {
+    font-size: 0.9rem;
+  }
+  
+  /* Transformar tabla para vista móvil */
+  .usuario-table {
+    display: block;
+    min-width: unset;
+  }
+  
+  .usuario-table-header-row {
+    display: none;
+  }
+  
+  .usuario-table tbody,
+  .usuario-table-row {
+    display: block;
+    width: 100%;
+  }
+  
+  .usuario-table-row {
+    margin-bottom: 15px;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  
+  .usuario-table-row td {
+    display: block;
+    text-align: right;
+    padding: 10px;
+    position: relative;
+    border-bottom: 1px solid #e9f2dd;
+  }
+  
+  .usuario-table-row td:before {
+    content: attr(data-label);
+    float: left;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+  }
+  
+  .usuario-table-row td:last-child {
+    border-bottom: none;
+  }
+  
+  .usuario-status-button {
+    width: auto;
+    float: right;
+  }
+  
+  .usuario-action-buttons {
+    justify-content: flex-end;
+    margin-top: 0;
+  }
+  
+  .usuario-no-results td {
+    text-align: center !important;
+  }
+  
+  .usuario-modal .modal-header {
+    padding: 12px 15px;
+  }
+  
+  .usuario-modal .modal-title {
+    font-size: 1.1rem;
+  }
+  
+  .usuario-modal .modal-body {
+    padding: 12px;
+  }
+  
+  .usuario-modal .modal-footer {
+    padding: 12px 15px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  
+  .usuario-modal .modal-footer .btn {
+    width: 100%;
+    margin: 0;
+  }
+  
+  /* Reorganizar el formulario para móviles */
+  .usuario-modal .row {
+    margin-right: -5px;
+    margin-left: -5px;
+  }
+  
+  .usuario-modal .col-md-6,
+  .usuario-modal .col-sm-6,
+  .usuario-modal .col {
+    padding-right: 5px;
+    padding-left: 5px;
+  }
+  
+  .usuario-modal label {
+    font-size: 0.9rem;
+    margin-bottom: 0.3rem;
+  }
+  
+  .usuario-modal .form-control {
+    font-size: 0.9rem;
+    padding: 7px 10px;
+  }
+  
+  .usuario-modal .form-group {
+    margin-bottom: 10px;
+  }
+}
+
+@media (max-width: 400px) {
+  .usuario-table-row td:before {
+    margin-bottom: 5px;
+    display: block;
+    width: 100%;
+    text-align: left;
+  }
+  
+  .usuario-table-row td {
+    text-align: left;
+    padding: 8px;
+  }
+  
+  .usuario-action-buttons {
+    justify-content: center;
+  }
+  
+  .usuario-edit-button,
+  .usuario-delete-button {
+    font-size: 1rem;
+    margin: 0 3px;
+  }
+  
+  .usuario-status-button {
+    width: 100%;
+    float: none;
+    margin-top: 5px;
+  }
+  
+  .usuario-modal .modal-title {
+    font-size: 1rem;
+  }
+  
+  .usuario-modal label {
+    font-size: 0.85rem;
+  }
+  
+  .spinner {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .spinner input {
+    border-radius: 4px;
+    margin: 5px 0;
+    width: 100%;
+  }
+  
+  .spinner-btn {
+    border-radius: 4px !important;
+    width: 100%;
+  }
+  
+  .input-group-prepend,
+  .input-group-append {
+    width: 100%;
+  }
+}
+
+/* Media query para orientación horizontal en pantallas pequeñas */
+@media (max-height: 500px) and (orientation: landscape) {
+  .usuario-modal .modal-dialog {
+    max-width: 95%;
+    margin: 10px auto;
+  }
+  
+  .usuario-modal .modal-body {
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+  
+  .usuario-modal .row {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .usuario-modal .col-md-6,
+  .usuario-modal .col-sm-6 {
+    flex: 0 0 auto;
+    width: 50%;
+  }
+}

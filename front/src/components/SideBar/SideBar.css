@@ -237,8 +237,28 @@
         justify-content: flex-start;
         padding: 10px 16px;
     }
+    
+    /* Mejoras adicionales */
+    .admin-sidebar__header {
+        padding: 12px 5px;
+    }
+    
+    .admin-sidebar__link--active::before {
+        width: 3px;
+        left: 0;
+        height: 70%;
+        top: 15%;
+    }
+    
+    /* Optimizar touch para dispositivos táctiles */
+    .admin-sidebar__link {
+        min-height: 48px;
+    }
+    
+    .admin-sidebar__profile {
+        min-height: 48px;
+    }
 }
-
 @media (max-height: 700px) {
     .admin-sidebar__header {
         padding: 10px;
@@ -274,5 +294,170 @@
     
     .admin-sidebar__avatar-icon {
         font-size: 16px;
+    }
+    
+    /* Mejoras adicionales */
+    .admin-sidebar__content {
+        padding: 3px 0;
+    }
+    
+    .admin-sidebar__footer {
+        padding: 5px;
+    }
+}
+
+@media (max-width: 576px) {
+    .admin-sidebar__container {
+        width: 60px;
+    }
+    
+    body.admin-page main {
+        margin-left: 60px;
+    }
+    
+    .admin-sidebar__link {
+        padding: 12px 8px;
+    }
+    
+    .admin-sidebar__icon {
+        font-size: 18px;
+    }
+    
+    /* Mejora del comportamiento de hover para dispositivos táctiles pequeños */
+    .admin-sidebar__container:hover {
+        width: 220px;
+    }
+    
+    .admin-sidebar__container:hover .admin-sidebar__title {
+        font-size: 18px;
+    }
+    
+    /* Asegurar que el hover persista en dispositivos táctiles */
+    .admin-sidebar__link:active {
+        background-color: rgba(159, 196, 90, 0.2);
+        color: #fff;
+    }
+    
+    .admin-sidebar__profile:active {
+        background-color: rgba(159, 196, 90, 0.2);
+        color: #fff;
+    }
+}
+
+/* Media query para dispositivos muy pequeños */
+@media (max-width: 360px) {
+    .admin-sidebar__container {
+        width: 50px;
+    }
+    
+    body.admin-page main {
+        margin-left: 50px;
+    }
+    
+    .admin-sidebar__container:hover {
+        width: 200px;
+    }
+    
+    .admin-sidebar__link {
+        padding: 10px 5px;
+    }
+    
+    .admin-sidebar__icon {
+        font-size: 16px;
+    }
+    
+    .admin-sidebar__avatar {
+        width: 26px;
+        height: 26px;
+    }
+    
+    .admin-sidebar__container:hover .admin-sidebar__icon {
+        margin-right: 10px;
+    }
+    
+    .admin-sidebar__container:hover .admin-sidebar__link {
+        font-size: 13px;
+    }
+    
+    .admin-sidebar__container:hover .admin-sidebar__user-name {
+        font-size: 13px;
+    }
+    
+    .admin-sidebar__container:hover .admin-sidebar__user-role {
+        font-size: 11px;
+    }
+}
+
+/* Media query para orientación horizontal con altura limitada */
+@media (max-height: 450px) and (orientation: landscape) {
+    .admin-sidebar__nav {
+        gap: 4px;
+    }
+    
+    .admin-sidebar__link {
+        padding: 8px 16px;
+        min-height: 40px;
+    }
+    
+    .admin-sidebar__header {
+        padding: 8px 5px;
+        margin-bottom: 3px;
+    }
+    
+    .admin-sidebar__content {
+        padding: 2px 0;
+    }
+    
+    .admin-sidebar__profile {
+        min-height: 40px;
+    }
+    
+    .admin-sidebar__footer {
+        padding: 3px;
+    }
+    
+    /* Compactar el menú vertical */
+    .admin-sidebar__nav {
+        overflow-y: auto;
+        max-height: calc(100vh - 120px);
+    }
+}
+
+/* Media query para soporte táctil explícito */
+@media (pointer: coarse) {
+    /* Hacer que los elementos sean más fáciles de tocar */
+    .admin-sidebar__link {
+        min-height: 52px;
+    }
+    
+    .admin-sidebar__profile {
+        min-height: 52px;
+    }
+    
+    /* Asegurarse de que el hover táctil funcione mejor */
+    .admin-sidebar__container.touch-active {
+        width: 250px;
+    }
+    
+    .admin-sidebar__container.touch-active .admin-sidebar__title {
+        font-size: 20px;
+    }
+    
+    .admin-sidebar__container.touch-active .admin-sidebar__user-info {
+        display: flex;
+    }
+    
+    .admin-sidebar__container.touch-active .admin-sidebar__icon {
+        margin-right: 12px;
+        font-size: 16px;
+    }
+    
+    .admin-sidebar__container.touch-active .admin-sidebar__link {
+        justify-content: flex-start;
+    }
+    
+    .admin-sidebar__container.touch-active .admin-sidebar__profile {
+        justify-content: flex-start;
+        padding: 10px 16px;
     }
 }

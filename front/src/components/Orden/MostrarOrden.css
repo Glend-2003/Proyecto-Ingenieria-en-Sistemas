@@ -124,6 +124,15 @@ body {
     .carrito-detalles, .carrito-totales {
         width: 100%;
     }
+    
+    /* Mejoras adicionales para tablets */
+    .orden-main-content {
+        padding: 0 15px;
+    }
+    
+    .carrito-totales {
+        margin-top: 25px;
+    }
 }
 
 /* Sección detalles del carrito */
@@ -514,20 +523,21 @@ table tr:last-child td {
 /* Adaptaciones para diferentes tamaños de pantalla */
 @media (max-width: 768px) {
     .orden-hero {
-        height: 300px;
+        height: 200px;
         padding: 30px 0;
     }
     
     .orden-hero h1 {
-        font-size: 2rem;
+        font-size: 1.8rem;
     }
     
     .orden-hero-content {
-        padding-top: 60px;
+        padding-top: 45px;
     }
     
     .orden-container {
         padding: 0 0 30px;
+        gap: 20px;
     }
     
     table th:nth-child(3), 
@@ -542,6 +552,7 @@ table tr:last-child td {
     
     .producto-nombre {
         max-width: 150px;
+        font-size: 0.95rem;
     }
 
     .bottom-back-button {
@@ -554,33 +565,135 @@ table tr:last-child td {
         width: 100%;
         justify-content: center;
     }
+    
+    /* Mejoras adicionales */
+    .carrito-detalles {
+        padding-bottom: 30px;
+    }
+    
+    .cart-section-title h2 {
+        font-size: 1.3rem;
+    }
+    
+    .carrito-totales {
+        padding: 20px;
+    }
+    
+    .carrito-totales h2 {
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+        padding-bottom: 12px;
+    }
+    
+    .total-final {
+        font-size: 1.1rem;
+    }
+    
+    .finalizar-compra {
+        padding: 12px;
+    }
+    
+    .btn-sesion {
+        padding: 10px 20px;
+    }
+}
+@media (max-width: 576px) {
+    .orden-hero {
+        height: 180px;
+    }
+    
+    .orden-hero h1 {
+        font-size: 1.6rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .orden-hero p {
+        font-size: 1rem;
+    }
+    
+    .orden-hero-content {
+        padding-top: 40px;
+    }
+    
+    /* Cambiar el diseño de la tabla para móviles medianos */
+    table th {
+        display: none;
+    }
+    
+    table, tbody, tr, td {
+        display: block;
+        width: 100%;
+    }
+    
+    table tr {
+        margin-bottom: 15px;
+        border-bottom: 1px solid var(--color-border);
+        padding-bottom: 15px;
+        position: relative;
+    }
+    
+    table td {
+        border: none;
+        padding: 10px 15px;
+        text-align: right;
+        position: relative;
+    }
+    
+    table td:before {
+        content: attr(data-label);
+        position: absolute;
+        left: 15px;
+        width: 40%;
+        padding-right: 10px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-align: left;
+        color: var(--color-primary);
+    }
+    
+    .producto-info {
+        flex-direction: row;
+        justify-content: flex-end;
+    }
+    
+    .carrito-acciones {
+        justify-content: center;
+    }
+    
+    .carrito-totales {
+        padding: 15px;
+    }
+    
+    .politica-seguridad {
+        padding: 12px;
+    }
 }
 
 @media (max-width: 480px) {
     .orden-hero {
         padding: 25px 0;
-        height: 250px;
+        height: 160px;
     }
     
     .orden-hero h1 {
-        font-size: 1.7rem;
+        font-size: 1.5rem;
     }
     
     .orden-hero-content {
-        padding-top: 50px;
+        padding-top: 35px;
     }
     
     .back-button {
         padding: 10px 15px;
+        font-size: 14px;
     }
     
     table {
         font-size: 0.9rem;
     }
     
-    table th, 
     table td {
-        padding: 10px;
+        padding: 8px 15px;
     }
     
     .cantidad-control {
@@ -590,9 +703,80 @@ table tr:last-child td {
     .cantidad-btn {
         width: 24px;
         height: 24px;
+        font-size: 12px;
     }
     
     .cantidad-valor {
         width: 30px;
+        font-size: 14px;
+    }
+    
+    /* Mejoras adicionales */
+    .carrito-vacio h3 {
+        font-size: 1.3rem;
+    }
+    
+    .carrito-vacio p {
+        font-size: 0.9rem;
+    }
+    
+    .empty-cart-image {
+        max-width: 120px;
+    }
+    
+    .total-line {
+        font-size: 0.9rem;
+    }
+    
+    .total-final {
+        font-size: 1rem;
+    }
+    
+    .politica-seguridad p {
+        font-size: 0.8rem;
+    }
+}
+@media (max-width: 360px) {
+    .orden-hero h1 {
+        font-size: 1.3rem;
+    }
+    
+    .orden-hero p {
+        font-size: 0.9rem;
+    }
+    
+    .cart-section-title h2 {
+        font-size: 1.1rem;
+    }
+    
+    .carrito-totales h2 {
+        font-size: 1.1rem;
+    }
+    
+    .producto-imagen-container {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .producto-nombre {
+        font-size: 0.85rem;
+    }
+    
+    .producto-categoria {
+        font-size: 0.75rem;
+    }
+    
+    table td:before {
+        font-size: 0.8rem;
+    }
+    
+    .finalizar-compra {
+        font-size: 0.9rem;
+        padding: 10px;
+    }
+    
+    .btn-sesion {
+        font-size: 0.9rem;
+        padding: 10px;
     }
 }

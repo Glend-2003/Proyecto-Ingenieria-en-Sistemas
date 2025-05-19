@@ -66,9 +66,96 @@
     transform: translateY(-2px);
   }
   
-  @media (max-width: 576px) {
-    .pagination .page-link {
-      padding: 0.4rem 0.6rem;
-      font-size: 0.9rem;
-    }
+/* Media query existente mejorada */
+@media (max-width: 576px) {
+  .pagination .page-link {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.9rem;
   }
+  
+  /* Mejoras adicionales */
+  .pagination {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 5px;
+  }
+  
+  .pagination .page-item .page-link {
+    margin-left: 0; /* Eliminar márgenes negativos para evitar problemas en flex-wrap */
+    border-radius: 0.25rem; /* Hacer todos los botones redondeados cuando están en wrap */
+    min-width: 32px; /* Ancho mínimo para mejorar la experiencia táctil */
+    text-align: center;
+  }
+}
+
+/* Media query para móviles pequeños */
+@media (max-width: 360px) {
+  .pagination .page-link {
+    padding: 0.35rem 0.5rem;
+    font-size: 0.85rem;
+    min-width: 30px;
+  }
+  
+  /* Ocultar algunos números de página en pantallas muy pequeñas */
+  .pagination .page-item:not(:first-child):not(:last-child):not(.active):not(.ellipsis) {
+    display: none;
+  }
+  
+  /* Mostrar siempre los puntos suspensivos */
+  .pagination .page-item.ellipsis {
+    display: flex;
+  }
+}
+
+/* Media query para mejorar experiencia táctil */
+@media (pointer: coarse) {
+  .pagination .page-item .page-link {
+    padding: 0.5rem 0.75rem; /* Aumentar área táctil */
+    min-height: 40px; /* Altura mínima para mejorar accesibilidad táctil */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Aumentar espacio entre elementos para evitar toques accidentales */
+  .pagination {
+    gap: 8px;
+  }
+}
+
+/* Media query para orientación horizontal en móviles */
+@media (max-width: 576px) and (orientation: landscape) {
+  .pagination {
+    max-width: 100%;
+    overflow-x: auto;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 5px; /* Espacio para scrollbar */
+  }
+  
+  .pagination::-webkit-scrollbar {
+    height: 4px;
+  }
+  
+  .pagination::-webkit-scrollbar-thumb {
+    background-color: rgba(56, 118, 35, 0.3);
+    border-radius: 2px;
+  }
+  
+  .pagination .page-item .page-link {
+    margin-left: -1px; /* Restaurar para el diseño horizontal */
+    border-radius: 0;
+  }
+  
+  .pagination .page-item:first-child .page-link {
+    border-top-left-radius: 0.25rem;
+    border-bottom-left-radius: 0.25rem;
+  }
+  
+  .pagination .page-item:last-child .page-link {
+    border-top-right-radius: 0.25rem;
+    border-bottom-right-radius: 0.25rem;
+  }
+}

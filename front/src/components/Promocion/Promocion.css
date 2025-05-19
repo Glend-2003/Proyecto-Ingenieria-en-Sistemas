@@ -526,3 +526,290 @@ td.precio-celda {
   position: relative;
   float: right;
 }
+
+/* Media queries para adaptación móvil */
+@media (max-width: 992px) {
+  .promocion-main-container {
+    margin-left: 0;
+    width: 100%;
+    padding: 20px;
+  }
+  
+  .promocion-table-container {
+    overflow-x: auto;
+    border-radius: 8px;
+  }
+  
+  .promocion-table {
+    min-width: 800px;
+  }
+  
+  .promocion-add-button {
+    max-width: 100%;
+  }
+  
+  .promocion-filter-row {
+    gap: 15px;
+  }
+  
+  .promocion-search-container,
+  .promocion-filter-container {
+    padding: 12px 15px;
+  }
+  
+  .modal-dialog {
+    max-width: 90%;
+    margin: 20px auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .promocion-main-container {
+    padding: 15px;
+  }
+  
+  .promocion-filter-group {
+    min-width: 100%;
+    flex: 1 0 100%;
+  }
+  
+  .promocion-filter-buttons {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .promocion-filter-button {
+    flex: 1;
+    justify-content: center;
+  }
+  
+  .promocion-table-header-row th {
+    padding: 12px 8px;
+    font-size: 0.85rem;
+  }
+  
+  .promocion-table-row td {
+    padding: 10px 8px;
+  }
+  
+  .promocion-edit-button,
+  .promocion-sendMessage-button,
+  .promocion-delete-button {
+    font-size: 1.1rem;
+    margin: 0 5px;
+  }
+  
+  .promocion-action-buttons {
+    gap: 0;
+  }
+  
+  .fecha-columna {
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+  
+  .promocion-precio {
+    padding: 4px 8px;
+    font-size: 0.9rem;
+  }
+  
+  .modal-body {
+    padding: 15px;
+  }
+  
+  .producto-container .btn-agregar {
+    width: 100%;
+    margin-top: 5px;
+  }
+}
+
+@media (max-width: 576px) {
+  .promocion-main-container {
+    padding: 10px;
+  }
+  
+  .promocion-search-container,
+  .promocion-filter-container {
+    padding: 10px;
+    margin-bottom: 15px;
+  }
+  
+  .promocion-search-input {
+    padding: 8px 10px;
+    font-size: 0.9rem;
+  }
+  
+  .promocion-filter-label {
+    font-size: 0.85rem;
+  }
+  
+  .promocion-filter-input {
+    padding: 6px 10px;
+    font-size: 0.85rem;
+  }
+  
+  .promocion-filter-button {
+    padding: 7px 10px;
+    font-size: 0.85rem;
+  }
+  
+  /* Transformar tabla para vista móvil */
+  .promocion-table {
+    display: block;
+    min-width: unset;
+  }
+  
+  .promocion-table-header-row {
+    display: none;
+  }
+  
+  .promocion-table tbody,
+  .promocion-table-row {
+    display: block;
+    width: 100%;
+  }
+  
+  .promocion-table-row {
+    margin-bottom: 15px;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  
+  .promocion-table-row td {
+    display: block;
+    text-align: right;
+    padding: 10px;
+    position: relative;
+    border-bottom: 1px solid #e9f2dd;
+  }
+  
+  .promocion-table-row td:before {
+    content: attr(data-label);
+    float: left;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+  }
+  
+  .promocion-table-row td:last-child {
+    border-bottom: none;
+  }
+  
+  .promocion-status-button {
+    width: auto;
+    float: right;
+    font-size: 0.75rem;
+    padding: 6px 10px;
+  }
+  
+  .promocion-status-button:before {
+    font-size: 1.2rem;
+  }
+  
+  .promocion-action-buttons {
+    justify-content: flex-end;
+    margin-top: 0;
+  }
+  
+  .fecha-columna {
+    text-align: right;
+  }
+  
+  .promocion-no-results td {
+    text-align: center !important;
+  }
+  
+  .modal-header {
+    padding: 12px 15px;
+  }
+  
+  .modal-body {
+    padding: 12px;
+  }
+  
+  .modal-footer {
+    padding: 12px 15px;
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 10px;
+  }
+  
+  .modal-footer .btn {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+}
+
+@media (max-width: 400px) {
+  .promocion-table-row td:before {
+    margin-bottom: 5px;
+    display: block;
+    width: 100%;
+    text-align: left;
+  }
+  
+  .promocion-table-row td {
+    text-align: left;
+    padding: 8px;
+  }
+  
+  .promocion-action-buttons {
+    justify-content: center;
+  }
+  
+  .promocion-edit-button,
+  .promocion-sendMessage-button,
+  .promocion-delete-button {
+    font-size: 1rem;
+    margin: 0 3px;
+  }
+  
+  .promocion-status-button {
+    width: 100%;
+    float: none;
+    margin-top: 5px;
+  }
+  
+  .fecha-columna {
+    text-align: center;
+    padding: 5px;
+  }
+  
+  .promocion-precio {
+    display: block;
+    text-align: center;
+    margin: 5px auto;
+  }
+  
+  .modal-title {
+    font-size: 1.1rem;
+  }
+  
+  .modal-body label {
+    font-size: 0.9rem;
+  }
+}
+
+/* Media query para orientación horizontal en pantallas pequeñas */
+@media (max-height: 500px) and (orientation: landscape) {
+  .modal-dialog {
+    max-width: 100%;
+    margin: 10px;
+  }
+  
+  .modal-body {
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+  
+  .promocion-filter-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  
+  .promocion-filter-buttons {
+    grid-column: 1 / -1;
+  }
+}

@@ -171,3 +171,93 @@
     align-self: flex-end;
   }
 }
+
+@media (max-width: 992px) {
+  .menu-cards {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-content {
+    padding: 1.5rem;
+  }
+  
+  .menu-cards {
+    grid-template-columns: 1fr;
+  }
+  
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .user-summary {
+    align-self: flex-end;
+  }
+}
+
+/* Media query adicional para dispositivos móviles pequeños */
+@media (max-width: 576px) {
+  .dashboard-content {
+    padding: 1rem;
+    gap: 1rem;
+  }
+  
+  .welcome-section h1 {
+    font-size: 1.5rem;
+  }
+  
+  .welcome-section p {
+    font-size: 0.9rem;
+  }
+  
+  .user-summary {
+    align-self: stretch;
+    justify-content: space-between;
+    width: 100%;
+  }
+  
+  .user-role-badge {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+  }
+  
+  .action-menu {
+    padding: 1.5rem;
+  }
+  
+  .action-menu h2 {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .menu-card {
+    padding: 1.2rem;
+  }
+  
+  .card-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+  }
+  
+  .card-info h3 {
+    font-size: 1rem;
+  }
+  
+  .card-info p {
+    font-size: 0.8rem;
+  }
+  
+  .logout-container {
+    margin-top: 1.5rem;
+  }
+  
+  .logout-button {
+    width: 100%;
+    justify-content: center;
+    padding: 0.8rem 1.5rem;
+  }
+}
