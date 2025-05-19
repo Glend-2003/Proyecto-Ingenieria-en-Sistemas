@@ -230,73 +230,45 @@ function ListaProductosApp({ categoria }) {
   };
 
   return (
-    <Container fluid className="product-catalog-container px-md-5">
-      <ToastContainer position="top-right" autoClose={3000} />
-
-      {/* Hero Banner */}
-      <div 
-  className="hero-banner mb-4" 
-  style={{ 
-    background: `linear-gradient(135deg, ${colors.darkGreen} 0%, ${colors.mediumGreen} 100%)`,
-    borderRadius: '12px',
-    padding: '2rem',
-    position: 'relative',
-    overflow: 'hidden'
-  }}
->
-  <div className="hero-content text-white">
-    <h1
-      className="display-5 fw-bold mb-3"
-      style={{
-        color: 'white',
-        fontSize: '2.5rem',
-        textAlign: 'center',
-        textShadow: '1px 1px 3px rgb(249, 243, 243)',
-        position: 'relative',
-        zIndex: 2
-      }}
-    >
-      NUESTROS PRODUCTOS
-    </h1>
-    <p 
-      className="lead mb-0" 
-      style={{
-        fontSize: '1.2rem',
-        textAlign: 'center',
-        opacity: 0.9,
-        position: 'relative',
-        zIndex: 2
-      }}
-    >
-      Calidad premium directamente a tu mesa
-    </p>
+     <>
+        {/* Hero Banner */}
+<div className="catalogo-hero">
+  <div className="catalogo-hero-content">
+    <h1>NUESTROS PRODUCTOS </h1>
+    <p className="hero-subtitle">Carne fresca de la más alta calidad, seleccionada cuidadosamente para tu familia</p>
+    <div className="hero-badges">
+      <span className="badge"><FiStar /> Calidad garantizada</span>
+      <span className="badge"><FiStar /> Cortes premium</span>
+      <span className="badge"><FiStar /> Entrega rápida</span>
+    </div>
   </div>
 </div>
 
+    <Container fluid className="product-catalog-container px-md-5">
+      <ToastContainer position="top-right" autoClose={3000} />
+
+   
       <Row>
         {/* Filtros - Sidebar */}
         <Col md={3} className="sidebar-filters mb-4">
-          <div className="filter-card p-3 mb-3" style={{ backgroundColor: '#f8f9fa', borderRadius: '10px' }}>
-            <div className="d-flex justify-content-between align-items-center mb-3">
-              <h5 className="m-0">
-                <FiFilter className="me-2" />
-                Filtros
-              </h5>
-              <button 
-                className="btn btn-sm btn-link text-decoration-none" 
-                onClick={resetFilters}
-                style={{ color: colors.mediumGreen }}
-              >
-                Limpiar
-              </button>
-            </div>
+     <div className="filter-card p-3 mb-3" style={{ backgroundColor: '#f8f9fa', borderRadius: '10px' }}>
+  <div className="d-flex justify-content-between align-items-center mb-3">
+    <h5 className="m-0">
+      <FiFilter className="me-2" />
+      Filtros
+    </h5>
+    <button className="btn btn-sm btn-link text-decoration-none" onClick={resetFilters} style={{ color: colors.mediumGreen }}>
+      Limpiar
+    </button>
+  </div>
 
-            <div className="mb-4">
-              <h6 className="fw-bold mb-3">Precio</h6>
-              <div className="d-flex justify-content-between mb-2">
-                <span>₡{priceRange.min.toLocaleString()}</span>
-                <span>₡{selectedPrice.toLocaleString()}</span>
-              </div>
+  <div className="mb-4">
+    <h6 className="fw-bold mb-3">Precio</h6>
+    <p className="small text-muted mb-2">Selecciona el rango de precios que deseas explorar</p>
+    <div className="d-flex justify-content-between mb-2">
+      <span>₡{priceRange.min.toLocaleString()}</span>
+      <span>₡{selectedPrice.toLocaleString()}</span>
+    </div>
               <input
                 type="range"
                 min={priceRange.min}
@@ -356,22 +328,7 @@ function ListaProductosApp({ categoria }) {
             </button>
           </div>
 
-          {/* Special Offer Card */}
-          <div className="special-offer p-3 text-white" style={{ 
-            backgroundColor: colors.darkBrown,
-            borderRadius: '10px',
-            backgroundImage: 'linear-gradient(135deg, rgba(0,0,0,0.1) 0%, rgba(255,255,255,0.1) 100%)'
-          }}>
-            <h5 className="fw-bold mb-3">¡Oferta Especial!</h5>
-            <p className="small">Compra 3 productos seleccionados y obtén un 10% de descuento</p>
-            <button className="btn btn-sm w-100 mt-2" style={{ 
-              backgroundColor: colors.lightGreen,
-              color: colors.darkGreen,
-              fontWeight: 'bold'
-            }}>
-              Ver Ofertas
-            </button>
-          </div>
+      
         </Col>
 
         {/* Productos - Main Content */}
@@ -737,6 +694,7 @@ function ListaProductosApp({ categoria }) {
   </Modal.Body>
 </Modal>
     </Container>
+    </>
   );
 }
 
