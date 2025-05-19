@@ -1,12 +1,12 @@
 
 :root {
-  --color-primary: #103f1b;      
-  --color-primary-light: #387623; 
-  --color-primary-lighter: #9fc45a; 
-  --color-primary-dark: #0a2911;  
-  --color-accent: #958933;       
-  --color-accent-dark: #875725;  
-  --color-primary-bg: #f1f7e9;    
+  --color-primary: #103f1b;      /* Verde oscuro - Color principal */
+  --color-primary-light: #387623; /* Verde medio */
+  --color-primary-lighter: #9fc45a; /* Verde claro */
+  --color-primary-dark: #0a2911;  /* Verde muy oscuro */
+  --color-accent: #958933;        /* Dorado/mostaza */
+  --color-accent-dark: #875725;   /* Marrón */
+  --color-primary-bg: #f1f7e9;    /* Fondo verde muy claro */
   --color-white: #ffffff;
   --color-black: #000000;
   --color-gray-50: #f8fafc;
@@ -16,8 +16,9 @@
   --color-gray-700: #334155;
 }
 
+/* Estilos generales del contenido de la página de historia */
 .historia-container {
-  font-family: 'Georgia', serif;
+  font-family: 'Georgia', serif; /* Esta fuente se aplicará al contenido de historia */
   background-color: var(--color-gray-50);
   color: var(--color-gray-700);
 }
