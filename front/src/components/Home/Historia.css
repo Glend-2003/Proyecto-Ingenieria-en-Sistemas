@@ -2,7 +2,7 @@
 
 /* Variables de colores - Nueva paleta */
 :root {
-  --color-primary: #103f1b;       /* Verde oscuro - Color principal */
+  --color-primary: #103f1b;      /* Verde oscuro - Color principal */
   --color-primary-light: #387623; /* Verde medio */
   --color-primary-lighter: #9fc45a; /* Verde claro */
   --color-primary-dark: #0a2911;  /* Verde muy oscuro */
@@ -18,12 +18,18 @@
   --color-gray-700: #334155;
 }
 
-/* Estilos generales */
+/* Estilos generales del contenido de la página de historia */
 .historia-container {
-  font-family: 'Georgia', serif;
+  font-family: 'Georgia', serif; /* Esta fuente se aplicará al contenido de historia */
   background-color: var(--color-gray-50);
   color: var(--color-gray-700);
 }
+
+/* Para asegurar que el Navbar no herede la fuente de .historia-container, 
+   los estilos del Navbar deben ser suficientemente específicos o 
+   se debe aplicar una fuente diferente directamente a los elementos del Navbar en Navbar.css.
+   Si los elementos del Navbar (como el título de la marca o los enlaces de navegación) 
+   tienen su propia font-family definida en Navbar.css, esta prevalecerá sobre la heredada. */
 
 /* Hero Section */
 .historia-hero {

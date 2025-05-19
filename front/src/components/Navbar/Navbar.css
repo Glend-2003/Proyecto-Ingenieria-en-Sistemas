@@ -1,11 +1,16 @@
 /* Navbar.css */
 /* Paleta de colores: 
-   - Verde oscuro: #103f1b
-   - Verde medio: #387623
-   - Verde claro: #9fc45a
-   - Mostaza: #958933
-   - Café: #875725
+    - Verde oscuro: #103f1b
+    - Verde medio: #387623
+    - Verde claro: #9fc45a
+    - Mostaza: #958933
+    - Café: #875725
 */
+
+/* Definición de la fuente base para el Navbar para consistencia */
+:root {
+  --navbar-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
 
 /* Ajuste del container para mejor espaciado */
 .navbar > .container-lg {
@@ -56,7 +61,7 @@
 
 /* Estilo para el texto del brand */
 .brand-text {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: var(--navbar-font-family); /* Usar la variable */
   font-weight: 700;
   color: white;
   margin: 0;
@@ -83,6 +88,7 @@
 }
 
 .nav-link-custom {
+  font-family: var(--navbar-font-family); /* MODIFICACIÓN: Añadida esta línea */
   color: white !important;
   font-weight: 600 !important;
   font-size: 0.85rem;
@@ -231,23 +237,22 @@
 
 .search-close-btn {
   position: absolute;
-  right: 80px;
+  right: 80px; /* Ajusta este valor si es necesario para tu diseño */
   top: 50%;
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: #387623;
+  color: #387623; /* Color para el botón de cerrar */
   font-size: 1.5rem;
   font-weight: bold;
   cursor: pointer;
-  z-index: 10;
+  z-index: 10; /* Asegúrate de que esté por encima del input */
   transition: all 0.2s ease;
 }
 
 .search-close-btn:hover {
-  color: #103f1b;
+  color: #103f1b; /* Color al pasar el mouse */
 }
-
 
 
 /* Estilos para dispositivos móviles */
@@ -324,12 +329,12 @@
 /* Para pantallas extra pequeñas */
 @media (max-width: 400px) {
   .navbar-brand-container {
-    max-width: 180px;
+    max-width: 180px; /* Limita el ancho para evitar que el texto se desborde demasiado */
   }
   
   .brand-text {
     font-size: 0.8rem !important;
-    white-space: normal;
-    line-height: 1.2;
+    white-space: normal; /* Permite que el texto del brand se divida en múltiples líneas si es necesario */
+    line-height: 1.2;    /* Ajusta el interlineado si el texto se divide */
   }
 }
