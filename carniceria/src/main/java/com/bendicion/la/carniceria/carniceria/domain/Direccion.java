@@ -1,5 +1,10 @@
 package com.bendicion.la.carniceria.carniceria.domain;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -10,37 +15,31 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- *
- * @author Jamel Sandí
- */
 
 @Entity
 @Table(name = "tbdireccion")
 public class Direccion {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idDireccion")
     private int idDireccion;
-    
+
     @Column(name = "codigoPostalDireccion")
     private String codigoPostalDireccion;
-    
+
     @Column(name = "descripcionDireccion")
     private String descripcionDireccion;
-    
+
     @JsonBackReference
     @OneToMany(mappedBy = "direccion", fetch = FetchType.LAZY)
     private List<Usuario> usuario;
-    
+
     @ManyToOne
     @JoinColumn(name = "idDistrito")
     private Distrito distrito;
-    
-    public Direccion(){
+
+    public Direccion() {
         usuario = new ArrayList<>();
     }
 
@@ -50,7 +49,7 @@ public class Direccion {
         this.descripcionDireccion = descripcionDireccion;
         this.distrito = distrito;
     }
-    
+
     public int getIdDireccion() {
         return idDireccion;
     }

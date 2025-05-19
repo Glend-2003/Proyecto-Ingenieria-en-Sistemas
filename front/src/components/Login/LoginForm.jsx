@@ -9,7 +9,7 @@ const LoginForm = ({ loginData, setLoginData, login, handleInputChange }) => {
     contraseniaUsuario: '',
   });
 
-  const [showForgotPassword, setShowForgotPassword] = useState(false);  // Estado para mostrar el formulario de "Olvidé mi contraseña"
+  const [showForgotPassword, setShowForgotPassword] = useState(false);  
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -22,15 +22,12 @@ const LoginForm = ({ loginData, setLoginData, login, handleInputChange }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Validaciones simples
     if (!form.correoUsuario || !form.contraseniaUsuario) {
       toast.error("Por favor, rellene todos los campos");
       return;
     }
 
-    // Llama a la función login con los datos ingresados
     login(form);
-    // Limpiar el formulario
     setForm({
       correoUsuario: '',
       contraseniaUsuario: '',
@@ -50,7 +47,7 @@ const LoginForm = ({ loginData, setLoginData, login, handleInputChange }) => {
       });
       if (response.status === 200) {
         toast.success("Código enviado al correo");
-        navigate('/ResetPassword', { state: { correoUsuario: form.correoUsuario } }); // Redirige a ResetPassword
+        navigate('/ResetPassword', { state: { correoUsuario: form.correoUsuario } }); 
       }
     } catch (error) {
       toast.error("Error al enviar el código: " + error.message);
@@ -60,7 +57,6 @@ const LoginForm = ({ loginData, setLoginData, login, handleInputChange }) => {
   return (
     <div className="text-center">
       {!showForgotPassword ? (
-        // Formulario de inicio de sesión (por defecto)
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
             <input
@@ -103,7 +99,6 @@ const LoginForm = ({ loginData, setLoginData, login, handleInputChange }) => {
           </div>
         </form>
       ) : (
-        // Formulario de "Olvidé mi contraseña" (se muestra si el usuario hace clic en "Olvidé mi contraseña")
         <form onSubmit={handleForgotPassword}>
           <div className="mb-3">
             <input

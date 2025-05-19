@@ -4,88 +4,83 @@
  */
 package com.bendicion.la.carniceria.carniceria.service;
 
-import com.bendicion.la.carniceria.carniceria.domain.Notificacion;
-import com.bendicion.la.carniceria.carniceria.jpa.NotificacionRepository;
-import com.bendicion.la.carniceria.carniceria.jpa.UsuarioRepository;
-import jakarta.transaction.Transactional;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
-/**
- *
- * @author Dilan
- */
+import com.bendicion.la.carniceria.carniceria.domain.Notificacion;
+import com.bendicion.la.carniceria.carniceria.jpa.NotificacionRepository;
+import com.bendicion.la.carniceria.carniceria.jpa.UsuarioRepository;
+
+import jakarta.transaction.Transactional;
 
 @Service
 @Primary
 public class NotificacionService implements INotificacionService {
+
     @Autowired
     private NotificacionRepository notificacionRep;
-private UsuarioRepository usuarioRep;
+    private UsuarioRepository usuarioRep;
+
     @Override
     @Transactional
     public List<Notificacion> getNotificacion(Boolean leidos) {
-    return notificacionRep.listProcedureNotificacion(leidos);
+        return notificacionRep.listProcedureNotificacion(leidos);
     }
-    
-     @Override
-     @Transactional 
+
+    @Override
+    @Transactional
     public boolean leerNotificacion(int id) {
         try {
-          
-            if (!notificacionRep.existsById(id)) { 
+
+            if (!notificacionRep.existsById(id)) {
                 System.err.println("La notificacion : " + id + " no existe.");
                 return false;
             }
 
             System.out.println("leyendo notificacion con ID: " + id);
             notificacionRep.leerNotificacion(id);
-            return true; 
+            return true;
         } catch (Exception e) {
             System.err.println("Error al leer la notificacion con ID: " + id + ". Detalles: " + e.getMessage());
-            return false; // Retorna false en caso de error
+            return false;
         }
     }
-    
-     @Override
-    public boolean deleteNotificacion(int id) {
-    try {
-        System.out.println("Eliminando notificacion con ID: " + id);
-        notificacionRep.deleteProcedureNotificacion(id);
-        return true;
-    } catch (Exception e) {
-        System.err.println("Error al eliminar la notificacion con ID: " + id + ". Detalles: " + e.getMessage());
-        return false;
-    }
-    }
-    
+
     @Override
-public Notificacion addNotificacion(Notificacion notificacion) {
-    System.out.println("Agregando notificación...");
+    public boolean deleteNotificacion(int id) {
+        try {
+            System.out.println("Eliminando notificacion con ID: " + id);
+            notificacionRep.deleteProcedureNotificacion(id);
+            return true;
+        } catch (Exception e) {
+            System.err.println("Error al eliminar la notificacion con ID: " + id + ". Detalles: " + e.getMessage());
+            return false;
+        }
+    }
 
-    notificacion.setLeidos(true);
-    LocalDate fechaActual = LocalDate.now();
-    notificacion.setFechaNotificacion(fechaActual);
+    @Override
+    public Notificacion addNotificacion(Notificacion notificacion) {
+        System.out.println("Agregando notificación...");
 
-    
-    String descripcionNotificacion = String.format(
-        "El cliente ha cancelado su pedido por medio de la aplicación."
-        
-    );
+        notificacion.setLeidos(true);
+        LocalDate fechaActual = LocalDate.now();
+        notificacion.setFechaNotificacion(fechaActual);
 
-    // Guardar con SP
-    notificacionRep.saveProcedureNotificacion(
-        descripcionNotificacion,
-        notificacion.getIdUsuario().getIdUsuario(),
-        fechaActual
-    );
+        String descripcionNotificacion = String.format(
+                "El cliente ha cancelado su pedido por medio de la aplicación."
+        );
 
-    // No se obtiene el ID real del SP si no lo retorna, pero se puede mejorar si es necesario
-    return notificacion;
-}
+        notificacionRep.saveProcedureNotificacion(
+                descripcionNotificacion,
+                notificacion.getIdUsuario().getIdUsuario(),
+                fechaActual
+        );
+
+        return notificacion;
+    }
 
 }

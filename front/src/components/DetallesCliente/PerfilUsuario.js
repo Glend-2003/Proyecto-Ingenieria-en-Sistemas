@@ -23,9 +23,7 @@ const PerfilUsuario = () => {
     primerApellido: true,
     segundoApellido: true
   });
-// Validar teléfono (8 dígitos)
   const validarTelefono = (telefono) => {
-    // Eliminar guiones para la validación
     const telefonoLimpio = telefono.replace(/-/g, "");
     
     if (telefonoLimpio.length !== 8 || !/^\d+$/.test(telefonoLimpio)) {
@@ -60,7 +58,6 @@ const PerfilUsuario = () => {
   useEffect(() => {
     if (usuario) {
       setFormData({ ...usuario });
-      // Formatear la fecha para el input type="date"
       if (usuario.fechaNacimiento) {
         const fecha = new Date(usuario.fechaNacimiento);
         const formattedDate = fecha.toISOString().split('T')[0];
@@ -73,7 +70,6 @@ const PerfilUsuario = () => {
     }
   }, [usuario]);
 
-  // Validación de cédula con la API de Hacienda
   const validarCedula = async (cedula) => {
     if (!cedula || cedula.trim() === "") {
       setFormErrors(prev => ({ ...prev, cedulaUsuario: "La cédula es obligatoria" }));
@@ -103,7 +99,6 @@ const PerfilUsuario = () => {
     }
   };
 
-  // Validación de solo letras para nombre y apellidos
   const validarSoloLetras = (texto, campo) => {
     const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/;
     const esValido = regex.test(texto);
@@ -119,15 +114,10 @@ const PerfilUsuario = () => {
     }
   };
 
-  // Formatear teléfono con el formato 9999-9999
   const formatearTelefono = (telefono) => {
-    // Eliminar cualquier caracter que no sea un dígito
     const telefonoLimpio = telefono.replace(/\D/g, "");
-    
-    // Limitar a 8 dígitos
     const telefonoLimitado = telefonoLimpio.substring(0, 8);
     
-    // Aplicar formato XXXX-XXXX si hay al menos 5 dígitos
     if (telefonoLimitado.length >= 5) {
       return `${telefonoLimitado.substring(0, 4)}-${telefonoLimitado.substring(4)}`;
     } else if (telefonoLimitado.length > 0) {
@@ -140,14 +130,12 @@ const PerfilUsuario = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     
-    // Aplicar formato especial para el teléfono
     if (name === "telefonoUsuario") {
       setFormData({ ...formData, [name]: formatearTelefono(value) });
     } else {
       setFormData({ ...formData, [name]: value });
     }
 
-    // Validaciones en tiempo real
     if (name === "nombreUsuario" || name === "primerApellido" || name === "segundoApellido") {
       validarSoloLetras(value, name);
     }
@@ -161,21 +149,17 @@ const PerfilUsuario = () => {
     let formValido = true;
     let nuevoFormErrors = { ...formErrors };
 
-    // Validar cédula
     if (isEditing) {
       const cedulaValida = await validarCedula(formData.cedulaUsuario);
       if (!cedulaValida) formValido = false;
     }
 
-    // Validar nombre y apellidos
     if (!validarSoloLetras(formData.nombreUsuario, "nombreUsuario")) formValido = false;
     if (!validarSoloLetras(formData.primerApellido, "primerApellido")) formValido = false;
     if (formData.segundoApellido && !validarSoloLetras(formData.segundoApellido, "segundoApellido")) formValido = false;
 
-    // Validar teléfono
     if (!validarTelefono(formData.telefonoUsuario)) formValido = false;
 
-    // Validar fecha de nacimiento
     if (!formData.fechaNacimiento) {
       nuevoFormErrors.fechaNacimiento = "La fecha de nacimiento es obligatoria";
       formValido = false;
@@ -218,7 +202,6 @@ const PerfilUsuario = () => {
       <div className="perfil-usuario-container">
         <SideBarUsuario usuario={usuario} handleLogout={handleLogout} />
 
-        {/* Contenido principal con nuevo diseño */}
         <div className="profile-content">
           <div className="profile-header">
             <h2>Mi Perfil</h2>
@@ -240,7 +223,6 @@ const PerfilUsuario = () => {
                   onClick={() => {
                     setIsEditing(false);
                     if (usuario) setFormData({ ...usuario });
-                    // Resetear errores
                     setFormErrors({
                       cedulaUsuario: "",
                       nombreUsuario: "",
@@ -258,7 +240,6 @@ const PerfilUsuario = () => {
 
             <form onSubmit={handleSubmit} className="profile-form">
               <div className="form-grid">
-                {/* Fila 1 */}
                 <div className="form-group">
                   <label>
                     <FontAwesomeIcon icon={faIdCard} className="input-icon" /> Cédula
@@ -313,7 +294,6 @@ const PerfilUsuario = () => {
                   )}
                 </div>
 
-                {/* Fila 2 */}
                 <div className="form-group">
                   <label>Primer Apellido</label>
                   <div className="input-with-validation">
@@ -359,7 +339,6 @@ const PerfilUsuario = () => {
                   )}
                 </div>
 
-                {/* Fila 3 */}
                 <div className="form-group">
                   <label>
                     <FontAwesomeIcon icon={faPhone} className="input-icon" /> Teléfono
@@ -380,7 +359,6 @@ const PerfilUsuario = () => {
                   )}
                 </div>
 
-                {/* Fila 4 */}
                 <div className="form-group">
                   <label>
                     <FontAwesomeIcon icon={faCalendarAlt} className="input-icon" /> Fecha de Nacimiento

@@ -1,5 +1,8 @@
 package com.bendicion.la.carniceria.carniceria.domain;
 
+import java.math.BigDecimal;
+import java.util.List;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -10,58 +13,49 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 
-import java.math.BigDecimal;
-import java.util.List;
-
-
-/**
- *
- * @author Jamel Sandí
- */
-
-@Entity (name = "tbproducto")
+@Entity(name = "tbproducto")
 public class Producto {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idProducto")
     private int idProducto;
-    
+
     @Column(name = "nombreProducto")
     private String nombreProducto;
-    
+
     @Column(name = "imgProducto")
     private String imgProducto;
-            
+
     @Column(name = "montoPrecioProducto")
     private BigDecimal montoPrecioProducto;
-    
+
     @Column(name = "descripcionProducto")
     private String descripcionProducto;
-    
+
     @Column(name = "cantidadProducto")
     private double cantidadProducto;
-    
+
     @Column(name = "tipoPesoProducto")
     private String tipoPesoProducto;
-    
+
     @Column(name = "codigoProducto")
     private String codigoProducto;
-    
+
     @Column(name = "stockProducto")
     private int stockProducto;
-    
+
     @OneToOne
     @JoinColumn(name = "idCategoria")
     private Categoria categoria;
-    
+
     @Column(name = "estadoProducto")
     private boolean estadoProducto;
-    
+
     @OneToMany(mappedBy = "producto", fetch = FetchType.EAGER)
     private List<Promocion> promociones;
 
-    public Producto(int idProducto, String nombreProducto, String imgProducto, BigDecimal montoPrecioProducto, String descripcionProducto, 
+    public Producto(int idProducto, String nombreProducto, String imgProducto, BigDecimal montoPrecioProducto, String descripcionProducto,
             double cantidadProducto, String tipoPesoProducto, String codigoProducto, int stockProducto, Categoria categoria, boolean estadoProducto) {
         this.idProducto = idProducto;
         this.nombreProducto = nombreProducto;

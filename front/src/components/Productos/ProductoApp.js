@@ -12,7 +12,7 @@ import { Button, Modal, Spinner } from "react-bootstrap";
 import FooterApp from '../Footer/FooterApp';
 import "./Producto.css";
 import PaginacionApp from "../Paginacion/PaginacionApp";
-import useImageUpload from "../../hooks/useImageUpload"; // Asegúrate de que la ruta sea correcta
+import useImageUpload from "../../hooks/useImageUpload"; 
 
 const ProductoApp = () => {
   const [productos, setProductos] = useState([]);
@@ -33,7 +33,6 @@ const ProductoApp = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  // Usar el hook de compresión de imágenes
   const {
     imageFile,
     imagePreview,
@@ -43,17 +42,15 @@ const ProductoApp = () => {
     clearImage,
     maxSizeMB
   } = useImageUpload({
-    maxSizeMB: 5, // 5MB máximo permitido
-    quality: 0.7, // Calidad de compresión (70%)
+    maxSizeMB: 5, 
+    quality: 0.7, 
     onImageSelected: (file, preview) => {
       console.log(`Imagen seleccionada y procesada: ${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)`);
     }
   });
 
-  // Opciones para el combobox de unidad de medida
   const unidadesMedida = ["Ud", "Kg", "Gr", "Lb", "Oz", "Lt", "Ml"];
 
-  // Limpiar recursos cuando el componente se desmonta
   useEffect(() => {
     return () => {
       if (imagePreview) {
@@ -122,7 +119,6 @@ const ProductoApp = () => {
   const agregarProducto = async () => {
     if (!validarCamposProducto()) return;
     
-    // Evitar envío si la imagen está comprimiéndose
     if (isCompressing) {
       toast.info("Por favor espere mientras la imagen se procesa...");
       return;
@@ -153,21 +149,17 @@ const ProductoApp = () => {
         console.log("Respuesta del servidor:", response.data);
         toast.success("Producto agregado con éxito");
         
-        // Limpiar la imagen
         clearImage();
       } catch (error) {
         console.error("Error al agregar producto con imagen:", error);
         
-        // Mostrar detalles del error si existe
         if (error.response) {
           console.error("Respuesta del servidor:", error.response.data);
           console.error("Estado HTTP:", error.response.status);
           
           if (error.response.status === 413) {
-            // Error específico de tamaño máximo excedido
             toast.error(`Error: La imagen es demasiado grande. El servidor acepta un máximo de 10MB.`);
           } else {
-            // Otros errores de respuesta
             const mensaje = error.response.data.message || "Ocurrió un error al agregar el producto";
             toast.error(`Error: ${mensaje} (${error.response.status})`);
           }
@@ -206,7 +198,6 @@ const ProductoApp = () => {
   const actualizarProducto = async () => {
     if (!validarCamposProducto()) return;
     
-    // Evitar envío si la imagen está comprimiéndose
     if (isCompressing) {
       toast.info("Por favor espere mientras la imagen se procesa...");
       return;
@@ -239,7 +230,6 @@ const ProductoApp = () => {
       console.log("Respuesta de actualización:", response.data);
       toast.success("Producto actualizado con éxito");
       
-      // Limpiar la imagen
       clearImage();
       
       cargarProductos();
@@ -307,7 +297,6 @@ const ProductoApp = () => {
   }
 
   const handleShowModal = (producto = null) => {
-    // Limpiar imagen previa al abrir modal
     clearImage();
     
     if (producto) {
@@ -322,11 +311,8 @@ const ProductoApp = () => {
       setIdCategoria(producto.categoria?.idCategoria || "");
       setEstadoProducto(producto.estadoProducto);
 
-      // Si el producto tiene una imagen, establecer una URL de vista previa
       if (producto.imgProducto) {
         const previewURL = `http://localhost:8080/producto/images/${producto.imgProducto}`;
-        // No usamos useImageUpload para manejar la vista previa de imagen existente
-        // solo mostramos la URL como imagen
         setExistingImagePreview(previewURL);
       } else {
         setExistingImagePreview(null);
@@ -347,7 +333,6 @@ const ProductoApp = () => {
     setShowModal(true);
   };
 
-  // Estado para manejar la previsualización de imágenes existentes
   const [existingImagePreview, setExistingImagePreview] = useState(null);
 
   const handleCloseModal = () => {
@@ -363,7 +348,7 @@ const ProductoApp = () => {
     setIdCategoria("");
     setEstadoProducto(1);
     setExistingImagePreview(null);
-    clearImage();  // Limpiar recurso de imagen
+    clearImage(); 
   };
 
   const handleSearchChange = (e) => setSearch(e.target.value);
@@ -553,7 +538,6 @@ const ProductoApp = () => {
                       </div>
                     )}
                     
-                    {/* Previsualización para imágenes existentes (editando un producto) */}
                     {!imagePreview && existingImagePreview && (
                       <div className="producto-img-preview-container">
                         <img

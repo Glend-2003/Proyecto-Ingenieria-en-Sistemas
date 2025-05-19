@@ -1,4 +1,4 @@
-/* Estilos para el componente de notificaciones */
+
 .notificaciones-contenedor {
   position: relative;
   display: inline-block;
@@ -259,7 +259,6 @@
   color: #777;
 }
 
-/* Animación para nuevas notificaciones */
 @keyframes fadeIn {
   from {
       opacity: 0;
@@ -276,7 +275,6 @@
   border-left: 3px solid #007bff;
 }
 
-/* Responsive */
 @media (max-width: 576px) {
   .panel-notificaciones {
       position: fixed;

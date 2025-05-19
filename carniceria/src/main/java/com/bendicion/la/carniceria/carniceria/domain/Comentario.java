@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.bendicion.la.carniceria.carniceria.domain;
 
 import java.time.LocalDateTime;
@@ -16,10 +12,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
-/**
- *
- * @author Dilan Gutierrez
- */
 @Entity(name = "tbcomentario")
 public class Comentario {
 
@@ -36,7 +28,7 @@ public class Comentario {
 
     @ManyToOne
     @JoinColumn(name = "idUsuario")
-    @JsonBackReference 
+    @JsonBackReference
     private Usuario usuario;
 
     @Column(name = "numCalificacion")
@@ -49,7 +41,7 @@ public class Comentario {
 
     }
 
-    public Comentario(int idComentario, String descripcionComentario, LocalDateTime  fechaComentario, Usuario usuario, int numCalificacion, boolean verificacion) {
+    public Comentario(int idComentario, String descripcionComentario, LocalDateTime fechaComentario, Usuario usuario, int numCalificacion, boolean verificacion) {
         this.idComentario = idComentario;
         this.descripcionComentario = descripcionComentario;
         this.fechaComentario = fechaComentario;
@@ -75,11 +67,11 @@ public class Comentario {
         this.descripcionComentario = descripcionComentario;
     }
 
-    public LocalDateTime  getFechaComentario() {
+    public LocalDateTime getFechaComentario() {
         return fechaComentario;
     }
 
-    public void setFechaComentario(LocalDateTime  fechaComentario) {
+    public void setFechaComentario(LocalDateTime fechaComentario) {
         this.fechaComentario = fechaComentario;
     }
 
@@ -111,6 +103,5 @@ public class Comentario {
     public String toString() {
         return "Comentario{" + "idComentario=" + idComentario + ", descripcionComentario=" + descripcionComentario + ", fechaComentario=" + fechaComentario + ", usuario=" + usuario + ", numCalificacion=" + numCalificacion + ", verificacion=" + verificacion + '}';
     }
-    
-    
+
 }

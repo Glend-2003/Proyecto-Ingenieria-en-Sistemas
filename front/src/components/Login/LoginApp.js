@@ -1,6 +1,4 @@
-// src/components/Login/LoginApp.js
 import React, { useState, useEffect } from "react";
-// ... (otros imports necesarios como NavbarApp, FooterApp, CarritoApp (si aún no es global), componentes de contenido)
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Offcanvas } from "react-bootstrap";
@@ -17,18 +15,16 @@ import NavbarApp from "../Navbar/NavbarApp.js";
 import FooterApp from "../Footer/FooterApp.js";
 import { useAppContext } from "../Navbar/AppContext";
 
-// Remueve los imports de Offcanvas, FaEye, FaEyeSlash, etc., si solo se usaban para el Offcanvas de login
 
 function LoginApp({ initialPage = "home" }) {
   const [currentPage, setCurrentPage] = useState(initialPage);
   const location = useLocation();
-  const { addToCart } = useAppContext(); // O useCart si es para el carrito
+  const { addToCart } = useAppContext(); 
 
-  // Sincronizar currentPage con la ruta actual
   useEffect(() => {
     const pathToPage = {
       "/pedido": "pedido",
-      "/historia": "historia", // Si /historia es pública, no necesitaría pasar por LoginApp
+      "/historia": "historia", 
       "/verOrden": "verOrden",
       "/cortes-de-res": "res",
       "/cortes-de-cerdo": "cerdo",
@@ -45,30 +41,20 @@ function LoginApp({ initialPage = "home" }) {
     switch (currentPage) {
       case "pedido":
         return <PedidoCrud />;
-      // case "historia": ya no se maneja aquí si se hizo pública
-      //   return <Historia />;
       case "verOrden":
         return <MostrarOrdenApp />;
-      // Las siguientes rutas ya tienen sus propios componentes de página (ResPagina, CerdoPagina, etc.)
-      // por lo que LoginApp solo debería manejar la ruta "/" o su contenido por defecto.
-      // Si LoginApp es solo para la página de inicio, simplifica este switch.
       case "home":
       default:
-        // Si ListaProductosApp es el contenido principal de "/"
-        return <ListaProductosApp categoria={null} />; // Pasa null o un valor por defecto para la categoría
+        return <ListaProductosApp categoria={null} />; 
     }
   };
 
   return (
     <div className="page-container">
-      {/* NavbarApp se renderiza aquí, y usará el AuthOffcanvas global */}
       <NavbarApp />
 
-      {/* YA NO SE RENDERIZA EL OFFCANVAS DE LOGIN AQUÍ */}
-
-      <main className="flex-grow-1" style={{ marginTop: "0px" }}> {/* Ajusta el marginTop si es necesario */}
+      <main className="flex-grow-1" style={{ marginTop: "0px" }}> 
         {renderMainContent()}
-        {/* CarritoApp también será global, así que no se renderiza aquí tampoco */}
       </main>
       <FooterApp />
     </div>

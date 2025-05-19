@@ -1,23 +1,19 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { AppProvider } from "./components/Navbar/AppContext"; // Removí useAppContext ya que no se usa aquí directamente
+import { AppProvider } from "./components/Navbar/AppContext"; 
 import { CartProvider } from './contexto/ContextoCarrito';
 import "./index.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./components/styles.min.css";
-
-// Componentes Globales y Públicos
 import LoginApp from "./components/Login/LoginApp";
 import Historia from './components/Home/Historia';
 import Registrar from './components/Usuarios/Registrar';
-import ResetPassword from "./components/Login/ResetPasswod"; // Corregí el typo aquí si es 'ResetPassword.js' o .jsx
+import ResetPassword from "./components/Login/ResetPasswod";
 import AuthOffcanvas from './components/Auth/AuthOffcanvas';
 import CarritoApp from './components/Carrito/CarritoApp';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
-// Componentes de Página (Rutas que serán privadas o públicas)
 import Principal from "./components/Principal/principal";
 import Categoria from './components/Categoria/CategoriaApp';
 import Usuarios from './components/Usuarios/GestionarUsuario';
@@ -27,25 +23,17 @@ import PromocionApp from './components/Promocion/PromocionApp';
 import TipoPagoApp from './components/TipoPago/TipoPagoApp';
 import PedidosApp from './components/Pedido/PedidosApp';
 import VentaPedido from './components/ControlVentaPedido/VentaPedido';
-// import ListaProductosApp from './components/Catalogo/ListaProductosApp'; // Ya es parte de LoginApp para "/"
-
-// Componentes de Perfil de Usuario (pueden ser privados para cualquier usuario logueado)
 import PerfilUsuario from './components/DetallesCliente/PerfilUsuario';
 import Dashboard from './components/DetallesCliente/Dashboard';
 import Orders from './components/DetallesCliente/Orders';
 import DireccionUsuario from './components/DetallesCliente/DireccionUsuario';
-
-// Páginas de Categorías de Productos (Públicas)
 import ResPagina from './paginas/ResPagina';
 import CerdoPagina from './paginas/CerdoPagina';
 import PolloPagina from './paginas/PolloPagina';
 import ProductosVariosPagina from './paginas/ProductosVariosPagina';
 import ProductosDestacadosPagina from './paginas/ProductosDestacadosPagina';
+import PrivateRoute from './components/PrivateRoute'; 
 
-// Importa tu PrivateRoute modificado
-import PrivateRoute from './components/PrivateRoute'; // Asegúrate que la ruta sea correcta
-
-// Componente envoltorio para incluir los Offcanvas globales y ToastContainer
 const AppLayout = ({ children }) => {
   return (
     <>
@@ -76,7 +64,6 @@ root.render(
         <Router>
           <AppLayout>
             <Routes>
-              {/* Rutas Públicas */}
               <Route path="/" element={<LoginApp />} />
               <Route path="/historia" element={<Historia />} />
               <Route path="/register" element={<Registrar />} />
@@ -88,8 +75,6 @@ root.render(
               <Route path="/productos-destacados" element={<ProductosDestacadosPagina />} />
               <Route path="/pedido" element={<LoginApp initialPage="pedido" />} />
               <Route path="/verOrden" element={<LoginApp initialPage="verOrden" />} />
-
-              {/* Rutas Privadas para Administrador y Gerente */}
               <Route
                 path="/principal"
                 element={
@@ -162,12 +147,10 @@ root.render(
                   </PrivateRoute>
                 }
               />
-
-              {/* Rutas Privadas para cualquier usuario logueado (Cliente, Gerente, Administrador) */}
               <Route
                 path="/PerfilUsuario"
                 element={
-                  <PrivateRoute> {/* Sin allowedRoles, solo necesita token */}
+                  <PrivateRoute> 
                     <PerfilUsuario />
                   </PrivateRoute>
                 }
@@ -175,7 +158,7 @@ root.render(
               <Route
                 path="/Dashboard"
                 element={
-                  <PrivateRoute> {/* Sin allowedRoles, solo necesita token */}
+                  <PrivateRoute>
                     <Dashboard />
                   </PrivateRoute>
                 }
@@ -183,7 +166,7 @@ root.render(
               <Route
                 path="/DireccionUsuario"
                 element={
-                  <PrivateRoute> {/* Sin allowedRoles, solo necesita token */}
+                  <PrivateRoute> 
                     <DireccionUsuario />
                   </PrivateRoute>
                 }
@@ -191,13 +174,11 @@ root.render(
               <Route
                 path="/Orders"
                 element={
-                  <PrivateRoute> {/* Sin allowedRoles, solo necesita token */}
+                  <PrivateRoute> 
                     <Orders />
                   </PrivateRoute>
                 }
               />
-
-              {/* <Route path="*" element={<Navigate to="/" />} /> */}
             </Routes>
           </AppLayout>
         </Router>

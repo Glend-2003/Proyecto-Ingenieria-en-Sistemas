@@ -1,11 +1,7 @@
 package com.bendicion.la.carniceria.carniceria.service;
-import com.bendicion.la.carniceria.carniceria.domain.Canton;
 import java.util.List;
 
-/**
- *
- * @author Jamel Sandí
- */
+import com.bendicion.la.carniceria.carniceria.domain.Canton;
 
 public interface ICantonService {
     

@@ -7,11 +7,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
-/**
- *
- * @author Jamel Sandí
- */
-
 @Entity
 @Table(name = "tbtipopago")
 public class TipoPago {
@@ -19,8 +14,8 @@ public class TipoPago {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idTipoPago ")
-    private int idTipoPago ;
-    
+    private int idTipoPago;
+
     @Column(name = "descripcionTipoPago")
     private String descripcionTipoPago;
 
@@ -59,5 +54,5 @@ public class TipoPago {
     public void setEstadoTipoPago(boolean estadoTipoPago) {
         this.estadoTipoPago = estadoTipoPago;
     }
-    
+
 }
